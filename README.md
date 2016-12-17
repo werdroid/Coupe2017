@@ -13,3 +13,5 @@ Code principal et moniteur
 - `git checkout fichier123` reset le fichier par celui qui est dans .git
 - `git diff fichier123` fait un différentiel du fichier par rapport à celui dans .git
 
+
+### Petit test de pull
