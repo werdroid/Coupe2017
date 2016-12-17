@@ -1,0 +1,191 @@
+#include "asserv2017.h"
+
+const uint EEPROM_ADDRESS_SELECT = 0;
+const uint EEPROM_ADDRESS_COULEUR = 1;
+const uint EEPROM_ADDRESS_COQUILLAGE = 2;
+const uint EEPROM_ADDRESS_ROULEAUX = 3;
+
+int menu_input_up();
+void match_start();
+void match_changer_couleur();
+void match_changer_coquillage();
+void match_activer_rouleaux();
+
+void menu_start() {
+  int selectLength = 9;
+  int select, start;
+  robot.symmetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
+  robot.coquillage = EEPROM.read(EEPROM_ADDRESS_COQUILLAGE);
+  robot.rouleaux_actifs = EEPROM.read(EEPROM_ADDRESS_ROULEAUX);
+  int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
+  int state_rouleaux = 0;
+  ecran_print_menu(selectPosition);
+
+  do {
+    select = !digitalRead(PIN_DIN_SELECT);
+    start = !digitalRead(PIN_DIN_START);
+
+    if (select && !start) {
+      Serial.println("Select pressed");
+      delay(5);
+      selectPosition = (selectPosition + 1) % selectLength;
+      EEPROM.write(EEPROM_ADDRESS_SELECT, selectPosition);
+      ecran_print_menu(selectPosition);
+      if (menu_input_up()) {
+        Serial.println("Select released long");
+        selectPosition = 0;
+        EEPROM.write(EEPROM_ADDRESS_SELECT, selectPosition);
+        ecran_print_menu(selectPosition);
+      } else {
+        Serial.println("Select released");
+      }
+      continue;
+    }
+
+    if (!select && start) {
+      Serial.println("Start pressed");
+      delay(5);
+      menu_input_up();
+      Serial.println("Start released");
+      switch(selectPosition) {
+        case 0:
+          match_start();
+          break;
+        case 1:
+          match_changer_couleur();
+          ecran_print_menu(selectPosition);
+          break;
+        case 2:
+          if(config.IS_PR) {
+            match_changer_coquillage();
+            ecran_print_menu(selectPosition);
+          }
+          else {
+            if (state_rouleaux == 0) {
+              gr_rouleaux_avaler();
+              state_rouleaux++;
+            } else if (state_rouleaux == 1) {
+              gr_rouleaux_liberer();
+              state_rouleaux++;
+            } else if (state_rouleaux == 2) {
+              gr_rouleaux_stop();
+              state_rouleaux = 0;
+            }
+            delay(100);
+          }
+          break;
+        case 3:
+          tout_droit(mm_vers_ticks(300));
+          ecran_print_menu(selectPosition);
+          break;
+        case 4:
+          /*
+          ecran_console_reset();
+          ecran_console_log("Mode debug");
+
+          localisation_set({x: 0, y: 0, a: 0});
+          asserv_raz_consignes();
+
+          for(;;);
+          */
+          ecran_console_reset();
+          ecran_console_log("Mode debug\n\n");
+          ecran_console_log("Debut dans 5 sec\n\n");
+          ecran_console_log("Relever BAU !\n");
+          delay(3000);
+          if(config.IS_PR)
+            debug_pr();
+          else
+            debug_gr();
+
+          break;
+        case 5:
+          ecran_console_reset();
+          ecran_console_log("Tourner 10x");
+          robot.activeDistance = 0;
+          quadramp_set_1st_order_vars(&robot.ramp_rotation, 60, 60);
+          controle_rotation(MATH_PI * 2 * 10);
+          for(;;);
+          break;
+        case 6:
+          if(config.IS_PR) {
+            ecran_console_reset();
+            ecran_console_log("30cm en avant");
+            robot.activeRotation = 0;
+            quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
+            controle_distance(mm_vers_ticks(300));
+            for(;;);
+          }
+          else {
+            match_activer_rouleaux();
+            ecran_print_menu(selectPosition);
+          }
+          break;
+        case 7:
+          ecran_console_reset();
+          ecran_console_log("Part et revient");
+          asserv_goxy(1000, 0);
+          faire_rotation(MATH_PI * 2);
+          asserv_goxy(0, 0);
+          for(;;);
+          break;
+        case 8:
+          gr_parasol_init();
+          static bool open = 0;
+          if (open) {
+            gr_parasol_fermer();
+            open = 0;
+          } else {
+            gr_parasol_ouvrir();
+            open = 1;
+          }
+          break;
+      }
+    }
+  } while(1);
+}
+
+void menu_print(int selectPosition) {
+  // afficher le menu
+}
+
+// bloque en attendant les entrées à OFF
+int menu_input_up() {
+  uint duration_start = millis();
+
+  do {
+    int select = !digitalRead(PIN_DIN_SELECT);
+    int start = !digitalRead(PIN_DIN_START);
+
+    if (!select && !start) {
+      delay(5);
+      break;
+    }
+  } while(1);
+
+  return (millis() - duration_start) > 1000; // long pressed
+}
+
+void match_start() {
+  if (config.IS_PR) {
+    match_pr();
+  } else {
+    match_gr();
+  }
+}
+
+void match_changer_couleur() {
+  robot.symmetrie = !robot.symmetrie;
+  EEPROM.write(EEPROM_ADDRESS_COULEUR, robot.symmetrie);
+}
+
+void match_changer_coquillage() {
+  robot.coquillage = ((robot.coquillage + 1) % 5);
+  EEPROM.write(EEPROM_ADDRESS_COQUILLAGE, robot.coquillage);
+}
+
+void match_activer_rouleaux() {
+  robot.rouleaux_actifs = !robot.rouleaux_actifs;
+  EEPROM.write(EEPROM_ADDRESS_ROULEAUX, robot.rouleaux_actifs);
+}
+

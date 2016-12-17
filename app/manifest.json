@@ -1,0 +1,18 @@
+{
+  "name": "WeRDroid - Monitor Panel",
+  "description": "Panneau de contrôle du robot",
+  "version": "1.0",
+  "manifest_version": 2,
+  "minimum_chrome_version": "28",
+  "app": {
+    "background": {
+      "scripts": ["background.js"],
+	  "persistent": false
+    }
+  },
+  "permissions": [
+	  "serial"
+	],
+
+  "icons": { "128": "Logo.png" }
+}
