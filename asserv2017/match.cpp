@@ -15,6 +15,8 @@ void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to) {
 
 // Attention, inversion de uniquement_avant et timeout par rapport à asserv_goxy
 // (La logique est : on définit les paramètres de notre consigne avant de définir les conditions d'échec)
+// aller_xy = "Va là intelligement"
+// asserv_goxy = "Va là, stupide"
 // Tous les paramètres sont obligatoires
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives) {
   uint8_t error;
