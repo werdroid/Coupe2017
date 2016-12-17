@@ -14,4 +14,3 @@ Code principal et moniteur
 - `git diff fichier123` fait un différentiel du fichier par rapport à celui dans .git
 
 
-### Petit test de pull
