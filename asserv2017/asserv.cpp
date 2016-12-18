@@ -96,7 +96,7 @@ uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout, uint
   elapsedMillis timer;
   uint8_t result;
 
-  consigneX = mm_vers_ticks(symmetrie_x(consigneX));
+  consigneX = mm_vers_ticks(symetrie_x(consigneX));
   consigneY = mm_vers_ticks(consigneY);
 
   while (1) {
@@ -126,7 +126,7 @@ uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout, uint
 
 // Regarder vers le point indiqué
 uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout) {
-  consigneX = mm_vers_ticks(symmetrie_x(consigneX));
+  consigneX = mm_vers_ticks(symetrie_x(consigneX));
   consigneY = mm_vers_ticks(consigneY);
 
   // le vecteur à faire
@@ -135,14 +135,14 @@ uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout)
 
   float angleVersPoint = atan2(vy, vx); // [-pi, +pi] radians
 
-  robot.sans_symmetrie = 1;
+  robot.sans_symetrie = 1;
   uint8_t ret = asserv_goa(angleVersPoint, timeout);
-  robot.sans_symmetrie = 0;
+  robot.sans_symetrie = 0;
   return ret;
 }
 
-uint8_t asserv_goa(float orientation, uint16_t timeout, uint8_t sans_symmetrie) {
-  return faire_rotation(normalize_radian(symmetrie_a(orientation) - robot.a), timeout);
+uint8_t asserv_goa(float orientation, uint16_t timeout, uint8_t sans_symetrie) {
+  return faire_rotation(normalize_radian(symetrie_a(orientation) - robot.a), timeout);
 }
 
 uint8_t tout_droit(int32_t distance, uint16_t timeout) {

@@ -28,13 +28,13 @@ float degre_en_radian(int32_t degre) {
   return degre * MATH_PI / 180;
 }
 
-int32_t symmetrie_x(int32_t x) {
-  if (robot.sans_symmetrie == 0 && robot.symmetrie) return TABLE_LARGEUR_X - x;
+int32_t symetrie_x(int32_t x) {
+  if (robot.sans_symetrie == 0 && robot.symetrie) return TABLE_LARGEUR_X - x;
   return x;
 }
 
-float symmetrie_a(float a) {
-  if (robot.sans_symmetrie == 0 && robot.symmetrie) return normalize_radian(a + MATH_PI);
+float symetrie_a(float a) {
+  if (robot.sans_symetrie == 0 && robot.symetrie) return normalize_radian(a + MATH_PI);
   return a;
 }
 
@@ -45,7 +45,7 @@ float symmetrie_a(float a) {
 Point point(const Point point_original) {
   Point p;
 
-  if (robot.symmetrie) {
+  if (robot.symetrie) {
     p.x = mm_vers_ticks(TABLE_LARGEUR_X - point_original.x);
     p.y = mm_vers_ticks(point_original.y);
   } else {

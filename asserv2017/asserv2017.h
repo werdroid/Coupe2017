@@ -82,8 +82,8 @@ struct quadramp_filter {
 };
 
 typedef struct {
-  uint8_t symmetrie; // 0=violet 1=vert
-  bool sans_symmetrie; // 1=on fait pas les symmétries
+  uint8_t symetrie; // 0=violet 1=vert
+  bool sans_symetrie; // 1=on fait pas les symmétries
   uint8_t coquillage;
   bool rouleaux_actifs;
 
@@ -186,8 +186,8 @@ int32_t radian_vers_orientation(float distance);
 float orientation_vers_radian(int32_t orientation);
 int32_t radian_en_degre(float radian);
 float degre_en_radian(int32_t degre);
-int32_t symmetrie_x(int32_t x);
-float symmetrie_a(float a);
+int32_t symetrie_x(int32_t x);
+float symetrie_a(float a);
 
 // General
 void synchronisation();
@@ -240,7 +240,6 @@ void tone_setup();
 void tone_loop();
 void tone_play_start();
 void tone_play_alert();
-void tone_play_error();
 void tone_play_end();
 
 // Moteurs
@@ -270,7 +269,7 @@ uint8_t faire_rotation(float rotation_rad, uint16_t timeout = 0);
 uint8_t consignesXY(int32_t consigneX, int32_t consigneY, uint16_t uniquement_avant = 0);
 void consignesOrbite(int32_t consigneX, int32_t consigneY);
 uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0, uint16_t uniquement_avant = 0);
-uint8_t asserv_goa(float orientation, uint16_t timeout = 5000, uint8_t sans_symmetrie = 0);
+uint8_t asserv_goa(float orientation, uint16_t timeout = 5000, uint8_t sans_symetrie = 0);
 uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0);
 
 // Communication

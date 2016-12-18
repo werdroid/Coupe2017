@@ -49,7 +49,7 @@ void ecran_print_menu(int selector) {
     "\n\n   Servo parasol    "
   };
 
-  if (robot.symmetrie) {
+  if (robot.symetrie) {
     optionsMenu[1] = "\n\n   Couleur:     VERT";
     couleur_robot = ST7735_GREEN;
   } else {

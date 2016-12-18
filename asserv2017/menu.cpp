@@ -14,7 +14,7 @@ void match_activer_rouleaux();
 void menu_start() {
   int selectLength = 9;
   int select, start;
-  robot.symmetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
+  robot.symetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
   robot.coquillage = EEPROM.read(EEPROM_ADDRESS_COQUILLAGE);
   robot.rouleaux_actifs = EEPROM.read(EEPROM_ADDRESS_ROULEAUX);
   int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
@@ -175,8 +175,8 @@ void match_start() {
 }
 
 void match_changer_couleur() {
-  robot.symmetrie = !robot.symmetrie;
-  EEPROM.write(EEPROM_ADDRESS_COULEUR, robot.symmetrie);
+  robot.symetrie = !robot.symetrie;
+  EEPROM.write(EEPROM_ADDRESS_COULEUR, robot.symetrie);
 }
 
 void match_changer_coquillage() {

@@ -7,9 +7,9 @@ static float rotation_initiale = 0; // rad
 void localisation_set(Position position) { // mm en entrée
   localisation_loop(); // N-1
 
-  robot.x = mm_vers_ticks(symmetrie_x(position.x));
+  robot.x = mm_vers_ticks(symetrie_x(position.x));
   robot.y = mm_vers_ticks(position.y);
-  rotation_initiale = symmetrie_a(position.a) - robot.a; // On fait un tare en donnant l'angle
+  rotation_initiale = symetrie_a(position.a) - robot.a; // On fait un tare en donnant l'angle
 
   localisation_loop(); // N, delta est à 0 car on a pas bougé
 }
@@ -42,17 +42,17 @@ void localisation_loop() {
 
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
   if(x1 > x2 || y1 > y2) {
-    tone_play_error();
+    tone_play_alert();
     Serial.println("############### Erreur : paramètres de robot_dans_zone mal définis.");
   }
 
-  if(!robot.symmetrie)
+  if(!robot.symetrie)
     return (robot.xMm >= x1 && robot.xMm <= x2) && (robot.yMm >= y1 && robot.yMm <= y2);
   else
-    return (robot.xMm <= symmetrie_x(x1) && robot.xMm >= symmetrie_x(x2) && (robot.yMm >= y1 && robot.yMm <= y2));
+    return (robot.xMm <= symetrie_x(x1) && robot.xMm >= symetrie_x(x2) && (robot.yMm >= y1 && robot.yMm <= y2));
 
   // Ne peut-on pas se contenter d'un
-  // return (symmetrie_x(robot.xMm) >= x1 && symmetrie_x(robot.xMm) <= x2) && (robot.yMm >= y1 && robot.yMm <= y2));
+  // return (symetrie_x(robot.xMm) >= x1 && symetrie_x(robot.xMm) <= x2) && (robot.yMm >= y1 && robot.yMm <= y2));
   // ? (trop tard pour tester maintenant)
 
 }

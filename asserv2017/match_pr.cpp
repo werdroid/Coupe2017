@@ -149,7 +149,7 @@ uint8_t tache_cabine_pr(uint8_t depart) {
       Serial.println("-------- On se recale en X apres cabine 1");
       asserv_goa_point(0, 300);
       aller_xy(0, 300, 50, 0, 1000, 2);
-      robot.x = mm_vers_ticks(symmetrie_x(80));
+      robot.x = mm_vers_ticks(symetrie_x(80));
       aller_xy(470, 300, 100, 0, 0, 2);
 
       break;
@@ -235,9 +235,9 @@ uint8_t tache_poissons(uint8_t depart, bool virer_patrick) {
 
 
       Serial.println("-------- Préparation de la pêche");
-      robot.sans_symmetrie = 1;
+      robot.sans_symetrie = 1;
       asserv_goa(0); // alignement avant de déployer la canne
-      robot.sans_symmetrie = 0;
+      robot.sans_symetrie = 0;
 
       canne_baisser();
 
@@ -273,17 +273,17 @@ uint8_t tache_poissons(uint8_t depart, bool virer_patrick) {
       // devant le filet au plus proche
       error = aller_xy(1120, 1865, 60, 1, 5000, 3);
 
-      robot.sans_symmetrie = 1;
+      robot.sans_symetrie = 1;
       asserv_goa(0); // prêt à larguer les poissons
-      robot.sans_symmetrie = 0;
+      robot.sans_symetrie = 0;
 
       canne_baisser();
 
       definir_vitesse_rotation(100);
-      robot.sans_symmetrie = 1;
-      if (robot.symmetrie)  asserv_goa(1.51); // largage par rotation vers +pi/2
+      robot.sans_symetrie = 1;
+      if (robot.symetrie)  asserv_goa(1.51); // largage par rotation vers +pi/2
       else                  asserv_goa(-1.51); // largage par rotation vers -pi/2
-      robot.sans_symmetrie = 0;
+      robot.sans_symetrie = 0;
 
 
       if(error) {
@@ -619,7 +619,7 @@ void match_pr() {
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
 
-  if(robot.symmetrie) {
+  if(robot.symetrie) {
     ecran_console_log("Couleur : VERT\n");
   }
   else {

@@ -151,7 +151,7 @@ void match_gr() {
   ecran_console_reset();
   ecran_console_log("Match GR\n\n");
 
-  if(robot.symmetrie) {
+  if(robot.symetrie) {
     ecran_console_log("Couleur : VERT\n\n");
   }
   else {
@@ -190,9 +190,9 @@ void match_gr() {
   // error = asserv_goxy(300, 300, 10000, 1);
   // if (error) goto fin_match;
 
-  // robot.sans_symmetrie = 1;
+  // robot.sans_symetrie = 1;
   // asserv_goa(MATH_PI2);
-  // robot.sans_symmetrie = 0;
+  // robot.sans_symetrie = 0;
 
   // asserv_goxy(300, 0, 2000);
 

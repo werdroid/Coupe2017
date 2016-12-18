@@ -37,10 +37,6 @@ void tone_play_alert() {
   position = alert_music;
 }
 
-void tone_play_error() {
-  tone_play_alert(); // Temporaire, le temps de composer une tonalité d'erreur
-}
-
 void tone_play_end() {
   position = end_music;
 }
