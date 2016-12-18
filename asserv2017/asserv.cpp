@@ -70,8 +70,8 @@ uint8_t consignesXY(int32_t consigneX, int32_t consigneY, uint16_t uniquement_av
    * distance seule tant que D1 > d > D2
    */
 
-  int D1 = mm_vers_ticks(200); // rayon sans rotation
-  int D2 = mm_vers_ticks(30); // rayon marge d'erreur distance
+  int D1 = mm2tick(200); // rayon sans rotation
+  int D2 = mm2tick(30); // rayon marge d'erreur distance
   uint8_t result = AUTRE;
 
   if (erreurNorme < D2) {
@@ -96,8 +96,8 @@ uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout, uint
   elapsedMillis timer;
   uint8_t result;
 
-  consigneX = mm_vers_ticks(symetrie_x(consigneX));
-  consigneY = mm_vers_ticks(consigneY);
+  consigneX = mm2tick(symetrie_x(consigneX));
+  consigneY = mm2tick(consigneY);
 
   while (1) {
     synchronisation();
@@ -126,8 +126,8 @@ uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout, uint
 
 // Regarder vers le point indiqué
 uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout) {
-  consigneX = mm_vers_ticks(symetrie_x(consigneX));
-  consigneY = mm_vers_ticks(consigneY);
+  consigneX = mm2tick(symetrie_x(consigneX));
+  consigneY = mm2tick(consigneY);
 
   // le vecteur à faire
   int32_t vx = consigneX - robot.x;
@@ -152,7 +152,7 @@ uint8_t tout_droit(int32_t distance, uint16_t timeout) {
   while (1) {
     synchronisation();
     int32_t erreur = abs(robot.distance - robot.consigneDistance);
-    int32_t marge_distance = 20 * config.ASSERV_COEFF_TICKS_PAR_MM;
+    int32_t marge_distance = mm2tick(20);
 
     if (erreur <= marge_distance) {
       delay(200);

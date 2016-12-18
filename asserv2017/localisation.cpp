@@ -7,8 +7,8 @@ static float rotation_initiale = 0; // rad
 void localisation_set(Position position) { // mm en entrée
   localisation_loop(); // N-1
 
-  robot.x = mm_vers_ticks(symetrie_x(position.x));
-  robot.y = mm_vers_ticks(position.y);
+  robot.x = mm2tick(symetrie_x(position.x));
+  robot.y = mm2tick(position.y);
   rotation_initiale = symetrie_a(position.a) - robot.a; // On fait un tare en donnant l'angle
 
   localisation_loop(); // N, delta est à 0 car on a pas bougé
@@ -31,8 +31,8 @@ void localisation_loop() {
   robot.y += dy;
   robot.a = normalize_radian(orientation_vers_radian(robot.rotation));
 
-  robot.xMm = ticks_vers_mm(robot.x);
-  robot.yMm = ticks_vers_mm(robot.y);
+  robot.xMm = tick2mm(robot.x);
+  robot.yMm = tick2mm(robot.y);
 
   // Sauve pour la prochaine fois
   distance_precedente = robot.distance;

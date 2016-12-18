@@ -149,7 +149,7 @@ uint8_t tache_cabine_pr(uint8_t depart) {
       Serial.println("-------- On se recale en X apres cabine 1");
       asserv_goa_point(0, 300);
       aller_xy(0, 300, 50, 0, 1000, 2);
-      robot.x = mm_vers_ticks(symetrie_x(80));
+      robot.x = mm2tick(symetrie_x(80));
       aller_xy(470, 300, 100, 0, 0, 2);
 
       break;
@@ -201,7 +201,7 @@ uint8_t tache_poissons(uint8_t depart, bool virer_patrick) {
       if(error == OK) { // Ici : logique inversée : s'il n'y a PAS d'erreur, on se recale
         error = aller_xy(470, 2000, 50, 1, 600, 2);
         if(error == ERROR_TIMEOUT) {  // Si c'est OK ou qu'il a détecté un obstacle, ne pas se recaler !
-          robot.y = mm_vers_ticks(1923);
+          robot.y = mm2tick(1923);
           Serial.println("...Ok");
         }
         aller_xy(470, 1840, 100, 0, 0, 2);

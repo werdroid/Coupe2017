@@ -75,7 +75,7 @@ void menu_start() {
           }
           break;
         case 3:
-          tout_droit(mm_vers_ticks(300));
+          tout_droit(mm2tick(300));
           ecran_print_menu(selectPosition);
           break;
         case 4:
@@ -113,7 +113,7 @@ void menu_start() {
             ecran_console_log("30cm en avant");
             robot.activeRotation = 0;
             quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
-            controle_distance(mm_vers_ticks(300));
+            controle_distance(mm2tick(300));
             for(;;);
           }
           else {

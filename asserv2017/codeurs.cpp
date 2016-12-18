@@ -28,7 +28,7 @@ void codeurs_sync() {
   int32_t gauche = -codeurs.left() + gauche_correction;
   int32_t droite = codeurs.right() + droite_correction;
 
-  if (abs(gauche - gauche_precedent) > mm_vers_ticks(200) || abs(droite - droite_precedent) > mm_vers_ticks(200)) {
+  if (abs(gauche - gauche_precedent) > mm2tick(200) || abs(droite - droite_precedent) > mm2tick(200)) {
     Serial.println("---------- Défaut de codeurs détecté (et compensé)");
     Serial.print("G: ");
     Serial.print(gauche_precedent);

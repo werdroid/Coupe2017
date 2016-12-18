@@ -4,11 +4,11 @@
 // Utils
 // ####################################
 
-int32_t mm_vers_ticks(int32_t distance) {
+int32_t mm2tick(int32_t distance) {
   return distance * config.ASSERV_COEFF_TICKS_PAR_MM;
 }
 
-int32_t ticks_vers_mm(int32_t distance) {
+int32_t tick2mm(int32_t distance) {
   return distance / config.ASSERV_COEFF_TICKS_PAR_MM;
 }
 
@@ -46,11 +46,11 @@ Point point(const Point point_original) {
   Point p;
 
   if (robot.symetrie) {
-    p.x = mm_vers_ticks(TABLE_LARGEUR_X - point_original.x);
-    p.y = mm_vers_ticks(point_original.y);
+    p.x = mm2tick(TABLE_LARGEUR_X - point_original.x);
+    p.y = mm2tick(point_original.y);
   } else {
-    p.x = mm_vers_ticks(point_original.x);
-    p.y = mm_vers_ticks(point_original.y);
+    p.x = mm2tick(point_original.x);
+    p.y = mm2tick(point_original.y);
   }
   // Math.PI - this.a pour une position
 
