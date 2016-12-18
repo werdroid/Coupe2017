@@ -20,11 +20,11 @@ float orientation_vers_radian(int32_t orientation) {
   return orientation / config.ASSERV_COEFF_TICKS_PAR_RADIAN;
 }
 
-int32_t radian_en_degre(float radian) {
+int32_t rad2deg(float radian) {
   return radian * 180 / MATH_PI;
 }
 
-float degre_en_radian(int32_t degre) {
+float deg2rad(int32_t degre) {
   return degre * MATH_PI / 180;
 }
 

@@ -23,7 +23,7 @@ void monitorPosition() {
   Sp(",\"angleRad\":");
   Sp(robot.a);
   Sp(",\"angleDeg\":");
-  Sp(radian_en_degre(robot.a));
+  Sp(rad2deg(robot.a));
   Serial.println();
 }
 

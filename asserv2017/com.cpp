@@ -57,7 +57,7 @@ void printPosition() {
   Sp(", angle=");
   Sp(robot.a);
   Sp("(");
-  Sp(radian_en_degre(robot.a));
+  Sp(rad2deg(robot.a));
   Sp(")");
   Serial.println();
 }

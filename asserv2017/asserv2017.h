@@ -180,8 +180,8 @@ int32_t mm2tick(int32_t distance);
 int32_t tick2mm(int32_t distance);
 int32_t radian_vers_orientation(float distance);
 float orientation_vers_radian(int32_t orientation);
-int32_t radian_en_degre(float radian);
-float degre_en_radian(int32_t degre);
+int32_t rad2deg(float radian);
+float deg2rad(int32_t degre);
 int32_t symetrie_x(int32_t x);
 float symetrie_a(float a);
 
