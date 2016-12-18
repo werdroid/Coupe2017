@@ -1,7 +1,6 @@
 - sortie com sur br ou usb (en fonction de l'état de usb)
 - multiplexage de la com entre les deux process RT et MAIN
 - symmetrie -> symetrie
-- buzzer -> tone
 - tone_error à supp
 - réparer l'horloge et corriger la fonction match_termine(), ajout fonction match_temps_restant()
 - ASSERV_COEFF_TICKS_PAR_MM tick2mm() et mm2tick()
