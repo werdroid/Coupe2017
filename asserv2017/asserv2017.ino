@@ -36,7 +36,6 @@ IntervalTimer timer;
 #define miso 12 // MISO can be pin 12 or 8
 
 void setup() {
-  point(POINT_DEPART);
   Serial.begin(9600);
   // https://www.pjrc.com/teensy/td_libs_SPI.html
   SPI.setSCK(sclk);

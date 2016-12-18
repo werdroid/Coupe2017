@@ -173,11 +173,7 @@ volatile extern uint8_t lock_loop;
  * Functions prototypes
  *----------------------------------------------------------------------------*/
 
-const Point POINT_DEPART = {0,0};
-
 // Utils
-Point point(const Point p);
-Point creer_point_mm(int32_t x, int32_t y);
 int32_t low_pass(int32_t valeur_precedente, int32_t valeur, float coeff);
 float normalize_radian(float a);
 int32_t mm2tick(int32_t distance);

@@ -38,25 +38,6 @@ float symetrie_a(float a) {
   return a;
 }
 
-/* Point en unité mm
- * Retourne un point en unité robot avec ou sans symérie
- */
-
-Point point(const Point point_original) {
-  Point p;
-
-  if (robot.symetrie) {
-    p.x = mm2tick(TABLE_LARGEUR_X - point_original.x);
-    p.y = mm2tick(point_original.y);
-  } else {
-    p.x = mm2tick(point_original.x);
-    p.y = mm2tick(point_original.y);
-  }
-  // Math.PI - this.a pour une position
-
-  return p;
-}
-
 int32_t low_pass(int32_t valeur_precedente, int32_t valeur, float coeff) {
   return valeur_precedente + coeff * (valeur - valeur_precedente);
 }
