@@ -1,7 +1,6 @@
 - sortie com sur br ou usb (en fonction de l'état de usb)
 - multiplexage de la com entre les deux process RT et MAIN
 - réparer l'horloge et corriger la fonction match_termine(), ajout fonction match_temps_restant()
-- ASSERV_COEFF_TICKS_PAR_MM tick2mm() et mm2tick()
 - clean de definir_vitesse_avance() et definir_vitesse_rotation()
 - prefixer les fichiers bas niveau de haut niveau de Rémi pour simuler des dossiers
 - documenter les fonctions utilitaires usuelles: elapsedMillis(), la fonction temps, et autres fonctions pour Rémi
