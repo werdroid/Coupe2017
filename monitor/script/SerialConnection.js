@@ -128,7 +128,7 @@ SerialConnection.prototype.disconnect = function() {
   chrome.serial.onReceiveError.removeListener(this.boundOnReceiveError);
   
   serial.disconnect(this.connectionId, function() {
-    logStatutSerial(that.name + ' déconnecté');	
+    logStatutSerial(that.name + ' déconnecté');  
     that.onDisconnect.dispatch();
     
     if(typeof(callback) === 'function')
@@ -148,52 +148,52 @@ var getDevices = function() {
     }
     else {
       logStatutSerial(list.length + ' ports disponibles.');
-	  genererSelectSerial(list);
+    genererSelectSerial(list);
     }
   });
   
 };
 
 var genererSelectSerial = function(ports) {
-	var select = [document.getElementById('serialSelect0'),
-				document.getElementById('serialSelect1')];
-	
-	select[0].appendChild(creerOption('Non connecté', 'disconnect'));
-	select[1].appendChild(creerOption('Non connecté', 'disconnect'));
-	
-	var texte, value;
-	for(var i = 0; i < ports.length; i++) {
-		texte = ports[i].path + ' - ' + ports[i].displayName;
-		value = ports[i].path;
-		select[0].appendChild(creerOption(texte, value));
-		select[1].appendChild(creerOption(texte, value));
-	}
-	
-	
-	select[0].addEventListener('change', function() {
+  var select = [document.getElementById('serialSelect0'),
+        document.getElementById('serialSelect1')];
+  
+  select[0].appendChild(creerOption('Non connecté', 'disconnect'));
+  select[1].appendChild(creerOption('Non connecté', 'disconnect'));
+  
+  var texte, value;
+  for(var i = 0; i < ports.length; i++) {
+    texte = ports[i].path + ' - ' + ports[i].displayName;
+    value = ports[i].path;
+    select[0].appendChild(creerOption(texte, value));
+    select[1].appendChild(creerOption(texte, value));
+  }
+  
+  
+  select[0].addEventListener('change', function() {
     var port = this.value;
-		if(port == 'disconnect') {
-			connection0.disconnect();
+    if(port == 'disconnect') {
+      connection0.disconnect();
     }
-		else {
-			if(select[1].value == port) {
-				select[1].value = 'disconnect';
+    else {
+      if(select[1].value == port) {
+        select[1].value = 'disconnect';
         connection1.disconnect(function() {
           connection0.connect(port);
         });
       }
       else {
         connection0.connect(port);
-			}
-		}
-	});
-	select[1].addEventListener('change', function() {
+      }
+    }
+  });
+  select[1].addEventListener('change', function() {
     var port = this.value;
-		if(port == 'disconnect')
-			connection1.disconnect();
-		else {
-			if(select[0].value == port) {
-				select[0].value = 'disconnect';
+    if(port == 'disconnect')
+      connection1.disconnect();
+    else {
+      if(select[0].value == port) {
+        select[0].value = 'disconnect';
         connection0.disconnect(function() {
           connection1.connect(port);
         });
@@ -201,16 +201,16 @@ var genererSelectSerial = function(ports) {
       else {
         connection1.connect(port);
       }
-		}
-	});
+    }
+  });
 }
 
 var creerOption = function(texte, value) {
-	var option = document.createElement('option');
-	var txt = document.createTextNode(texte);
-	option.value = value;
-	option.appendChild(txt);
-	return option;
+  var option = document.createElement('option');
+  var txt = document.createTextNode(texte);
+  option.value = value;
+  option.appendChild(txt);
+  return option;
 }
 
 
@@ -229,10 +229,10 @@ connection1.onReadLine.addListener(function(line) {
 });
 
 connection0.onError.addListener(function(erreur) {
-	document.getElementById('serialSelect0').value = 'disconnect';
+  document.getElementById('serialSelect0').value = 'disconnect';
 });
 connection1.onError.addListener(function(erreur) {
-	document.getElementById('serialSelect1').value = 'disconnect';
+  document.getElementById('serialSelect1').value = 'disconnect';
 });
 
 
@@ -243,21 +243,21 @@ var logStatutSerial = function(msg) {
 
 
 document.getElementById('bReconnecter').addEventListener('click', function() {
-	if(document.getElementById('serialSelect0').value != 'disconnect') {
-		connection0.disconnect(function() {
-			connection0.connect(document.getElementById('serialSelect0').value);
-		});
-	}
-	if(document.getElementById('serialSelect1').value != 'disconnect') {
-		connection1.disconnect(function() {
-			connection1.connect(document.getElementById('serialSelect1').value);
-		});
-	}
+  if(document.getElementById('serialSelect0').value != 'disconnect') {
+    connection0.disconnect(function() {
+      connection0.connect(document.getElementById('serialSelect0').value);
+    });
+  }
+  if(document.getElementById('serialSelect1').value != 'disconnect') {
+    connection1.disconnect(function() {
+      connection1.connect(document.getElementById('serialSelect1').value);
+    });
+  }
 });
 
 
 getDevices();
 connection0.connect('COM10');
 setTimeout(function() {
-	connection1.connect('COM7');
+  connection1.connect('COM7');
 }, 1000);

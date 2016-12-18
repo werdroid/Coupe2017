@@ -19,6 +19,9 @@ section {
 	flex: none;
 }
 
+/*#table {
+	border: 1px solid red;
+}*/
 .flottant_table {
 	position: absolute;
 	opacity: 0;
@@ -54,6 +57,7 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 #sTable {
 	/*width: 805px;*/
 	/*height: 540px;*/
+  flex: 0 0 770px;
 }
 #blocTable {
 	position: relative;
@@ -61,7 +65,8 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 }
 #sRobot0, #sRobot1 {
 	flex: 1 0 140px; /* Se répartissent l'espace restant sans pouvoir se réduire, avec une base de 140px */
-	display: flex;
+	overflow: hidden;
+  display: flex;
 	flex-direction: column;
 }
 
@@ -84,12 +89,19 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 #sLogMonitor {
   flex: 1 0 auto;
 }
+#infosMatch {
+  column-count: 2;
+  min-width: 600px;
+}
 #sActionsMonitor {
 	flex: 0;
 	display: flex;
 	flex-direction: column;
 }
 
+#conteneurCurseurPlageMatch {
+  padding: 10px;
+}
 
 /********************/
 
