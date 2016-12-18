@@ -26,27 +26,27 @@ void menu_start() {
     start = !digitalRead(PIN_DIN_START);
 
     if (select && !start) {
-      Serial.println("Select pressed");
+      com_log_println("Select pressed");
       delay(5);
       selectPosition = (selectPosition + 1) % selectLength;
       EEPROM.write(EEPROM_ADDRESS_SELECT, selectPosition);
       ecran_print_menu(selectPosition);
       if (menu_input_up()) {
-        Serial.println("Select released long");
+        com_log_println("Select released long");
         selectPosition = 0;
         EEPROM.write(EEPROM_ADDRESS_SELECT, selectPosition);
         ecran_print_menu(selectPosition);
       } else {
-        Serial.println("Select released");
+        com_log_println("Select released");
       }
       continue;
     }
 
     if (!select && start) {
-      Serial.println("Start pressed");
+      com_log_println("Start pressed");
       delay(5);
       menu_input_up();
-      Serial.println("Start released");
+      com_log_println("Start released");
       switch(selectPosition) {
         case 0:
           match_start();

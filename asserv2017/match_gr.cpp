@@ -16,7 +16,7 @@ Servo servo_parasol;
 
 // Le côté de la grosse dune
 void grosse_dune_1() {
-  Serial.println("Attaque du côté de la grosse dune");
+  com_log_println("Attaque du côté de la grosse dune");
 
   // Se positionne
   aller_xy(1150, 300, 100, 1, 5000, 5);
@@ -36,7 +36,7 @@ void grosse_dune_1() {
 
 // Le milieu de la grosse dune
 void grosse_dune_2() {
-  Serial.println("Attaque de la grosse dune par le milieu");
+  com_log_println("Attaque de la grosse dune par le milieu");
 
   // Se positionne
   aller_xy(1250, 300, 50, 0, 5000, 5);
@@ -57,7 +57,7 @@ void grosse_dune_suite() {
 }
 
 void petite_dune1() {
-  Serial.println("Attaque de la petite dune");
+  com_log_println("Attaque de la petite dune");
   // Positionnement
   aller_xy(1100, 400, 50, 0, 2000, 5);
 
@@ -81,7 +81,7 @@ void liberer_cubes() {
 
   // Penser à s'éloigner de la dune avant !
 
-  Serial.println("Libération des cubes");
+  com_log_println("Libération des cubes");
 
   // On se positionne
   aller_xy(1200, 500, 50, 0, 3000, 8);
@@ -200,26 +200,26 @@ void match_gr() {
   //delay(40000);
 
 
-  Serial.println("Sort de la zone de départ");
+  com_log_println("Sort de la zone de départ");
   error = aller_xy(350, 750, 100, 1, 5000, 5);
 
-  Serial.println("Direction : les cabines");
+  com_log_println("Direction : les cabines");
   error = aller_xy(450, 300, 100, 1, 5000, 5);
 
   asserv_goa_point(450, 2000, 1000);
 
-  Serial.println("Fermeture des portes");
+  com_log_println("Fermeture des portes");
   error = aller_xy(450, 0, 120, 0, 1000, 3);
 
   error = aller_xy(450, 400, 50, 1, 3000, 3);
-  Serial.println("Et de deux");
+  com_log_println("Et de deux");
   error = aller_xy(600, 0, 120, 0, 1000, 3);
 
 
 
 
 
-  Serial.println("Direction : les dunes");
+  com_log_println("Direction : les dunes");
   aller_xy(450, 480, 100, 1, 5000, 8);
   aller_xy(800, 480, 100, 1, 5000, 8);
 
@@ -272,7 +272,7 @@ fin_match:
 
 void funny_action() {
   gr_rouleaux_stop();
-  Serial.println("Fin de match, funny action !");
+  com_log_println("Fin de match, funny action !");
   gr_parasol_init();
   gr_parasol_ouvrir();
   delay(800);
@@ -302,7 +302,7 @@ void gr_parasol_ouvrir() {
 
 
 void gr_rouleaux_liberer() {
-  Serial.println("Rouleaux : libérer");
+  com_log_println("Rouleaux : libérer");
   pinMode(29, OUTPUT);
   pinMode(30, OUTPUT);
   pinMode(31, OUTPUT);
@@ -315,7 +315,7 @@ void gr_rouleaux_liberer() {
   }
 }
 void gr_rouleaux_avaler() {
-  Serial.println("Rouleaux : Avaler");
+  com_log_println("Rouleaux : Avaler");
   pinMode(29, OUTPUT);
   pinMode(30, OUTPUT);
   pinMode(31, OUTPUT);
@@ -328,7 +328,7 @@ void gr_rouleaux_avaler() {
   }
 }
 void gr_rouleaux_stop() {
-  Serial.println("Rouleaux : Stop");
+  com_log_println("Rouleaux : Stop");
   pinMode(29, OUTPUT);
   pinMode(30, OUTPUT);
   pinMode(31, OUTPUT);

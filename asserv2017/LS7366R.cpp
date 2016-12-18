@@ -2,6 +2,7 @@
 // Author Vladimir Kosmala
 
 #include "LS7366R.h"
+#include "asserv2017.h"
 
 // Constructors ////////////////////////////////////////////////////////////////
 
@@ -105,8 +106,8 @@ void LS7366R::sync()
 
   long mask = 0xFFFF0000;
   if ((count & mask) == 16711680 || (count & mask) == -16777216) {
-    Serial.print("anomalie sur le codeur droit ");
-    Serial.println(count);
+    com_log_print("anomalie sur le codeur droit ");
+    com_log_println(count);
   }
 }
 

@@ -25,13 +25,13 @@ void ecran_console_log(const char* message) {
   //SPIFIFO.begin(ecran_cs, SPI_CLOCK_4MHz);
   tft.setTextColor(ST7735_WHITE);
   tft.print(message);
-  Serial.print(message);
+  com_log_print(message);
 }
 
 void ecran_console_error(const char* message) {
   tft.setTextColor(ST7735_RED);
   tft.print(message);
-  Serial.print(message);
+  com_log_print(message);
 }
 
 void ecran_print_menu(int selector) {

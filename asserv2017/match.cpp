@@ -38,14 +38,14 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     // Il faudrait gérer différemment le cas où on a 5 erreurs TIMEOUT vs 5 erreurs OBSTACLE vs 3 TIMEOUT + 2 OBSTACLE, etc.
     /*if((error == ERROR_OBSTACLE || error == ERROR_TIMEOUT) && tentatives >= 2) {
       if(!match_termine()) {  // Il serait mieux de gérer ça dans tout_droit() (c'est peut-être déjà le cas ?)
-        Serial.println("--- Reculer");
+        com_log_println("--- Reculer");
         error2 = tout_droit(-200, 1000);  // Ca recule, mais pas de la distance voulue...
         if(error2 == OK) { // Mis ici pour ne pas modifier asserv.cpp
           asserv_raz_consignes();
-          Serial.println(":)");
+          com_log_println(":)");
         }
         else {
-          Serial.println(":(");
+          com_log_println(":(");
         }
       }
     }
@@ -57,37 +57,37 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     if(!config.IS_PR) {
       funny_action();
     }
-    Serial.print("! Déplacement vers ");
-    Serial.print(x);
-    Serial.print(";");
-    Serial.print(y);
-    Serial.print(" abandonné (fin du match)");
+    com_log_print("! Déplacement vers ");
+    com_log_print(x);
+    com_log_print(";");
+    com_log_print(y);
+    com_log_print(" abandonné (fin du match)");
   }
 
   if(error != OK) {
-    Serial.print("! Déplacement vers ");
-    Serial.print(x);
-    Serial.print(";");
-    Serial.print(y);
-    Serial.print(" abandonné");
+    com_log_print("! Déplacement vers ");
+    com_log_print(x);
+    com_log_print(";");
+    com_log_print(y);
+    com_log_print(" abandonné");
     if(error == ERROR_TIMEOUT) {
-      Serial.print(" (timeout ");
-      Serial.print(timeout);
-      Serial.print(" atteint)");
+      com_log_print(" (timeout ");
+      com_log_print(timeout);
+      com_log_print(" atteint)");
     }
     else if(error == ERROR_OBSTACLE) {
-      Serial.print(" (OBSTACLE)");
+      com_log_print(" (OBSTACLE)");
     }
     else {
-      Serial.print(" (AUTRE ERREUR)");
+      com_log_print(" (AUTRE ERREUR)");
     }
 
     if(tentatives >= max_tentatives) {
-      Serial.print(" après ");
-      Serial.print(tentatives);
-      Serial.print(" tentatives");
+      com_log_print(" après ");
+      com_log_print(tentatives);
+      com_log_print(" tentatives");
     }
-    Serial.println();
+    com_log_println();
   }
 
   return error;
@@ -106,29 +106,29 @@ uint8_t localiser_zone() {
   // Attention, les termes ne correspondent pas aux termes du règlement
 
   if(robot_dans_zone(0, 0, 800, 750)) {
-    Serial.println("Localisé en zone Cabines");
+    com_log_println("Localisé en zone Cabines");
     return ZONE_CABINES;
   }
   else if(robot_dans_zone(0, 750, 1500, 1500)) {
-    Serial.println("Localisé en zone Construction");
+    com_log_println("Localisé en zone Construction");
     return ZONE_CONSTRUCTION;
   }
   else if(robot_dans_zone(800, 0, 2100, 750)) {
-    Serial.println("Localisé en zone Dune");
+    com_log_println("Localisé en zone Dune");
     return ZONE_DUNE;
   }
   else if(robot_dans_zone(0, 1500, 3000, 2000)) {
-    Serial.println("Localisé en zone Pêche");
+    com_log_println("Localisé en zone Pêche");
     return ZONE_PECHE;
   }
 
-  Serial.println("##### Zone inconnue");
+  com_log_println("##### Zone inconnue");
   return ZONE_INCONNUE;
 }
 
 uint8_t retour(uint8_t valeur) {
-  Serial.print("== Valeur de retour : ");
-  Serial.println(valeur);
+  com_log_print("== Valeur de retour : ");
+  com_log_println(valeur);
   return valeur;
 }
 

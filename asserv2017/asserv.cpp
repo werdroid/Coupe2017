@@ -115,7 +115,7 @@ uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout, uint
     }
 
     if (robot.sickObstacle) {
-      Serial.println("------------ OBSTACLE");
+      com_log_println("------------ OBSTACLE");
       asserv_raz_consignes();
       tone_play_alert();
       delay(1000); // Ce délai est fortement utilisé dans match_gr() et match_pr(). Avant de supprimer cette ligne, penser à le remettre en dehors des appels à asserv_goxy()
@@ -240,7 +240,7 @@ void asservissement_polaire() {
   }
 
   if (robot.match_debut && millis() - robot.match_debut > 81000) {
-    Serial.println("fin match");
+    com_log_println("fin match");
     robot.moteurGauche = 0;
     robot.moteurDroite = 0;
   }

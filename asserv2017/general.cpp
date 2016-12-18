@@ -6,7 +6,7 @@ Bounce select_button = Bounce(PIN_DIN_SELECT, 10);
 void wait_start_button_down() {
   for (;;) {
     if (start_button.update() && start_button.fallingEdge()) {
-      Serial.println("Button 'Start' down");
+      com_log_println("Button 'Start' down");
       break;
     }
   }
@@ -15,7 +15,7 @@ void wait_start_button_down() {
 void wait_start_button_up() {
   for (;;) {
     if (start_button.update() && start_button.risingEdge()) {
-      Serial.println("Button 'Start' up");
+      com_log_println("Button 'Start' up");
       break;
     }
   }
@@ -24,7 +24,7 @@ void wait_start_button_up() {
 void wait_select_button_down() {
   for (;;) {
     if (select_button.update() && select_button.fallingEdge()) {
-      Serial.println("Button 'Select' down");
+      com_log_println("Button 'Select' down");
       break;
     }
   }
@@ -33,7 +33,7 @@ void wait_select_button_down() {
 void wait_select_button_up() {
   for (;;) {
     if (select_button.update() && select_button.risingEdge()) {
-      Serial.println("Button 'Select' up");
+      com_log_println("Button 'Select' up");
       break;
     }
   }
@@ -61,7 +61,7 @@ void general_setup() {
   } Config;
   */
   if (analogRead(A12) < 512) { // 0V=PR et 5V=GR (sur 1024)
-    Serial.println("PETIT ROBOT");
+    com_log_println("PETIT ROBOT");
     config.IS_PR = 1;
     config.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
     config.ASSERV_COEFF_TICKS_PAR_RADIAN = 2207.0f; // 1rad -> 2207pas
@@ -80,7 +80,7 @@ void general_setup() {
     quadramp_set_1st_order_vars(&robot.ramp_rotation, 100, 100);
     quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
   } else {
-    Serial.println("GRAND ROBOT");
+    com_log_println("GRAND ROBOT");
     config.IS_PR = 0;
     config.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 3 mai gr
     config.ASSERV_COEFF_TICKS_PAR_RADIAN = 3404.0f; // 4 mai gr
@@ -111,9 +111,9 @@ void general_loop() {
     softRestart();
   }
   if (select) {
-    Serial.print("SELECT PRESSED\n");
+    com_log_print("SELECT PRESSED\n");
   }
   if (start) {
-    Serial.print("START PRESSED\n");
+    com_log_print("START PRESSED\n");
   }
 }

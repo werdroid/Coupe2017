@@ -133,22 +133,22 @@ uint8_t sick_check_buffer(int length) {
         buffer[1] != SICK_STX ||
         buffer[2] != SICK_STX ||
         buffer[3] != SICK_STX) {
-    // Serial.println("Erreur trame: 4xSTX pas bon");
-    // for (int i=0; i<10; i++) Serial.println(buffer[i], HEX);
+    // com_log_println("Erreur trame: 4xSTX pas bon");
+    // for (int i=0; i<10; i++) com_log_println(buffer[i], HEX);
     return false;
   }
 
   // 4 octets taille de trame
   int taille_trame_utile = ((buffer[6] << 8) + buffer[7]);
   if (taille_trame_utile != 927 && taille_trame_utile != 936) { // sick 561 et 571
-    Serial.println("Erreur trame: trame utile devrait faire 927 ou 936, reçu:");
-    Serial.println(taille_trame_utile);
+    com_log_println("Erreur trame: trame utile devrait faire 927 ou 936, reçu:");
+    com_log_println(taille_trame_utile);
     return false;
   }
 
   if (length < 936) {
-    Serial.println("Erreur trame: la taille de la trame devrait être au moins 936, reçu:");
-    Serial.println(length);
+    com_log_println("Erreur trame: la taille de la trame devrait être au moins 936, reçu:");
+    com_log_println(length);
     return false;
   }
 
@@ -198,7 +198,7 @@ uint8_t sick_read_data() {
   //   i++;
   //   if (i > SICK_BUFFER_SIZE) {
   //     robot.sickTramesInvalides++;
-  //     Serial.println("trame invalide");
+  //     com_log_println("trame invalide");
   //     return 0;
   //   }
   // }
@@ -227,11 +227,11 @@ uint8_t sick_read_data() {
   } else if (len) {
     robot.sickTramesInvalides++;
     while(client.read() != -1); // purge
-    // Serial.println("trame invalide");
+    // com_log_println("trame invalide");
     return 0;
   } else {
-    Serial.println("SICK improbable");
-    Serial.println(len);
+    com_log_println("SICK improbable");
+    com_log_println(len);
     return 1;
   }
 }
@@ -250,23 +250,23 @@ void sick_traiter_donnees() {
     points[i].y = robot.yMm + distances_values[i] * sin(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);
 
     // if (index_vers_angle(i) == 0) {
-    //   Serial.print("angle 0, index:");
-    //   Serial.print(i);
-    //   Serial.print(" angle: ");
-    //   Serial.print(index_vers_angle(i) / 180.0 * MATH_PI);
-    //   Serial.print(" x: ");
-    //   Serial.print(points[i].x);
-    //   Serial.print(" y: ");
-    //   Serial.print(points[i].y);
-    //   Serial.print(" dist: ");
-    //   Serial.print(distances_values[i]);
-    //   Serial.print(" xMm: ");
-    //   Serial.print(robot.xMm);
-    //   Serial.print(" a: ");
-    //   Serial.print(robot.a);
-    //   Serial.print(" cos result: ");
-    //   Serial.print(cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI));
-    //   Serial.println();
+    //   com_log_print("angle 0, index:");
+    //   com_log_print(i);
+    //   com_log_print(" angle: ");
+    //   com_log_print(index_vers_angle(i) / 180.0 * MATH_PI);
+    //   com_log_print(" x: ");
+    //   com_log_print(points[i].x);
+    //   com_log_print(" y: ");
+    //   com_log_print(points[i].y);
+    //   com_log_print(" dist: ");
+    //   com_log_print(distances_values[i]);
+    //   com_log_print(" xMm: ");
+    //   com_log_print(robot.xMm);
+    //   com_log_print(" a: ");
+    //   com_log_print(robot.a);
+    //   com_log_print(" cos result: ");
+    //   com_log_print(cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI));
+    //   com_log_println();
     // }
 
     // Points valides

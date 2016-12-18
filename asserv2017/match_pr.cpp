@@ -11,7 +11,7 @@ L'avancement d'une tâche est indiqué par un nombre entre 0 et 100.
 uint8_t aller_vers_couloir_pr(uint8_t zone) {
   uint8_t error = OK;
 
-  Serial.println("Positionnement dans le couloir principal...");
+  com_log_println("Positionnement dans le couloir principal...");
   switch(zone) {
     case ZONE_PECHE:
       // aller devant le bac à gauche
@@ -32,7 +32,7 @@ uint8_t aller_vers_couloir_pr(uint8_t zone) {
       error = aller_xy(500, 550, 100, 1, 5000, 3);
       break;
     default:
-      Serial.println("########### Erreur : aller_vers_couloir_pr, zone incorrecte");
+      com_log_println("########### Erreur : aller_vers_couloir_pr, zone incorrecte");
   }
 
   return error;
@@ -41,13 +41,13 @@ uint8_t aller_vers_couloir_pr(uint8_t zone) {
 uint8_t tache_tour(uint8_t depart) {
   uint8_t error;
 
-  Serial.print("=== Début de la tâche Tour (");
-  Serial.print(depart);
-  Serial.println(")");
+  com_log_print("=== Début de la tâche Tour (");
+  com_log_print(depart);
+  com_log_println(")");
 
   switch(depart) {
     case 0:
-      Serial.println("(Tour 0) Positionnement préliminaire");
+      com_log_println("(Tour 0) Positionnement préliminaire");
       switch(localiser_zone()) {
         case ZONE_DUNE:
           error = aller_vers_couloir_pr(ZONE_DUNE);
@@ -70,7 +70,7 @@ uint8_t tache_tour(uint8_t depart) {
       if(error) return retour(0);
 
     case 10:
-      Serial.println("(Tour 10)");
+      com_log_println("(Tour 10)");
       // devant tour
       error = aller_xy(500, 880, 100, 1, 7000, 3);
       if (error) return retour(0);
@@ -83,7 +83,7 @@ uint8_t tache_tour(uint8_t depart) {
       if (error) return retour(0);
 
     case 95:
-      Serial.println("(Tour 95)");
+      com_log_println("(Tour 95)");
       // dégagement de la tour
       error = aller_xy(800, 1000, 100, 0, 5000, 3);
       if (error) return retour(95);
@@ -92,61 +92,61 @@ uint8_t tache_tour(uint8_t depart) {
       break;
 
     case 100:
-      Serial.println("Tâche tour déjà à 100");
+      com_log_println("Tâche tour déjà à 100");
       return retour(100);
       break;
     default:
-      Serial.print("##### Erreur : départ indéfini");
+      com_log_print("##### Erreur : départ indéfini");
       return retour(0);
   }
 
-  Serial.println("=== Tâche Tour terminée");
+  com_log_println("=== Tâche Tour terminée");
   return retour(100);
 }
 
 uint8_t tache_cabine_pr(uint8_t depart) {
   uint8_t error;
 
-  Serial.print("=== Début de la tâche cabine (");
-  Serial.print(depart);
-  Serial.println(")");
+  com_log_print("=== Début de la tâche cabine (");
+  com_log_print(depart);
+  com_log_println(")");
 
 
   switch(depart) {
     case 0:
-      Serial.println("-------- On va devant la cabine 2");
+      com_log_println("-------- On va devant la cabine 2");
       asserv_goa_point(650, 300, 4000);
       error = aller_xy(650, 300, 100, 1, 5000, 3);
       if(error) return retour(0);
 
-      Serial.println("-------- On ferme la cabine 2");
-      Serial.println("goa point");
+      com_log_println("-------- On ferme la cabine 2");
+      com_log_println("goa point");
       asserv_goa_point(650, 0);
-      Serial.println("goxy");
+      com_log_println("goxy");
       // definir_vitesse_avance(50);
       error = aller_xy(650, 0, 100, 1, 1000, 5);
       // definir_vitesse_avance(100);
 
-      Serial.println("-------- On recule de la cabine 2");
+      com_log_println("-------- On recule de la cabine 2");
       aller_xy(650, 300, 100, 0, 2000, 3);
 
 
     case 50:
-      Serial.println("-------- On va devant la cabine 1");
+      com_log_println("-------- On va devant la cabine 1");
       asserv_goa_point(350, 300);
       error = aller_xy(350, 300, 100, 1, 0, 5);
       if(error) return retour(50);
 
-      Serial.println("-------- On ferme la cabine 1");
+      com_log_println("-------- On ferme la cabine 1");
       asserv_goa_point(350, 0);
       error = aller_xy(350, 0, 50, 1, 1000, 5);
 
-      Serial.println("-------- On recule de la cabine 1");
+      com_log_println("-------- On recule de la cabine 1");
       aller_xy(350, 300, 100, 0, 0, 3);
 
 
 
-      Serial.println("-------- On se recale en X apres cabine 1");
+      com_log_println("-------- On se recale en X apres cabine 1");
       asserv_goa_point(0, 300);
       aller_xy(0, 300, 50, 0, 1000, 2);
       robot.x = mm2tick(symetrie_x(80));
@@ -155,31 +155,31 @@ uint8_t tache_cabine_pr(uint8_t depart) {
       break;
 
     case 100:
-      Serial.println("Tâche cabine déjà à 100");
+      com_log_println("Tâche cabine déjà à 100");
       return retour(100);
       break;
     default:
-      Serial.print("##### Erreur : depart indéfini");
+      com_log_print("##### Erreur : depart indéfini");
       return retour(0);
   }
 
-  Serial.println("=== Tâche cabine terminée");
+  com_log_println("=== Tâche cabine terminée");
   return 100;
 }
 
 uint8_t tache_poissons(uint8_t depart, bool virer_patrick) {
   uint8_t error = OK;
 
-  Serial.print("=== Début de la tâche Poissons (");
-  Serial.print(depart);
-  Serial.println(")");
+  com_log_print("=== Début de la tâche Poissons (");
+  com_log_print(depart);
+  com_log_println(")");
 
   virer_patrick = virer_patrick && (robot.coquillage == 4);
 
 
   switch(depart) {
     case 0:
-      Serial.println("(Poissons 0) Positionnement préliminaire");
+      com_log_println("(Poissons 0) Positionnement préliminaire");
       switch(localiser_zone()) {
         case ZONE_CABINES:
         case ZONE_CONSTRUCTION:
@@ -195,53 +195,53 @@ uint8_t tache_poissons(uint8_t depart, bool virer_patrick) {
       if(error) return retour(0);
 
     case 5:
-      Serial.println("(Poissons 5) -- Recalage en Y");
+      com_log_println("(Poissons 5) -- Recalage en Y");
       asserv_goa_point(470, 2000);
       error = aller_xy(470, 1840, 100, 1, 8000, 2);
       if(error == OK) { // Ici : logique inversée : s'il n'y a PAS d'erreur, on se recale
         error = aller_xy(470, 2000, 50, 1, 600, 2);
         if(error == ERROR_TIMEOUT) {  // Si c'est OK ou qu'il a détecté un obstacle, ne pas se recaler !
           robot.y = mm2tick(1923);
-          Serial.println("...Ok");
+          com_log_println("...Ok");
         }
         aller_xy(470, 1840, 100, 0, 0, 2);
       }
       else {
-        Serial.println("...Echec");
+        com_log_println("...Echec");
       }
 
 
     case 10:
-      Serial.println("(Poissons 10)");
+      com_log_println("(Poissons 10)");
       if(virer_patrick) {
-        Serial.println("-------- Aller devant le bac à gauche");
+        com_log_println("-------- Aller devant le bac à gauche");
 
         definir_vitesse_avance(100);
         error = aller_xy(530, 1850, 100, 0, 5000, 3);
         if(error) return retour(0);
 
 
-        Serial.println("-------- Virer Patrick");
+        com_log_println("-------- Virer Patrick");
         error = aller_xy(900, 1600, 100, 0, 5000, 2);
         //if(error) return error;
       }
 
 
     case 20:
-      Serial.println("(Poissons 20)");
-      Serial.println("-------- Aller devant le bac à gauche");
+      com_log_println("(Poissons 20)");
+      com_log_println("-------- Aller devant le bac à gauche");
       error = aller_xy(600, 1850, 100, 0, 5000, 2);  // Coupe = 530
       if(error) return retour(20);
 
 
-      Serial.println("-------- Préparation de la pêche");
+      com_log_println("-------- Préparation de la pêche");
       robot.sans_symetrie = 1;
       asserv_goa(0); // alignement avant de déployer la canne
       robot.sans_symetrie = 0;
 
       canne_baisser();
 
-      Serial.println("-------- Aller devant le bac à droite");
+      com_log_println("-------- Aller devant le bac à droite");
       definir_vitesse_rotation(25);
       error = aller_xy(820, 1865, 10, 0, 10000, 3);
       if(error) {
@@ -250,18 +250,18 @@ uint8_t tache_poissons(uint8_t depart, bool virer_patrick) {
         return retour(20);
       }
 
-      Serial.println("-------- Reculer au point de contournement");
+      com_log_println("-------- Reculer au point de contournement");
       error = aller_xy(650, 1850, 10, 0, 5000, 4); // 650 coupe
       if(error) {
         canne_monter();
         definir_vitesse_rotation(100);
-        Serial.println("Poissons -> Erreur 20");
+        com_log_println("Poissons -> Erreur 20");
         return retour(20);
       }
 
     case 40:
-      Serial.println("(Poissons 40)");
-      Serial.println("-------- Préparation avant dépose");
+      com_log_println("(Poissons 40)");
+      com_log_println("-------- Préparation avant dépose");
       servo_slowmotion(servo_canne, 85, 45);
       // servo_canne.write(45); // remonter la canne à moitier
       delay(400);
@@ -288,7 +288,7 @@ uint8_t tache_poissons(uint8_t depart, bool virer_patrick) {
 
       if(error) {
         // Il y a eu une erreur dans l'un des derniers mouvements...
-        Serial.println("Poissons -> Erreur 40");
+        com_log_println("Poissons -> Erreur 40");
         canne_monter();
         return retour(40);
       }
@@ -297,27 +297,27 @@ uint8_t tache_poissons(uint8_t depart, bool virer_patrick) {
       break;
 
     case 100:
-      Serial.println("Tâche Poissons déjà à 100");
+      com_log_println("Tâche Poissons déjà à 100");
       return retour(100);
       break;
     default:
-      Serial.print("##### Erreur : depart indéfini");
+      com_log_print("##### Erreur : depart indéfini");
       return retour(0);
   }
 
-  Serial.println("====== Tâche Poissons terminée");
+  com_log_println("====== Tâche Poissons terminée");
   return 100;
 }
 uint8_t tache_coquillages_A(uint8_t depart) {
   uint8_t error = OK;
 
-  Serial.print("=== Début de la tâche coquillages A (");
-  Serial.print(depart);
-  Serial.println(")");
+  com_log_print("=== Début de la tâche coquillages A (");
+  com_log_print(depart);
+  com_log_println(")");
 
   switch(depart) {
     case 0:
-      Serial.println("(CoquillagesA 0)");
+      com_log_println("(CoquillagesA 0)");
       switch(localiser_zone()) {
         case ZONE_CABINES:
         case ZONE_CONSTRUCTION:
@@ -333,7 +333,7 @@ uint8_t tache_coquillages_A(uint8_t depart) {
       if(error) return retour(0);
 
     case 10:
-      Serial.println("(CoquillagesA 10)");
+      com_log_println("(CoquillagesA 10)");
       error = aller_xy(310, 1680, 100, 1, 6000, 3);
       if(error) return retour(0);
 
@@ -355,15 +355,15 @@ uint8_t tache_coquillages_A(uint8_t depart) {
       break;
 
     case 100:
-      Serial.println("Tâche Coquillages A déjà à 100");
+      com_log_println("Tâche Coquillages A déjà à 100");
       return retour(100);
       break;
     default:
-      Serial.print("##### Erreur : depart indéfini");
+      com_log_print("##### Erreur : depart indéfini");
       return retour(0);
   }
 
-  Serial.println("=== Tâche coquillages A terminée");
+  com_log_println("=== Tâche coquillages A terminée");
 
   return 100;
 }
@@ -371,13 +371,13 @@ uint8_t tache_coquillages_A(uint8_t depart) {
 uint8_t tache_coquillages_B(uint8_t depart) {
   uint8_t error = OK;
 
-  Serial.print("=== Début de la tâche coquillages B (");
-  Serial.print(depart);
-  Serial.println(")");
+  com_log_print("=== Début de la tâche coquillages B (");
+  com_log_print(depart);
+  com_log_println(")");
 
   switch(depart) {
     case 0:
-      Serial.println("(CoquillagesB 0)");
+      com_log_println("(CoquillagesB 0)");
       switch(localiser_zone()) {
         case ZONE_CABINES:
         case ZONE_CONSTRUCTION:
@@ -394,7 +394,7 @@ uint8_t tache_coquillages_B(uint8_t depart) {
       if(error) return retour(0);
 
     case 10:
-      Serial.println("(CoquillagesB 10)");
+      com_log_println("(CoquillagesB 10)");
       error = aller_xy(950, 1750, 100, 1, 8000, 3);
       if(error) return retour(0);
 
@@ -421,11 +421,11 @@ uint8_t tache_coquillages_B(uint8_t depart) {
       break;
 
     default:
-      Serial.print("##### Erreur : depart indéfini");
+      com_log_print("##### Erreur : depart indéfini");
       return retour(0);
   }
 
-  Serial.println("=== Tâche coquillages B terminée");
+  com_log_println("=== Tâche coquillages B terminée");
 
   return 100;
 }
@@ -433,13 +433,13 @@ uint8_t tache_coquillages_B(uint8_t depart) {
 uint8_t tache_coquillages_C(uint8_t depart) {
   uint8_t error = OK;
 
-  Serial.print("=== Début de la tâche coquillages C (");
-  Serial.print(depart);
-  Serial.println(")");
+  com_log_print("=== Début de la tâche coquillages C (");
+  com_log_print(depart);
+  com_log_println(")");
 
   switch(depart) {
     case 0:
-      Serial.println("(CoquillagesC 0)");
+      com_log_println("(CoquillagesC 0)");
       switch(localiser_zone()) {
         case ZONE_CABINES:
         case ZONE_CONSTRUCTION:
@@ -457,7 +457,7 @@ uint8_t tache_coquillages_C(uint8_t depart) {
       if(error) return retour(0);
 
     case 10:
-      Serial.println("(CoquillagesC 10)");
+      com_log_println("(CoquillagesC 10)");
 
       error = aller_xy(1230, 1830, 100, 1, 6000, 3);
       if(error) return retour(0);
@@ -466,7 +466,7 @@ uint8_t tache_coquillages_C(uint8_t depart) {
       volets_ouvrir();
 
     case 15:  // Pour Coquillages 3, on arrivera ici après avoir tenté le coquillage de l'autre côté
-      Serial.println("(CoquillagesC 15)");
+      com_log_println("(CoquillagesC 15)");
       // Grande ligne droite
       error = aller_xy(300, 1100, 80, 1, 7000, 3);
       if(error) {
@@ -487,24 +487,24 @@ uint8_t tache_coquillages_C(uint8_t depart) {
       break;
 
     default:
-      Serial.print("##### Erreur : depart indéfini");
+      com_log_print("##### Erreur : depart indéfini");
       return retour(0);
   }
 
-  Serial.println("=== Tâche coquillages C terminée");
+  com_log_println("=== Tâche coquillages C terminée");
   return 100;
 }
 
 uint8_t tache_coquillages_Secours(uint8_t depart) {
   uint8_t error = OK;
 
-  Serial.print("=== Début de la tâche coquillages Secours (");
-  Serial.print(depart);
-  Serial.println(")");
+  com_log_print("=== Début de la tâche coquillages Secours (");
+  com_log_print(depart);
+  com_log_println(")");
 
   switch(depart) {
     case 0:
-      Serial.println("(Coquillages Secours 0)");
+      com_log_println("(Coquillages Secours 0)");
       switch(localiser_zone()) {
         case ZONE_CABINES:
         case ZONE_CONSTRUCTION:
@@ -524,7 +524,7 @@ uint8_t tache_coquillages_Secours(uint8_t depart) {
       if(error) return retour(0);
 
     case 10:
-      Serial.println("(Coquillages Secours 10)");
+      com_log_println("(Coquillages Secours 10)");
       error = aller_xy(900, 1800, 100, 1, 6000, 3);
       if(error) return retour(0);
 
@@ -553,11 +553,11 @@ uint8_t tache_coquillages_Secours(uint8_t depart) {
       break;
 
     default:
-      Serial.print("##### Erreur : depart indéfini");
+      com_log_print("##### Erreur : depart indéfini");
       return 0;
   }
 
-  Serial.println("=== Tâche coquillages Secours terminée");
+  com_log_println("=== Tâche coquillages Secours terminée");
   return 100;
 }
 
@@ -655,16 +655,16 @@ void match_pr() {
   ecran_console_log("DebutDuMatch\n");
   robot.match_debut = millis();
 
-  Serial.println("_______ Stratégie de base");
+  com_log_println("_______ Stratégie de base");
 
   /** ===========================
   Départ depuis la zone de départ
   =============================== */
-  Serial.println("----- Sortir de la zone de départ");
+  com_log_println("----- Sortir de la zone de départ");
 
   error = aller_xy(400, 995, 100, 1, 5000, 10);
   if(error) {
-    Serial.println("_______ Itinéraire bis, abandon de la tour");
+    com_log_println("_______ Itinéraire bis, abandon de la tour");
     // S'il n'arrive pas à sortir de la zone de départ, on va contourner et passer par la droite...
 
     // Idée : abandonner tour et passer aux poissons en passant par la droite
@@ -684,7 +684,7 @@ void match_pr() {
   avancement_tache_tour = tache_tour(10);
   if(avancement_tache_tour == 95) {
     // On n'a pas réussi à sortir de la zone de construction
-    Serial.println("_______ Itinéraire bis pour rejoindre les poissons");
+    com_log_println("_______ Itinéraire bis pour rejoindre les poissons");
 
     n = 0;
     do {
@@ -710,21 +710,21 @@ void match_pr() {
   }
 
 
-  Serial.print("== Bilan Tour : ");
-  Serial.println(avancement_tache_tour);
+  com_log_print("== Bilan Tour : ");
+  com_log_println(avancement_tache_tour);
 
   // L'ensemble est placé dans un do{} while(), si jamais il y a eu trop d'obstacles...
   do {
     /** ==========
     Tâche Poissons
     ============== */
-    Serial.println("Direction : les poissons !");
+    com_log_println("Direction : les poissons !");
     avancement_tache_poissons = tache_poissons(0, true);
 
 
-    /*Serial.println("_______ Analyse de la situation des Poissons...");
+    /*com_log_println("_______ Analyse de la situation des Poissons...");
     if(avancement_tache_poissons == 100) {
-      Serial.println("_____ Pas de problème avec les poissons : on retente");
+      com_log_println("_____ Pas de problème avec les poissons : on retente");
       avancement_tache_poissons = tache_poissons(20, false); // Départ à 20 pour ne pas virer Patrick
       if(avancement_tache_poissons == 100)
         avancement_tache_poissons = 200;
@@ -733,8 +733,8 @@ void match_pr() {
     }*/
 
 
-    Serial.print("== Bilan Poissons : ");
-    Serial.println(avancement_tache_poissons);
+    com_log_print("== Bilan Poissons : ");
+    com_log_println(avancement_tache_poissons);
 
     /** ==============
     Tâches coquillages
@@ -780,7 +780,7 @@ void match_pr() {
         break;
 
       case 3:
-        Serial.println("Coquillages 'F'");
+        com_log_println("Coquillages 'F'");
         if(robot_dans_zone(550, 1500, 3000, 2000)) {
           /*error = aller_xy(1950, 1820, 80, 1, 10000, 3);
           if(error) {
@@ -827,21 +827,21 @@ void match_pr() {
         break;
     }
 
-    Serial.print("== Bilan Coquillages : A:");
-    Serial.print(avancement_tache_coquillages_A);
-    Serial.print(", B:");
-    Serial.print(avancement_tache_coquillages_B);
-    Serial.print(", C:");
-    Serial.print(avancement_tache_coquillages_C);
-    Serial.print(", Sec:");
-    Serial.println(avancement_tache_coquillages_Secours);
+    com_log_print("== Bilan Coquillages : A:");
+    com_log_print(avancement_tache_coquillages_A);
+    com_log_print(", B:");
+    com_log_print(avancement_tache_coquillages_B);
+    com_log_print(", C:");
+    com_log_print(avancement_tache_coquillages_C);
+    com_log_print(", Sec:");
+    com_log_println(avancement_tache_coquillages_Secours);
 
 
     /** ---------------------------------------
     Nouvelles tentatives Poissons si nécessaire
     ------------------------------------------- */
     if(avancement_tache_poissons < 200) {
-      Serial.println("Nouvelle tentative des poissons");
+      com_log_println("Nouvelle tentative des poissons");
       avancement_tache_poissons = tache_poissons(5, false);
     }
     /*
@@ -849,11 +849,11 @@ void match_pr() {
       avancement_tache_poissons = tache_poissons(0, false);
     }*/
 
-    Serial.println("==== On boucle ? ====");
+    com_log_println("==== On boucle ? ====");
   } while(!match_termine());
-  Serial.println("Pas le temps");
+  com_log_println("Pas le temps");
 
-  Serial.println("_______ Terminé");
+  com_log_println("_______ Terminé");
 
   tone_play_end();
 }

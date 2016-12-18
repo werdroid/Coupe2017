@@ -22,7 +22,7 @@
 Robot robot;
 Config config;
 
-volatile uint8_t lock_loop;
+volatile uint8_t lock_loop = 4; // 4: thread RT pas encore démarré
 elapsedMicros time_total;
 elapsedMicros time_solo;
 IntervalTimer timer;
@@ -108,7 +108,17 @@ void setup() {
   ecran_console_log("Starting interrupt...\n");
   // https://www.pjrc.com/teensy/td_timing_IntervalTimer.html
   timer.begin(interruption_sample, DT_US);
-  timer.priority(0);
+  timer.priority(128); // min 128, systick qui gère le temps est sur 32 !!
+  // Priority numbers are 0 to 255, where lower numbers means higher priority.
+  // The Systick interrupt that updates millis is assigned priority 32.
+  // By default, Teensyduino defaults most interrupts for priority 128.
+  // USB is at 112.
+  // Hardware serial is 64.
+  // Audio library processing of data is done at 208.
+  // Non-interrupt code effectively runs at priority 256.
+  // If you use an interrupt, you can set it to any priority you like. If you don't, you'll get the 128 default.
+  // Teensy 3.1 can support up to 16 levels of nesting, so priority levels 0 to 15 are all the same, 16 to 31 are the same, and so on
+  // IntervalTimer for priority 48, on Teensy 3.1/3.2 it will not block Systick at 32
 
   ecran_console_log("Starting menu...\n");
   menu_start();
@@ -148,20 +158,21 @@ void interruption_sample() {
   led_update();
   tone_loop();
 
+  // com_log_println((micros() - time));
   if ((micros() - time) >= DT_US) {
-    Serial.print("INT ERR ");
-    // Serial.print("Surcharge interruption: ");
-    Serial.print((micros() - time));
-    Serial.print("us total, ");
-    Serial.print(robot.time_codeurs);
-    Serial.print("us codeurs, ");
-    Serial.print(robot.time_sick);
-    Serial.print("us sick");
-    Serial.println();
+    com_log_print("INT ERR ");
+    // com_log_print("Surcharge interruption: ");
+    com_log_print((micros() - time));
+    com_log_print("us total, ");
+    com_log_print(robot.time_codeurs);
+    com_log_print("us codeurs, ");
+    com_log_print(robot.time_sick);
+    com_log_print("us sick");
+    com_log_println();
   }
-    // Serial.print(robot.time_sick);
-    // Serial.print("us sick");
-    // Serial.println();
+    // com_log_print(robot.time_sick);
+    // com_log_print("us sick");
+    // com_log_println();
 
   lock_loop = 0;
 }

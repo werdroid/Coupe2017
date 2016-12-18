@@ -18,8 +18,6 @@ void tone_setup() {
 void tone_loop() {
   if (tempo.check() && position) {
     if (*position) {
-      /*Serial.print("note ");
-      Serial.println(*position);*/
       tone(TONE_PIN, *position);
       position++;
     } else {

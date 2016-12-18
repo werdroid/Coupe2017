@@ -43,7 +43,7 @@ void localisation_loop() {
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
   if(x1 > x2 || y1 > y2) {
     tone_play_alert();
-    Serial.println("############### Erreur : paramètres de robot_dans_zone mal définis.");
+    com_log_println("############### Erreur : paramètres de robot_dans_zone mal définis.");
   }
 
   if(!robot.symetrie)

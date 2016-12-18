@@ -29,15 +29,15 @@ void codeurs_sync() {
   int32_t droite = codeurs.right() + droite_correction;
 
   if (abs(gauche - gauche_precedent) > mm2tick(200) || abs(droite - droite_precedent) > mm2tick(200)) {
-    Serial.println("---------- Défaut de codeurs détecté (et compensé)");
-    Serial.print("G: ");
-    Serial.print(gauche_precedent);
-    Serial.print(" -> ");
-    Serial.print(gauche);
-    Serial.print(" | D: ");
-    Serial.print(droite_precedent);
-    Serial.print(" -> ");
-    Serial.println(droite);
+    com_log_println("---------- Défaut de codeurs détecté (et compensé)");
+    com_log_print("G: ");
+    com_log_print(gauche_precedent);
+    com_log_print(" -> ");
+    com_log_print(gauche);
+    com_log_print(" | D: ");
+    com_log_print(droite_precedent);
+    com_log_print(" -> ");
+    com_log_println(droite);
 
     codeurs_setup();
     gauche_correction = gauche_precedent;

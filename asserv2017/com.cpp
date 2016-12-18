@@ -1,15 +1,29 @@
 #include "asserv2017.h"
 
-#define Sp(X) Serial.print(X)
+// USB serial: https://www.pjrc.com/teensy/td_serial.html#txbuffer
+// UART serial: https://www.pjrc.com/teensy/td_uart.html
+
+// écrire "coucou" prend 8 microsecondes
 
 static Metro metro = Metro(100);
 
-void printCodeurs();
-void printMoteurs();
-void printPosition();
-void printAsserv();
-void printErreurConsignes();
-void printSickStats();
+typedef struct {
+  unsigned long millis;
+} TrameMonitor; // 8 octets
+
+TrameMonitor trameMontor;
+
+void com_send_robot_infos() {
+  if (lock_loop == 0) {
+    synchronisation();
+  }
+
+  trameMontor.millis = millis();
+
+  Serial.print('@');
+  Serial.write((const uint8_t*) &trameMontor, sizeof(TrameMonitor));
+  Serial.println();
+}
 
 // ####################################
 // Communication
@@ -21,113 +35,7 @@ void com_setup() {
 }
 
 void com_loop() {
-  /* if (metro.check()) {
-    // printCodeurs();
-    printPosition();
-    // printMoteurs();
-    // printAsserv();
-    // printErreurConsignes();
-    printSickStats();
-    Sp("\n");
-  } */
   if (metro.check()) {
-    // printCodeurs();
-    monitorPosition();
-    // printMoteurs();
-    // printAsserv();
-    // printErreurConsignes();
-    monitorSickStats();
+    com_send_robot_infos();
   }
-}
-
-void printCodeurs() {
-  Sp("Codeurs: ");
-  Sp(robot.codeurGauche);
-  Sp(",");
-  Sp(robot.codeurDroite);
-  Serial.println();
-}
-
-void printPosition() {
-  Sp("Position:");
-  Sp(" ticks=");
-  Sp(robot.x);Sp(",");Sp(robot.y);
-  Sp(", mm=");
-  Sp(robot.xMm);Sp(",");Sp(robot.yMm);
-  Sp(", angle=");
-  Sp(robot.a);
-  Sp("(");
-  Sp(rad2deg(robot.a));
-  Sp(")");
-  Serial.println();
-}
-
-void printMoteurs() {
-  Sp("Moteurs: ");
-  Sp(robot.moteurGauche);
-  Sp(", ");
-  Sp(robot.moteurDroite);
-  Sp("pwm");
-  Serial.println();
-}
-
-void printAsserv() {
-  Sp("Consigne: distance ");
-  Sp(robot.consigneDistance);
-  Sp("/");
-  Sp(robot.distance);
-  Sp(", rotation ");
-  Sp(robot.consigneRotation);
-  Sp("/");
-  Sp(robot.rotation);
-  Serial.println();
-}
-
-void printErreurConsignes() {
-  Sp("Erreur consigne distance = ");
-  Sp(robot.erreurDistance);
-  Sp(", rotation = ");
-  Sp(robot.erreurRotation);
-  Serial.println();
-}
-
-void printSickStats() {
-  Sp("Stats sick: vides=");
-  Sp(robot.sickTramesVides);
-  Sp(", valides=");
-  Sp(robot.sickTramesValides);
-  Sp(", invalides=");
-  Sp(robot.sickTramesInvalides);
-  Sp(", bytes=");
-  Sp(robot.sickTramesBytes);
-  Sp(", total=");
-  Sp(robot.sickTramesBytesTotal);
-  Sp(", distance=");
-  Sp(robot.proche_distance);
-  Sp("mm, obstacle=");
-  Sp(robot.sickObstacle ? "oui" : "non");
-  Serial.println();
-}
-
-void writeSerial() {
-  // Sp("Erreurs: ");
-  // Sp(robot.erreurGauche);
-  // Sp(", ");
-  // Serial.println(robot.erreurDroite);
-
-  // Serial.print(millis());Serial.print(" - ");
-  // Sp("Consignes: rotation=");
-  // Sp(robot.erreurRotation);
-  // Sp(", distance=");
-  // Sp(robot.erreurDistance);
-  // Serial.println();
-
-  // Sp("Vitesse: ");
-  // Sp(robot.vitesse_distance);
-  // Serial.println();
-
-  // Sp(robot.consigneRotation);
-  // Sp(",");
-  // Sp(robot.consigneDistance);
-  // Serial.println();
 }

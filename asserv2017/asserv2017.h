@@ -272,6 +272,10 @@ uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout 
 void com_setup();
 void com_loop();
 
+void com_send_robot_infos();
+#define com_log_println(X); if(lock_loop==0){synchronisation();}Serial.println(X);
+#define com_log_print(X); if(lock_loop==0){synchronisation();}Serial.print(X);
+
 // Monitor Panel
 void monitorCodeurs();
 void monitorMoteurs();
