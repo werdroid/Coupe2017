@@ -145,7 +145,7 @@ var table = {
 			
 		// Image de la table
 		var imageTable = new Image();
-		imageTable.src = 'imageTable_rognee.png';
+		imageTable.src = 'img/imageTable_rognee.png';
 		imageTable.onload = function() {
 			table.ctx.drawImage(imageTable, 0, 0, table.general.width*table.general.scale,table.general.height*table.general.scale);
 		

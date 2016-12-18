@@ -1,0 +1,153 @@
+html {
+	overflow-y: visible;
+}
+
+body {
+	margin: 0px;
+	font-family: calibri;
+	background-color: rgb(230,230,230);
+}
+
+section {
+	background-color: white;
+	padding: 5px;
+	margin: 5px;
+}
+
+#serialSelect0, #serialSelect1 {
+	margin-bottom: 5px;
+	flex: none;
+}
+
+.flottant_table {
+	position: absolute;
+	opacity: 0;
+	/*transition: opacity 0.3s;*/
+}
+
+#infobulle {
+	padding: 1px 2px;
+	/*border: 1px solid #eeeeee;*/
+	background-color: #eeeeee;
+	font-size: 0.8em;
+	font-family: calibri;
+	z-index: 999;
+}
+#curseur {
+	width: 3px;
+	height: 3px;
+	background-color: green;
+}
+
+
+/**** Flex Box ****/
+/**
+Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/Utilisation_des_flexbox_en_CSS **/
+#main {
+  display: flex;
+  flex-direction: column;
+}
+#flexBox {
+	display: flex;
+	height: 560px;
+}
+#sTable {
+	/*width: 805px;*/
+	/*height: 540px;*/
+}
+#blocTable {
+	position: relative;
+	overflow: hidden;
+}
+#sRobot0, #sRobot1 {
+	flex: 1 0 140px; /* Se répartissent l'espace restant sans pouvoir se réduire, avec une base de 140px */
+	display: flex;
+	flex-direction: column;
+}
+
+#sRobot0 h2, #sRobot1 h2 {
+	margin: 0px 0px 5px 0px;
+	position: relative;
+}
+#sRobot0 h2 {
+	color: blue;
+	border-bottom: 2px solid blue;
+}
+#sRobot1 h2 {
+	color: orange;
+	border-bottom: 2px solid orange;
+}
+
+#flexBoxBas {
+	display: flex;
+}
+#sLogMonitor {
+  flex: 1 0 auto;
+}
+#sActionsMonitor {
+	flex: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+
+/********************/
+
+
+#led0, #led1 {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	right: 0px;
+	width: 20px;
+	height: 20px;
+	/*border-radius: 10px;*/
+}
+#led0.off { background-color: #dddddd; }
+#led0.on { background-color: blue; }
+#led1.off { background-color: #dddddd; }
+#led1.on { background-color: orange; }
+
+#logRobot0, #logRobot1 {
+	overflow-y: auto;
+	word-wrap: break-word;
+}
+
+.infoTimer {
+	color: grey;
+	padding-right: 2px;
+	font-size: 0.8em;
+}
+.pointRepere0, .pointRepere1 {
+	font-size: 0.9em;
+	padding: 0px 2px;
+}
+.pointRepere0 {
+	color: cyan;
+}
+.pointRepere1 {
+	color: magenta;
+}
+
+#obstacle0, #obstacle1 {
+	padding: 2px 5px;
+	font-size: 2em;
+	text-align: center;
+	border-top: 1px solid #dddddd;
+	border-bottom: 1px solid #dddddd;
+	color: #dddddd;
+}
+#obstacle0.oui {
+	background-color: blue;
+	color: white;
+}
+#obstacle1.oui {
+	background-color: orange;
+	color: white;
+}
+
+#logMonitor {
+	/*height: 150px;*/
+	overflow-y: auto;
+}
+
