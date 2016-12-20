@@ -10,7 +10,8 @@ var elem = {
   table: document.getElementById('table'), // utiliser table.elem pour celui-là
   led: [document.getElementById('led0'), document.getElementById('led1')],
   obstacle: [document.getElementById('obstacle0'), document.getElementById('obstacle1')],
-  curseur: document.getElementById('curseur')
+  curseur: [document.getElementById('curseurTMatch0'), document.getElementById('curseurTMatch1')],
+  valeurCurseur: [document.getElementById('valeurTMatch0'), document.getElementById('valeurTMatch1')]
 }
 
 var etatLed = [true, true];
@@ -153,7 +154,7 @@ var alea = {
 var x = [alea.aleaX(), alea.aleaX()];
 var y = [alea.aleaY(), alea.aleaY()];
 for(var i = 0; i < 1500; i++ ) {
-  var robot = (alea.unSur(2) ? PR : GR);
+  var robot = (i % 2 == 0 ? PR : GR); //(alea.unSur(2) ? PR : GR);
   if(alea.unSur(250)) {
     table.match.evenements.ajouter(robot, 'Evénement ! ' + i);
   }
@@ -161,7 +162,13 @@ for(var i = 0; i < 1500; i++ ) {
     x[robot] += alea.nb(100) * (alea.unSur(2) ? -1 : 1);
     y[robot] += alea.nb(80) * (alea.unSur(2) ? -1 : 1);
   }
-  table.match.positions.ajouter(robot, donnees.enregistrer(robot, '@|Position|"mmX":' + x[robot] + ',"mmY":' + y[robot]));
+  table.match.positions.ajouter(robot,
+    donnees.enregistrer(robot, {
+      t: i*10,
+      mmX: x[robot],
+      mmY: y[robot]
+    })
+  );
   //table.match.positions.ajouter(GR, donnees.enregistrer(GR, '@|Position|"mmX":' + alea.aleaX() + ',"mmY":' + alea.aleaY()));
 }
 

@@ -2,46 +2,114 @@
 Gestion des données (data et log) provenant des robots
 **/
 
+/* RAPPEL :
+const PR = 0;
+const GR = 1;
+*/
+
+/**
+donnees.d = [
+  [
+    {
+      t:        temps écoulé (ms) depuis le début du match (valeur robot)
+      position: {
+        mmX:    position du robot sur l'axe x (mm)
+        mmY:    position du robot sur l'axe y (mm)
+      },
+      svg: {    Ensemble des éléments dessinés sur la table et liés à cette trame
+        pt:     pt position
+      }
+    },
+    {
+      ... Idem pour chaque trame
+    }
+  ],
+  [
+    ... Idem pour GR ...
+  ]
+]
+
+
+
+
+
+**/
+
+
 var donnees = {
 	d: [[], []],  // PR et GR
 	
+  // Retourne le jeu de données à l'indice indiqué
+  get: function(robot, id) {
+    return donnees.d[robot][id];
+  },
+  
+  // Retourne le jeu de données au timer indiqué
+  // (Retourne la valeur trouvée (1 seule), undefined sinon)
+  getTempsExact: function(robot, time) {
+    return donnees.d[robot].find(function(elem) {
+      return elem.t == time;
+    });
+  },
+  
+  
+  // Retourne le dernier jeu de données du robot
   getLast: function(robot) {
     return donnees.d[robot][donnees.d[robot].length - 1];
   },
+  
+  // Enregistre un jeu de données et retourne son indice
 	enregistrer: function(robot, trame) {
-   
-		var action = trame.split('|');
-		var param = JSON.parse('{' + action[2] + '}');
-		switch(action[1]) {
-			case 'Codeurs':
-				break;
-			case 'Position':
-        return donnees.d[robot].push({
-          position: {
-            mmX: param.mmX,
-            mmY: param.mmY
-          }
-        }) - 1;
-        
-        /*dernierePosition[r][0] = param.mmX;
-				dernierePosition[r][1] = param.mmY;*/
-				break;
-			case 'Moteurs':
-				break;
-			case 'Asserv':
-				break;
-			case 'ErreurConsigne':
-				break;
-			case 'Sick':
-				elem.obstacle[r].className = param.obstacle;
-				break;
-			default:
-				log.monitor(action[1] + ' inconnue (en provenance de ' + r + '.');
-		}
+    if(trame[2] != '|') {
+      return donnees.d[robot].push({
+        t: trame.t,
+        position: {
+          mmX: trame.mmX,
+          mmY: trame.mmY
+        },
+        svg: {}
+      }) - 1;
+      
+    }
+    else {
+      // Compatibilité avec Coupe IdF 2016
+      var action = trame.split('|');
+      var param = JSON.parse('{' + action[2] + '}');
+      switch(action[1]) {
+        case 'Codeurs':
+          break;
+        case 'Position':
+          return donnees.d[robot].push({
+            t: donnees.d[robot].length,
+            position: {
+              mmX: param.mmX,
+              mmY: param.mmY
+            }
+          }) - 1;
+          
+          /*dernierePosition[r][0] = param.mmX;
+          dernierePosition[r][1] = param.mmY;*/
+          break;
+        case 'Moteurs':
+          break;
+        case 'Asserv':
+          break;
+        case 'ErreurConsigne':
+          break;
+        case 'Sick':
+          elem.obstacle[r].className = param.obstacle;
+          break;
+        default:
+          log.monitor(action[1] + ' inconnue (en provenance de ' + r + '.');
+      }
+    }
 	}
 	
 }
 
+
+
+// Traitement des messages pendant Coupe IdF 2016
 var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
   if(msg[0] == '@') {
     donnees.enregistrer(r, msg[0]);

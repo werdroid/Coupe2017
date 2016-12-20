@@ -99,9 +99,6 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 	flex-direction: column;
 }
 
-#conteneurCurseurPlageMatch {
-  padding: 10px;
-}
 
 /********************/
 
@@ -121,6 +118,7 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 #led1.on { background-color: orange; }
 
 #logRobot0, #logRobot1 {
+  flex-grow: 1;
 	overflow-y: auto;
 	word-wrap: break-word;
 }
@@ -156,6 +154,15 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 #obstacle1.oui {
 	background-color: orange;
 	color: white;
+}
+
+#match0, #match1 {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid #dddddd;
+}
+#curseurTMatch0, #curseurTMatch1 {
+  width: 95%;
 }
 
 #logMonitor {

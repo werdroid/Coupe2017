@@ -145,14 +145,14 @@ var table = {
         
       }
     },
-    filtrer: function(min, max) {
-      for(var robot = 0; robot <= 1; robot++) {
-        for(var i = 0; i < donnees.d[robot].length; i++) {
-          if(i >= min && i <= max)
-            donnees.d[robot][i].pt.show();
-          else
-            donnees.d[robot][i].pt.hide();
-        }
+    
+    // N'affiche que les points compris dans [indiceMin, indiceMax] (indices de donnees.d[robot])
+    filtrer: function(robot, indiceMin, indiceMax) {
+      for(var i = 0; i < donnees.d[robot].length; i++) {
+        if(i >= indiceMin && i <= indiceMax)
+          donnees.d[robot][i].pt.show();
+        else
+          donnees.d[robot][i].pt.hide();
       }
     }
   },
@@ -193,16 +193,44 @@ var infobulle = {
                                 })
         };*/
         
-        
+// Slicer d'affichage d'une partie du match
 $( function() {
-  $('#curseurPlageMatch').slider({
+  var filtrerAffichage = function(robot, indiceMin, indiceMax) {
+    var ui = $('#curseurTMatch' + robot);
+    indiceMin = Math.max(indiceMin, 0);
+    indiceMin = Math.min(indiceMin, donnees.d[robot].length - 1);
+    indiceMax = Math.min(indiceMax, donnees.d[robot].length - 1);
+    
+    table.match.filtrer(robot, indiceMin, indiceMax);
+    $('#valeurTMatch' + robot).text('[ ' + donnees.get(robot, indiceMin).t + ' ; ' + donnees.get(robot, indiceMax).t + ' ]');  
+  }
+
+  
+  $('#curseurTMatch0').slider({
     range: true,
     min: -10,
     max: 1000,
     values: [0, 1000],
     slide: function(event, ui) {
-      $('#valeurPlageMatch').text('[ ' + ui.values[0] + ' ; ' + ui.values[1] + ' ]');
-      table.match.filtrer(ui.values[0], ui.values[1]);
+      filtrerAffichage(PR, ui.values[0], ui.values[1]);
+      if($('#lierCurseursTMatch').prop('checked')) {
+        $('#curseurTMatch1').slider('values', [ ui.values[0], ui.values[1] ]);
+        filtrerAffichage(GR, ui.values[0], ui.values[1]);
+      }
+    }
+    
+  });
+  $('#curseurTMatch1').slider({
+    range: true,
+    min: -10,
+    max: 1000,
+    values: [0, 1000],
+    slide: function(event, ui) {
+      filtrerAffichage(GR, ui.values[0], ui.values[1]);
+      if($('#lierCurseursTMatch').prop('checked')) {
+        $('#curseurTMatch0').slider('values', [ ui.values[0], ui.values[1] ]);
+        filtrerAffichage(PR, ui.values[0], ui.values[1]);
+      }
     }
   });
 });
