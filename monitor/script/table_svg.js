@@ -82,7 +82,17 @@ var table = {
           .move(x * table.general.scale, y * table.general.scale);
     },
     ligne: function(x1, y1, x2, y2, epaisseur, couleur) {
-      table.svg.line(x1, y1, x2, y2).stroke({width: epaisseur, color: couleur});
+      return table.svg.line(x1, y1, x2, y2).stroke({width: epaisseur, color: couleur});
+    },
+    croix: function(x, y, diametre, epaisseur, couleur) {
+      x = x * table.general.scale;
+      y = y * table.general.scale;
+      var l1 = table.creer.ligne(x - diametre/2, y - diametre/2, x + diametre/2, y + diametre/2, epaisseur, couleur);
+      var l2 = table.creer.ligne(x - diametre/2, y + diametre/2, x + diametre/2, y - diametre/2, epaisseur, couleur);
+      var group = table.svg.group();
+      group.add(l1);
+      group.add(l2);
+      return group;
     },
     quadrillageHorizontal: function(delta) {
       delta = delta * table.general.scale;
@@ -97,6 +107,7 @@ var table = {
       }
     },
     texte: function(txt, x, y, couleur, police) {
+      console.log("Va falloir attendre un peu (pas longtemps) pour afficher du texte sur la table :)");
       /*table.ctx.fillStyle = couleur;
       table.ctx.font = police;
       table.ctx.fillText(txt, x * table.general.scale, y * table.general.scale);*/
@@ -104,23 +115,60 @@ var table = {
   },
   match: {
     positions: {
-      liste: [[], []],
+      // Ajouter un point sur la table et enregistre sa référence dans donnees.d[r][#][svg][pt]
       ajouter: function(robot, id) {
         var infos = donnees.d[robot][id];
-        infos.pt = table.creer.point(infos.position.mmX, infos.position.mmY, 4, (robot == PR ? 'blue' : 'orange'))
+        infos.svg.pt = table.creer.point(infos.position.mmX, infos.position.mmY, 4, (robot == PR ? 'blue' : 'orange'))
           .data({
             robot: robot,
             id: id,
             type: 'position'
           })
+          .addClass('svg-pt' + robot)
           .mouseover(function(e) {
             var forme = SVG.get(e.target.id);
-            var infos = donnees.d[forme.data('robot')][forme.data('id')];
-            table.majInfobulle(e.clientX, e.clientY, infos.position.mmX + ' x ' + infos.position.mmY);
+            var infos = donnees.getParIdSvg(e.target.id);
+            table.majInfobulle(e.clientX, e.clientY, 'Position<br>t = ' + infos.t + 'ms<br>' + infos.position.mmX + ' x ' + infos.position.mmY);
+            infos.svg.destination.show();
+            var ligne = table.creer.ligne(forme.cx(), forme.cy(), infos.svg.destination.first().cx(), infos.svg.destination.first().cy(), 1, 'grey');
+            forme.data('ligneDestination', ligne.attr('id'));
           })
           .mouseout(function(e) {
+            var forme = SVG.get(e.target.id);
             infobulle.masquer();
+            if(!$('#opt_svg-destination' + forme.data('robot')).hasClass('on'))
+              infos.svg.destination.hide();
+            SVG.get(forme.data('ligneDestination')).remove();
           });
+      }
+    },
+    destinations: {
+      ajouter: function(robot, id) {
+        var infos = donnees.get(robot, id);
+        var precedent = donnees.get(robot, Math.max(id - 1, 0));
+        if(id > 0 && infos.destination.mmX == precedent.destination.mmX && infos.destination.mmY == precedent.destination.mmY) {
+          // Même point, on ajoute directement la référence de l'objet précédent
+          infos.svg.destination = precedent.svg.destination;
+        }
+        else {
+          // Point différent, on crée un nouveau point
+          infos.svg.destination = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 10, 1, (robot == PR ? 'green' : 'red'))
+            .data({
+              robot: robot,
+              id: id,
+              type: 'destination'
+            })
+            .addClass('svg-destination' + robot)
+            .mouseover(function(e) {
+              var infos = donnees.getParIdSvg(e.target.parentNode.id);
+              //forme.stroke({width: 2});
+              table.majInfobulle(e.clientX, e.clientY, 'Destination<br>t = ' + infos.t + 'ms<br>' + infos.destination.mmX + ' x ' + infos.destination.mmY);              
+            })
+            .mouseout(function(e) {
+              infobulle.masquer();
+            })
+            .hide();
+        }
       }
     },
     evenements: {
@@ -134,6 +182,7 @@ var table = {
             id: id,
             type: 'evenement'
           })
+          .addClass('svg-evenement' + robot)
           .mouseover(function(e) {
             var forme = SVG.get(e.target.id);
             var infos = table.match.evenements.liste[forme.data('robot')][forme.data('id')];
@@ -147,12 +196,12 @@ var table = {
     },
     
     // N'affiche que les points compris dans [indiceMin, indiceMax] (indices de donnees.d[robot])
-    filtrer: function(robot, indiceMin, indiceMax) {
+    filtrerIndices: function(robot, indiceMin, indiceMax) {
       for(var i = 0; i < donnees.d[robot].length; i++) {
         if(i >= indiceMin && i <= indiceMax)
-          donnees.d[robot][i].pt.show();
+          donnees.d[robot][i].svg.pt.show();
         else
-          donnees.d[robot][i].pt.hide();
+          donnees.d[robot][i].svg.pt.hide();
       }
     }
   },
@@ -182,30 +231,19 @@ var infobulle = {
   }
 }
 
-/*
-        id--;
-        (robot == PR ? pr : gr)[id].table = {
-          pt: table.creer.point(param.mmX, param.mmY, 2,
-                                (robot == PR ? 'blue' : 'orange'),
-                                {
-                                  r: robot,
-                                  id: id
-                                })
-        };*/
-        
-// Slicer d'affichage d'une partie du match
+
 $( function() {
+  /** Slicers d'affichage d'une partie du match **/
   var filtrerAffichage = function(robot, indiceMin, indiceMax) {
     var ui = $('#curseurTMatch' + robot);
     indiceMin = Math.max(indiceMin, 0);
     indiceMin = Math.min(indiceMin, donnees.d[robot].length - 1);
     indiceMax = Math.min(indiceMax, donnees.d[robot].length - 1);
     
-    table.match.filtrer(robot, indiceMin, indiceMax);
+    table.match.filtrerIndices(robot, indiceMin, indiceMax);
     $('#valeurTMatch' + robot).text('[ ' + donnees.get(robot, indiceMin).t + ' ; ' + donnees.get(robot, indiceMax).t + ' ]');  
   }
 
-  
   $('#curseurTMatch0').slider({
     range: true,
     min: -10,
@@ -232,5 +270,18 @@ $( function() {
         filtrerAffichage(PR, ui.values[0], ui.values[1]);
       }
     }
+  });
+  
+  /** Options d'affichage **/
+  $('.optionAffichageTable').click(function() {
+    if( $(this).hasClass('on') ) {
+      $(this).removeClass('on');
+      SVG.select( '.' + $(this).attr('id').substr(4) ).hide();
+    }
+    else {
+      $(this).addClass('on');
+      SVG.select( '.' + $(this).attr('id').substr(4) ).show();
+    }
+    
   });
 });

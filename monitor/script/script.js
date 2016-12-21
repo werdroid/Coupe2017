@@ -136,6 +136,14 @@ table.conteneur.elem.addEventListener('mouseout', function() {
   //elem.curseur.style.opacity = 0;
 });
 */
+
+
+
+
+/**
+Données aléatoires pour tester
+**/
+
 var alea = {
   nb: function(max) {
     return parseInt(Math.random() * max);
@@ -153,22 +161,44 @@ var alea = {
 
 var x = [alea.aleaX(), alea.aleaX()];
 var y = [alea.aleaY(), alea.aleaY()];
+var destX = [x[0] + alea.nb(1000), x[1] - alea.nb(1000)];
+var destY = [y[0] + alea.nb(400), y[1] - alea.nb(400)];
+
 for(var i = 0; i < 1500; i++ ) {
   var robot = (i % 2 == 0 ? PR : GR); //(alea.unSur(2) ? PR : GR);
+  
+  // Avancer les robots (aléatoirement)
+  x[robot] += alea.nb(100) * (alea.unSur(2) ? -1 : 1);
+  y[robot] += alea.nb(80) * (alea.unSur(2) ? -1 : 1);
+  
+  // Changement de "direction"
+  if(alea.unSur(50)) {
+    destX[robot] = x[robot] + alea.nb(1000) * (alea.unSur(2) ? -1 : 1);
+    destY[robot] = y[robot] + alea.nb(800) * (alea.unSur(2) ? -1 : 1);
+  }
+  
+  
+  
+  var msg = {
+    t: i*10,
+    position: {
+      mmX: x[robot],
+      mmY: y[robot]
+    },
+    destination: {
+      mmX: destX[robot],
+      mmY: destY[robot]
+    }
+  };
+  var id = donnees.enregistrer(robot, msg);
+  
+  // Ajout d'événements aléatoires
   if(alea.unSur(250)) {
     table.match.evenements.ajouter(robot, 'Evénement ! ' + i);
   }
-  else {
-    x[robot] += alea.nb(100) * (alea.unSur(2) ? -1 : 1);
-    y[robot] += alea.nb(80) * (alea.unSur(2) ? -1 : 1);
-  }
-  table.match.positions.ajouter(robot,
-    donnees.enregistrer(robot, {
-      t: i*10,
-      mmX: x[robot],
-      mmY: y[robot]
-    })
-  );
-  //table.match.positions.ajouter(GR, donnees.enregistrer(GR, '@|Position|"mmX":' + alea.aleaX() + ',"mmY":' + alea.aleaY()));
+  
+  table.match.positions.ajouter(robot, id);
+  table.match.destinations.ajouter(robot, id);
+ 
 }
 

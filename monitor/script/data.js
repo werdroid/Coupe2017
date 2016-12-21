@@ -16,8 +16,13 @@ donnees.d = [
         mmX:    position du robot sur l'axe x (mm)
         mmY:    position du robot sur l'axe y (mm)
       },
+      destination: {
+        mmX:
+        mmY:
+      },
       svg: {    Ensemble des éléments dessinés sur la table et liés à cette trame
         pt:     pt position
+        destination:  croix destination
       }
     },
     {
@@ -40,8 +45,20 @@ var donnees = {
 	d: [[], []],  // PR et GR
 	
   // Retourne le jeu de données à l'indice indiqué
+  // si id < 0, retourne à partir de la fin
   get: function(robot, id) {
-    return donnees.d[robot][id];
+    if(id >= 0) {
+      /*if(id >= donnees.d[robot].length)
+        return donnees.d[robot][donnees.d[robot].length - 1];
+      else*/
+        return donnees.d[robot][id];
+    }
+    else {
+      /*if(id < -donnees.d[robot].length)
+        return donnees.d[robot][0];
+      else*/
+        return donnees.d[robot][donnees.d[robot].length + id];
+    }
   },
   
   // Retourne le jeu de données au timer indiqué
@@ -55,19 +72,30 @@ var donnees = {
   
   // Retourne le dernier jeu de données du robot
   getLast: function(robot) {
-    return donnees.d[robot][donnees.d[robot].length - 1];
+    return donnees.get(robot, -1);
+  },
+  
+  // Retourne le jeu de données correspondant à la forme #idsvg
+  getParIdSvg: function(idsvg) {
+    var forme = SVG.get(idsvg);
+    return donnees.d[forme.data('robot')][forme.data('id')];
   },
   
   // Enregistre un jeu de données et retourne son indice
 	enregistrer: function(robot, trame) {
-    if(trame[2] != '|') {
+    if(trame[1] != '|') {
       return donnees.d[robot].push({
         t: trame.t,
         position: {
-          mmX: trame.mmX,
-          mmY: trame.mmY
+          mmX: trame.position.mmX,
+          mmY: trame.position.mmY
         },
-        svg: {}
+        destination: {
+          mmX: trame.destination.mmX,
+          mmY: trame.destination.mmY
+        },
+        svg: {},
+        logs: []
       }) - 1;
       
     }
@@ -109,11 +137,16 @@ var donnees = {
 
 
 
-// Traitement des messages pendant Coupe IdF 2016
-var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
+var traiterMessage = function(robot, msg) { // r = robot émetteur (0 ou 1)
   if(msg[0] == '@') {
-    donnees.enregistrer(r, msg[0]);
+    var id = donnees.enregistrer(robot, msg);
+    table.match.positions.ajouter(robot, id);
+    table.match.destinations.ajouter(robot, id);
   }
+  
+  
+  
+  // Traitement des messages pendant Coupe IdF 2016
   else if(msg[0] == '!') {
     table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
     log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);

@@ -48,9 +48,14 @@
 		<section id="sLogMonitor">
 			<div id="logMonitor"></div>
 		</section>
-    <section id="infosMatch">
-      <label for="lierCurseursTMatch"><input type="checkbox" id="lierCurseursTMatch" checked="checked" />Lier les curseurs de match</label>
-      <label for="ptAfficherCoordonnees"><input type="checkbox" id="ptAfficherCoordonnees" disabled="disabled" />Afficher les coordonnées</label>
+    <section id="optionsTable">
+      <label for="lierCurseursTMatch"><input type="checkbox" id="lierCurseursTMatch" checked="checked" />Lier les curseurs de match</label><br>
+      <label for="ptAfficherCoordonnees"><input type="checkbox" id="ptAfficherCoordonnees" disabled="disabled" />Afficher les coordonnées</label><br><br>
+      <div id="optionsAffichageTable">
+        <label>Positions</label><span class="optionAffichageTable on" id="opt_svg-pt0">PR</span><span class="optionAffichageTable on" id="opt_svg-pt1">GR</span><br>
+        <label>Destinations</label><span class="optionAffichageTable" id="opt_svg-destination0">PR</span><span class="optionAffichageTable" id="opt_svg-destination1">GR</span><br>
+        <label>Evénements</label><span class="optionAffichageTable on" id="opt_svg-evenement0">PR</span><span class="optionAffichageTable on" id="opt_svg-evenement1">GR</span><br>
+      </div>
     </section>
 		<section id="sActionsMonitor">
 			<button id="bEffacerTout">Tout effacer</button>

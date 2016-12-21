@@ -89,7 +89,7 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 #sLogMonitor {
   flex: 1 0 auto;
 }
-#infosMatch {
+#optionsTable {
   column-count: 2;
   min-width: 600px;
 }
@@ -170,3 +170,51 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 	overflow-y: auto;
 }
 
+
+/**** Options pour la table *****/
+
+#optionsAffichageTable label {
+  display: inline-block;
+  width: 70px;
+}
+.optionAffichageTable {
+  display: inline-block;
+  width: 20px;
+  height: 15px;
+  margin-left: 10px;
+  margin-top: 2px;
+  padding: 2px;
+  text-align: center;
+  background-color: #eeeeee;
+  color: #aaaaaa;
+  cursor: pointer;
+}
+.optionAffichageTable.on {
+  border: 1px solid grey;
+  background-color: white;
+  padding: 1px;
+}
+#opt_svg-pt0.on {
+  color: blue;
+  border-color: blue;
+}
+#opt_svg-pt1.on {
+  color: orange;
+  border-color: orange;
+}
+#opt_svg-destination0.on {
+  color: green;
+  border-color: green;
+}
+#opt_svg-destination1.on {
+  color: red;
+  border-color: red;
+}
+#opt_svg-evenement0.on {
+  color: cyan;
+  border-color: cyan;
+}
+#opt_svg-evenement1.on {
+  color: yellow;
+  border-color: yellow;
+}
