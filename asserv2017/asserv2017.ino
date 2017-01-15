@@ -22,7 +22,7 @@
 Robot robot;
 Config config;
 
-volatile uint8_t lock_loop = 4; // 4: thread RT pas encore démarré
+volatile uint8_t lock_loop = RT_STATE_NOTSTARTED; // thread RT pas encore démarré
 elapsedMicros time_total;
 elapsedMicros time_solo;
 IntervalTimer timer;
@@ -129,10 +129,10 @@ void loop() {
 }
 
 void interruption_sample() {
-  if (lock_loop == 2) {
+  if (lock_loop == RT_STATE_RUNNING) {
     return;
   }
-  lock_loop = 2; // évite de rentrer dans la fonction si elle est déjà en cours
+  lock_loop = RT_STATE_RUNNING; // évite de rentrer dans la fonction si elle est déjà en cours
 
   time_total = 0;
   unsigned long time = micros();
@@ -174,12 +174,12 @@ void interruption_sample() {
     // com_log_print("us sick");
     // com_log_println();
 
-  lock_loop = 0;
+  lock_loop = RT_STATE_SLEEP;
 }
 
 /* Attend la saisie des capteurs de l'interruption */
 void synchronisation() {
-  lock_loop = 1;
-  while(lock_loop);
+  lock_loop = RT_STATE_WAITING;
+  while(!RT_STATE_SLEEP);
 }
 

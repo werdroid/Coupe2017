@@ -14,7 +14,7 @@ typedef struct {
 TrameMonitor trameMontor;
 
 void com_send_robot_infos() {
-  if (lock_loop == 0) {
+  if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
 
@@ -39,3 +39,9 @@ void com_loop() {
     com_send_robot_infos();
   }
 }
+
+#ifdef VOIR_FICHIER_HEADER
+void com_log_println(X);
+void com_log_print(X);
+#endif
+

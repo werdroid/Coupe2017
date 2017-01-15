@@ -44,6 +44,11 @@ const uint8_t ZONE_CONSTRUCTION = 20;
 const uint8_t ZONE_PECHE = 30;
 const uint8_t ZONE_DUNE = 40;
 
+const uint8_t RT_STATE_SLEEP = 0; // on est dans le main normal
+const uint8_t RT_STATE_WAITING = 1; // le main attend la synchro de RT
+const uint8_t RT_STATE_RUNNING = 2; // RT est en cours de fonctionnement
+const uint8_t RT_STATE_NOTSTARTED = 4; // RT n'est pas encore lancé au boot
+
 /*-----------------------------------------------------------------------------
  * Configuration
  *----------------------------------------------------------------------------*/
