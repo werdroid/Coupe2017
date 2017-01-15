@@ -36,3 +36,10 @@ trame RT:
 sick positionnement:
 recalage avant une action avec une visu sur les 3 balises
 pour remettre x, y, a à des valeurs plus réelles.
+
+AT
+AT+NAME=WRD-1
+AT+PSWD=0000
+AT+UART=115200,1,0
+AT+UART=115200,1,1
+AT+UART=115200,0,0
