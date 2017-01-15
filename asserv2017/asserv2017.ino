@@ -20,7 +20,6 @@
 // ####################################
 
 Robot robot;
-Config config;
 
 volatile uint8_t lock_loop = RT_STATE_NOTSTARTED; // thread RT pas encore démarré
 elapsedMicros time_total;
@@ -130,7 +129,6 @@ void setup() {
 
   // ecran_console_log("Starting menu...\n");
   // menu_start();
-
   // Lancement du programme du robot
   if (analogRead(A12) < 512) { // 0V=PR et 5V=GR (sur 1024)
     pr_main();
@@ -166,7 +164,7 @@ void interruption_sample() {
   boutons_all_pressed_restart();
 
   localisation_loop();
-  asservissement_polaire();
+  asserv_loop();
 
   tone_loop();
   com_loop();

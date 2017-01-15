@@ -49,6 +49,10 @@ const uint8_t RT_STATE_WAITING = 1; // le main attend la synchro de RT
 const uint8_t RT_STATE_RUNNING = 2; // RT est en cours de fonctionnement
 const uint8_t RT_STATE_NOTSTARTED = 4; // RT n'est pas encore lancé au boot
 
+const uint8_t ASSERV_MODE_STOP = 0;
+const uint8_t ASSERV_MODE_PWM = 1;
+const uint8_t ASSERV_MODE_POLAIRE = 2;
+
 /*-----------------------------------------------------------------------------
  * Configuration
  *----------------------------------------------------------------------------*/
@@ -102,6 +106,11 @@ typedef struct {
   int32_t rotation; // tick
 
   // Asserv
+  uint8_t asserv_mode;
+
+  int16_t consigne_pwm_gauche;
+  int16_t consigne_pwm_droite;
+
   struct quadramp_filter ramp_distance;
   struct quadramp_filter ramp_rotation;
   int32_t consigneDistance; // tick
@@ -165,18 +174,7 @@ typedef struct {
   int32_t a;
 } Position; // 12 octets
 
-typedef struct {
-  bool IS_PR;
-  float ASSERV_COEFF_TICKS_PAR_MM;
-  float ASSERV_COEFF_TICKS_PAR_RADIAN;
-  float ASSERV_DISTANCE_KP;
-  float ASSERV_DISTANCE_KD;
-  float ASSERV_ROTATION_KP;
-  float ASSERV_ROTATION_KD;
-} Config;
-
 extern Robot robot;
-extern Config config;
 volatile extern uint8_t lock_loop;
 
 /*-----------------------------------------------------------------------------
@@ -278,16 +276,17 @@ bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 // Asserv
 void asserv_setup();
-void asservissement_polaire();
-void controlPos(float erreurDistance, float erreurRotation);
-void controle_distance(int32_t erreurDistance);
-void controle_rotation(float erreurRotationRadian);
 void asserv_raz_consignes();
+void asserv_loop();
+
+void asserv_consigne_stop();
+void asserv_consigne_pwm(uint16_t gauche, uint16_t droite);
+void asserv_consigne_polaire(int32_t distance, int32_t rotation);
+void asserv_consigne_polaire_delta(int32_t distance_mm_delta, float rotation_rad_delta);
 
 uint8_t tout_droit(int32_t distance, uint16_t timeout = 0);
 uint8_t faire_rotation(float rotation_rad, uint16_t timeout = 0);
 uint8_t consignesXY(int32_t consigneX, int32_t consigneY, uint16_t uniquement_avant = 0);
-void consignesOrbite(int32_t consigneX, int32_t consigneY);
 uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0, uint16_t uniquement_avant = 0);
 uint8_t asserv_goa(float orientation, uint16_t timeout = 5000, uint8_t sans_symetrie = 0);
 uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0);

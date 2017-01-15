@@ -5,6 +5,7 @@
 // ####################################
 
 void asserv_setup() {
+  robot.asserv_mode = ASSERV_MODE_STOP;
   robot.activeDistance = 1;
   robot.activeRotation = 1;
   robot.pwm_max = 80;
@@ -20,31 +21,14 @@ void asserv_setup() {
   Haut niveau
  *******************************************************************************/
 
-void consignesOrbite(int32_t totemX, int32_t totemY) {
-  // le vecteur perpendiculaire au totem
-  int32_t vx = totemX - robot.x;
-  int32_t vy = totemY - robot.y;
-  float erreurAngleRad = atan2(vy, vx) - robot.a; // [-pi, +pi] radians
-  erreurAngleRad = normalize_radian(erreurAngleRad);
-
-  if (erreurAngleRad > 0) {
-    erreurAngleRad -= MATH_PI2;
-  } else {
-    erreurAngleRad += MATH_PI2;
-  }
-
-  robot.erreurRotation = radian_vers_orientation(erreurAngleRad);
-  robot.erreurDistance = 2000;
-}
-
-uint8_t consignesXY(int32_t consigneX, int32_t consigneY, uint16_t uniquement_avant) {
+uint8_t consignesXY(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant) {
   // le vecteur à faire
-  int32_t vx = consigneX - robot.x;
-  int32_t vy = consigneY - robot.y;
+  int32_t vx = consigne_x_mm - robot.xMm; // mm
+  int32_t vy = consigne_y_mm - robot.yMm; // mm
 
   // norme et angle
-  int32_t erreurNorme = sqrt(pow(vx, 2) + pow(vy, 2));
-  int32_t erreurDistance;
+  int32_t erreurNorme = sqrt(pow(vx, 2) + pow(vy, 2)); // mm
+  int32_t erreurDistance; // mm
   float erreurAngleRad = atan2(vy, vx) - robot.a; // [-pi, +pi] radians
 
   // on garde les angles dans le cercle trigo de -pi à +pi
@@ -70,38 +54,38 @@ uint8_t consignesXY(int32_t consigneX, int32_t consigneY, uint16_t uniquement_av
    * distance seule tant que D1 > d > D2
    */
 
-  int D1 = mm2tick(200); // rayon sans rotation
-  int D2 = mm2tick(30); // rayon marge d'erreur distance
+  int D1 = 200; // rayon sans rotation en mm
+  int D2 = 30; // rayon marge d'erreur distance en mm
   uint8_t result = AUTRE;
 
   if (erreurNorme < D2) {
     // fin
     result = OK;
-    controlPos(erreurDistance, 0);
+    asserv_consigne_polaire_delta(erreurDistance, 0);
   } else if (D1 < erreurNorme && erreurNorme < D2) {
     // distance seule car on est trop proche du point
-    controlPos(erreurDistance, 0);
+    asserv_consigne_polaire_delta(erreurDistance, 0);
   } else if (abs(erreurAngleRad) > 0.5) {// 30/180*pi=0.5rad   10/180*pi=0.17rad
     // rotation seule car on n'est pas dans l'axe
-    controlPos(0, erreurAngleRad);
+    asserv_consigne_polaire_delta(0, erreurAngleRad);
   } else {
     // déplacement normal
-    controlPos(erreurDistance, erreurAngleRad);
+    asserv_consigne_polaire_delta(erreurDistance, erreurAngleRad);
   }
 
   return result;
 }
 
-uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout, uint16_t uniquement_avant) {
+uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout, uint16_t uniquement_avant) {
   elapsedMillis timer;
   uint8_t result;
 
-  consigneX = mm2tick(symetrie_x(consigneX));
-  consigneY = mm2tick(consigneY);
+  consigne_x_mm = symetrie_x(consigne_x_mm);
+  consigne_y_mm = consigne_y_mm;
 
   while (1) {
     synchronisation();
-    result = consignesXY(consigneX, consigneY, uniquement_avant);
+    result = consignesXY(consigne_x_mm, consigne_y_mm, uniquement_avant);
 
     if (result == OK) {
       delay(200);
@@ -187,32 +171,65 @@ uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
   }
 }
 
-void controlPos(float erreurDistance, float erreurRotationRadian) {
-  robot.consigneDistance = robot.distance + erreurDistance;
-  robot.consigneRotation = robot.rotation + radian_vers_orientation(erreurRotationRadian);
-}
-
-void controle_distance(int32_t erreurDistance) {
-  robot.consigneDistance = robot.distance + erreurDistance;
-}
-
-void controle_rotation(float erreurRotationRadian) {
-  robot.consigneRotation = robot.rotation + radian_vers_orientation(erreurRotationRadian);
-}
-
 void asserv_raz_consignes() {
   robot.consigneDistance = robot.distance;
   robot.consigneRotation = robot.rotation;
 }
 
 /*******************************************************************************
-  Bas niveau
+  Fixe les consignes brutes de la boucle
+ *******************************************************************************/
+
+void asserv_consigne_stop() {
+  robot.asserv_mode = ASSERV_MODE_STOP;
+}
+
+void asserv_consigne_pwm(uint16_t pwm_gauche, uint16_t pwm_droite) {
+  robot.asserv_mode = ASSERV_MODE_PWM;
+
+  robot.consigne_pwm_gauche = pwm_gauche;
+  robot.consigne_pwm_droite = pwm_droite;
+}
+
+void asserv_consigne_polaire(int32_t distance_tick, int32_t rotation_tick) {
+  robot.asserv_mode = ASSERV_MODE_POLAIRE;
+
+  robot.consigneDistance = distance_tick;
+  robot.consigneRotation = rotation_tick;
+}
+
+void asserv_consigne_polaire_delta(int32_t distance_mm_delta, float rotation_rad_delta) {
+  robot.asserv_mode = ASSERV_MODE_POLAIRE;
+
+  robot.consigneDistance = robot.distance + mm2tick(distance_mm_delta);
+  robot.consigneRotation = robot.rotation + radian_vers_orientation(rotation_rad_delta);
+}
+
+/*******************************************************************************
+  Boucle temps réel
  *******************************************************************************/
 
 static int32_t erreur_distance_precedente = 0;
 static int32_t erreur_rotation_precedente = 0;
 
-void asservissement_polaire() {
+
+// Contrôle les moteurs en fonction des consignes et du mode actuel
+
+void asserv_loop() {
+  if (robot.asserv_mode == ASSERV_MODE_STOP) {
+    moteur_gauche(0);
+    moteur_droite(0);
+    return;
+  }
+
+  if (robot.asserv_mode == ASSERV_MODE_PWM) {
+    moteur_gauche(robot.consigne_pwm_gauche);
+    moteur_droite(robot.consigne_pwm_droite);
+    return;
+  }
+
+  // robot.asserv_mode == ASSERV_MODE_POLAIRE
+
   robot.erreurDistance = quadramp_do_filter(&robot.ramp_distance, robot.consigneDistance) - robot.distance;
   // robot.erreurDistance = robot.consigneDistance - robot.distance;
   robot.erreurRotation = quadramp_do_filter(&robot.ramp_rotation, robot.consigneRotation) - robot.rotation;
@@ -221,10 +238,10 @@ void asservissement_polaire() {
   int32_t pwmRotation = 0;
 
   if (robot.activeDistance) {
-    pwmDistance = robot.erreurDistance * config.ASSERV_DISTANCE_KP + (robot.erreurDistance - erreur_distance_precedente) * config.ASSERV_DISTANCE_KD;
+    pwmDistance = robot.erreurDistance * robot.ASSERV_DISTANCE_KP + (robot.erreurDistance - erreur_distance_precedente) * robot.ASSERV_DISTANCE_KD;
   }
   if (robot.activeRotation) {
-    pwmRotation = robot.erreurRotation * config.ASSERV_ROTATION_KP + (robot.erreurRotation - erreur_rotation_precedente) * config.ASSERV_ROTATION_KD;
+    pwmRotation = robot.erreurRotation * robot.ASSERV_ROTATION_KP + (robot.erreurRotation - erreur_rotation_precedente) * robot.ASSERV_ROTATION_KD;
   }
 
   pwmDistance = constrain(pwmDistance, -127, 127);

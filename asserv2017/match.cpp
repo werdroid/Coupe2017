@@ -23,9 +23,6 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   uint8_t error2;
   uint8_t tentatives = 0;
 
-  /*if(config.IS_PR && vitesse > 70)
-    vitesse = 70;
-  */
   definir_vitesse_avance(vitesse);
   if(uniquement_avant) {
     asserv_goa_point(x, y, 2000);
@@ -54,9 +51,6 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   } while(error == ERROR_OBSTACLE && tentatives < max_tentatives && !match_termine());
 
   if(match_termine()) {
-    if(!config.IS_PR) {
-      funny_action();
-    }
     com_log_print("! Déplacement vers ");
     com_log_print(x);
     com_log_print(";");

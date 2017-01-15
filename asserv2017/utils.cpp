@@ -5,19 +5,19 @@
 // ####################################
 
 int32_t mm2tick(int32_t distance) {
-  return distance * config.ASSERV_COEFF_TICKS_PAR_MM;
+  return distance * robot.ASSERV_COEFF_TICKS_PAR_MM;
 }
 
 int32_t tick2mm(int32_t distance) {
-  return distance / config.ASSERV_COEFF_TICKS_PAR_MM;
+  return distance / robot.ASSERV_COEFF_TICKS_PAR_MM;
 }
 
 int32_t radian_vers_orientation(float radian) {
-  return radian * config.ASSERV_COEFF_TICKS_PAR_RADIAN;
+  return radian * robot.ASSERV_COEFF_TICKS_PAR_RADIAN;
 }
 
 float orientation_vers_radian(int32_t orientation) {
-  return orientation / config.ASSERV_COEFF_TICKS_PAR_RADIAN;
+  return orientation / robot.ASSERV_COEFF_TICKS_PAR_RADIAN;
 }
 
 int32_t rad2deg(float radian) {

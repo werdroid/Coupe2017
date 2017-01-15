@@ -57,7 +57,7 @@ void ecran_print_menu(int selector) {
     couleur_robot = ST7735_MAGENTA;
   }
 
-  if(config.IS_PR) {
+  if(1) {
     switch(robot.coquillage) {
       case 0:
         optionsMenu[2] = "\n\n   Coquillage:     0";

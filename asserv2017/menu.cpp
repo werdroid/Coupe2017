@@ -56,7 +56,7 @@ void menu_start() {
           ecran_print_menu(selectPosition);
           break;
         case 2:
-          if(config.IS_PR) {
+          if(1) {
             match_changer_coquillage();
             ecran_print_menu(selectPosition);
           }
@@ -93,7 +93,7 @@ void menu_start() {
           ecran_console_log("Debut dans 5 sec\n\n");
           ecran_console_log("Relever BAU !\n");
           delay(3000);
-          if(config.IS_PR)
+          if(1)
             debug_pr();
           else
             debug_gr();
@@ -104,16 +104,16 @@ void menu_start() {
           ecran_console_log("Tourner 10x");
           robot.activeDistance = 0;
           quadramp_set_1st_order_vars(&robot.ramp_rotation, 60, 60);
-          controle_rotation(MATH_PI * 2 * 10);
+          asserv_consigne_polaire_delta(0, MATH_PI * 2 * 10);
           for(;;);
           break;
         case 6:
-          if(config.IS_PR) {
+          if(1) {
             ecran_console_reset();
             ecran_console_log("30cm en avant");
             robot.activeRotation = 0;
             quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
-            controle_distance(mm2tick(300));
+            asserv_consigne_polaire_delta(300, 0);
             for(;;);
           }
           else {
@@ -167,11 +167,7 @@ int menu_input_up() {
 }
 
 void match_start() {
-  if (config.IS_PR) {
-    match_pr();
-  } else {
-    match_gr();
-  }
+  // deprecated
 }
 
 void match_changer_couleur() {

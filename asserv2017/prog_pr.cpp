@@ -30,6 +30,7 @@ void pr_init() {
 
 void pr_main() {
   com_log_println("pr_main()");
+  asserv_consigne_pwm(30, 30);
 }
 
 
