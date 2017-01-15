@@ -22,8 +22,8 @@ void menu_start() {
   ecran_print_menu(selectPosition);
 
   do {
-    select = !digitalRead(PIN_DIN_SELECT);
-    start = !digitalRead(PIN_DIN_START);
+    select = boutons_select_down();
+    start = boutons_start_down();
 
     if (select && !start) {
       com_log_println("Select pressed");
@@ -154,8 +154,8 @@ int menu_input_up() {
   uint duration_start = millis();
 
   do {
-    int select = !digitalRead(PIN_DIN_SELECT);
-    int start = !digitalRead(PIN_DIN_START);
+    int select = boutons_select_down();
+    int start = boutons_start_down();
 
     if (!select && !start) {
       delay(5);

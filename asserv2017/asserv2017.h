@@ -67,9 +67,6 @@ const uint8_t RT_STATE_NOTSTARTED = 4; // RT n'est pas encore lancé au boot
 // #define SPD_MAX SPD_MAX_MM * ASSERV_COEFF_TICKS_PAR_MM_PR // tick/s
 // #define ACC_MAX ACC_MAX_MM * ASSERV_COEFF_TICKS_PAR_MM_PR // tick/s2
 
-#define PIN_DIN_SELECT 2
-#define PIN_DIN_START 3
-
 /*-----------------------------------------------------------------------------
  * Data structures
  *----------------------------------------------------------------------------*/
@@ -147,6 +144,14 @@ typedef struct {
   // Profiling du CPU
   uint32_t time_codeurs;
   uint32_t time_sick;
+
+  // Configuration, initialisée au tout début
+  float ASSERV_COEFF_TICKS_PAR_MM;
+  float ASSERV_COEFF_TICKS_PAR_RADIAN;
+  float ASSERV_DISTANCE_KP;
+  float ASSERV_DISTANCE_KD;
+  float ASSERV_ROTATION_KP;
+  float ASSERV_ROTATION_KD;
 } Robot;
 
 typedef struct {
@@ -192,10 +197,6 @@ float symetrie_a(float a);
 
 // General
 void synchronisation();
-void general_setup();
-void general_loop();
-void wait_start_button_down();
-void wait_start_button_up();
 
 // Match
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to);
@@ -208,6 +209,9 @@ bool temps_ecoule(uint32_t t0, uint32_t duree);
 bool match_termine();
 
 // PR
+void pr_init();
+void pr_main();
+
 void debug_pr();
 void match_pr();
 void volets_fermer();
@@ -217,6 +221,9 @@ void canne_monter();
 
 
 // GR
+void gr_init();
+void gr_main();
+
 void grosse_dune_1();
 void grosse_dune_2();
 void grosse_dune_suite();
@@ -251,6 +258,18 @@ void moteur_droite(const int16_t pwm);
 // Codeurs
 void codeurs_setup();
 void codeurs_sync();
+
+// Boutons
+void boutons_init();
+void boutons_all_pressed_restart();
+bool boutons_start_up();
+bool boutons_start_down();
+bool boutons_select_up();
+bool boutons_select_down();
+void wait_start_button_down();
+void wait_start_button_up();
+void wait_select_button_down();
+void wait_select_button_up();
 
 // Localisation
 void localisation_loop();

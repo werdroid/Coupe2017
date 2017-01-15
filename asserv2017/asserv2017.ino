@@ -44,7 +44,15 @@ void setup() {
   SPI.begin();
 
   ecran_setup();
-  general_setup();
+  boutons_init();
+
+  // Configuration des constantes et actionneurs
+  if (analogRead(A12) < 512) { // 0V=PR et 5V=GR (sur 1024)
+    pr_init();
+  } else {
+    gr_init();
+  }
+
   SPI.setSCK(sclk); // après l'écran car il le remet sur le 13
 
   // // Affectation de SCLK sur pin 14 au lieu de 13, après le init de l'écran
@@ -68,9 +76,9 @@ void setup() {
     if (sick_connect()) {
       ecran_console_log(" OK\n");
       break;
-    } else if (!digitalRead(PIN_DIN_SELECT)) {
+    } else if (boutons_select_down()) {
       ecran_console_log("\nPassing\n");
-      while(!digitalRead(PIN_DIN_SELECT));
+      while(boutons_select_down());
       delay(5);
       break;
     } else {
@@ -85,9 +93,9 @@ void setup() {
       // la led clignote, ça veut dire que start_stream passe le SPI au mauvais endroit
       ecran_console_log(" OK\n");
       break;
-    } else if (!digitalRead(PIN_DIN_SELECT)) {
+    } else if (boutons_select_down()) {
       ecran_console_log("\nPassing\n");
-      while(!digitalRead(PIN_DIN_SELECT));
+      while(boutons_select_down());
       delay(5);
       break;
     } else {
@@ -120,8 +128,15 @@ void setup() {
   // Teensy 3.1 can support up to 16 levels of nesting, so priority levels 0 to 15 are all the same, 16 to 31 are the same, and so on
   // IntervalTimer for priority 48, on Teensy 3.1/3.2 it will not block Systick at 32
 
-  ecran_console_log("Starting menu...\n");
-  menu_start();
+  // ecran_console_log("Starting menu...\n");
+  // menu_start();
+
+  // Lancement du programme du robot
+  if (analogRead(A12) < 512) { // 0V=PR et 5V=GR (sur 1024)
+    pr_main();
+  } else {
+    gr_main();
+  }
 }
 
 void loop() {
@@ -148,7 +163,7 @@ void interruption_sample() {
   robot.time_sick = time_solo;
 
   tone_loop();
-  general_loop();
+  boutons_all_pressed_restart();
 
   localisation_loop();
   asservissement_polaire();
@@ -158,21 +173,10 @@ void interruption_sample() {
   led_update();
   tone_loop();
 
-  // com_log_println((micros() - time));
   if ((micros() - time) >= DT_US) {
-    com_log_print("INT ERR ");
-    // com_log_print("Surcharge interruption: ");
-    com_log_print((micros() - time));
-    com_log_print("us total, ");
-    com_log_print(robot.time_codeurs);
-    com_log_print("us codeurs, ");
-    com_log_print(robot.time_sick);
-    com_log_print("us sick");
-    com_log_println();
+    com_log_println("RT INTERRUPTION TOO LONG");
+    com_log_println((micros() - time));
   }
-    // com_log_print(robot.time_sick);
-    // com_log_print("us sick");
-    // com_log_println();
 
   lock_loop = RT_STATE_SLEEP;
 }
