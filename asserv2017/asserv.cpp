@@ -33,7 +33,7 @@ void consignesOrbite(int32_t totemX, int32_t totemY) {
     erreurAngleRad += MATH_PI2;
   }
 
-  robot.erreurRotation = erreurAngleRad * config.ASSERV_COEFF_TICKS_PAR_RADIAN;
+  robot.erreurRotation = radian_vers_orientation(erreurAngleRad);
   robot.erreurDistance = 2000;
 }
 
@@ -168,8 +168,8 @@ uint8_t tout_droit(int32_t distance, uint16_t timeout) {
 
 uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
   elapsedMillis timer;
-  robot.consigneRotation = robot.rotation + rotation_rad * config.ASSERV_COEFF_TICKS_PAR_RADIAN;
-  int32_t marge_erreur_rotation = 0.3 * config.ASSERV_COEFF_TICKS_PAR_RADIAN;
+  robot.consigneRotation = robot.rotation + radian_vers_orientation(rotation_rad);
+  int32_t marge_erreur_rotation = radian_vers_orientation(0.3);
 
   while (1) {
     synchronisation();
@@ -189,7 +189,7 @@ uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
 
 void controlPos(float erreurDistance, float erreurRotationRadian) {
   robot.consigneDistance = robot.distance + erreurDistance;
-  robot.consigneRotation = robot.rotation + erreurRotationRadian * config.ASSERV_COEFF_TICKS_PAR_RADIAN;
+  robot.consigneRotation = robot.rotation + radian_vers_orientation(erreurRotationRadian);
 }
 
 void controle_distance(int32_t erreurDistance) {
@@ -197,7 +197,7 @@ void controle_distance(int32_t erreurDistance) {
 }
 
 void controle_rotation(float erreurRotationRadian) {
-  robot.consigneRotation = robot.rotation + erreurRotationRadian * config.ASSERV_COEFF_TICKS_PAR_RADIAN;
+  robot.consigneRotation = robot.rotation + radian_vers_orientation(erreurRotationRadian);
 }
 
 void asserv_raz_consignes() {
