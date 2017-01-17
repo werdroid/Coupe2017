@@ -228,6 +228,7 @@ void asserv_loop() {
 
   // robot.asserv_mode == ASSERV_MODE_POLAIRE
 
+  // l'erreur correspond aussi au patinage, plus il augmente plus l'accélération devrait être baissée
   robot.erreurDistance = quadramp_do_filter(&robot.ramp_distance, robot.consigneDistance) - robot.distance;
   // robot.erreurDistance = robot.consigneDistance - robot.distance;
   robot.erreurRotation = quadramp_do_filter(&robot.ramp_rotation, robot.consigneRotation) - robot.rotation;
