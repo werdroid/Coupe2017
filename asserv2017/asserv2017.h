@@ -131,7 +131,6 @@ typedef struct {
   int16_t xMm; // mm
   int16_t yMm; // mm
   float   a; // radian
-  int16_t pwm; // force la pwm si différent de zéro
 
   uint16_t consigneXmm; // mm
   uint16_t consigneYmm; // mm

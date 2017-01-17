@@ -250,17 +250,6 @@ void asserv_loop() {
   robot.moteurGauche = pwmDistance + pwmRotation;
   robot.moteurDroite = pwmDistance - pwmRotation;
 
-  if (robot.pwm) { // force la pwm des moteurs à la place de l'asservissement
-    robot.moteurGauche = robot.pwm;
-    robot.moteurDroite = robot.pwm;
-  }
-
-  if (robot.match_debut && millis() - robot.match_debut > 81000) {
-    com_log_println("fin match");
-    robot.moteurGauche = 0;
-    robot.moteurDroite = 0;
-  }
-
   moteur_gauche(robot.moteurGauche);
   moteur_droite(robot.moteurDroite);
 
