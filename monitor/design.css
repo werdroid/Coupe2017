@@ -90,7 +90,7 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
   flex: 1 0 auto;
 }
 #optionsTable {
-  column-count: 2;
+  column-count: 3;
   min-width: 600px;
 }
 #sActionsMonitor {

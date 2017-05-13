@@ -197,4 +197,4 @@ var genererJeuAleatoire = function() {
   }
 }
 
-genererJeuAleatoire();
+//genererJeuAleatoire();

@@ -18,9 +18,10 @@ var table = {
     grpDestinations: [null, null],
     grpEvenements: [null, null],
     
+    grpPtsEtape: null,
     gabarit: null,
     
-    positions: [[],[]],
+    positions: [[],[]], // Un objet SVG par position
     reliures: [[],[]],
     destinations: [[],[]],
     evenements: [[],[]],
@@ -46,7 +47,7 @@ var table = {
     posY: 0*/
   },
   param: {
-    afficherCoordonnees: false
+    afficherGabarit: false
   },
   init: function() {
     this.general.scWidth = table.general.scale * table.general.width;
@@ -82,30 +83,11 @@ var table = {
     }
     
     // Gabarit
-    table.obj.gabarit = table.svg.set();
-    table.obj.gabarit.add(
-      table.svg.rect(3, 3)
-        .fill('green')
-        //.center(1500 * table.general.scale, 1000 * table.general.scale)
-    );
-    // GR
-    table.obj.gabarit.add(
-      table.svg.circle(390 * table.general.scale)
-        .stroke('orange')
-        .fill('none')
-        //.center(1500 * table.general.scale, 1000 * table.general.scale)
-    );
-    table.obj.gabarit.add(
-      table.svg.rect(300 * table.general.scale, 300 * table.general.scale)
-        .stroke('orange')
-        .fill('none')
-        //.center(1500 * table.general.scale, 1000 * table.general.scale)
-    );
+    table.obj.gabarit = table.creer.gabarit();
     table.obj.gabarit.hide();
     
-    
     table.svg.mousemove(function(e) {
-      if(table.param.afficherCoordonnees) {
+      if(table.param.afficherGabarit) {
         var x = (e.clientX - table.general.posX) / table.general.scale;
         var y = (e.clientY - table.general.posY) / table.general.scale;
         var x50 = Math.round(x / 50) * 50;
@@ -115,6 +97,13 @@ var table = {
         table.obj.gabarit.show();
       }
     });
+    
+    // Points clés ("Points coordonnées")
+    table.obj.grpPtsEtape = table.svg.set();
+    for(var i = 0; i < ptsEtape.length; i++) {
+      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0], ptsEtape[i][1], ptsEtape[i][2], 'green'));
+      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0], 3000 - ptsEtape[i][1], ptsEtape[i][2], 'purple'));
+    }
   },
   creer: {
     point: function(x, y, diametre, couleur) {
@@ -165,6 +154,38 @@ var table = {
         group.add(table.creer.ligne(x , 0, x, table.general.scHeight, 1, '#dddddd'));
       }
       return group;
+    },
+    gabarit: function() {
+      var gab = table.svg.set();
+      gab.add(
+        table.svg.rect(3, 3)
+          .fill('green')
+      );
+      // GR
+      gab.add(
+        table.svg.circle(390 * table.general.scale)
+          .stroke('orange')
+          .fill('none')
+      );
+      gab.add(
+        table.svg.rect(300 * table.general.scale, 300 * table.general.scale)
+          .stroke('orange')
+          .fill('none')
+      );
+      return gab;
+    },
+    ptEtape: function(id, x, y, couleur) {
+      return table.svg
+        .rect(3, 3)
+        .center(x * table.general.scale, y * table.general.scale)
+        .fill(couleur)
+        .stroke('none')
+        .mouseover(function(e) {
+          table.majInfobulle(e.clientX, e.clientY, id);
+        })
+        .mouseout(function(e) {
+          infobulle.masquer();
+        });
     },
     texte: function(txt, x, y, couleur, police) {
       console.log("Va falloir attendre un peu (pas longtemps) pour afficher du texte sur la table :)");
@@ -394,6 +415,14 @@ $( function() {
       table.obj.quadrillage.hide();
   });
   
+  // Affichage des points repère
+  $('#cbAfficherPtsEtape').click(function() {
+    if($(this).prop('checked'))
+      table.obj.grpPtsEtape.show();
+    else
+      table.obj.grpPtsEtape.hide();
+  });
+  
   // Affichage de lignes pour relier les points
   $('#cbRelierPoints').click(function() {
     if($(this).prop('checked')) {
@@ -406,11 +435,11 @@ $( function() {
     }
   });
   
-  $('#cbAfficherCoordonnees').click(function() {
+  $('#cbAfficherGabarit').click(function() {
     if($(this).prop('checked'))
-      table.param.afficherCoordonnees = true;
+      table.param.afficherGabarit = true;
     else {
-      table.param.afficherCoordonnees = false;
+      table.param.afficherGabarit = false;
       table.obj.gabarit.hide();
     }
   });
