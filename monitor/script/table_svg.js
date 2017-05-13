@@ -10,6 +10,21 @@ Ménage suite à Transformation de Canvas à Svg en cours.
 var table = {
   svg: SVG('table').size(780, 530),
   elem: document.getElementById('table'),
+  obj: {  // Ensemble des objets créés
+    quadrillage: null,
+    
+    grpPositions: [null, null], // Objet SVG groupe contenant l'ensemble des positions
+    grpReliures: [null, null],
+    grpDestinations: [null, null],
+    grpEvenements: [null, null],
+    
+    gabarit: null,
+    
+    positions: [[],[]],
+    reliures: [[],[]],
+    destinations: [[],[]],
+    evenements: [[],[]],
+  },
   conteneur: {
     elem: document.getElementById('blocTable'),
     // Redéfinis à l'init
@@ -31,17 +46,14 @@ var table = {
     posY: 0*/
   },
   param: {
-    elem: {
-      afficherCoordonnees: document.getElementById('ptAfficherCoordonnees')
-    },
-    afficherCoordonnees: function() { return table.param.elem.afficherCoordonnees.checked; }
+    afficherCoordonnees: false
   },
   init: function() {
     this.general.scWidth = table.general.scale * table.general.width;
     this.general.scHeight = table.general.scale * table.general.height;
     table.conteneur.majPosition();
-    /*this.general.posX = table.elem.getBoundingClientRect().left + 5;
-    this.general.posY = table.elem.getBoundingClientRect().top + 5;*/
+    table.general.posX = table.elem.getBoundingClientRect().left + 10;
+    table.general.posY = table.elem.getBoundingClientRect().top + 10;
       
     // On se décale de 10, 10
     table.svg.viewbox(-10, -10, this.general.scWidth + 20, this.general.scHeight + 20);
@@ -57,13 +69,57 @@ var table = {
       .height(table.general.scHeight);//*/
       
     // Grille
-    table.creer.quadrillageHorizontal(100);
-    table.creer.quadrillageVertical(100);
+    table.obj.quadrillage = table.svg.group();
+    table.obj.quadrillage.add(table.creer.quadrillageHorizontal(100));
+    table.obj.quadrillage.add(table.creer.quadrillageVertical(100));
  
+    // Création des groupes (permettront de masquer / afficher facilement un ensemble d'éléments)
+    for(i = 0; i <= 1; i++) {
+      table.obj.grpPositions[i] = table.svg.group();
+      table.obj.grpReliures[i] = table.svg.group();
+      table.obj.grpDestinations[i] = table.svg.group();
+      table.obj.grpEvenements[i] = table.svg.group();
+    }
+    
+    // Gabarit
+    table.obj.gabarit = table.svg.set();
+    table.obj.gabarit.add(
+      table.svg.rect(3, 3)
+        .fill('green')
+        //.center(1500 * table.general.scale, 1000 * table.general.scale)
+    );
+    // GR
+    table.obj.gabarit.add(
+      table.svg.circle(390 * table.general.scale)
+        .stroke('orange')
+        .fill('none')
+        //.center(1500 * table.general.scale, 1000 * table.general.scale)
+    );
+    table.obj.gabarit.add(
+      table.svg.rect(300 * table.general.scale, 300 * table.general.scale)
+        .stroke('orange')
+        .fill('none')
+        //.center(1500 * table.general.scale, 1000 * table.general.scale)
+    );
+    table.obj.gabarit.hide();
+    
+    
+    table.svg.mousemove(function(e) {
+      if(table.param.afficherCoordonnees) {
+        var x = (e.clientX - table.general.posX) / table.general.scale;
+        var y = (e.clientY - table.general.posY) / table.general.scale;
+        var x50 = Math.round(x / 50) * 50;
+        var y50 = Math.round(y / 50) * 50;
+        table.majInfobulle(e.clientX, e.clientY, x50 + ' x ' + y50);
+        table.obj.gabarit.center(x50 * table.general.scale, y50 * table.general.scale);
+        table.obj.gabarit.show();
+      }
+    });
   },
   creer: {
     point: function(x, y, diametre, couleur) {
       return table.svg
+        //.rect(diametre, diametre)
         .circle(diametre)
         .center(x * table.general.scale, y * table.general.scale)
         .fill(couleur)
@@ -96,15 +152,19 @@ var table = {
     },
     quadrillageHorizontal: function(delta) {
       delta = delta * table.general.scale;
+      var group = table.svg.group();
       for(var y = delta; y < table.general.scHeight; y += delta) {
-        table.creer.ligne(0, y, table.general.scWidth, y, 1, '#dddddd');
+        group.add(table.creer.ligne(0, y, table.general.scWidth, y, 1, '#dddddd'));
       }
+      return group;
     },
     quadrillageVertical: function(delta) {
       delta = delta * table.general.scale;
+      var group = table.svg.group();
       for(var x = delta; x < table.general.scWidth; x += delta) {
-        table.creer.ligne(x , 0, x, table.general.scHeight, 1, '#dddddd');
+        group.add(table.creer.ligne(x , 0, x, table.general.scHeight, 1, '#dddddd'));
       }
+      return group;
     },
     texte: function(txt, x, y, couleur, police) {
       console.log("Va falloir attendre un peu (pas longtemps) pour afficher du texte sur la table :)");
@@ -117,29 +177,50 @@ var table = {
     positions: {
       // Ajouter un point sur la table et enregistre sa référence dans donnees.d[r][#][svg][pt]
       ajouter: function(robot, id) {
-        var infos = donnees.d[robot][id];
-        infos.svg.pt = table.creer.point(infos.position.mmX, infos.position.mmY, 4, (robot == PR ? 'blue' : 'orange'))
+        // Création du point et événements associés
+        var infos = donnees.get(robot, id);
+        var pt = table.creer.point(infos.position.mmX, infos.position.mmY, 4, (robot == PR ? 'blue' : 'orange'))
           .data({
             robot: robot,
-            id: id,
-            type: 'position'
+            type: 'position',
+            donnee: id,
+            t: match.timer[robot]
           })
           .addClass('svg-pt' + robot)
           .mouseover(function(e) {
             var forme = SVG.get(e.target.id);
             var infos = donnees.getParIdSvg(e.target.id);
+            var objDestination = table.obj.destinations[robot][infos.svg.destination];
             table.majInfobulle(e.clientX, e.clientY, 'Position<br>t = ' + infos.t + 'ms<br>' + infos.position.mmX + ' x ' + infos.position.mmY);
-            infos.svg.destination.show();
-            var ligne = table.creer.ligne(forme.cx(), forme.cy(), infos.svg.destination.first().cx(), infos.svg.destination.first().cy(), 1, 'grey');
+            objDestination.show();
+            var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 1, 'grey');
             forme.data('ligneDestination', ligne.attr('id'));
           })
           .mouseout(function(e) {
             var forme = SVG.get(e.target.id);
             infobulle.masquer();
             if(!$('#opt_svg-destination' + forme.data('robot')).hasClass('on'))
-              infos.svg.destination.hide();
+              table.obj.destinations[robot][infos.svg.destination].hide();
             SVG.get(forme.data('ligneDestination')).remove();
           });
+        table.obj.grpPositions[robot].add(pt);
+        infos.svg.pt = table.obj.positions[robot].push(pt) - 1;
+          
+        // Création de la ligne pour relier
+        if(id > 0) {
+          var ptPrecedent = table.obj.positions[robot][donnees.get(robot, id-1).svg.pt];
+          var reliure = table.creer.ligne(pt.cx(), pt.cy(), ptPrecedent.cx(), ptPrecedent.cy(), 1, (robot == PR ? 'blue' : 'orange'))
+            .data({
+              robot: robot,
+              type: 'reliure',
+              donnee: id,
+              t: match.timer[robot]
+            })
+            .addClass('svg-reliure-pt' + robot)
+            .hide();
+          table.obj.grpReliures[robot].add(reliure);
+          infos.svg.reliure = table.obj.reliures[robot].push(reliure) - 1;
+        }
       }
     },
     destinations: {
@@ -147,16 +228,17 @@ var table = {
         var infos = donnees.get(robot, id);
         var precedent = donnees.get(robot, Math.max(id - 1, 0));
         if(id > 0 && infos.destination.mmX == precedent.destination.mmX && infos.destination.mmY == precedent.destination.mmY) {
-          // Même point, on ajoute directement la référence de l'objet précédent
+          // Même destination, on ajoute directement le numéro de l'objet précédent
           infos.svg.destination = precedent.svg.destination;
         }
         else {
-          // Point différent, on crée un nouveau point
-          infos.svg.destination = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 10, 1, (robot == PR ? 'green' : 'red'))
+          // Destination différente, on crée une nouvelle croix destination
+          var dest = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 10, 1, (robot == PR ? 'green' : 'red'))
             .data({
               robot: robot,
-              id: id,
-              type: 'destination'
+              type: 'destination',
+              donnee: id,
+              t: match.timer[robot]
             })
             .addClass('svg-destination' + robot)
             .mouseover(function(e) {
@@ -168,11 +250,15 @@ var table = {
               infobulle.masquer();
             })
             .hide();
+          table.obj.grpDestinations[robot].add(dest);
+          infos.svg.destination = table.obj.destinations[robot].push(dest) - 1;
         }
       }
     },
     evenements: {
-      liste: [[], []],
+      /**** A revoir ****/
+      
+      liste: [[], []],  /// Ne devrait pas être mis ici
       ajouter: function(robot, msg) {
         var id = table.match.evenements.liste[robot].push(msg);
         id--;
@@ -199,11 +285,25 @@ var table = {
     filtrerIndices: function(robot, indiceMin, indiceMax) {
       for(var i = 0; i < donnees.d[robot].length; i++) {
         if(i >= indiceMin && i <= indiceMax)
-          donnees.d[robot][i].svg.pt.show();
+          table.obj.positions[robot][donnees.d[robot][i].svg.pt].show();
         else
-          donnees.d[robot][i].svg.pt.hide();
+          table.obj.positions[robot][donnees.d[robot][i].svg.pt].hide();
       }
-    }
+    },
+    
+    
+    /* (Non testé car finalement non utilisé)
+    // N'afficher que les points répondant au critère filtre
+    // filtre(info) est une fonction qui retourne true pour les infos répondant au critère à afficher
+    filtrer: function(robot, filtre) {
+      for(var i = 0; i < donnees.d[robot].length; i++) {
+        var infos = donnees.get(robot, i);
+        if(filtre(infos))
+          infos.svg.pt.show();
+        else
+          infos.svg.pt.hide();
+      }
+    }*/
   },
   majInfobulle: function(clientX, clientY, infos) {
     infobulle.html(infos);
@@ -273,6 +373,7 @@ $( function() {
   });
   
   /** Options d'affichage **/
+  // Affichage des Positions, Destinations et Evénéments
   $('.optionAffichageTable').click(function() {
     if( $(this).hasClass('on') ) {
       $(this).removeClass('on');
@@ -284,4 +385,34 @@ $( function() {
     }
     
   });
+  
+  // Affichage du quadrillage
+  $('#cbAfficherQuadrillage').click(function() {
+    if($(this).prop('checked'))
+      table.obj.quadrillage.show();
+    else
+      table.obj.quadrillage.hide();
+  });
+  
+  // Affichage de lignes pour relier les points
+  $('#cbRelierPoints').click(function() {
+    if($(this).prop('checked')) {
+      table.svg.select('.svg-reliure-pt0').show();
+      table.svg.select('.svg-reliure-pt1').show();
+    }
+    else {
+      table.svg.select('.svg-reliure-pt0').hide();
+      table.svg.select('.svg-reliure-pt1').hide();
+    }
+  });
+  
+  $('#cbAfficherCoordonnees').click(function() {
+    if($(this).prop('checked'))
+      table.param.afficherCoordonnees = true;
+    else {
+      table.param.afficherCoordonnees = false;
+      table.obj.gabarit.hide();
+    }
+  });
+
 });

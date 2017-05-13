@@ -22,8 +22,10 @@ var numMsg = [0, 0];
 var match = {
   enCours: [false, false],
   termine: [false, false],
-  debut: [0, 0]
+  debut: [0, 0],
+  timer: [0, 0]   // Contient le timer de match du robot (màj à chaque réception de trame)
 };
+
 
 
 var log = {
@@ -39,7 +41,7 @@ var log = {
   }
 }
 
-
+/*
 var gabarit = {
   elem: document.getElementById('gabarit'),
   init: function() {
@@ -77,9 +79,9 @@ var gabarit = {
   }
   
 }
-
+*/
 table.init();
-gabarit.init();
+//gabarit.init();
 //table.draw.point(500, 600, 3, 'blue');
 
 
@@ -100,46 +102,8 @@ document.getElementById('bEffacerSection').addEventListener('click', function() 
 });
 
 window.addEventListener('resize', table.conteneur.majPosition);
-/*
-Affichage du gabarit
-==> Sera mis à jour + tard
 
-
-table.conteneur.elem.addEventListener('mousemove', function(e) {
-  if(!table.param.afficherCoordonnees())
-    return;
   
-  var x = (e.clientX - table.general.posX) / table.general.scale;
-  var y = (e.clientY - table.general.posY) / table.general.scale;
-  var x50 = Math.round(x / 50) * 50;
-  var y50 = Math.round(y / 50) * 50;
-  var posX = x50 * table.general.scale + 10;
-  var posY = y50 * table.general.scale + 10;
-  
-  
-  //elem.curseur.style.opacity = 1;
-  //elem.curseur.style.left = (posX - 1) + 'px';
-  //elem.curseur.style.top = (posY - 1) + 'px';
-  
-  infobulle.html('<span style="color: green;">' + x50 + 'x' + y50 + '</span>'); //<br><span style="color: #cccccc;">' + x + 'x' + y + '</span>');
-  infobulle.positionner(posX + 10, posY + 10);
-  
-  gabarit.afficher();
-  gabarit.positionner(posX, posY);
-  //infobulle.positionner(e.clientX + 10, e.clientY + 10);
-  //console.table(e);
-});
-table.conteneur.elem.addEventListener('mouseout', function() {
-  //elem.infoTable.innerText = '-';
-  infobulle.masquer();
-  gabarit.masquer();
-  //elem.curseur.style.opacity = 0;
-});
-*/
-
-
-
-
 /**
 Données aléatoires pour tester
 **/
@@ -159,46 +123,78 @@ var alea = {
   }
 }
 
-var x = [alea.aleaX(), alea.aleaX()];
-var y = [alea.aleaY(), alea.aleaY()];
-var destX = [x[0] + alea.nb(1000), x[1] - alea.nb(1000)];
-var destY = [y[0] + alea.nb(400), y[1] - alea.nb(400)];
+var genererJeuAleatoire = function() {
+  var x = [alea.aleaX(), alea.aleaX()];
+  var y = [alea.aleaY(), alea.aleaY()];
+  /*var destX = [];
+  var destY = [];
+  var pasX = [];
+  var pasY = [];
 
-for(var i = 0; i < 1500; i++ ) {
-  var robot = (i % 2 == 0 ? PR : GR); //(alea.unSur(2) ? PR : GR);
-  
-  // Avancer les robots (aléatoirement)
-  x[robot] += alea.nb(100) * (alea.unSur(2) ? -1 : 1);
-  y[robot] += alea.nb(80) * (alea.unSur(2) ? -1 : 1);
-  
-  // Changement de "direction"
-  if(alea.unSur(50)) {
-    destX[robot] = x[robot] + alea.nb(1000) * (alea.unSur(2) ? -1 : 1);
-    destY[robot] = y[robot] + alea.nb(800) * (alea.unSur(2) ? -1 : 1);
+  var nouvelleDirection = function(_r, _x, _y, pts) {
+    destX[_r] = _x;
+    destY[_r] = _y;
+    pasX[_r] = parseInt((_x - x[_r])/pts) + 1;
+    pasY[_r] = parseInt((_y - y[_r])/pts) + 1;
   }
-  
-  
-  
-  var msg = {
-    t: i*10,
-    position: {
-      mmX: x[robot],
-      mmY: y[robot]
-    },
-    destination: {
-      mmX: destX[robot],
-      mmY: destY[robot]
+  nouvelleDirection(PR, alea.aleaX(), alea.aleaY(), alea.nb(50) + 2);
+  nouvelleDirection(GR, alea.aleaX(), alea.aleaY(), alea.nb(50) + 2);
+  //*/
+
+  var destX = [x[0] + alea.nb(1000), x[1] - alea.nb(1000)];
+  var destY = [y[0] + alea.nb(400), y[1] - alea.nb(400)];//*/
+
+  for(var i = 0; i < 1500; i++ ) {
+    var robot = (i % 2 == 0 ? PR : GR); //(alea.unSur(2) ? PR : GR);
+    
+    
+    // Avancer les robots (aléatoirement)
+    x[robot] += alea.nb(100) * (alea.unSur(2) ? -1 : 1);
+    y[robot] += alea.nb(80) * (alea.unSur(2) ? -1 : 1);
+    
+    // Changement de "direction"
+    if(alea.unSur(50)) {
+      destX[robot] = x[robot] + alea.nb(1000) * (alea.unSur(2) ? -1 : 1);
+      destY[robot] = y[robot] + alea.nb(800) * (alea.unSur(2) ? -1 : 1);
+    }//*/
+    
+    /*
+    // Avancer les robots vers la direction
+    // (Finalement moins "visuel" pour les tests)
+    x[robot] += pasX[robot]; //parseInt((destX[robot] - x[robot])/pas[robot]);
+    y[robot] += pasY[robot]; //parseInt((destY[robot] - y[robot])/pas[robot]);
+    
+    if(Math.abs(destX[robot] - x[robot]) < 10 && Math.abs(destY[robot] - y[robot] < 10)) {
+      nouvelleDirection(robot, alea.aleaX(), alea.aleaY(), alea.nb(50) + 2);
+    }//*/
+    
+    
+    var msg = {
+      t: i*10,
+      position: {
+        mmX: x[robot],
+        mmY: y[robot]
+      },
+      destination: {
+        mmX: destX[robot],
+        mmY: destY[robot]
+      }
+    };
+    var id = donnees.enregistrer(robot, msg);
+    
+    // Ajout d'événements aléatoires
+    if(alea.unSur(250)) {
+      table.match.evenements.ajouter(robot, 'Evénement ! ' + i);
+      //nouvelleDirection(robot, alea.aleaX(), alea.aleaY(), alea.nb(10) + 2);
+      destX[robot] = alea.aleaX();
+      destY[robot] = alea.aleaY();
+      //pas[robot] = alea.nb(10);//*/
     }
-  };
-  var id = donnees.enregistrer(robot, msg);
-  
-  // Ajout d'événements aléatoires
-  if(alea.unSur(250)) {
-    table.match.evenements.ajouter(robot, 'Evénement ! ' + i);
+    
+    table.match.positions.ajouter(robot, id);
+    table.match.destinations.ajouter(robot, id);
+   
   }
-  
-  table.match.positions.ajouter(robot, id);
-  table.match.destinations.ajouter(robot, id);
- 
 }
 
+genererJeuAleatoire();

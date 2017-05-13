@@ -32,9 +32,9 @@
 		<section id="sTable">
 			<div id="blocTable">
         <!-- Div flottants -->
-        <!-- A intégrer à terme directement dans sTable... -->
         <div id="infobulle" class="flottant_table"></div>
-        <div id="curseur" class="flottant_table"></div>
+        <!-- A intégrer à terme directement dans sTable... -->
+        <!--<div id="curseur" class="flottant_table"></div>
         <canvas width="100" height="100" id="gabarit" class="flottant_table" style="display:none;"></canvas>
         <!--	--->
 				<svg width="770" height="520" id="table"></svg>
@@ -50,7 +50,9 @@
 		</section>
     <section id="optionsTable">
       <label for="lierCurseursTMatch"><input type="checkbox" id="lierCurseursTMatch" checked="checked" />Lier les curseurs de match</label><br>
-      <label for="ptAfficherCoordonnees"><input type="checkbox" id="ptAfficherCoordonnees" disabled="disabled" />Afficher les coordonnées</label><br><br>
+      <label for="cbAfficherQuadrillage"><input type="checkbox" id="cbAfficherQuadrillage" checked="checked" />Afficher le quadrillage</label><br>
+      <label for="cbRelierPoints"><input type="checkbox" id="cbRelierPoints" />Relier les points</label><br>
+      <label for="cbAfficherCoordonnees"><input type="checkbox" id="cbAfficherCoordonnees" />Afficher les coordonnées</label><br><br>
       <div id="optionsAffichageTable">
         <label>Positions</label><span class="optionAffichageTable on" id="opt_svg-pt0">PR</span><span class="optionAffichageTable on" id="opt_svg-pt1">GR</span><br>
         <label>Destinations</label><span class="optionAffichageTable" id="opt_svg-destination0">PR</span><span class="optionAffichageTable" id="opt_svg-destination1">GR</span><br>

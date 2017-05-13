@@ -13,15 +13,16 @@ donnees.d = [
     {
       t:        temps écoulé (ms) depuis le début du match (valeur robot)
       position: {
-        mmX:    position du robot sur l'axe x (mm)
-        mmY:    position du robot sur l'axe y (mm)
+        mmX:    position du robot sur l'axe x (mm) (provient de la trame)
+        mmY:    position du robot sur l'axe y (mm) (provient de la trame)
       },
       destination: {
-        mmX:
-        mmY:
+        mmX:    (provient de la trame)
+        mmY:    (provient de la trame)
       },
-      svg: {    Ensemble des éléments dessinés sur la table et liés à cette trame
-        pt:     pt position
+      svg: {    Ensemble des index (dans table.obj) des éléments dessinés sur la table et liés à cette trame
+        pt:     pt position,
+        reliure:
         destination:  croix destination
       }
     },
@@ -78,12 +79,20 @@ var donnees = {
   // Retourne le jeu de données correspondant à la forme #idsvg
   getParIdSvg: function(idsvg) {
     var forme = SVG.get(idsvg);
-    return donnees.d[forme.data('robot')][forme.data('id')];
+    return donnees.d[forme.data('robot')][forme.data('donnee')];
   },
+  /*
+  // Retournent une liste d'id de points
+  filtrerPts: {
+    parDestination: function(robot, idDest) {
+        
+    }
+  },*/
   
   // Enregistre un jeu de données et retourne son indice
 	enregistrer: function(robot, trame) {
     if(trame[1] != '|') {
+      match.timer[robot] = trame.t;
       return donnees.d[robot].push({
         t: trame.t,
         position: {
