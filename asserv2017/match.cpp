@@ -87,6 +87,165 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   return error;
 }
 
+uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives) {
+  // A RELIRE !
+
+  /* Si accessible directement : return aller_xy()
+     Sinon :
+        aller_pt_etape()
+        return aller(point_demandé)
+  */    
+  bool point_accessible = false;
+  bool je_suis_perdu = false;
+  uint8_t point_de_passage;
+  uint8_t error;
+  Point point;
+  
+  
+  switch(idPoint) {
+    
+    case PT_ETAPE_1:
+      com_log_println("Destination P1");
+      if(robot_dans_zone(ZONE_A)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H | ZONE_I))
+          point_de_passage = PT_ETAPE_8;
+        else if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_G))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_J))
+          point_de_passage = PT_ETAPE_15;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_4:
+      com_log_println("Destination P4");
+      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_G)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H | ZONE_I))
+          point_de_passage = PT_ETAPE_8;
+        else if(robot_dans_zone(ZONE_J))
+          point_de_passage = PT_ETAPE_15;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_7:
+      com_log_println("Destination P7");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_B | ZONE_G | ZONE_I))
+          point_de_passage = PT_ETAPE_8;
+        else if(robot_dans_zone(ZONE_A | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_J))
+          point_de_passage = PT_ETAPE_15;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_8:
+      com_log_println("Destination P8");
+      if(robot_dans_zone(ZONE_B | ZONE_E | ZONE_F | ZONE_G | ZONE_H | ZONE_I)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_J))
+          point_de_passage = PT_ETAPE_15;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_10:
+      com_log_println("Destination P10");
+      if(robot_dans_zone(ZONE_B | ZONE_E | ZONE_F | ZONE_G | ZONE_H | ZONE_I)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_J))
+          point_de_passage = PT_ETAPE_15;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_14:
+      com_log_println("Destination P14");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_B | ZONE_G | ZONE_I))
+          point_de_passage = PT_ETAPE_8;
+        else if(robot_dans_zone(ZONE_A | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_J))
+          point_de_passage = PT_ETAPE_15;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_15:
+      com_log_println("Destination P15");
+      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_I | ZONE_J)) {
+         point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_G | ZONE_H))
+          point_de_passage = PT_ETAPE_8;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    default:
+      je_suis_perdu = true;
+  }
+  
+  if(je_suis_perdu) {
+    com_log_println("######### ERREUR : Point Etape sans stratégie");
+    return ERROR_TIMEOUT; // TODO : quelle erreur dans ce cas ?
+  }
+  else {
+    point = getPoint(idPoint);
+    if(point_accessible) {
+      return aller_xy(point.x, point.y, vitesse, uniquement_avant, timeout, max_tentatives);
+    }
+    else {
+      com_log_println("On va faire un petit détour...");
+      error = aller_pt_etape(point_de_passage, vitesse, uniquement_avant, timeout, max_tentatives);
+      if(error) return error;
+      return aller_pt_etape(idPoint, vitesse, uniquement_avant, timeout, max_tentatives);
+    }
+  }
+  
+}
+
+
 void definir_vitesse_avance(uint32_t v) { // v entre 0 et 100
   quadramp_set_1st_order_vars(&robot.ramp_distance, v, v);
 }
@@ -95,29 +254,97 @@ void definir_vitesse_rotation(uint32_t v) { // v entre 0 et 100
   quadramp_set_1st_order_vars(&robot.ramp_rotation, v, v);
 }
 
-uint8_t localiser_zone() {
-  // Voir schéma de la table pour les correspondances des zones
-  // Attention, les termes ne correspondent pas aux termes du règlement
 
-  if(robot_dans_zone(0, 0, 800, 750)) {
-    com_log_println("Localisé en zone Cabines");
-    return ZONE_CABINES;
-  }
-  else if(robot_dans_zone(0, 750, 1500, 1500)) {
-    com_log_println("Localisé en zone Construction");
-    return ZONE_CONSTRUCTION;
-  }
-  else if(robot_dans_zone(800, 0, 2100, 750)) {
-    com_log_println("Localisé en zone Dune");
-    return ZONE_DUNE;
-  }
-  else if(robot_dans_zone(0, 1500, 3000, 2000)) {
-    com_log_println("Localisé en zone Pêche");
-    return ZONE_PECHE;
-  }
 
+uint16_t localiser_zone() {
+  // Ajout de zone à faire aussi dans getZone() et asserv2017.h
+  if(robot_dans_zone(ZONE_F)) {
+    com_log_println("Localisé zone F");
+    return ZONE_F;
+  }
+  else if(robot_dans_zone(ZONE_E)) {
+    com_log_println("Localisé zone E");
+    return ZONE_E;
+  }
+  else if(robot_dans_zone(ZONE_B)) {
+    com_log_println("Localisé zone B");
+    return ZONE_B;
+  }
+  else if(robot_dans_zone(ZONE_A)) {
+    com_log_println("Localisé zone A");
+    return ZONE_A;
+  }
+  else if(robot_dans_zone(ZONE_H)) {
+    com_log_println("Localisé zone H");
+    return ZONE_H;
+  }
+  else if(robot_dans_zone(ZONE_G)) {
+    com_log_println("Localisé zone G");
+    return ZONE_G;
+  }
+  else if(robot_dans_zone(ZONE_J)) {
+    com_log_println("Localisé zone J");
+    return ZONE_J;
+  }
+  else if(robot_dans_zone(ZONE_I)) {
+    com_log_println("Localisé zone I");
+    return ZONE_I;
+  }
+  else if(robot_dans_zone(ZONE_C)) {
+    com_log_println("Localisé zone C");
+    return ZONE_C;
+  }
+  else if(robot_dans_zone(ZONE_D)) {
+    com_log_println("Localisé zone D");
+    return ZONE_D;
+  }
+  
   com_log_println("##### Zone inconnue");
   return ZONE_INCONNUE;
+}
+
+/*
+Fonction finalement mise directement dans robot_dans_zone()
+Zone getZone(uint16_t idZone) {
+  // Ajout de zone à faire aussi dans localiser_zone() et asserv2017.h
+  switch(idZone) {
+    case ZONE_A: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_B: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_C: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_D: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_E: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_F: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_G: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_H: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_I: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    case ZONE_J: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
+    default:
+      com_log_print("########## ERREUR: idZone '");
+      com_log_print(idZone);
+      com_log_println("' incorrect dans getZone");
+      return {x1: 0, y1: 0, x2: 3000, y2: 2000};
+  }
+}
+//*/
+
+
+// Pourrait être mis directement dans aller_pt_etape() ...
+Point getPoint(uint8_t idPoint) {
+  // Ajout de point à faire aussi dans asserv2017.h
+  switch(idPoint) {
+    case PT_ETAPE_1: return {x: 900, y: 200}; break;
+    case PT_ETAPE_4: return {x: 1000, y: 700}; break;
+    case PT_ETAPE_7: return {x: 300, y: 600}; break;
+    case PT_ETAPE_8: return {x: 500, y: 1100}; break;
+    case PT_ETAPE_10: return {x: 400, y: 1350}; break;
+    case PT_ETAPE_14: return {x: 750, y: 1700}; break;
+    case PT_ETAPE_15: return {x: 1400, y: 800}; break;
+    default:
+      com_log_print("########## ERREUR: idPoint '");
+      com_log_print(idPoint);
+      com_log_println("' incorrect dans getZone");
+      return {x: 500, y: 1100}; // P8
+  }
 }
 
 uint8_t retour(uint8_t valeur) {

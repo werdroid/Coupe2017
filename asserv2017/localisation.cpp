@@ -40,6 +40,48 @@ void localisation_loop() {
 }
 
 
+bool robot_dans_zone(uint16_t idZone) {
+  // En mode bit mask, donc idZone peut tester plusieurs zones d'un coup
+  
+  // Ordre du + probable au - probable (grossièrement)
+  
+  if((idZone & ZONE_F) == ZONE_F)
+    return robot_dans_zone(0, 0, 500, 500);
+  
+  if((idZone & ZONE_E) == ZONE_E)
+    return robot_dans_zone(0, 0, 500, 500);
+  
+  if((idZone & ZONE_B) == ZONE_B)
+    return robot_dans_zone(0, 0, 500, 500);
+
+  if((idZone & ZONE_H) == ZONE_H)  
+    return robot_dans_zone(0, 0, 500, 500);
+  
+  if((idZone & ZONE_A) == ZONE_A)
+    return robot_dans_zone(0, 0, 500, 500);
+  
+  if((idZone & ZONE_J) == ZONE_J)
+    return robot_dans_zone(0, 0, 500, 500);
+  
+  if((idZone & ZONE_G) == ZONE_G)
+    return robot_dans_zone(0, 0, 500, 500);
+  
+  if((idZone & ZONE_I) == ZONE_I)
+    return robot_dans_zone(0, 0, 500, 500);
+  
+  if((idZone & ZONE_C) == ZONE_C)
+    return robot_dans_zone(0, 0, 500, 500);
+  
+  if((idZone & ZONE_D) == ZONE_D)
+    return robot_dans_zone(0, 0, 500, 500);
+
+  
+  com_log_print("########## ERREUR: idZone '");
+  com_log_print(idZone);
+  com_log_println("' incorrect dans getZone");
+  return false;
+}
+
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
   if(x1 > x2 || y1 > y2) {
     tone_play_alert();

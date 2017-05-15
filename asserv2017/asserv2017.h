@@ -37,13 +37,6 @@ const uint8_t ERROR_TIMEOUT = 1;
 const uint8_t ERROR_OBSTACLE = 2;
 const uint8_t AUTRE = 127;
 
-// Voir schéma table, les désignations ne correspondent pas aux termes du règlement
-const uint8_t ZONE_INCONNUE = 0;
-const uint8_t ZONE_CABINES = 10;
-const uint8_t ZONE_CONSTRUCTION = 20;
-const uint8_t ZONE_PECHE = 30;
-const uint8_t ZONE_DUNE = 40;
-
 const uint8_t RT_STATE_SLEEP = 0; // on est dans le main normal
 const uint8_t RT_STATE_WAITING = 1; // le main attend la synchro de RT
 const uint8_t RT_STATE_RUNNING = 2; // RT est en cours de fonctionnement
@@ -168,6 +161,13 @@ typedef struct {
 } Point; // 8 octets
 
 typedef struct {
+  int32_t x1;
+  int32_t y1;
+  int32_t x2;
+  int32_t y2;
+} Zone;
+
+typedef struct {
   int32_t x;
   int32_t y;
   int32_t a;
@@ -175,6 +175,37 @@ typedef struct {
 
 extern Robot robot;
 volatile extern uint8_t lock_loop;
+
+
+/*-----------------------------------------------------------------------------
+ * Constantes de stratégie
+ *----------------------------------------------------------------------------*/
+
+  
+// Constantes de zone, utilisés comme bit masks
+const uint16_t ZONE_INCONNUE = 0;
+const uint16_t ZONE_A = 1;
+const uint16_t ZONE_B = 2;
+const uint16_t ZONE_C = 4;
+const uint16_t ZONE_D = 8;
+const uint16_t ZONE_E = 16;
+const uint16_t ZONE_F = 32;
+const uint16_t ZONE_G = 64;
+const uint16_t ZONE_H = 128;
+const uint16_t ZONE_I = 256;
+const uint16_t ZONE_J = 1024;
+// Ajout de zone à faire aussi dans robot_dans_zone();
+
+// Constantes de points
+// Ici, pas de bit mask. On évite les multiples de 2 pour éviter toute confusion avec un idZone
+const uint8_t PT_ETAPE_1 = 41;
+const uint8_t PT_ETAPE_4 = 44;
+const uint8_t PT_ETAPE_7 = 47;
+const uint8_t PT_ETAPE_8 = 48;
+const uint8_t PT_ETAPE_10 = 50;
+const uint8_t PT_ETAPE_14 = 54;
+const uint8_t PT_ETAPE_15 = 55;
+// Ajout de point à faire aussi dans match.cpp > getPoint();
 
 /*-----------------------------------------------------------------------------
  * Functions prototypes
@@ -197,10 +228,12 @@ void synchronisation();
 
 // Match
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to);
+uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 void definir_vitesse_avance(uint32_t v);
 void definir_vitesse_rotation(uint32_t v);
-uint8_t localiser_zone();
+uint16_t localiser_zone();
+Point getPoint(uint8_t idPoint);
 uint8_t retour(uint8_t valeur);
 bool temps_ecoule(uint32_t t0, uint32_t duree);
 bool match_termine();
@@ -271,6 +304,7 @@ void wait_select_button_up();
 // Localisation
 void localisation_loop();
 void localisation_set(Position position);
+bool robot_dans_zone(uint16_t idZone);
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 // Asserv
