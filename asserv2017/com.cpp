@@ -11,17 +11,17 @@ typedef struct {
   unsigned long millis;
 } TrameMonitor; // 8 octets
 
-TrameMonitor trameMontor;
+TrameMonitor trameMonitor;
 
 void com_send_robot_infos() {
   if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
 
-  trameMontor.millis = millis();
+  trameMonitor.millis = millis();
 
   Serial.print('@');
-  Serial.write((const uint8_t*) &trameMontor, sizeof(TrameMonitor));
+  Serial.write((const uint8_t*) &trameMonitor, sizeof(TrameMonitor));
   Serial.println();
 }
 
