@@ -238,12 +238,12 @@ uint8_t retour(uint8_t valeur);
 bool temps_ecoule(uint32_t t0, uint32_t duree);
 bool match_termine();
 
-// PR
-void pr_init();
-void pr_main();
+// GR
+void gr_init();
+void gr_main();
 
-void debug_pr();
-void match_pr();
+void debug_gr();
+void match_gr();
 
 uint8_t realisation_action(int action_index);
 uint8_t recuperer_minerais_pcd4();
@@ -256,17 +256,17 @@ uint8_t prendre_minerais();
 uint8_t deposer_minerais();
 
 
-// GR
-void gr_init();
-void gr_main();
+// PR
+void pr_init();
+void pr_main();
 
 void grosse_dune_1();
 void grosse_dune_2();
 void grosse_dune_suite();
 void petite_dune1();
 void liberer_cubes();
-void debug_gr();
-void match_gr();
+void debug_pr();
+void match_pr();
 void funny_action();
 void gr_parasol_init();
 void gr_parasol_fermer();
