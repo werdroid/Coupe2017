@@ -244,10 +244,16 @@ void pr_main();
 
 void debug_pr();
 void match_pr();
-void volets_fermer();
-void volets_ouvrir();
-void canne_baisser();
-void canne_monter();
+
+uint8_t realisation_action(int action_index);
+uint8_t recuperer_minerais_pcd4();
+uint8_t recuperer_minerais_pcd7();
+uint8_t recuperer_minerais_pcl();
+uint8_t recuperer_minerais_gcc10();
+uint8_t recuperer_minerais_gcc14();
+uint8_t deposer_minerais_zone_depot();
+uint8_t prendre_minerais();
+uint8_t deposer_minerais();
 
 
 // GR
