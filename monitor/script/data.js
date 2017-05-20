@@ -93,7 +93,7 @@ var donnees = {
 	enregistrer: function(robot, trame) {
     if(trame[1] != '|') {
       match.timer[robot] = trame.t;
-      return donnees.d[robot].push({
+      var id = donnees.d[robot].push({
         t: trame.t,
         position: {
           mmX: trame.position.mmX,
@@ -106,6 +106,9 @@ var donnees = {
         svg: {},
         logs: []
       }) - 1;
+      table.match.positions.ajouter(robot, id);
+      table.match.destinations.ajouter(robot, id);
+      curseur.definirMax(robot, id);
       
     }
     else {
@@ -116,13 +119,17 @@ var donnees = {
         case 'Codeurs':
           break;
         case 'Position':
-          return donnees.d[robot].push({
+          var id = donnees.d[robot].push({
             t: donnees.d[robot].length,
             position: {
               mmX: param.mmX,
               mmY: param.mmY
-            }
+            },
+            svg: {},
+            logs: []
           }) - 1;
+          table.match.positions.ajouter(robot, id);
+          curseur.definirMax(robot, id);
           
           /*dernierePosition[r][0] = param.mmX;
           dernierePosition[r][1] = param.mmY;*/
@@ -134,7 +141,7 @@ var donnees = {
         case 'ErreurConsigne':
           break;
         case 'Sick':
-          elem.obstacle[r].className = param.obstacle;
+          elem.obstacle[robot].className = param.obstacle;
           break;
         default:
           log.monitor(action[1] + ' inconnue (en provenance de ' + r + '.');
@@ -146,13 +153,20 @@ var donnees = {
 
 
 
-var traiterMessage = function(robot, msg) { // r = robot émetteur (0 ou 1)
+var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
   if(msg[0] == '@') {
-    var id = donnees.enregistrer(robot, msg);
-    table.match.positions.ajouter(robot, id);
-    table.match.destinations.ajouter(robot, id);
+    donnees.enregistrer(r, msg);
+    // var id = donnees.enregistrer(r, msg);
+    // table.match.positions.ajouter(r, id);
+    // table.match.destinations.ajouter(r, id);
   }
-  
+  /*else if(msg[0] == '$') {
+    // Message spécial
+    switch(msg) {
+      case "$DebutDuMatch\n":
+        
+    }
+  }*/
   
   
   // Traitement des messages pendant Coupe IdF 2016
@@ -160,6 +174,7 @@ var traiterMessage = function(robot, msg) { // r = robot émetteur (0 ou 1)
     table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
     log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);
   }
+  
   else {
     switch(msg) {
       case "DebutDuMatch\n":
@@ -170,6 +185,7 @@ var traiterMessage = function(robot, msg) { // r = robot émetteur (0 ou 1)
         match.debut[r] = new Date().getTime();
         match.enCours[r] = true;
         match.termine[r] = false;
+        curseur.definirMin(r, donnees.getLast(r).t);
         
         if((r == 0 && match.enCours[1]) || (r == 1 && match.enCours[0]))
           log.robot(r, '<span class="infoTimer">Retard de ' + Math.abs(match.debut[1] - match.debut[0]) + 'ms par rapport à l\'autre robot</span>');

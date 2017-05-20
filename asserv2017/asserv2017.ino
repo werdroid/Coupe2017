@@ -127,14 +127,15 @@ void setup() {
   // Teensy 3.1 can support up to 16 levels of nesting, so priority levels 0 to 15 are all the same, 16 to 31 are the same, and so on
   // IntervalTimer for priority 48, on Teensy 3.1/3.2 it will not block Systick at 32
 
-  // ecran_console_log("Starting menu...\n");
-  // menu_start();
   // Lancement du programme du robot
   if (analogRead(A12) < 512) { // 0V=PR et 5V=GR (sur 1024)
     pr_main();
   } else {
     gr_main();
   }
+  
+  ecran_console_log("Starting menu...\n");
+  menu_start();
 }
 
 void loop() {
@@ -182,6 +183,6 @@ void interruption_sample() {
 /* Attend la saisie des capteurs de l'interruption */
 void synchronisation() {
   lock_loop = RT_STATE_WAITING;
-  while(!RT_STATE_SLEEP);
+  while(!lock_loop);
 }
 

@@ -36,7 +36,7 @@ void ecran_console_error(const char* message) {
 
 void ecran_print_menu(int selector) {
   uint16_t couleur_robot;
-
+  
   String optionsMenu[] = {
     "\n\n   Demarrer match   ",
     "\n\n   Couleur:    XXXXX",
@@ -49,12 +49,19 @@ void ecran_print_menu(int selector) {
     "\n\n   Servo parasol    "
   };
 
-  if (robot.symetrie) {
-    optionsMenu[1] = "\n\n   Couleur:     VERT";
-    couleur_robot = ST7735_GREEN;
+  if(robot.IS_PR) {
+    optionsMenu[0] = "\n\n   Demarrer match PR";
+  }
+  else {
+    optionsMenu[0] = "\n\n   Demarrer match GR";
+  }
+  
+  if(robot.symetrie) {
+    optionsMenu[1] = "\n\n   Couleur:    JAUNE";
+    couleur_robot = ST7735_YELLOW;
   } else {
-    optionsMenu[1] = "\n\n   Couleur:   VIOLET";
-    couleur_robot = ST7735_MAGENTA;
+    optionsMenu[1] = "\n\n   Couleur:     BLEU";
+    couleur_robot = ST7735_BLUE;
   }
 
   if(1) {
@@ -88,6 +95,7 @@ void ecran_print_menu(int selector) {
 
   uint16_t couleur = ST7735_WHITE;
 
+  
   // Fond
   synchronisation();
   tft.fillScreen(couleur);

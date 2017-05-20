@@ -7,6 +7,7 @@
 
 void pr_init() {
   com_log_println("pr_init()");
+  robot.IS_PR = true;
 
   // Constantes à init
   robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
@@ -30,6 +31,7 @@ void pr_init() {
 
 void pr_main() {
   com_log_println("pr_main()");
+  pr_init();
   asserv_consigne_pwm(30, 30);
 }
 

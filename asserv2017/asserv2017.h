@@ -81,7 +81,8 @@ struct quadramp_filter {
 };
 
 typedef struct {
-  uint8_t symetrie; // 0=violet 1=vert
+  bool IS_PR;
+  uint8_t symetrie; // 0=bleu 1=jaune
   bool sans_symetrie; // 1=on fait pas les symmétries
   uint8_t coquillage;
   bool rouleaux_actifs;

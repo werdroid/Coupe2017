@@ -353,6 +353,7 @@ var infobulle = {
 }
 
 
+
 $( function() {
   /** Slicers d'affichage d'une partie du match **/
   var filtrerAffichage = function(robot, indiceMin, indiceMax) {

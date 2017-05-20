@@ -41,45 +41,17 @@ var log = {
   }
 }
 
-/*
-var gabarit = {
-  elem: document.getElementById('gabarit'),
-  init: function() {
-    var ctx = gabarit.elem.getContext('2d');
-    ctx.lineWidth = 1;
-    ctx.translate(50, 50);
-    ctx.fillStyle = 'green';
-    ctx.fillRect(-1, -1, 3, 3);
-    // GR
-    ctx.strokeStyle = 'orange';
-    ctx.beginPath();
-    ctx.arc(0, 0, 195 * table.general.scale, 0, Math.PI * 2);
-    ctx.fillRect(-1, -1, 3, 3);
-    ctx.stroke();
-    ctx.closePath();
-    ctx.strokeRect(-150 * table.general.scale, -150 * table.general.scale, 300 * table.general.scale, 300 * table.general.scale);
-    // PR
-    ctx.strokeStyle = 'blue';
-    ctx.beginPath();
-    ctx.arc(0, 0, 110 * table.general.scale, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.closePath();
-    ctx.strokeRect(-100 * table.general.scale, -80 * table.general.scale, 200 * table.general.scale, 160 * table.general.scale);
-    ctx.strokeRect(-80 * table.general.scale, -100 * table.general.scale, 160 * table.general.scale, 200 * table.general.scale);
+
+var curseur = {
+  definirMin: function(r, min) {
+    $('#curseurTMatch' + r).slider('min',min);
   },
-  afficher: function() {
-    this.elem.style.opacity = 1;
-  },
-  masquer: function() {
-    this.elem.style.opacity = 0;
-  },
-  positionner: function(x, y) {
-    this.elem.style.left = (x - 50) + 'px';
-    this.elem.style.top = (y - 50) + 'px';
+  definirMax: function(r, max) {
+    $('#curseurTMatch' + r).slider('min',max);
   }
-  
 }
-*/
+
+
 table.init();
 //gabarit.init();
 //table.draw.point(500, 600, 3, 'blue');

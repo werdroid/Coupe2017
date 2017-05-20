@@ -89,11 +89,12 @@ void menu_start() {
           for(;;);
           */
           ecran_console_reset();
+          asserv_raz_consignes();
           ecran_console_log("Mode debug\n\n");
           ecran_console_log("Debut dans 5 sec\n\n");
           ecran_console_log("Relever BAU !\n");
           delay(3000);
-          if(1)
+          if(robot.IS_PR)
             debug_pr();
           else
             debug_gr();

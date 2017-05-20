@@ -13,22 +13,45 @@ Servo servo_volets;*/
 
 
 void debug_gr() {
+  gr_rouleaux_stop();
+    
   ecran_console_log("2 sec\n\n");
-  localisation_set({x: 1500, y: 1000, a: 0});
+  ecran_console_log("Debug GR\n\n");
+  
+  localisation_set({x: 900, y: 200, a: 90});  // TBC
+  asserv_raz_consignes();
 
   delay(2000);
 
 
   ecran_console_log("DebutDuMatch\n");
   robot.match_debut = millis();
+  
+  com_log_println("asserv_goxy");
+  asserv_goxy(1100, 1100, 5000, 1);
+  
+  com_log_println("aller_xy");
+  aller_xy(1100, 1100, 80, 0, 15000, 3);
 
-  aller_xy(3000, 1000, 100, 1, 3000, 50);
+  com_log_println("Pts etapes");
+  aller_pt_etape(PT_ETAPE_4, 100, 1, 5000, 3); 
+  aller_pt_etape(PT_ETAPE_15, 100, 1, 10000, 3); 
+
+  robot.match_debut = millis();
+  aller_pt_etape(PT_ETAPE_8, 100, 1, 10000, 3); 
+  aller_pt_etape(PT_ETAPE_7, 100, 1, 10000, 3); 
+  robot.match_debut = millis();
+  aller_pt_etape(PT_ETAPE_10, 100, 1, 10000, 3); 
+  aller_pt_etape(PT_ETAPE_14, 100, 1, 10000, 3); 
+  robot.match_debut = millis();
+  aller_pt_etape(PT_ETAPE_1, 100, 1, 10000, 3); 
+ 
 
   tone_play_end();
 }
 
 void match_gr() {
-
+ecran_console_reset();
   int start;
   uint8_t error;
   
@@ -70,10 +93,10 @@ void match_gr() {
   ecran_console_log("Match GR\n\n");
 
   if(robot.symetrie) {
-    ecran_console_log("Couleur : VERT\n");
+    ecran_console_log("Couleur : JAUNE\n");
   }
   else {
-    ecran_console_log("Couleur : VIOLET\n");
+    ecran_console_log("Couleur : BLEU\n");
   }
   ecran_console_log("\n\n");
 
@@ -85,7 +108,7 @@ void match_gr() {
   wait_start_button_down();
   ecran_console_log("Pret\n");
 
-  localisation_set({x: 900, y: 200, a: 0});  // TBC
+  localisation_set({x: 900, y: 200, a: 90});  // TBC
   asserv_raz_consignes();
   
   /***** TO DO *******/
@@ -387,4 +410,48 @@ uint8_t deposer_minerais() {
   // Déposer avec le bras droit possible malgré la bascule ?
 
   return OK;
+}
+
+
+
+
+
+void gr_rouleaux_liberer() {
+  com_log_println("Rouleaux : libérer");
+  pinMode(29, OUTPUT);
+  pinMode(30, OUTPUT);
+  pinMode(31, OUTPUT);
+  pinMode(32, OUTPUT);
+  if(robot.rouleaux_actifs) {
+    digitalWrite(29, HIGH);
+    digitalWrite(30, LOW);
+    digitalWrite(31, HIGH);
+    digitalWrite(32, LOW);
+  }
+}
+void gr_rouleaux_avaler() {
+  com_log_println("Rouleaux : Avaler");
+  pinMode(29, OUTPUT);
+  pinMode(30, OUTPUT);
+  pinMode(31, OUTPUT);
+  pinMode(32, OUTPUT);
+  if(robot.rouleaux_actifs) {
+    digitalWrite(29, LOW);
+    digitalWrite(30, HIGH);
+    digitalWrite(31, LOW);
+    digitalWrite(32, HIGH);
+  }
+}
+void gr_rouleaux_stop() {
+  com_log_println("Rouleaux : Stop");
+  pinMode(29, OUTPUT);
+  pinMode(30, OUTPUT);
+  pinMode(31, OUTPUT);
+  pinMode(32, OUTPUT);
+  if(robot.rouleaux_actifs) {
+    digitalWrite(29, HIGH);
+    digitalWrite(30, HIGH);
+    digitalWrite(31, HIGH);
+    digitalWrite(32, HIGH);
+  }
 }
