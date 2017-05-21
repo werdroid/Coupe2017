@@ -106,6 +106,15 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
   }
 }
 
+// va tout droit en avant ou arrière sans se retourner
+// conseillé sur de petites distance car le point de destination
+// peut être n'importe où, par exemple à l'extérieur de la table...
+uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
+  int32_t consigne_x_mm = robot.xMm + consigne_mm * cos(robot.a);
+  int32_t consigne_y_mm = robot.yMm + consigne_mm * sin(robot.a);
+  return asserv_goxy(consigne_x_mm, consigne_y_mm, timeout, 1);
+}
+
 // Regarder vers le point indiqué
 uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout) {
   consigneX = mm2tick(symetrie_x(consigneX));

@@ -183,7 +183,7 @@ volatile extern uint8_t lock_loop;
  * Constantes de stratégie
  *----------------------------------------------------------------------------*/
 
-  
+
 // Constantes de zone, utilisés comme bit masks
 const uint16_t ZONE_INCONNUE = 0;
 const uint16_t ZONE_A = 1;
@@ -327,10 +327,11 @@ void asserv_consigne_polaire_delta(int32_t distance_mm_delta, float rotation_rad
 
 uint8_t tout_droit(int32_t distance, uint16_t timeout = 0);
 uint8_t faire_rotation(float rotation_rad, uint16_t timeout = 0);
-uint8_t consignesXY(int32_t consigneX, int32_t consigneY, uint16_t uniquement_avant = 0);
-uint8_t asserv_goxy(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0, uint16_t uniquement_avant = 0);
+uint8_t consignesXY(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant = 0);
+uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout = 0, uint16_t uniquement_avant = 0);
 uint8_t asserv_goa(float orientation, uint16_t timeout = 5000, uint8_t sans_symetrie = 0);
 uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0);
+uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout = 0);
 
 // Communication
 void com_setup();
