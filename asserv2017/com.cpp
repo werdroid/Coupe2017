@@ -32,6 +32,10 @@ void com_send_robot_infos() {
   Serial.print(robot.a);
   // Serial.print(",\"angleDeg\":");
   // Serial.print(radian_en_degre(robot.a));
+  Serial.print(",\"consigneXmm\":");
+  Serial.print(robot.consigneXmm);
+  Serial.print(",\"consigneYmm\":");
+  Serial.print(robot.consigneYmm);
   Serial.println();
   
   Serial.print("@|Sick|\"vides\":");

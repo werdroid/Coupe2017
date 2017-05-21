@@ -120,15 +120,21 @@ var donnees = {
           break;
         case 'Position':
           var id = donnees.d[robot].push({
-            t: donnees.d[robot].length,
+            id: donnees.d[robot].length,
+            t: getTimerMatch(robot),
             position: {
               mmX: param.mmX,
               mmY: param.mmY
+            },
+            destination: {
+              mmX: param.consigneXmm,
+              mmY: param.consigneYmm
             },
             svg: {},
             logs: []
           }) - 1;
           table.match.positions.ajouter(robot, id);
+          table.match.destinations.ajouter(robot, id);
           curseur.definirMax(robot, id);
           
           /*dernierePosition[r][0] = param.mmX;
@@ -171,8 +177,9 @@ var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
   
   // Traitement des messages pendant Coupe IdF 2016
   else if(msg[0] == '!') {
-    table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
-    log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);
+    //table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
+    //log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);
+    table.match.evenements.ajouter(r, msg);
   }
   
   else {
@@ -205,8 +212,9 @@ var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
         }
         break;
       case "------------ OBSTACLE\r\n":
-        table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
-        log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);
+        //table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
+        table.match.evenements.ajouter(r, 'Obstacle');
+//        log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);
         break;
       default:
         log.robot(r, msg);

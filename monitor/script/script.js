@@ -35,19 +35,25 @@ var log = {
   robot: function(r, msg) {
     var t = '';
     if(match.enCours[r]) {
-      t = '<span class="infoTimer">' + Math.trunc(((new Date().getTime()) - match.debut[r])/1000) + '</span>';
+      t = '<span class="infoTimer">' + getTimerMatch(r) + '</span>';
     }
     elem.log.robot[r].innerHTML = t + msg + '<br>' + elem.log.robot[r].innerHTML;
   }
 }
 
+var getTimerMatch = function(r) {
+  if(match.termine[r] || match.enCours[r])
+    return Math.trunc(((new Date().getTime()) - match.debut[r])/1000);
+  else
+    return '-';
+}
 
 var curseur = {
   definirMin: function(r, min) {
-    $('#curseurTMatch' + r).slider('min',min);
+    $('#curseurTMatch' + r).slider('option', 'min',min);
   },
   definirMax: function(r, max) {
-    $('#curseurTMatch' + r).slider('min',max);
+    $('#curseurTMatch' + r).slider('option', 'max',max);
   }
 }
 

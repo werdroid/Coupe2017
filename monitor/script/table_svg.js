@@ -292,13 +292,13 @@ var table = {
           .addClass('svg-evenement' + robot)
           .mouseover(function(e) {
             var forme = SVG.get(e.target.id);
-            var infos = table.match.evenements.liste[forme.data('robot')][forme.data('id')];
+            var infos = forme.data('id') + '.' + table.match.evenements.liste[forme.data('robot')][forme.data('id')];
             table.majInfobulle(e.clientX, e.clientY, infos);
           })
           .mouseout(function(e) {
             infobulle.masquer();
           });
-        
+        log.robot(robot, '<span class="pointRepere' + robot + '">' + id + '</span> ' + msg);
       }
     },
     

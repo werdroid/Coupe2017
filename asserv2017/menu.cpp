@@ -169,6 +169,12 @@ int menu_input_up() {
 
 void match_start() {
   // deprecated
+  if(robot.IS_PR) {
+    match_pr();
+  }
+  else {
+    match_gr();
+  }
 }
 
 void match_changer_couleur() {

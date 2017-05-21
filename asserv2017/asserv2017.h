@@ -64,6 +64,7 @@ const uint8_t ASSERV_MODE_POLAIRE = 2;
 // #define SPD_MAX SPD_MAX_MM * ASSERV_COEFF_TICKS_PAR_MM_PR // tick/s
 // #define ACC_MAX ACC_MAX_MM * ASSERV_COEFF_TICKS_PAR_MM_PR // tick/s2
 
+
 /*-----------------------------------------------------------------------------
  * Data structures
  *----------------------------------------------------------------------------*/

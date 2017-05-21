@@ -18,7 +18,7 @@ void debug_gr() {
   ecran_console_log("2 sec\n\n");
   ecran_console_log("Debug GR\n\n");
   
-  localisation_set({x: 900, y: 200, a: 90});  // TBC
+  localisation_set({x: 900, y: 200, a: MATH_PI/2});  // TBC
   asserv_raz_consignes();
 
   delay(2000);
@@ -27,10 +27,10 @@ void debug_gr() {
   ecran_console_log("DebutDuMatch\n");
   robot.match_debut = millis();
   
-  com_log_println("asserv_goxy");
+  /*com_log_println("asserv_goxy");
   asserv_goxy(1100, 1100, 5000, 1);
-  
-  com_log_println("aller_xy");
+  */
+  /*com_log_println("aller_xy");
   aller_xy(1100, 1100, 80, 0, 15000, 3);
 
   com_log_println("Pts etapes");
@@ -41,7 +41,7 @@ void debug_gr() {
   aller_pt_etape(PT_ETAPE_8, 100, 1, 10000, 3); 
   aller_pt_etape(PT_ETAPE_7, 100, 1, 10000, 3); 
   robot.match_debut = millis();
-  aller_pt_etape(PT_ETAPE_10, 100, 1, 10000, 3); 
+  aller_pt_etape(PT_ETAPE_10, 100, 1, 10000, 3); */
   aller_pt_etape(PT_ETAPE_14, 100, 1, 10000, 3); 
   robot.match_debut = millis();
   aller_pt_etape(PT_ETAPE_1, 100, 1, 10000, 3); 
@@ -101,15 +101,18 @@ ecran_console_reset();
   ecran_console_log("\n\n");
 
   ecran_console_log("1. Positionner\n");
+  delay(1500);
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
   ecran_console_log("4. Jack out\n\n");
 
   wait_start_button_down();
-  ecran_console_log("Pret\n");
+  ecran_console_log("Se prepare...\n");
 
-  localisation_set({x: 900, y: 200, a: 90});  // TBC
+  localisation_set({x: 900, y: 200, a: MATH_PI/2});  // TBC
   asserv_raz_consignes();
+  delay(1500);
+  ecran_console_log("Pret\n");
   
   /***** TO DO *******/
   /*servo_canne.attach(5);

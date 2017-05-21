@@ -183,6 +183,6 @@ void interruption_sample() {
 /* Attend la saisie des capteurs de l'interruption */
 void synchronisation() {
   lock_loop = RT_STATE_WAITING;
-  while(!lock_loop);
+  while(lock_loop != RT_STATE_SLEEP);
 }
 
