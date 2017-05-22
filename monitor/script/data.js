@@ -94,7 +94,9 @@ var donnees = {
     if(trame[1] != '|') {
       match.timer[robot] = trame.t;
       var id = donnees.d[robot].push({
-        t: trame.t,
+        id: donnees.d[robot].length,
+        t: getTimerMatch(robot),
+        //t: trame.t,
         position: {
           mmX: trame.position.mmX,
           mmY: trame.position.mmY
@@ -120,8 +122,8 @@ var donnees = {
           break;
         case 'Position':
           var id = donnees.d[robot].push({
-            id: donnees.d[robot].length,
-            t: getTimerMatch(robot),
+            t: donnees.d[robot].length,
+            timer: getTimerMatch(robot),
             position: {
               mmX: param.mmX,
               mmY: param.mmY

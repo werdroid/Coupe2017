@@ -56,29 +56,14 @@ void menu_start() {
           ecran_print_menu(selectPosition);
           break;
         case 2:
-          if(1) {
-            match_changer_coquillage();
-            ecran_print_menu(selectPosition);
+          if(robot.IS_PR) {
+            // Nothing
           }
           else {
-            if (state_rouleaux == 0) {
-              gr_rouleaux_avaler();
-              state_rouleaux++;
-            } else if (state_rouleaux == 1) {
-              gr_rouleaux_liberer();
-              state_rouleaux++;
-            } else if (state_rouleaux == 2) {
-              gr_rouleaux_stop();
-              state_rouleaux = 0;
-            }
-            delay(100);
+            homologation_gr();
           }
           break;
         case 3:
-          tout_droit(mm2tick(300));
-          ecran_print_menu(selectPosition);
-          break;
-        case 4:
           /*
           ecran_console_reset();
           ecran_console_log("Mode debug");
@@ -99,6 +84,10 @@ void menu_start() {
           else
             debug_gr();
 
+          break;
+        case 4:
+          tout_droit(mm2tick(300));
+          ecran_print_menu(selectPosition);
           break;
         case 5:
           ecran_console_reset();
@@ -131,13 +120,13 @@ void menu_start() {
           for(;;);
           break;
         case 8:
-          gr_parasol_init();
+          gr_fusee_init();
           static bool open = 0;
           if (open) {
-            gr_parasol_fermer();
+            gr_fusee_fermer();
             open = 0;
           } else {
-            gr_parasol_ouvrir();
+            gr_fusee_ouvrir();
             open = 1;
           }
           break;

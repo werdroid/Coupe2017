@@ -25,6 +25,7 @@ void pr_init() {
   quadramp_init(&robot.ramp_rotation);
   quadramp_set_1st_order_vars(&robot.ramp_rotation, 100, 100);
   quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
+  
 }
 
 // Lancement du programme du robot (menu, match, actions)

@@ -35,6 +35,7 @@
 const uint8_t OK = 0;
 const uint8_t ERROR_TIMEOUT = 1;
 const uint8_t ERROR_OBSTACLE = 2;
+const uint8_t ERROR_FIN_MATCH = 3;
 const uint8_t AUTRE = 127;
 
 const uint8_t RT_STATE_SLEEP = 0; // on est dans le main normal
@@ -186,16 +187,16 @@ volatile extern uint8_t lock_loop;
 
 // Constantes de zone, utilisés comme bit masks
 const uint16_t ZONE_INCONNUE = 0;
-const uint16_t ZONE_A = 1;
-const uint16_t ZONE_B = 2;
-const uint16_t ZONE_C = 4;
-const uint16_t ZONE_D = 8;
-const uint16_t ZONE_E = 16;
-const uint16_t ZONE_F = 32;
-const uint16_t ZONE_G = 64;
-const uint16_t ZONE_H = 128;
-const uint16_t ZONE_I = 256;
-const uint16_t ZONE_J = 1024;
+const uint16_t ZONE_A = 1 << 1;
+const uint16_t ZONE_B = 1 << 2;
+const uint16_t ZONE_C = 1 << 3;
+const uint16_t ZONE_D = 1 << 4;
+const uint16_t ZONE_E = 1 << 5;
+const uint16_t ZONE_F = 1 << 6;
+const uint16_t ZONE_G = 1 << 7;
+const uint16_t ZONE_H = 1 << 8;
+const uint16_t ZONE_I = 1 << 9;
+const uint16_t ZONE_J = 1 << 10;
 // Ajout de zone à faire aussi dans robot_dans_zone();
 
 // Constantes de points
@@ -244,6 +245,7 @@ bool match_termine();
 void gr_init();
 void gr_main();
 
+void homologation_gr();
 void debug_gr();
 void match_gr();
 
@@ -257,6 +259,11 @@ uint8_t deposer_minerais_zone_depot();
 uint8_t prendre_minerais();
 uint8_t deposer_minerais();
 
+void funny_action();
+void gr_fusee_init();
+void gr_fusee_fermer();
+void gr_fusee_ouvrir();
+
 
 // PR
 void pr_init();
@@ -269,10 +276,6 @@ void petite_dune1();
 void liberer_cubes();
 void debug_pr();
 void match_pr();
-void funny_action();
-void gr_parasol_init();
-void gr_parasol_fermer();
-void gr_parasol_ouvrir();
 
 void gr_rouleaux_liberer();
 void gr_rouleaux_avaler();
@@ -312,6 +315,7 @@ void wait_select_button_up();
 // Localisation
 void localisation_loop();
 void localisation_set(Position position);
+bool robot_proche_point(uint8_t idPoint);
 bool robot_dans_zone(uint16_t idZone);
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 

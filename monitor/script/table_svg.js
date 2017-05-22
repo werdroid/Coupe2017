@@ -212,7 +212,7 @@ var table = {
             var forme = SVG.get(e.target.id);
             var infos = donnees.getParIdSvg(e.target.id);
             var objDestination = table.obj.destinations[robot][infos.svg.destination];
-            table.majInfobulle(e.clientX, e.clientY, 'Position<br>t = ' + infos.t + 'ms<br>' + infos.position.mmX + ' x ' + infos.position.mmY);
+            table.majInfobulle(e.clientX, e.clientY, 'Position<br>Id = ' + infos.t + '<br>t = ' + infos.timer + ' s<br>' + infos.position.mmX + ' x ' + infos.position.mmY);
             objDestination.show();
             var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 1, 'grey');
             forme.data('ligneDestination', ligne.attr('id'));

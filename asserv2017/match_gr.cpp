@@ -1,7 +1,7 @@
 #include "asserv2017.h"
 
-/*Servo servo_canne;
-Servo servo_volets;*/
+Servo servo_fusee;
+//Servo servo_volets;
 
 /* Glossaire
   PCD : Petit Cratère Départ
@@ -11,40 +11,68 @@ Servo servo_volets;*/
   Depart : zone de sa couleur proche du milieu de la table
 */
 
+void homologation_gr() {
+  ecran_console_reset();
+  ecran_console_log("Homolog GR\n");
+
+  if(robot.symetrie) {
+    ecran_console_log("Couleur : JAUNE\n");
+  }
+  else {
+    ecran_console_log("Couleur : BLEU\n");
+  }
+  
+  ecran_console_log("\n\n");
+  ecran_console_log("Les arbitres sont\n");
+  ecran_console_log("hyper sympa cette\n");
+  ecran_console_log("annee.\n\n");
+
+  ecran_console_log("1. Positionner\n");
+  delay(1500);
+  ecran_console_log("2. Jack in\n");
+  ecran_console_log("3. BAU off\n");
+  ecran_console_log("4. Jack out\n\n");
+
+  wait_start_button_down();
+
+  ecran_console_log("Pret\n\n");
+  delay(200);
+  localisation_set({x: 900, y: 200, a: MATH_PI/4});  // TBC
+  asserv_raz_consignes();
+
+  wait_start_button_up();
+  
+  com_log_println("DebutDuMatch");
+  robot.match_debut = millis();
+  
+  aller_xy(1500, 400, 100, 1, 20000, 5);
+  aller_pt_etape(PT_ETAPE_15, 100, 1, 20000, 5); 
+  aller_pt_etape(PT_ETAPE_4, 100, 1, 20000, 5); 
+  aller_pt_etape(PT_ETAPE_1, 100, 1, 20000, 5); 
+  
+  while(!match_termine());
+  
+}
 
 void debug_gr() {
   gr_rouleaux_stop();
     
-  ecran_console_log("2 sec\n\n");
   ecran_console_log("Debug GR\n\n");
-  
-  localisation_set({x: 900, y: 200, a: MATH_PI/2});  // TBC
-  asserv_raz_consignes();
+  ecran_console_log("2 sec\n\n");
 
+  localisation_set({x: 900, y: 200, a:MATH_PI2});  // TBC
+  asserv_raz_consignes();
   delay(2000);
 
-
-  ecran_console_log("DebutDuMatch\n");
+  com_log_println("DebutDuMatch");
   robot.match_debut = millis();
   
-  /*com_log_println("asserv_goxy");
-  asserv_goxy(1100, 1100, 5000, 1);
-  */
-  /*com_log_println("aller_xy");
-  aller_xy(1100, 1100, 80, 0, 15000, 3);
 
-  com_log_println("Pts etapes");
-  aller_pt_etape(PT_ETAPE_4, 100, 1, 5000, 3); 
-  aller_pt_etape(PT_ETAPE_15, 100, 1, 10000, 3); 
-
+  aller_pt_etape(PT_ETAPE_14, 100, 1, 10000, 10); 
+  aller_pt_etape(PT_ETAPE_15, 100, 1, 10000, 10); 
   robot.match_debut = millis();
-  aller_pt_etape(PT_ETAPE_8, 100, 1, 10000, 3); 
-  aller_pt_etape(PT_ETAPE_7, 100, 1, 10000, 3); 
-  robot.match_debut = millis();
-  aller_pt_etape(PT_ETAPE_10, 100, 1, 10000, 3); */
-  aller_pt_etape(PT_ETAPE_14, 100, 1, 10000, 3); 
-  robot.match_debut = millis();
-  aller_pt_etape(PT_ETAPE_1, 100, 1, 10000, 3); 
+  aller_pt_etape(PT_ETAPE_7, 100, 1, 10000, 10); 
+  aller_pt_etape(PT_ETAPE_1, 100, 1, 10000, 10); 
  
 
   tone_play_end();
@@ -90,7 +118,7 @@ ecran_console_reset();
     ============================ **/
   
   ecran_console_reset();
-  ecran_console_log("Match GR\n\n");
+  ecran_console_log("Match GR\n");
 
   if(robot.symetrie) {
     ecran_console_log("Couleur : JAUNE\n");
@@ -107,20 +135,10 @@ ecran_console_reset();
   ecran_console_log("4. Jack out\n\n");
 
   wait_start_button_down();
-  ecran_console_log("Se prepare...\n");
 
+  ecran_console_log("Pret\n\n");
   localisation_set({x: 900, y: 200, a: MATH_PI/2});  // TBC
   asserv_raz_consignes();
-  delay(1500);
-  ecran_console_log("Pret\n");
-  
-  /***** TO DO *******/
-  /*servo_canne.attach(5);
-  //servo_canne.write(0); // rentré
-  canne_monter();
-  servo_volets.attach(4);
-  volets_fermer();
-  /************/
 
   wait_start_button_up();
   
@@ -128,7 +146,7 @@ ecran_console_reset();
     Début du match
     ============== **/
   
-  ecran_console_log("DebutDuMatch\n");
+  com_log_println("DebutDuMatch");
   robot.match_debut = millis();
   
 
@@ -457,4 +475,36 @@ void gr_rouleaux_stop() {
     digitalWrite(31, HIGH);
     digitalWrite(32, HIGH);
   }
+}
+
+void funny_action() {
+  if(!robot.IS_PR) {
+    com_log_println("Fin de match, funny action !");
+    gr_fusee_init();
+    gr_fusee_ouvrir();
+    delay(800);
+    gr_fusee_fermer();
+    delay(800);
+    gr_fusee_ouvrir();
+    delay(900);
+    gr_fusee_fermer();
+    delay(900);
+    gr_fusee_ouvrir();
+  }
+}
+
+
+void gr_fusee_init() {
+  servo_fusee.attach(4);
+  pinMode(33, OUTPUT);
+}
+
+void gr_fusee_fermer() {
+  servo_fusee.write(90);
+  digitalWrite(33, HIGH);
+}
+
+void gr_fusee_ouvrir() {
+  servo_fusee.write(0);
+  digitalWrite(33, LOW);
 }

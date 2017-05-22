@@ -40,11 +40,17 @@ void localisation_loop() {
 }
 
 
+bool robot_proche_point(uint8_t idPoint) {
+  Point point = getPoint(idPoint);
+  return robot_dans_zone(point.x - 50, point.y - 50, point.x + 50, point.y + 50);
+}
+
 
 bool robot_dans_zone(uint16_t idZone) {
   // En mode bit mask, donc idZone peut tester plusieurs zones d'un coup
   
   bool result = false;
+  
   
   if((idZone & ZONE_A) == ZONE_A)
     result |= robot_dans_zone(700, 0, 1500, 600);
@@ -67,15 +73,15 @@ bool robot_dans_zone(uint16_t idZone) {
   if((idZone & ZONE_G) == ZONE_G)
     result |= robot_dans_zone(700, 1000, 1000, 1500);
   
-  if((idZone & ZONE_H) == ZONE_H)  
+  if((idZone & ZONE_H) == ZONE_H)
     result |= robot_dans_zone(300, 1500, 1000, 2000);
   
   if((idZone & ZONE_I) == ZONE_I)
     result |= robot_dans_zone(0, 900, 300, 2000);
   
   if((idZone & ZONE_J) == ZONE_J)
-    result |= robot_dans_zone(0, 1500, 3000, 2000);
-    
+    result |= robot_dans_zone(1500, 0, 3000, 2000);
+  
   return result;
 }
 

@@ -55,7 +55,7 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     com_log_print(x);
     com_log_print(";");
     com_log_print(y);
-    com_log_print(" abandonné (fin du match)");
+    com_log_println(" abandonné (fin du match)");
   }
 
   if(error != OK) {
@@ -72,6 +72,9 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     else if(error == ERROR_OBSTACLE) {
       com_log_print(" (OBSTACLE)");
     }
+    else if(error == ERROR_FIN_MATCH) {
+      com_log_print(" (FIN MATCH)");
+    }
     else {
       com_log_print(" (AUTRE ERREUR)");
     }
@@ -82,6 +85,10 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
       com_log_print(" tentatives");
     }
     com_log_println();
+    
+    if(error == ERROR_FIN_MATCH) {
+      match_termine();
+    }
   }
 
   return error;
@@ -111,10 +118,25 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H | ZONE_I))
+        if(robot_dans_zone(ZONE_E | ZONE_H | ZONE_I)) {
           point_de_passage = PT_ETAPE_8;
-        else if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_G))
-          point_de_passage = PT_ETAPE_4;
+        }
+        else if(robot_dans_zone(ZONE_F)) {
+          if(robot_proche_point(PT_ETAPE_8)) { // PT8 est dans ZONE_F
+            point_de_passage = PT_ETAPE_4;
+          }
+          else {
+            point_de_passage = PT_ETAPE_8;
+          }
+        }
+        else if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_G)) {
+          if(robot_proche_point(PT_ETAPE_4)) { // PT4 est dans ZONE_B
+            point_accessible = true;
+          }
+          else {
+            point_de_passage = PT_ETAPE_4;
+          }
+        }
         else if(robot_dans_zone(ZONE_J))
           point_de_passage = PT_ETAPE_15;
         else
@@ -129,8 +151,14 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H | ZONE_I))
-          point_de_passage = PT_ETAPE_8;
+        if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H | ZONE_I)) {
+          if(robot_proche_point(PT_ETAPE_8)) { // PT8 est dans ZONE_F
+            point_accessible = true;
+          }
+          else {
+            point_de_passage = PT_ETAPE_8;
+          }
+        }
         else if(robot_dans_zone(ZONE_J))
           point_de_passage = PT_ETAPE_15;
         else
@@ -213,8 +241,14 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_G | ZONE_H))
-          point_de_passage = PT_ETAPE_8;
+        if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_G | ZONE_H)) {
+          if(robot_proche_point(PT_ETAPE_8)) { // PT8 est dans ZONE_F
+            point_accessible = true;
+          }
+          else {
+            point_de_passage = PT_ETAPE_8;
+          }
+        }
         else if(robot_dans_zone(ZONE_C))
           point_de_passage = PT_ETAPE_4;
         else
@@ -359,5 +393,14 @@ bool temps_ecoule(uint32_t t0, uint32_t duree) {
 }
 
 bool match_termine() {
-  return (millis() - robot.match_debut) > 82000;
+  if((millis() - robot.match_debut) > 89000) {
+    asserv_consigne_stop();
+    com_log_println("Fin du match !");
+    delay(1000);
+    funny_action();
+    return true;
+  }
+  else {
+    return false;
+  }
 }

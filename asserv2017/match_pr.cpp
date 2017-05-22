@@ -270,34 +270,6 @@ fin_match:
   tone_play_end();
 }
 
-void funny_action() {
-  gr_rouleaux_stop();
-  com_log_println("Fin de match, funny action !");
-  gr_parasol_init();
-  gr_parasol_ouvrir();
-  delay(800);
-  gr_parasol_fermer();
-  delay(800);
-  gr_parasol_ouvrir();
-  delay(900);
-  gr_parasol_fermer();
-  delay(900);
-  gr_parasol_ouvrir();
-}
 
-void gr_parasol_init() {
-  servo_parasol.attach(4);
-  pinMode(33, OUTPUT);
-}
-
-void gr_parasol_fermer() {
-  servo_parasol.write(90);
-  digitalWrite(33, HIGH);
-}
-
-void gr_parasol_ouvrir() {
-  servo_parasol.write(0);
-  digitalWrite(33, LOW);
-}
 
 

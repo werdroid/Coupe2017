@@ -78,6 +78,9 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
   elapsedMillis timer;
   uint8_t result;
 
+  robot.consigneXmm = consigne_x_mm;
+  robot.consigneYmm = consigne_y_mm;
+  
   consigne_x_mm = symetrie_x(consigne_x_mm);
   consigne_y_mm = consigne_y_mm;
 

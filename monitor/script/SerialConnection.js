@@ -257,8 +257,10 @@ document.getElementById('bReconnecter').addEventListener('click', function() {
 
 
 getDevices();
-connection1.connect('COM4');
+connection1.connect('COM5');
 setTimeout(function() {
-  document.getElementById('serialSelect1').value = 'COM4';
+  connection0.connect('COM4');
+  document.getElementById('serialSelect0').value = 'COM4';
+  document.getElementById('serialSelect1').value = 'COM5';
   // connection1.connect('COM7');
 }, 1000);

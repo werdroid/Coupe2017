@@ -40,17 +40,18 @@ void ecran_print_menu(int selector) {
   String optionsMenu[] = {
     "\n\n   Demarrer match   ",
     "\n\n   Couleur:    XXXXX",
-    "\n\n   Avaler/liberer/0 ",
-    "\n\n   Tout droit 30cm  ",
+    "\n\n   Homologation     ",
     "\n\n   Debug            ",
+    "\n\n   Tout droit 30cm  ",
     "\n\n   Test tourner x10 ",
-    "\n\n   Rouleaux   XXXXXX",
+    "\n\n   30 cm avant      ",
     "\n\n   Test part/revient",
-    "\n\n   Servo parasol    "
+    "\n\n   Servo Fusee      "
   };
 
   if(robot.IS_PR) {
     optionsMenu[0] = "\n\n   Demarrer match PR";
+    optionsMenu[2] = "\n\n   (Homologation)   ";
   }
   else {
     optionsMenu[0] = "\n\n   Demarrer match GR";
@@ -62,34 +63,6 @@ void ecran_print_menu(int selector) {
   } else {
     optionsMenu[1] = "\n\n   Couleur:     BLEU";
     couleur_robot = ST7735_BLUE;
-  }
-
-  if(1) {
-    switch(robot.coquillage) {
-      case 0:
-        optionsMenu[2] = "\n\n   Coquillage:     0";
-        break;
-      case 1:
-        optionsMenu[2] = "\n\n   Coquillage:     1";
-        break;
-      case 2:
-        optionsMenu[2] = "\n\n   Coquillage:     2";
-        break;
-      case 3:
-        optionsMenu[2] = "\n\n   Coquillage:     3";
-        break;
-      case 4:
-        optionsMenu[2] = "\n\n   Coquillage:     4";
-        break;
-    }
-  }
-  else {
-    if(robot.rouleaux_actifs) {
-      optionsMenu[6] = "\n\n   Rouleaux   Actifs";
-    }
-    else {
-      optionsMenu[6] = "\n\n   Rouleaux  DESACT!";
-    }
   }
 
 
