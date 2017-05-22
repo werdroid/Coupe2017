@@ -36,6 +36,7 @@ const uint8_t OK = 0;
 const uint8_t ERROR_TIMEOUT = 1;
 const uint8_t ERROR_OBSTACLE = 2;
 const uint8_t ERROR_FIN_MATCH = 3;
+const uint8_t ERROR_STRATEGIE = 4; // Par exemple, cas non géré
 const uint8_t AUTRE = 127;
 
 const uint8_t RT_STATE_SLEEP = 0; // on est dans le main normal
@@ -173,7 +174,7 @@ typedef struct {
 typedef struct {
   int32_t x;
   int32_t y;
-  int32_t a;
+  float a;
 } Position; // 12 octets
 
 extern Robot robot;
@@ -249,15 +250,23 @@ void homologation_gr();
 void debug_gr();
 void match_gr();
 
-uint8_t realisation_action(int action_index);
 uint8_t recuperer_minerais_pcd4();
 uint8_t recuperer_minerais_pcd7();
 uint8_t recuperer_minerais_pcl();
 uint8_t recuperer_minerais_gcc10();
 uint8_t recuperer_minerais_gcc14();
 uint8_t deposer_minerais_zone_depot();
+uint8_t knocker_module2();
+uint8_t recuperer_fusee_depart();
+uint8_t recuperer_module1();
+uint8_t recuperer_module5();
+uint8_t degager_module5();
 uint8_t prendre_minerais();
-uint8_t deposer_minerais();
+void bras_position_croisiere();
+void baisser_bras_droit();
+void baisser_bras_gauche();
+void lever_bras_gauche();
+void lever_bras_droit();
 
 void funny_action();
 void gr_fusee_init();

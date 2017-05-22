@@ -363,7 +363,7 @@ $( function() {
     indiceMax = Math.min(indiceMax, donnees.d[robot].length - 1);
     
     table.match.filtrerIndices(robot, indiceMin, indiceMax);
-    $('#valeurTMatch' + robot).text('[ ' + donnees.get(robot, indiceMin).t + ' ; ' + donnees.get(robot, indiceMax).t + ' ]');  
+    $('#valeurTMatch' + robot).text('[ ' + donnees.get(robot, indiceMin).timer + ' ; ' + donnees.get(robot, indiceMax).timer + ' ]');  
   }
 
   $('#curseurTMatch0').slider({

@@ -112,10 +112,13 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
 // va tout droit en avant ou arrière sans se retourner
 // conseillé sur de petites distance car le point de destination
 // peut être n'importe où, par exemple à l'extérieur de la table...
-uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
+uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {  
   int32_t consigne_x_mm = robot.xMm + consigne_mm * cos(robot.a);
   int32_t consigne_y_mm = robot.yMm + consigne_mm * sin(robot.a);
-  return asserv_goxy(consigne_x_mm, consigne_y_mm, timeout, 1);
+  if(consigne_mm < 0)
+    return asserv_goxy(consigne_x_mm, consigne_y_mm, timeout, 0); // Pas uniquement en avant si on veut reculer
+  else
+    return asserv_goxy(consigne_x_mm, consigne_y_mm, timeout, 1);
 }
 
 // Regarder vers le point indiqué

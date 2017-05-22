@@ -23,10 +23,18 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   uint8_t error2;
   uint8_t tentatives = 0;
 
+  if(match_termine()) {
+    com_log_print("! Pas le temps de se déplacer (fin du match)");
+    return ERROR_FIN_MATCH;
+  }
+  
+  
   definir_vitesse_avance(vitesse);
+  
   if(uniquement_avant) {
     asserv_goa_point(x, y, 2000);
   }
+  
   do {
     error = asserv_goxy(x, y, timeout, uniquement_avant);
     tentatives++;
@@ -64,19 +72,26 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     com_log_print(";");
     com_log_print(y);
     com_log_print(" abandonné");
-    if(error == ERROR_TIMEOUT) {
-      com_log_print(" (timeout ");
-      com_log_print(timeout);
-      com_log_print(" atteint)");
-    }
-    else if(error == ERROR_OBSTACLE) {
-      com_log_print(" (OBSTACLE)");
-    }
-    else if(error == ERROR_FIN_MATCH) {
-      com_log_print(" (FIN MATCH)");
-    }
-    else {
-      com_log_print(" (AUTRE ERREUR)");
+    switch(error) {
+      case ERROR_TIMEOUT:
+        com_log_print(" (timeout ");
+        com_log_print(timeout);
+        com_log_print(" atteint)");
+        break;
+      case ERROR_OBSTACLE:
+        com_log_print(" (OBSTACLE)");
+        break;
+      case ERROR_FIN_MATCH:
+        com_log_print(" (FIN MATCH)");
+        break;
+      case ERROR_STRATEGIE:
+        com_log_print(" (Stratégie)");
+        break;
+      case AUTRE:
+        com_log_print(" (AUTRE ERREUR)");
+        break;
+      default:
+        com_log_print(" ( ??? )");
     }
 
     if(tentatives >= max_tentatives) {
@@ -261,8 +276,8 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
   }
   
   if(je_suis_perdu) {
-    com_log_println("######### ERREUR : Point Etape sans stratégie");
-    return ERROR_TIMEOUT; // TODO : quelle erreur dans ce cas ?
+    com_log_println("! ######### ERREUR : Point Etape sans stratégie");
+    return ERROR_STRATEGIE;
   }
   else {
     point = getPoint(idPoint);
@@ -374,7 +389,7 @@ Point getPoint(uint8_t idPoint) {
     case PT_ETAPE_14: return {x: 750, y: 1700}; break;
     case PT_ETAPE_15: return {x: 1400, y: 800}; break;
     default:
-      com_log_print("########## ERREUR: idPoint '");
+      com_log_print("! ########## ERREUR: idPoint '");
       com_log_print(idPoint);
       com_log_println("' incorrect dans getZone");
       return {x: 500, y: 1100}; // P8
@@ -393,7 +408,7 @@ bool temps_ecoule(uint32_t t0, uint32_t duree) {
 }
 
 bool match_termine() {
-  if((millis() - robot.match_debut) > 89000) {
+  if((millis() - robot.match_debut) > 89500) {
     asserv_consigne_stop();
     com_log_println("Fin du match !");
     delay(1000);
