@@ -743,13 +743,13 @@ uint8_t recuperer_module1() {
   
 
   // Réalisation de l'action
-  error = aller_xy(1122, 821, VITESSE_A_VIDE, 1, 10000, 3);
+  error = aller_xy(1070, 854, VITESSE_A_VIDE, 1, 10000, 3);
   if(error) return OK;
   
   error = asserv_goa_point(1000, 600, 3000);
   if(error) return OK;
   
-  error = aller_xy(825, 295, VITESSE_LENTE, 1, 10000, 3);
+  error = aller_xy(920, 320, VITESSE_LENTE, 1, 10000, 3);
   if(error) return OK;
   
   
