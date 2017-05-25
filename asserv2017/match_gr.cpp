@@ -79,8 +79,7 @@ void gr_init() {
     servo_bras_droit.attach(30);
     servo_fusee.attach(31);
     
-    baisser_bras_droit();
-    baisser_bras_gauche();
+    positionner_deux_bras(POSITION_RECOLTER, false);
     gr_fusee_fermer();
   }
 
@@ -315,7 +314,7 @@ void match_gr() {
 
   ecran_console_log("Pret\n\n");
   delay(200);
-  localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});  // TBC
+  localisation_set({x: 886, y: 196, a: MATH_PI * -0.75});
   asserv_raz_consignes();
   wait_start_button_up();
   
@@ -327,7 +326,11 @@ void match_gr() {
   com_log_println("DebutDuMatch\n");
   robot.match_debut = millis();
   
+  delay(500);
+  
   bras_position_croisiere();
+  asserv_go_toutdroit(-350, 3000);
+  
 
   /**
   Stratégie de jeu :
@@ -371,7 +374,7 @@ void match_gr() {
       */
       switch(action_en_cours) {
         case 0: error = recuperer_module1(); break;
-        case 1: error = degager_module5(); break;
+        case 1: error = recuperer_module5(); break;
         case 2: error = recuperer_minerais_pcd7(); break; 
         case 3: error = knocker_module2(); break;
         case 4: error = recuperer_minerais_pcl(); break; 
@@ -405,7 +408,7 @@ void match_gr() {
         
       while(gr_minerais_charges && !match_termine()) {
       
-        error = deposer_minerais_zone_depot();
+        error = deposer_minerais_zone_depot(true);
         
         if(error) {
           // Minerais pas déposés : on se déplace à un point de secours pour revenir à la boucle while suivante
@@ -689,7 +692,7 @@ uint8_t recuperer_minerais_gcc14() {
 }
 
 
-uint8_t deposer_minerais_zone_depot() {
+uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
   uint8_t error;
   
   com_log_println("----- Deposer vers depot -----");
@@ -704,21 +707,37 @@ uint8_t deposer_minerais_zone_depot() {
   
   error = asserv_goa_point(80, 0, 3000);
   if(error) return error;
-
+  
   
   // Début du dépôt dans la zone de départ
   // Approche
-  error = aller_xy(245, 520, VITESSE_CHARGE, 1, 10000, 3);
-  if(error) return error;
-  
-  error = asserv_goa_point(80, 0, 3000);
-  if(error) return error;
-  
-  
-  deposer_minerais_bas();
-  
-  
-  error = aller_xy(290, 665, VITESSE_CHARGE, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
+  if(avec_robot_secondaire) {
+    positionner_deux_bras(POSITION_APPROCHE_DEPOT_HAUT, false);
+    error = aller_xy(240, 500, VITESSE_CHARGE, 1, 4000, 5);
+    
+    aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
+    localisation_set({x: 240, y: 480, a: MATH_PI * -0.5});
+    
+  }
+  else {
+    error = aller_xy(210, 500, VITESSE_CHARGE, 1, 4000, 5);
+    // if(error) return error; // Robot têtu : même si problème, il continuera son action de dépose. On est assez proche pour espérer qu'il en dépose au moins 1.
+    error = asserv_goa_point(210, 0, 3000);
+    // if(error) return error;
+    
+  }
+    
+
+  // On baisse
+  if(avec_robot_secondaire) {
+    positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
+  }
+  else {
+    positionner_deux_bras(POSITION_DEPOSER_BAS, false);
+  }
+
+  // On dégage
+  error = aller_xy(260, 670, VITESSE_CHARGE, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
   
   bras_position_croisiere();
   
@@ -737,6 +756,12 @@ uint8_t knocker_module2() {
   uint8_t error;
 
   com_log_println("----- Knocker Module 2 -----");
+  
+  // Pas de knockage pour l'instant
+  com_log_println("... ou pas");
+  return OK;
+  // ...
+  
   
   // Déplacement vers base lunaire
   com_log_println("En route vers la base lunaire, module 2.");
@@ -785,6 +810,13 @@ uint8_t recuperer_fusee_depart() {
   uint8_t error;
 
   com_log_println("----- Recuperer Fusee Depart -----");
+  
+  // Pas de fusée pour l'instant...
+  com_log_println("Ou pas");
+  return OK;
+  // ...
+  
+  
   
   // Initialisation de l'action
   
@@ -846,18 +878,18 @@ uint8_t recuperer_module1() {
   
   bras_position_croisiere();
   
-  error = aller_pt_etape(PT_ETAPE_15, VITESSE_A_VIDE, 1, 20000, 10); // 10000, 3);
+  error = aller_pt_etape(PT_ETAPE_15, VITESSE_A_VIDE, 1, 15000, 5); // 10000, 3);
   if(error) return OK;
   
 
   // Réalisation de l'action
-  error = aller_xy(1070, 854, VITESSE_A_VIDE, 1, 20000, 10); //10000, 3);
+  error = aller_xy(1070, 854, VITESSE_A_VIDE, 1, 15000, 5); //10000, 3);
   if(error) return OK;
   
   error = asserv_goa_point(1000, 600, 3000);
   if(error) return OK;
   
-  error = aller_xy(920, 320, VITESSE_LENTE, 1, 20000, 10); //10000, 3);
+  error = aller_xy(920, 320, VITESSE_LENTE, 1, 15000, 5); //10000, 3);
   if(error) return OK;
   
   
@@ -908,6 +940,7 @@ uint8_t recuperer_module5() { //Action à réaliser avant toute extraction de mi
   error = aller_xy(920, 320, VITESSE_LENTE, 1, 10000, 3); 
   if(error) return OK;
 
+  asserv_go_toutdroit(-400, 2000);
   
   com_log_println("Fin du déplacement pour Module 5 dans la zone de départ.");
 
@@ -957,87 +990,93 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 }
 
 
-
-
 uint8_t prendre_minerais() {
   uint8_t error;
   
-  baisser_bras_droit();
+  positionner_bras_droit(POSITION_RECOLTER, false);
   delay(400);
-  baisser_bras_gauche();
+  positionner_bras_gauche(POSITION_RECOLTER, false);
   delay(800);
-  lever_bras_gauche_doucement();
-  lever_bras_droit_doucement();
+  positionner_bras_gauche(POSITION_CROISIERE, true);
+  positionner_bras_droit(POSITION_CROISIERE, true);
   
   return OK;
 }
 
+void bras_position_croisiere() { 
+  positionner_bras_droit(POSITION_CROISIERE, false);
+  positionner_bras_gauche(POSITION_CROISIERE, false);
+}
 
+void positionner_deux_bras(uint8_t position, bool doucement) {
+  positionner_bras_droit(position, doucement);
+  positionner_bras_gauche(position, doucement);
+}
 
 /**
-Positions des bras
-Bras gauche :
+== Positions bras gauche ==
 Max sous sik : 95
 Croisière : 80
 Prendre minerais : 45
 Dépose basse : 45
 Dépose haute : 105 puis 90
+**/
+void positionner_bras_gauche(uint8_t position, bool doucement) {
+  int angle;
+  
+  if(!match_termine()) {
+    switch(position) {
+      case POSITION_CROISIERE: angle = 80; break;
+      case POSITION_RECOLTER: angle = 45; break;
+      case POSITION_DEPOSER_BAS: angle = 45; break;
+      case POSITION_DEPOSER_HAUT: angle = 90; break;
+      case POSITION_APPROCHE_DEPOT_HAUT: angle = 105; break;
+      case POSITION_MAX_SOUS_SICK: angle = 95; break;
+      default:
+        Serial.println("######### ERREUR : POSITION inconnue dans positionner_bras_gauche");
+        angle = 80; // Croisière par défaut
+    }
+    
+    if(doucement)
+      servo_slowmotion(servo_bras_gauche, robot.angle_bras_gauche, angle);
+    else
+      servo_bras_gauche.write(angle);
+    
+    robot.angle_bras_gauche = angle;
+  }
+}
 
-Bras droit :
+/**
+== Positions bras droit ==
 Max sous sick : 115
 Croisière : 135
 Prendre minerais : 165
 Dépose basse : 165
 Dépose haute : 110 puis 118
-
-Fusée :
-
-**/
-
-void bras_position_croisiere() {
- 
-  servo_bras_droit.write(135);
-  servo_bras_gauche.write(80);
+**/ 
+void positionner_bras_droit(uint8_t position, bool doucement) {
+  int angle;
   
-}
-
-
-void baisser_bras_droit() {
-  // Pour prendre minerais et pour déposer en position basse
   if(!match_termine()) {
-    servo_bras_droit.write(165);
+    switch(position) {
+      case POSITION_CROISIERE: angle = 135; break;
+      case POSITION_RECOLTER: angle = 165; break;
+      case POSITION_DEPOSER_BAS: angle = 165; break;
+      case POSITION_DEPOSER_HAUT: angle = 118; break;
+      case POSITION_APPROCHE_DEPOT_HAUT: angle = 110; break;
+      case POSITION_MAX_SOUS_SICK: angle = 115; break;
+      default:
+        Serial.println("######### ERREUR : POSITION inconnue dans positionner_bras_droit");
+        angle = 135; // Croisière par défaut
+    }
+    
+    if(doucement)
+      servo_slowmotion(servo_bras_droit, robot.angle_bras_droit, angle);
+    else
+      servo_bras_droit.write(angle);
+    
+    robot.angle_bras_droit = angle;
   }
-}
-
-void baisser_bras_gauche() {
-  if(!match_termine()) {
-    servo_bras_gauche.write(45);
-  }
-}
-
-void lever_bras_gauche_doucement() {
-  if(!match_termine()) {
-    servo_slowmotion(servo_bras_gauche, 45, 80);
-  }
-}
-
-void lever_bras_droit_doucement() {
-  if(!match_termine()) {
-    servo_slowmotion(servo_bras_droit, 165, 135);
-  }
-}
-
-
-void deposer_minerais_haut() {
-  /***
-  *
-  * TODO
-  *
-  ***/
-}
-void deposer_minerais_bas() {
-  baisser_bras_droit();
-  baisser_bras_gauche();
 }
 
 

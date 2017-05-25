@@ -89,6 +89,8 @@ typedef struct {
   bool sans_symetrie; // 1=on fait pas les symmétries
   uint8_t coquillage;
   bool rouleaux_actifs;
+  int angle_bras_gauche;
+  int angle_bras_droit;
 
   /* asserv states */
   uint8_t activeDistance;
@@ -211,6 +213,16 @@ const uint8_t PT_ETAPE_14 = 54;
 const uint8_t PT_ETAPE_15 = 55;
 // Ajout de point à faire aussi dans match.cpp > getPoint();
 
+
+// Positions de bras
+const uint8_t POSITION_CROISIERE = 1;
+const uint8_t POSITION_RECOLTER = 2;
+const uint8_t POSITION_DEPOSER_BAS = 3;
+const uint8_t POSITION_DEPOSER_HAUT = 4;
+const uint8_t POSITION_APPROCHE_DEPOT_HAUT = 5;
+const uint8_t POSITION_MAX_SOUS_SICK = 6;
+
+
 /*-----------------------------------------------------------------------------
  * Functions prototypes
  *----------------------------------------------------------------------------*/
@@ -257,7 +269,7 @@ uint8_t recuperer_minerais_pcd7();
 uint8_t recuperer_minerais_pcl();
 uint8_t recuperer_minerais_gcc10();
 uint8_t recuperer_minerais_gcc14();
-uint8_t deposer_minerais_zone_depot();
+uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire);
 uint8_t knocker_module2();
 uint8_t recuperer_fusee_depart();
 uint8_t recuperer_module1();
@@ -265,12 +277,9 @@ uint8_t recuperer_module5();
 uint8_t degager_module5();
 uint8_t prendre_minerais();
 void bras_position_croisiere();
-void baisser_bras_droit();
-void baisser_bras_gauche();
-void lever_bras_gauche_doucement();
-void lever_bras_droit_doucement();
-void deposer_minerais_haut();
-void deposer_minerais_bas();
+void positionner_deux_bras(uint8_t position, bool doucement);
+void positionner_bras_gauche(uint8_t position, bool doucement);
+void positionner_bras_droit(uint8_t position, bool doucement);
 
 void funny_action();
 void gr_fusee_init();
