@@ -8,10 +8,9 @@
 void gr_init() {
   com_log_println("gr_init()");
   robot.IS_PR = false;
-  
-  bool gr2016 = false;
-  gr2016 = true;
-  
+
+  bool gr2016 = false; // 2017 ou 2016 ? :)
+
   if(gr2016) {
     robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 3 mai gr
     robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 3404.0f; // 4 mai gr
@@ -19,7 +18,7 @@ void gr_init() {
     robot.ASSERV_DISTANCE_KD = 0.8f;
     robot.ASSERV_ROTATION_KP = 0.1f;
     robot.ASSERV_ROTATION_KD = 1.8f;
-    
+
     // Actionneurs à init
     quadramp_init(&robot.ramp_distance);
     quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
@@ -30,7 +29,7 @@ void gr_init() {
     quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
   }
   else {
-  
+
     // Constantes à init
     robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
     robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 2207.0f; // 1rad -> 2207pas
@@ -48,8 +47,8 @@ void gr_init() {
     quadramp_set_1st_order_vars(&robot.ramp_rotation, 100, 100);
     quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
   }
-  
-  
+
+
   gr_rouleaux_stop();
 }
 
