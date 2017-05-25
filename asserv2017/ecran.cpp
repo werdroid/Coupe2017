@@ -42,7 +42,7 @@ void ecran_print_menu(int selector) {
     "\n\n   Couleur:    XXXXX",
     "\n\n   Homologation     ",
     "\n\n   Debug            ",
-    "\n\n   Tout droit 30cm  ",
+    "\n\n   Coucou           ",
     "\n\n   Test tourner x10 ",
     "\n\n   30 cm avant      ",
     "\n\n   Test part/revient",

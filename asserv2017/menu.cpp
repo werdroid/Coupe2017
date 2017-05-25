@@ -86,8 +86,9 @@ void menu_start() {
 
           break;
         case 4:
-          tout_droit(mm2tick(300));
-          ecran_print_menu(selectPosition);
+          /*tout_droit(mm2tick(300));
+          ecran_print_menu(selectPosition);*/
+          gr_coucou();
           break;
         case 5:
           ecran_console_reset();

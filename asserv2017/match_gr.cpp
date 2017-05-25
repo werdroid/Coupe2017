@@ -100,8 +100,8 @@ void gr_main() {
 
 
 void homologation_gr() {
-  uint8_t errorM1;
-  uint8_t errorM5;
+  uint8_t error;
+  uint8_t tentatives = 0;
   
   
   ecran_console_reset();
@@ -129,7 +129,7 @@ void homologation_gr() {
 
   ecran_console_log("Pret\n\n");
   delay(200);
-  //if(!robot.symetrie) {
+  if(!robot.symetrie) {
     localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});  // TBC
     asserv_raz_consignes();
 
@@ -155,15 +155,15 @@ void homologation_gr() {
     
     recuperer_module1();
     
-    delay(2000);
+    //delay(2000);
     
-    recuperer_module5();
+    //recuperer_module5();
     
-    /*
+    
   }
   else {
     
-    localisation_set({x: 900, y: 200, a: MATH_PI * 0.5});  // TBC
+    localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});  // TBC
     asserv_raz_consignes();
 
     wait_start_button_up();
@@ -174,15 +174,16 @@ void homologation_gr() {
     delay(1000);
   
     bras_position_croisiere();
+    
   
-    
-    //asserv_go_toutdroit(300, 10000);
-    
-    aller_xy(1900, 300, 100, 1, 20000, 10);
+    do {
+      error = asserv_go_toutdroit(540, 10000);
+      tentatives++;
+    } while(error == ERROR_OBSTACLE && tentatives < 5 && !match_termine());
     
     //asserv_go_toutdroit(560, 10000);
   }
-  */
+  
   while(!match_termine());
   
 }
@@ -1051,6 +1052,7 @@ void lever_bras_droit_doucement() {
   }
 }
 
+
 void deposer_minerais_haut() {
   /***
   *
@@ -1077,6 +1079,16 @@ void gr_fusee_ouvrir() {
 }
 
 
+void gr_coucou() {
+  for(int i = 0; i < 10; i++) {
+    delay(600);
+    servo_bras_gauche.write(45);
+    servo_bras_droit.write(165);
+    delay(600);
+    servo_bras_gauche.write(80);
+    servo_bras_droit.write(135);
+  }
+}
 
 void funny_action() {
   if(!robot.IS_PR) {
