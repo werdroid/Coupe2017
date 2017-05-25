@@ -129,60 +129,35 @@ void homologation_gr() {
 
   ecran_console_log("Pret\n\n");
   delay(200);
-  if(!robot.symetrie) {
-    localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});  // TBC
-    asserv_raz_consignes();
 
-    wait_start_button_up();
-    
-    com_log_println("DebutDuMatch\n");
-    robot.match_debut = millis();
-    
-    delay(1000);
-  
-  
-    bras_position_croisiere();
-    //asserv_go_toutdroit(-350, 3000);
-    aller_xy(1150, 450, 100, 1, 20000, 10);
-    
-    
-    aller_xy(1600, 450, 100, 1, 20000, 10);
-    /*aller_pt_etape(PT_ETAPE_15, 100, 1, 20000, 10); 
-    aller_xy(1000, 1000, 100, 1, 20000, 10); 
-    aller_xy(1000, 250, 100, 1, 20000, 10); 
-    
-    asserv_go_toutdroit(-400, 3000);*/
-    
-    recuperer_module1();
-    
-    //delay(2000);
-    
-    //recuperer_module5();
-    
-    
-  }
-  else {
-    
-    localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});  // TBC
-    asserv_raz_consignes();
+  localisation_set({x: 900, y: 200, a: MATH_PI * -0.75});  // TBC
+  asserv_raz_consignes();
 
-    wait_start_button_up();
-    
-    com_log_println("DebutDuMatch\n");
-    robot.match_debut = millis();
-    
-    delay(1000);
+  wait_start_button_up();
   
-    bras_position_croisiere();
-    
+  com_log_println("DebutDuMatch\n");
+  robot.match_debut = millis();
   
-    do {
-      error = asserv_go_toutdroit(540, 10000);
-      tentatives++;
-    } while(error == ERROR_OBSTACLE && tentatives < 5 && !match_termine());
+  delay(1000);
+
+
+  bras_position_croisiere();
+  asserv_go_toutdroit(-350, 3000);
+  aller_xy(1150, 450, 100, 1, 20000, 10);
+  
+  
+  aller_xy(1600, 450, 100, 1, 20000, 10);
+  /*aller_pt_etape(PT_ETAPE_15, 100, 1, 20000, 10); 
+  aller_xy(1000, 1000, 100, 1, 20000, 10); 
+  aller_xy(1000, 250, 100, 1, 20000, 10); 
+  
+  asserv_go_toutdroit(-400, 3000);*/
+  
+  recuperer_module1();
+  
+  delay(2000);
     
-    //asserv_go_toutdroit(560, 10000);
-  }
+  recuperer_module5();
   
   while(!match_termine());
   
@@ -1083,10 +1058,10 @@ void gr_coucou() {
   for(int i = 0; i < 10; i++) {
     delay(600);
     servo_bras_gauche.write(45);
-    servo_bras_droit.write(165);
+    servo_bras_droit.write(135);
     delay(600);
     servo_bras_gauche.write(80);
-    servo_bras_droit.write(135);
+    servo_bras_droit.write(165);
   }
 }
 
