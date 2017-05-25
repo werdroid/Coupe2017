@@ -225,7 +225,8 @@ float orientation_vers_radian(int32_t orientation);
 int32_t rad2deg(float radian);
 float deg2rad(int32_t degre);
 int32_t symetrie_x(int32_t x);
-float symetrie_a(float a);
+float symetrie_a_centrale(float a);
+float symetrie_a_axiale_y(float a);
 
 // General
 void synchronisation();
@@ -249,6 +250,7 @@ void gr_main();
 void homologation_gr();
 void debug_gr();
 void match_gr();
+void gr_coucou();
 
 uint8_t recuperer_minerais_pcd4();
 uint8_t recuperer_minerais_pcd7();

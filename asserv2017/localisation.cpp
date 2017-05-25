@@ -9,7 +9,7 @@ void localisation_set(Position position) { // mm en entrée
 
   robot.x = mm2tick(symetrie_x(position.x));
   robot.y = mm2tick(position.y);
-  rotation_initiale = symetrie_a(position.a) - robot.a; // On fait un tare en donnant l'angle
+  rotation_initiale = symetrie_a_axiale_y(position.a) - robot.a; // On fait un tare en donnant l'angle
 
   localisation_loop(); // N, delta est à 0 car on a pas bougé
 }

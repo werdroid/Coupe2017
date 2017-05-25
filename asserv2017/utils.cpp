@@ -33,8 +33,13 @@ int32_t symetrie_x(int32_t x) {
   return x;
 }
 
-float symetrie_a(float a) {
+float symetrie_a_centrale(float a) {
   if (robot.sans_symetrie == 0 && robot.symetrie) return normalize_radian(a + MATH_PI);
+  return a;
+}
+
+float symetrie_a_axiale_y(float a) {
+  if (robot.sans_symetrie == 0 && robot.symetrie) return normalize_radian(-a + MATH_PI);
   return a;
 }
 

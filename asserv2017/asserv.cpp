@@ -137,14 +137,14 @@ uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout)
 
   float angleVersPoint = atan2(vy, vx); // [-pi, +pi] radians
 
-  robot.sans_symetrie = 1;
+  robot.sans_symetrie = 1; // on fait déjà une symétrie sur x au dessus.
   uint8_t ret = asserv_goa(angleVersPoint, timeout);
   robot.sans_symetrie = 0;
   return ret;
 }
 
 uint8_t asserv_goa(float orientation, uint16_t timeout, uint8_t sans_symetrie) {
-  return faire_rotation(normalize_radian(symetrie_a(orientation) - robot.a), timeout);
+  return faire_rotation(normalize_radian(symetrie_a_axiale_y(orientation) - robot.a), timeout);
 }
 
 uint8_t tout_droit(int32_t distance, uint16_t timeout) {
