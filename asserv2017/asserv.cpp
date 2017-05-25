@@ -78,12 +78,13 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
   elapsedMillis timer;
   uint8_t result;
 
-  robot.consigneXmm = consigne_x_mm;
-  robot.consigneYmm = consigne_y_mm;
   
   consigne_x_mm = symetrie_x(consigne_x_mm);
   consigne_y_mm = consigne_y_mm;
 
+  robot.consigneXmm = consigne_x_mm;
+  robot.consigneYmm = consigne_y_mm;
+  
   while (1) {
     synchronisation();
     result = consignesXY(consigne_x_mm, consigne_y_mm, uniquement_avant);
@@ -115,10 +116,14 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {  
   int32_t consigne_x_mm = robot.xMm + consigne_mm * cos(robot.a);
   int32_t consigne_y_mm = robot.yMm + consigne_mm * sin(robot.a);
-  if(consigne_mm < 0)
-    return asserv_goxy(consigne_x_mm, consigne_y_mm, timeout, 0); // Pas uniquement en avant si on veut reculer
-  else
-    return asserv_goxy(consigne_x_mm, consigne_y_mm, timeout, 1);
+  
+  if(consigne_mm < 0) {
+    // utilisation de symetrie_x pour compenser la symetrie_x faite à l'intérieur de asserv_goxy();
+    return asserv_goxy(symetrie_x(consigne_x_mm), consigne_y_mm, timeout, 0); // Pas uniquement en avant si on veut reculer
+  }
+  else {
+    return asserv_goxy(symetrie_x(consigne_x_mm), consigne_y_mm, timeout, 1);
+  }
 }
 
 // Regarder vers le point indiqué
@@ -144,7 +149,7 @@ uint8_t asserv_goa(float orientation, uint16_t timeout, uint8_t sans_symetrie) {
 
 uint8_t tout_droit(int32_t distance, uint16_t timeout) {
   elapsedMillis timer;
-  robot.consigneDistance = robot.distance + distance;
+  asserv_consigne_polaire_delta(distance, 0);
 
   while (1) {
     synchronisation();
@@ -165,7 +170,7 @@ uint8_t tout_droit(int32_t distance, uint16_t timeout) {
 
 uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
   elapsedMillis timer;
-  robot.consigneRotation = robot.rotation + radian_vers_orientation(rotation_rad);
+  asserv_consigne_polaire_delta(0, radian_vers_orientation(rotation_rad));
   int32_t marge_erreur_rotation = radian_vers_orientation(0.3);
 
   while (1) {

@@ -126,7 +126,9 @@ var donnees = {
             timer: getTimerMatch(robot),
             position: {
               mmX: param.mmX,
-              mmY: param.mmY
+              mmY: param.mmY,
+              a: param.angleRad,
+              aDeg: param.angleDeg
             },
             destination: {
               mmX: param.consigneXmm,

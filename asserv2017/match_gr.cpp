@@ -1,7 +1,8 @@
 #include "asserv2017.h"
 
 Servo servo_fusee;
-//Servo servo_volets;
+Servo servo_bras_gauche;
+Servo servo_bras_droit;
 
 // Vitesses par défaut
 uint32_t const VITESSE_A_VIDE = 100;
@@ -22,7 +23,87 @@ int nb_modules_extraits_fusee_depart = 0;
   Depart : zone de sa couleur proche du milieu de la table
 */
 
+
+// Initialisation des variables de configuration
+// Initialisation des actionneurs spécifiques
+
+void gr_init() {
+  com_log_println("gr_init()");
+  robot.IS_PR = false;
+
+  bool gr2016 = false; // 2017 ou 2016 ? :)
+
+  if(gr2016) {
+    robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 3 mai gr
+    robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 3404.0f; // 4 mai gr
+    robot.ASSERV_DISTANCE_KP = 0.1f;
+    robot.ASSERV_DISTANCE_KD = 0.8f;
+    robot.ASSERV_ROTATION_KP = 0.1f;
+    robot.ASSERV_ROTATION_KD = 1.8f;
+
+    // Actionneurs à init
+    quadramp_init(&robot.ramp_distance);
+    quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
+    quadramp_set_2nd_order_vars(&robot.ramp_distance, 1, 10);
+
+    quadramp_init(&robot.ramp_rotation);
+    quadramp_set_1st_order_vars(&robot.ramp_rotation, 100, 100);
+    quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
+
+  }
+  else {
+    
+    /**********
+    ROBOT ALIEN
+    ***********/
+
+    // Constantes à init
+    robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
+    robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 2207.0f; // 1rad -> 2207pas
+    robot.ASSERV_DISTANCE_KP = 0.15f; // 30 avril pr
+    robot.ASSERV_DISTANCE_KD = 1.5f; // 30 avril pr
+    robot.ASSERV_ROTATION_KP = 0.09f; // 30 avril pr
+    robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr
+
+    // Actionneurs à init
+    quadramp_init(&robot.ramp_distance);
+    quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
+    quadramp_set_2nd_order_vars(&robot.ramp_distance, 1, 1);
+
+    quadramp_init(&robot.ramp_rotation);
+    quadramp_set_1st_order_vars(&robot.ramp_rotation, 100, 100);
+    quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
+    
+    
+    servo_bras_gauche.attach(29);
+    servo_bras_droit.attach(30);
+    servo_fusee.attach(31);
+    
+    baisser_bras_droit();
+    baisser_bras_gauche();
+    gr_fusee_fermer();
+  }
+
+
+  gr_rouleaux_stop();
+}
+
+// Lancement du programme du robot (menu, match, actions)
+
+void gr_main() {
+  com_log_println("gr_main()");
+  gr_init();
+}
+
+
+
+
+
 void homologation_gr() {
+  uint8_t errorM1;
+  uint8_t errorM5;
+  
+  
   ecran_console_reset();
   ecran_console_log("Homolog GR\n");
 
@@ -48,21 +129,56 @@ void homologation_gr() {
 
   ecran_console_log("Pret\n\n");
   delay(200);
-  com_log_println(MATH_PI);
-  localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});  // TBC
-  asserv_raz_consignes();
+  if(!robot.symetrie) {
+    localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});  // TBC
+    asserv_raz_consignes();
 
-  wait_start_button_up();
+    wait_start_button_up();
+    
+    com_log_println("DebutDuMatch\n");
+    robot.match_debut = millis();
+    
+    delay(1000);
   
-  com_log_println("DebutDuMatch\n");
-  robot.match_debut = millis();
   
-  aller_xy(1500, 400, 100, 1, 20000, 10);
-  aller_pt_etape(PT_ETAPE_15, 100, 1, 20000, 10); 
-  aller_pt_etape(PT_ETAPE_4, 100, 1, 20000, 10); 
-  aller_xy(1000, 300, 100, 1, 20000, 10); 
+    bras_position_croisiere();
+    //asserv_go_toutdroit(-350, 3000);
+    aller_xy(1150, 450, 100, 1, 20000, 10);
+    
+    
+    aller_xy(1600, 450, 100, 1, 20000, 10);
+    /*aller_pt_etape(PT_ETAPE_15, 100, 1, 20000, 10); 
+    aller_xy(1000, 1000, 100, 1, 20000, 10); 
+    aller_xy(1000, 250, 100, 1, 20000, 10); 
+    
+    asserv_go_toutdroit(-400, 3000);*/
+    
+    recuperer_module1();
+    recuperer_module5();
+    
+    
+  }
+  else {
+    
+    localisation_set({x: 900, y: 200, a: MATH_PI * 0.5});  // TBC
+    asserv_raz_consignes();
+
+    wait_start_button_up();
+    
+    com_log_println("DebutDuMatch\n");
+    robot.match_debut = millis();
+    
+    delay(1000);
   
-  asserv_go_toutdroit(-400, 3000);
+    bras_position_croisiere();
+  
+    
+    //asserv_go_toutdroit(300, 10000);
+    
+    aller_xy(1900, 300, 100, 1, 20000, 10);
+    
+    //asserv_go_toutdroit(560, 10000);
+  }
   
   while(!match_termine());
   
@@ -75,20 +191,40 @@ void debug_gr() {
   ecran_console_log("2 sec\n\n");
 
   delay(200);
-  localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});
+  //localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});
+  localisation_set({x: 1500, y: 1000, a: 0});
   asserv_raz_consignes();
   delay(1800);
 
   com_log_println("DebutDuMatch\n");
   robot.match_debut = millis();
   
+  delay(500);
+  
+  
+  com_log_println("Derriere");
+  asserv_goa_point(100, 1000, 10000);
+  delay(5000);
+  
+  com_log_println("En bas a droite");
+  asserv_goa_point(2900, 1900, 10000);
+  delay(5000);
+  com_log_println("En bas a gauche");
+  asserv_goa_point(100, 1900, 10000);
+  delay(5000);
+  com_log_println("En haut a gauche");
+  asserv_goa_point(100, 100, 10000);
+  delay(5000);
+  com_log_println("En haut a droite");
+  asserv_goa_point(29000, 100, 10000);
+  delay(5000);
+  com_log_println("Fini :)");
 /*
   aller_pt_etape(PT_ETAPE_14, 100, 1, 10000, 10); 
   aller_pt_etape(PT_ETAPE_15, 100, 1, 10000, 10); 
   robot.match_debut = millis();
   aller_pt_etape(PT_ETAPE_7, 100, 1, 10000, 10); 
   aller_pt_etape(PT_ETAPE_1, 100, 1, 10000, 10); 
- */
   recuperer_minerais_pcd4();
   delay(2000);
   recuperer_minerais_pcd7();
@@ -114,10 +250,10 @@ void debug_gr() {
   recuperer_module5();
   delay(2000);
   robot.match_debut = millis();
-  degager_module5();
+  degager_module5(); */
   
   
-  while(!match_termine());
+  //while(!match_termine());
   
 
   tone_play_end();
@@ -193,14 +329,6 @@ void match_gr() {
   nb_modules_extraits_fusee_depart = 0;
   
   
-  /***** TODO *******/
-  /*servo_canne.attach(5);
-  //servo_canne.write(0); // rentré
-  canne_monter();
-  servo_volets.attach(4);
-  volets_fermer();
-  /************/
-  
   delay(500);
   ecran_console_log(" Ok\n");
   
@@ -220,6 +348,7 @@ void match_gr() {
   com_log_println("DebutDuMatch\n");
   robot.match_debut = millis();
   
+  bras_position_croisiere();
 
   /**
   Stratégie de jeu :
@@ -274,6 +403,7 @@ void match_gr() {
 
         default:
           com_log_println("! ######### ERREUR : action_en_cours inconnu");
+          error = ERROR_STRATEGIE;
       }
       
       if(error) {
@@ -606,8 +736,7 @@ uint8_t deposer_minerais_zone_depot() {
   if(error) return error;
   
   
-  baisser_bras_droit();
-  baisser_bras_gauche();
+  deposer_minerais_bas();
   
   
   error = aller_xy(290, 665, VITESSE_CHARGE, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
@@ -756,7 +885,7 @@ uint8_t recuperer_module1() {
   com_log_println("Et un module 1 dans la zone de départ !");
   
   // Dégagement
-  asserv_go_toutdroit(-300, 2000);
+  asserv_go_toutdroit(-400, 2000); /////// Modifié -300 -> -400
 
   return OK;
 }
@@ -855,76 +984,112 @@ uint8_t prendre_minerais() {
   uint8_t error;
   
   baisser_bras_droit();
+  delay(400);
   baisser_bras_gauche();
   delay(800);
-  lever_bras_gauche();
-  lever_bras_droit();
+  lever_bras_gauche_doucement();
+  lever_bras_droit_doucement();
   
   return OK;
 }
 
 
+
+/**
+Positions des bras
+Bras gauche :
+Max sous sik : 95
+Croisière : 80
+Prendre minerais : 45
+Dépose basse : 45
+Dépose haute : 105 puis 90
+
+Bras droit :
+Max sous sick : 115
+Croisière : 135
+Prendre minerais : 165
+Dépose basse : 165
+Dépose haute : 110 puis 118
+
+Fusée :
+
+**/
+
 void bras_position_croisiere() {
  
-  //com_log_println("Bras en position croisiere");
+  servo_bras_droit.write(135);
+  servo_bras_gauche.write(80);
   
 }
 
 
 void baisser_bras_droit() {
-  /***
-  * TODO
-  *
-  *
-  *
-  **/
+  // Pour prendre minerais et pour déposer en position basse
+  if(!match_termine()) {
+    servo_bras_droit.write(165);
+  }
 }
 
 void baisser_bras_gauche() {
-    /***
-  * TODO
-  *
-  *
-  *
-  **/
+  if(!match_termine()) {
+    servo_bras_gauche.write(45);
+  }
 }
 
-void lever_bras_gauche() {
+void lever_bras_gauche_doucement() {
+  if(!match_termine()) {
+    servo_slowmotion(servo_bras_gauche, 45, 80);
+  }
+}
+
+void lever_bras_droit_doucement() {
+  if(!match_termine()) {
+    servo_slowmotion(servo_bras_droit, 165, 135);
+  }
+}
+
+void deposer_minerais_haut() {
   /***
+  *
   * TODO
   *
-  *
-  *
-  **/
-  
-  
+  ***/
 }
-
-void lever_bras_droit() {
-   /***
-  * TODO
-  *
-  *
-  *
-  **/ 
+void deposer_minerais_bas() {
+  baisser_bras_droit();
+  baisser_bras_gauche();
 }
-
 
 
 void gr_fusee_init() {
-  servo_fusee.attach(4);
-  pinMode(33, OUTPUT);
+  Serial.println("###### Warning: Fonction fusee_init inutile");
 }
 
 void gr_fusee_fermer() {
-  servo_fusee.write(90);
-  digitalWrite(33, HIGH);
+  servo_fusee.write(74);
 }
 
 void gr_fusee_ouvrir() {
-  servo_fusee.write(0);
-  digitalWrite(33, LOW);
+  servo_fusee.write(160);
 }
+
+
+
+void funny_action() {
+  if(!robot.IS_PR) {
+    com_log_println("Fin de match, funny action !");
+    gr_fusee_ouvrir();
+    delay(1000);
+    gr_fusee_fermer();
+    delay(800);
+    gr_fusee_ouvrir();
+    delay(800);
+    gr_fusee_fermer();
+    delay(1000);
+    gr_fusee_ouvrir();
+  }
+}
+
 
 
 /******************************************
@@ -972,21 +1137,3 @@ void gr_rouleaux_stop() {
     digitalWrite(32, HIGH);
   }
 }
-
-void funny_action() {
-  if(!robot.IS_PR) {
-    com_log_println("Fin de match, funny action !");
-    gr_fusee_init();
-    gr_fusee_ouvrir();
-    delay(800);
-    gr_fusee_fermer();
-    delay(800);
-    gr_fusee_ouvrir();
-    delay(900);
-    gr_fusee_fermer();
-    delay(900);
-    gr_fusee_ouvrir();
-  }
-}
-
-

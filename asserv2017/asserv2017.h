@@ -265,8 +265,10 @@ uint8_t prendre_minerais();
 void bras_position_croisiere();
 void baisser_bras_droit();
 void baisser_bras_gauche();
-void lever_bras_gauche();
-void lever_bras_droit();
+void lever_bras_gauche_doucement();
+void lever_bras_droit_doucement();
+void deposer_minerais_haut();
+void deposer_minerais_bas();
 
 void funny_action();
 void gr_fusee_init();

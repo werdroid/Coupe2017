@@ -32,7 +32,9 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   definir_vitesse_avance(vitesse);
   
   if(uniquement_avant) {
-    asserv_goa_point(x, y, 2000);
+    if(!robot.symetrie) {
+      asserv_goa_point(x, y, 2000);
+    }
   }
   
   do {
