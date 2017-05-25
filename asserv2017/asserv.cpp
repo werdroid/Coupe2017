@@ -170,7 +170,7 @@ uint8_t tout_droit(int32_t distance, uint16_t timeout) {
 
 uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
   elapsedMillis timer;
-  asserv_consigne_polaire_delta(0, radian_vers_orientation(rotation_rad));
+  asserv_consigne_polaire_delta(0, rotation_rad);
   int32_t marge_erreur_rotation = radian_vers_orientation(0.3);
 
   while (1) {
