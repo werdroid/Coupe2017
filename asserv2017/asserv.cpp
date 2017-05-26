@@ -78,13 +78,13 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
   elapsedMillis timer;
   uint8_t result;
 
-  
+
   consigne_x_mm = symetrie_x(consigne_x_mm);
   consigne_y_mm = consigne_y_mm;
 
   robot.consigneXmm = consigne_x_mm;
   robot.consigneYmm = consigne_y_mm;
-  
+
   while (1) {
     synchronisation();
     result = consignesXY(consigne_x_mm, consigne_y_mm, uniquement_avant);
@@ -113,10 +113,10 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
 // va tout droit en avant ou arrière sans se retourner
 // conseillé sur de petites distance car le point de destination
 // peut être n'importe où, par exemple à l'extérieur de la table...
-uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {  
+uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
   int32_t consigne_x_mm = robot.xMm + consigne_mm * cos(robot.a);
   int32_t consigne_y_mm = robot.yMm + consigne_mm * sin(robot.a);
-  
+
   if(consigne_mm < 0) {
     // utilisation de symetrie_x pour compenser la symetrie_x faite à l'intérieur de asserv_goxy();
     return asserv_goxy(symetrie_x(consigne_x_mm), consigne_y_mm, timeout, 0); // Pas uniquement en avant si on veut reculer
@@ -234,6 +234,10 @@ static int32_t erreur_rotation_precedente = 0;
 // Contrôle les moteurs en fonction des consignes et du mode actuel
 
 void asserv_loop() {
+  if (match_minuteur_90s()) { // fin match, on coupe tout !
+    asserv_consigne_stop();
+  }
+
   if (robot.asserv_mode == ASSERV_MODE_STOP) {
     moteur_gauche(0);
     moteur_droite(0);

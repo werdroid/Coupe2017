@@ -35,14 +35,14 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     com_log_print("! Pas le temps de se déplacer (fin du match)");
     return ERROR_FIN_MATCH;
   }
-  
-  
+
+
   definir_vitesse_avance(vitesse);
-  
+
   if(uniquement_avant) {
     asserv_goa_point(x, y, 2000);
   }
-  
+
   do {
     error = asserv_goxy(x, y, timeout, uniquement_avant);
     tentatives++;
@@ -108,7 +108,7 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
       com_log_print(" tentatives");
     }
     com_log_println();
-    
+
     if(error == ERROR_FIN_MATCH) {
       match_termine();
     }
@@ -124,16 +124,16 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
      Sinon :
         aller_pt_etape()
         return aller(point_demandé)
-  */    
+  */
   bool point_accessible = false;
   bool je_suis_perdu = false;
   uint8_t point_de_passage;
   uint8_t error;
   Point point;
-  
-  
+
+
   switch(idPoint) {
-    
+
     case PT_ETAPE_1:
       com_log_println("Destination P1");
       if(robot_dans_zone(ZONE_A)) {
@@ -166,7 +166,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
           je_suis_perdu = true;
       }
       break;
-      
+
     case PT_ETAPE_4:
       com_log_println("Destination P4");
       if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_G)) {
@@ -188,7 +188,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
           je_suis_perdu = true;
       }
       break;
-      
+
     case PT_ETAPE_7:
       com_log_println("Destination P7");
       if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H)) {
@@ -206,7 +206,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
           je_suis_perdu = true;
       }
       break;
-      
+
     case PT_ETAPE_8:
       com_log_println("Destination P8");
       if(robot_dans_zone(ZONE_B | ZONE_E | ZONE_F | ZONE_G | ZONE_H | ZONE_I)) {
@@ -222,7 +222,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
           je_suis_perdu = true;
       }
       break;
-      
+
     case PT_ETAPE_10:
       com_log_println("Destination P10");
       if(robot_dans_zone(ZONE_B | ZONE_E | ZONE_F | ZONE_G | ZONE_H | ZONE_I)) {
@@ -238,7 +238,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
           je_suis_perdu = true;
       }
       break;
-      
+
     case PT_ETAPE_14:
       com_log_println("Destination P14");
       if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H)) {
@@ -256,7 +256,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
           je_suis_perdu = true;
       }
       break;
-      
+
     case PT_ETAPE_15:
       com_log_println("Destination P15");
       if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_I | ZONE_J)) {
@@ -278,11 +278,11 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
           je_suis_perdu = true;
       }
       break;
-      
+
     default:
       je_suis_perdu = true;
   }
-  
+
   if(je_suis_perdu) {
     com_log_println("! ######### ERREUR : Point Etape sans stratégie");
     return ERROR_STRATEGIE;
@@ -299,7 +299,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       return aller_pt_etape(idPoint, vitesse, uniquement_avant, timeout, max_tentatives);
     }
   }
-  
+
 }
 
 
@@ -355,7 +355,7 @@ uint16_t localiser_zone() {
     com_log_println("Localisé zone D");
     return ZONE_D;
   }
-  
+
   com_log_println("##### Zone inconnue");
   return ZONE_INCONNUE;
 }
@@ -415,8 +415,17 @@ bool temps_ecoule(uint32_t t0, uint32_t duree) {
   return !(millis() - t0 < duree);
 }
 
+bool match_minuteur_90s() {
+  return (millis() - robot.match_debut) > 89500;
+}
+
+void match_demarrer_minuteur() {
+  robot.match_debut = millis();
+  com_log_println("DebutDuMatch\n");
+}
+
 bool match_termine() {
-  if((millis() - robot.match_debut) > 89500) {
+  if(match_minuteur_90s()) {
     asserv_consigne_stop();
     com_log_println("Fin du match !");
     delay(1000);

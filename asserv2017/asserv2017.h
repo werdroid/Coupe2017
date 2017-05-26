@@ -254,6 +254,8 @@ Point getPoint(uint8_t idPoint);
 uint8_t retour(uint8_t valeur);
 bool temps_ecoule(uint32_t t0, uint32_t duree);
 bool match_termine();
+bool match_minuteur_90s();
+void match_demarrer_minuteur();
 
 // GR
 void gr_init();
