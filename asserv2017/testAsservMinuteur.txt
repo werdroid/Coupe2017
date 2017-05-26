@@ -1,0 +1,41 @@
+void debug_gr() {
+  gr_rouleaux_stop();
+
+  ecran_console_log("Debug GR\n\n");
+  ecran_console_log("2 sec\n\n");
+
+  delay(200);
+  //localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});
+  localisation_set({x: 1500, y: 1000, a: 0});
+  asserv_raz_consignes();
+  delay(1800);
+
+  match_demarrer_minuteur();
+
+  delay(500);
+
+  // Test asserv aller-retour
+  while((millis() - robot.match_debut) < 100000) {
+    Serial.println("Paf");
+    asserv_go_toutdroit(300, 1000);
+    delay(1000);
+    Serial.println("Pouf");
+    asserv_go_toutdroit(-300, 1000);
+    delay(1000);
+  }
+  
+  // Test asserv rotation
+  /*
+  while((millis() - robot.match_debut) < 100000) {
+    Serial.println("Paf");
+    asserv_goa_point(0, 0, 1000);
+    delay(1000);
+    Serial.println("Pouf");
+    asserv_goa_point(3000, 2000, 1000);
+    delay(1000);
+  }  
+  //*/
+
+
+  tone_play_end();
+}

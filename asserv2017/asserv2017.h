@@ -221,6 +221,8 @@ const uint8_t POSITION_DEPOSER_BAS = 3;
 const uint8_t POSITION_DEPOSER_HAUT = 4;
 const uint8_t POSITION_APPROCHE_DEPOT_HAUT = 5;
 const uint8_t POSITION_MAX_SOUS_SICK = 6;
+const uint8_t POSITION_KNOCK_BLEU = 7;
+const uint8_t POSITION_KNOCK_JAUNE = 8;
 
 
 /*-----------------------------------------------------------------------------

@@ -177,7 +177,17 @@ void debug_gr() {
 
   delay(500);
 
-
+  while((millis() - robot.match_debut) < 100000) {
+    Serial.println("Paf");
+    asserv_goa_point(0, 0, 1000);
+    delay(1000);
+    Serial.println("Pouf");
+    asserv_goa_point(3000, 2000, 1000);
+    delay(1000);
+  }
+    
+  
+/*
   Serial.println("Position croisiere");
   positionner_deux_bras(POSITION_CROISIERE, true);
 
@@ -200,7 +210,7 @@ void debug_gr() {
   delay(1000);
 
   positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
-
+*/
 
   tone_play_end();
 }
@@ -270,7 +280,7 @@ void match_gr() {
 
 
   // Initialisation des variables de stratégie
-  action_en_cours = 0;
+  action_en_cours = 0; ////// ATTENTION, != 0 pour TESTS UNIQUEMENT
   gr_minerais_charges = false; // Etat chargé/à vide
   nb_modules_extraits_fusee_depart = 0;
 
@@ -348,7 +358,8 @@ void match_gr() {
         case 5: error = recuperer_minerais_gcc10(); break;
         case 6: error = recuperer_minerais_gcc14(); break;
         case 7: error = recuperer_minerais_pcl(); break;
-        case 8: error = recuperer_minerais_pcd4(); break;
+        case 8: error = recuperer_minerais_gcc10(); break;
+        //case 8: error = recuperer_minerais_pcd4(); break;
         //case 8: error = recuperer_fusee_depart(); break;
 
         default:
@@ -524,7 +535,7 @@ uint8_t recuperer_minerais_pcd7() {
 
 
   // Réalisation de l'action
-  error = aller_xy(464, 669, VITESSE_A_VIDE, 1, 2000, 3); // Vers le cratère
+  error = aller_xy(450, 669, VITESSE_A_VIDE, 1, 2000, 3); // Vers le cratère
   // if(error) return error;
   
   error = asserv_goa_point(650, 540, 2000);
@@ -688,10 +699,15 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
     positionner_deux_bras(POSITION_APPROCHE_DEPOT_HAUT, false);
     error = aller_xy(240, 500, VITESSE_CHARGE, 1, 2000, 2);
 
-    Serial.println("Recalage");
-    aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
-    localisation_set({x: 240, y: 480, a: MATH_PI * -0.5});
-
+    if(error) {
+      Serial.println("! Recalage impossible");
+    }
+    else {
+      Serial.println("Recalage");
+      aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
+      localisation_set({x: 240, y: 480, a: MATH_PI * -0.5});
+    }
+    
     // On baisse
     positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
     
@@ -700,9 +716,11 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
   }
   else {
     // Approche
-    error = aller_xy(210, 500, VITESSE_CHARGE, 1, 3000, 2);
+    error = aller_xy(210, 520, VITESSE_CHARGE, 1, 3000, 2);
     // if(error) return error; // Robot têtu : même si problème, il continuera son action de dépose. On est assez proche pour espérer qu'il en dépose au moins 1.
-    error = asserv_goa_point(210, 0, 2000);
+    
+    //error = asserv_goa_point(210, 0, 2000);
+    error = aller_xy(210, 495, VITESSE_CHARGE, 1, 2500, 2);
     // if(error) return error;
 
     // On baisse
@@ -1005,12 +1023,14 @@ void positionner_bras_gauche(uint8_t position, bool doucement) {
 
   if(!match_termine()) {
     switch(position) {
-      case POSITION_CROISIERE: angle = 80; break;
+      case POSITION_CROISIERE: angle = 77; break;
       case POSITION_RECOLTER: angle = 45; break;
       case POSITION_DEPOSER_BAS: angle = 45; break;
       case POSITION_DEPOSER_HAUT: angle = 95; break;
       case POSITION_APPROCHE_DEPOT_HAUT: angle = 115; break;
       case POSITION_MAX_SOUS_SICK: angle = 95; break;
+      case POSITION_KNOCK_JAUNE: angle = 70; break;
+      case POSITION_KNOCK_BLEU: angle = 80; break; // Croisière
       default:
         Serial.println("######### ERREUR : POSITION inconnue dans positionner_bras_gauche");
         angle = 80; // Croisière par défaut
@@ -1050,6 +1070,8 @@ void positionner_bras_droit(uint8_t position, bool doucement) {
       case POSITION_DEPOSER_HAUT: angle = 113; break;
       case POSITION_APPROCHE_DEPOT_HAUT: angle = 100; break;
       case POSITION_MAX_SOUS_SICK: angle = 115; break;
+      case POSITION_KNOCK_BLEU: angle = 150; break;
+      case POSITION_KNOCK_JAUNE: angle = 135; break; // Croisière
       default:
         Serial.println("######### ERREUR : POSITION inconnue dans positionner_bras_droit");
         angle = 135; // Croisière par défaut
