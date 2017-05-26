@@ -45,6 +45,7 @@ uint8_t buffer[SICK_BUFFER_SIZE];
 uint16_t distances_values[SICK_VALUES_LENGTH]; // 270 octets
 uint8_t rssi_values[SICK_VALUES_LENGTH]; // 270 octets
 Point points[SICK_VALUES_LENGTH]; // 2160 octets
+bool detection_enabled = true; // à faux, le sick ne détectera jamais rien comme obstacle
 
 /*------------------------------------------------------------------------------
  * Utilitaires
@@ -236,8 +237,24 @@ uint8_t sick_read_data() {
   }
 }
 
+void sick_disable_detection(bool enabled) {
+  if (enabled) {
+    com_log_println("SICK sick_disable_detection=true");
+  } else {
+    com_log_println("SICK sick_disable_detection=false");
+  }
+
+  detection_enabled = enabled;
+}
+
 void sick_traiter_donnees() {
   robot.sickObstacle = false;
+
+  if (detection_enabled == false) {
+    // la détection est désactivée, inutile de traiter les données du sick
+    // et robot.sickObstacle restera à false
+    return;
+  }
 
   for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
     if (!angle_dans_le_cone(index_vers_angle(i))) {

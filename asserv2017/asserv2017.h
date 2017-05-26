@@ -401,6 +401,7 @@ uint8_t sick_connected();
 size_t sick_start_stream();
 uint8_t sick_read_data(); // met à jour distances_values et rssi_values
 void sick_traiter_donnees(); // met à jour sickObstacle et points
+void sick_disable_detection(bool enabled); // désactive la détection
 
 // Manager
 void manager_setup();
