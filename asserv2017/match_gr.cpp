@@ -522,18 +522,18 @@ uint8_t recuperer_minerais_pcd7() {
   positionner_deux_bras(POSITION_MAX_SOUS_SICK, false);
   
   error = asserv_goa_point(650, 540, 3000);
-  if(error) return error;
+  // if(error) return error;
 
   
   // Réalisation de l'action
-  error = aller_xy(428, 576, VITESSE_A_VIDE, 1, 10000, 3); // Vers le cratère
-  if(error) return error;
+  error = aller_xy(428, 576, VITESSE_A_VIDE, 1, 2000, 3); // Vers le cratère
+  // if(error) return error;
   
-  error = asserv_goa_point(650, 540, 3000);
-  if(error) return error;
+  error = asserv_goa_point(650, 540, 2000);
+  //if(error) return error;
   
   error = prendre_minerais();
-  if(error) return error;
+  //if(error) return error;
 
   gr_minerais_charges = true;
   com_log_println("Minerais charges");
