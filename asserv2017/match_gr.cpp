@@ -343,12 +343,13 @@ void match_gr() {
         case 0: error = recuperer_module1(); break;
         case 1: error = recuperer_module5(); break;
         case 2: error = recuperer_minerais_pcd7(); break;
-        case 3: error = knocker_module2(); break;
-        case 4: error = recuperer_minerais_pcl(); break;
-        case 5: error = recuperer_minerais_pcd4(); break;
-        case 6: error = recuperer_minerais_gcc10(); break;
-        case 7: error = recuperer_minerais_gcc14(); break;
-        case 8: error = recuperer_fusee_depart(); break;
+        case 3: error = recuperer_minerais_pcd7(); break;
+        case 4: error = knocker_module2(); break;
+        case 5: error = recuperer_minerais_gcc10(); break;
+        case 6: error = recuperer_minerais_gcc14(); break;
+        case 7: error = recuperer_minerais_pcl(); break;
+        case 8: error = recuperer_minerais_pcd4(); break;
+        //case 8: error = recuperer_fusee_depart(); break;
 
         default:
           com_log_println("! ######### ERREUR : action_en_cours inconnu");
@@ -476,19 +477,19 @@ uint8_t recuperer_minerais_pcd4() {
   if(error) return error;
   com_log_println("PCD4 atteint.");
 
-  error = asserv_goa_point(650, 540, 3000);
-  if(error) return error;
+  error = asserv_goa_point(650, 540, 2000);
+  // if(error) return error;
 
 
   // Réalisation de l'action
-  error = aller_xy(855, 652, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return error;
+  error = aller_xy(855, 652, VITESSE_A_VIDE, 1, 3000, 2);
+  // if(error) return error;
 
-  error = asserv_goa_point(650, 540, 3000);
-  if(error) return error;
+  error = asserv_goa_point(650, 540, 2000);
+  // if(error) return error;
 
   error = prendre_minerais(); // baisser les bras, remonter les bras
-  if(error) return error;
+  // if(error) return error;
 
   gr_minerais_charges = true;
   com_log_println("Minerais charges");
@@ -557,21 +558,18 @@ uint8_t recuperer_minerais_pcl() {
   if(error) return error;
   com_log_println("PCL atteint.");
 
-  error = asserv_goa_point(1070, 1870, 3000);
-  if(error) return error;
-
 
   // Réalisation de l'action
-  error = aller_xy(866, 1766, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return error;
+  error = aller_xy(866, 1766, VITESSE_A_VIDE, 1, 3000, 3);
+  // if(error) return error;
 
-  error = asserv_goa_point(1070, 1870, 3000);
-  if(error) return error;
+  error = asserv_goa_point(1070, 1870, 2000);
+  // if(error) return error;
 
   delay(600);
 
   error = prendre_minerais();
-  if(error) return error;
+  // if(error) return error;
 
   gr_minerais_charges = true;
   com_log_println("Minerais charges");
@@ -598,19 +596,19 @@ uint8_t recuperer_minerais_gcc10() {
   if(error) return error;
   com_log_println("GCC10 atteint.");
 
-  error = asserv_goa_point(0, 2000, 3000);
-  if(error) return error;
+  // error = asserv_goa_point(0, 2000, 2000);
+  // if(error) return error;
 
 
   // Réalisation de l'action
-  error = aller_xy(350, 1440, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return error;
+  error = aller_xy(350, 1440, VITESSE_A_VIDE, 1, 3000, 3);
+  // if(error) return error;
 
-  error = asserv_goa_point(0, 2000, 3000);
-  if(error) return error;
+  error = asserv_goa_point(0, 2000, 2000);
+  // if(error) return error;
 
   error = prendre_minerais();
-  if(error) return error;
+  // if(error) return error;
 
   gr_minerais_charges = true;
   com_log_println("Minerais charges");
@@ -636,19 +634,19 @@ uint8_t recuperer_minerais_gcc14() {
   if(error) return error;
   com_log_println("GCC14 atteint.");
 
-  error = asserv_goa_point(0, 2000, 3000);
-  if(error) return error;
+  // error = asserv_goa_point(0, 2000, 3000);
+  // if(error) return error;
 
 
   // Réalisation de l'action
-  error = aller_xy(618, 1855, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return error;
+  error = aller_xy(618, 1855, VITESSE_A_VIDE, 1, 3000, 3);
+  // if(error) return error;
 
-  error = asserv_goa_point(0, 2000, 3000);
-  if(error) return error;
+  error = asserv_goa_point(0, 2000, 2000);
+  // if(error) return error;
 
   error = prendre_minerais();
-  if(error) return error;
+  // if(error) return error;
 
 
   gr_minerais_charges = true;
