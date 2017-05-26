@@ -378,7 +378,7 @@ void match_gr() {
         
       while(gr_minerais_charges && !match_termine()) {
       
-        error = deposer_minerais_zone_depot(true);
+        error = deposer_minerais_zone_depot(false);
         
         if(error) {
           // Minerais pas déposés : on se déplace à un point de secours pour revenir à la boucle while suivante
