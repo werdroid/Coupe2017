@@ -519,12 +519,12 @@ uint8_t recuperer_minerais_pcd7() {
 
   positionner_deux_bras(POSITION_MAX_SOUS_SICK, false);
 
-  error = asserv_goa_point(650, 540, 3000);
+  error = asserv_goa_point(650, 540, 2000);
   // if(error) return error;
 
 
   // Réalisation de l'action
-  error = aller_xy(428, 576, VITESSE_A_VIDE, 1, 2000, 3); // Vers le cratère
+  error = aller_xy(464, 669, VITESSE_A_VIDE, 1, 2000, 3); // Vers le cratère
   // if(error) return error;
   
   error = asserv_goa_point(650, 540, 2000);
@@ -669,7 +669,7 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
 
   // En route vers dépôt
   com_log_println("En route vers Depot.");
-  error = aller_pt_etape(PT_ETAPE_7, VITESSE_CHARGE, 1, 10000, 3);
+  error = aller_pt_etape(PT_ETAPE_7, VITESSE_CHARGE, 1, 9000, 3);
   if(error) return error;
 
   com_log_println("Depot atteint.");
@@ -678,40 +678,41 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
     positionner_deux_bras(POSITION_MAX_SOUS_SICK, true);
   }
 
-  error = asserv_goa_point(80, 0, 3000);
+  error = asserv_goa_point(80, 0, 2000);
   if(error) return error;
 
 
   // Début du dépôt dans la zone de départ
-  // Approche
   if(avec_robot_secondaire) {
+    // Approche
     positionner_deux_bras(POSITION_APPROCHE_DEPOT_HAUT, false);
-    error = aller_xy(240, 500, VITESSE_CHARGE, 1, 3000, 2);
+    error = aller_xy(240, 500, VITESSE_CHARGE, 1, 2000, 2);
 
     Serial.println("Recalage");
     aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
     localisation_set({x: 240, y: 480, a: MATH_PI * -0.5});
 
+    // On baisse
+    positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
+    
+    // On dégage
+    error = aller_xy(240, 670, VITESSE_CHARGE, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
   }
   else {
-    error = aller_xy(210, 500, VITESSE_CHARGE, 1, 4000, 2);
+    // Approche
+    error = aller_xy(210, 500, VITESSE_CHARGE, 1, 3000, 2);
     // if(error) return error; // Robot têtu : même si problème, il continuera son action de dépose. On est assez proche pour espérer qu'il en dépose au moins 1.
-    error = asserv_goa_point(210, 0, 3000);
+    error = asserv_goa_point(210, 0, 2000);
     // if(error) return error;
 
-  }
-
-
-  // On baisse
-  if(avec_robot_secondaire) {
-    positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
-  }
-  else {
+    // On baisse
     positionner_deux_bras(POSITION_DEPOSER_BAS, false);
+    
+    // On dégage
+    error = aller_xy(260, 670, VITESSE_CHARGE, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
   }
 
-  // On dégage
-  error = aller_xy(260, 670, VITESSE_CHARGE, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
+
 
   bras_position_croisiere();
 

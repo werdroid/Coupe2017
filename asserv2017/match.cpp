@@ -391,7 +391,7 @@ Point getPoint(uint8_t idPoint) {
   switch(idPoint) {
     case PT_ETAPE_1: return {x: 900, y: 200}; break;
     case PT_ETAPE_4: return {x: 1000, y: 700}; break;
-    case PT_ETAPE_7: return {x: 300, y: 600}; break;
+    case PT_ETAPE_7: return {x: 336, y: 693}; break;
     case PT_ETAPE_8: return {x: 500, y: 1100}; break;
     case PT_ETAPE_10: return {x: 400, y: 1350}; break;
     case PT_ETAPE_14: return {x: 750, y: 1700}; break;
