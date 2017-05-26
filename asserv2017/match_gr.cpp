@@ -178,60 +178,30 @@ void debug_gr() {
   robot.match_debut = millis();
   
   delay(500);
+
   
+  Serial.println("Position croisiere");
+  positionner_deux_bras(POSITION_CROISIERE, true);
   
-  com_log_println("Derriere");
-  asserv_goa_point(100, 1000, 10000);
-  delay(5000);
+  delay(7000);
+  Serial.println("Position Approche dans 3");
+  delay(1000);
+  Serial.println("2");
+  delay(1000);
+  Serial.println("1");
+  delay(1000);
   
-  com_log_println("En bas a droite");
-  asserv_goa_point(2900, 1900, 10000);
-  delay(5000);
-  com_log_println("En bas a gauche");
-  asserv_goa_point(100, 1900, 10000);
-  delay(5000);
-  com_log_println("En haut a gauche");
-  asserv_goa_point(100, 100, 10000);
-  delay(5000);
-  com_log_println("En haut a droite");
-  asserv_goa_point(29000, 100, 10000);
-  delay(5000);
-  com_log_println("Fini :)");
-/*
-  aller_pt_etape(PT_ETAPE_14, 100, 1, 10000, 10); 
-  aller_pt_etape(PT_ETAPE_15, 100, 1, 10000, 10); 
-  robot.match_debut = millis();
-  aller_pt_etape(PT_ETAPE_7, 100, 1, 10000, 10); 
-  aller_pt_etape(PT_ETAPE_1, 100, 1, 10000, 10); 
-  recuperer_minerais_pcd4();
-  delay(2000);
-  recuperer_minerais_pcd7();
-  delay(2000);
-  robot.match_debut = millis();
-  recuperer_minerais_pcl();
-  delay(2000);
-  recuperer_minerais_gcc10();
-  delay(2000);
-  robot.match_debut = millis();
-  recuperer_minerais_gcc14();
-  delay(2000);
-  deposer_minerais_zone_depot();
-  delay(2000);
-  robot.match_debut = millis();
-  knocker_module2();
-  delay(2000);
-  recuperer_fusee_depart();
-  delay(2000);
-  robot.match_debut = millis();
-  recuperer_module1();
-  delay(2000);
-  recuperer_module5();
-  delay(2000);
-  robot.match_debut = millis();
-  degager_module5(); */
+  positionner_deux_bras(POSITION_APPROCHE_DEPOT_HAUT, true);
   
+  delay(7000);
+  Serial.println("Position Depot Haut dans 3");
+  delay(1000);
+  Serial.println("2");
+  delay(1000);
+  Serial.println("1");
+  delay(1000);
   
-  //while(!match_termine());
+  positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
   
 
   tone_play_end();
@@ -329,7 +299,7 @@ void match_gr() {
   delay(500);
   
   bras_position_croisiere();
-  asserv_go_toutdroit(-350, 3000);
+  asserv_go_toutdroit(-450, 3000);
   
 
   /**
@@ -549,12 +519,14 @@ uint8_t recuperer_minerais_pcd7() {
   if(error) return error;
   com_log_println("PCD7 atteint.");
   
+  positionner_deux_bras(POSITION_MAX_SOUS_SICK, false);
+  
   error = asserv_goa_point(650, 540, 3000);
   if(error) return error;
 
   
   // Réalisation de l'action
-  error = aller_xy(428, 576, VITESSE_A_VIDE, 1, 10000, 3);
+  error = aller_xy(428, 576, VITESSE_A_VIDE, 1, 10000, 3); // Vers le cratère
   if(error) return error;
   
   error = asserv_goa_point(650, 540, 3000);
@@ -598,6 +570,8 @@ uint8_t recuperer_minerais_pcl() {
   
   error = asserv_goa_point(1070, 1870, 3000);
   if(error) return error;
+  
+  delay(600);
   
   error = prendre_minerais();
   if(error) return error;
@@ -705,6 +679,10 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
   
   com_log_println("Depot atteint.");
   
+  if(avec_robot_secondaire) {
+    positionner_deux_bras(POSITION_MAX_SOUS_SICK, true);
+  }
+    
   error = asserv_goa_point(80, 0, 3000);
   if(error) return error;
   
@@ -713,14 +691,15 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
   // Approche
   if(avec_robot_secondaire) {
     positionner_deux_bras(POSITION_APPROCHE_DEPOT_HAUT, false);
-    error = aller_xy(240, 500, VITESSE_CHARGE, 1, 4000, 5);
+    error = aller_xy(240, 500, VITESSE_CHARGE, 1, 3000, 2);
     
+    Serial.println("Recalage");
     aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
     localisation_set({x: 240, y: 480, a: MATH_PI * -0.5});
     
   }
   else {
-    error = aller_xy(210, 500, VITESSE_CHARGE, 1, 4000, 5);
+    error = aller_xy(210, 500, VITESSE_CHARGE, 1, 4000, 2);
     // if(error) return error; // Robot têtu : même si problème, il continuera son action de dépose. On est assez proche pour espérer qu'il en dépose au moins 1.
     error = asserv_goa_point(210, 0, 3000);
     // if(error) return error;
@@ -933,8 +912,8 @@ uint8_t recuperer_module5() { //Action à réaliser avant toute extraction de mi
   error = aller_xy(920, 856, VITESSE_LENTE, 1, 10000, 3); 
   if(error) return OK;
 
-  error = asserv_goa_point(0, 920, 3000); 
-  if(error) return OK;
+  // error = asserv_goa_point(920, 0, 3000); 
+  // if(error) return OK;
   
   // TBD Faire une rotation lente si possible
   error = aller_xy(920, 320, VITESSE_LENTE, 1, 10000, 3); 
@@ -993,12 +972,14 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 uint8_t prendre_minerais() {
   uint8_t error;
   
-  positionner_bras_droit(POSITION_RECOLTER, false);
-  delay(400);
   positionner_bras_gauche(POSITION_RECOLTER, false);
-  delay(800);
-  positionner_bras_gauche(POSITION_CROISIERE, true);
+  delay(400);
+  positionner_bras_droit(POSITION_RECOLTER, false);
+  delay(1000);
   positionner_bras_droit(POSITION_CROISIERE, true);
+  delay(1000);
+  positionner_bras_gauche(POSITION_CROISIERE, true);
+  delay(1000);
   
   return OK;
 }
@@ -1020,6 +1001,8 @@ Croisière : 80
 Prendre minerais : 45
 Dépose basse : 45
 Dépose haute : 105 puis 90
+
+Angle+ => Vers le haut
 **/
 void positionner_bras_gauche(uint8_t position, bool doucement) {
   int angle;
@@ -1029,8 +1012,8 @@ void positionner_bras_gauche(uint8_t position, bool doucement) {
       case POSITION_CROISIERE: angle = 80; break;
       case POSITION_RECOLTER: angle = 45; break;
       case POSITION_DEPOSER_BAS: angle = 45; break;
-      case POSITION_DEPOSER_HAUT: angle = 90; break;
-      case POSITION_APPROCHE_DEPOT_HAUT: angle = 105; break;
+      case POSITION_DEPOSER_HAUT: angle = 95; break;
+      case POSITION_APPROCHE_DEPOT_HAUT: angle = 115; break;
       case POSITION_MAX_SOUS_SICK: angle = 95; break;
       default:
         Serial.println("######### ERREUR : POSITION inconnue dans positionner_bras_gauche");
@@ -1043,6 +1026,10 @@ void positionner_bras_gauche(uint8_t position, bool doucement) {
       servo_bras_gauche.write(angle);
     
     robot.angle_bras_gauche = angle;
+    
+    Serial.print("Positionnement bras gauche ");
+    Serial.print(angle);
+    Serial.println("deg");
   }
 }
 
@@ -1053,6 +1040,8 @@ Croisière : 135
 Prendre minerais : 165
 Dépose basse : 165
 Dépose haute : 110 puis 118
+
+Angle+ => Vers le bas
 **/ 
 void positionner_bras_droit(uint8_t position, bool doucement) {
   int angle;
@@ -1062,8 +1051,8 @@ void positionner_bras_droit(uint8_t position, bool doucement) {
       case POSITION_CROISIERE: angle = 135; break;
       case POSITION_RECOLTER: angle = 165; break;
       case POSITION_DEPOSER_BAS: angle = 165; break;
-      case POSITION_DEPOSER_HAUT: angle = 118; break;
-      case POSITION_APPROCHE_DEPOT_HAUT: angle = 110; break;
+      case POSITION_DEPOSER_HAUT: angle = 113; break;
+      case POSITION_APPROCHE_DEPOT_HAUT: angle = 100; break;
       case POSITION_MAX_SOUS_SICK: angle = 115; break;
       default:
         Serial.println("######### ERREUR : POSITION inconnue dans positionner_bras_droit");
@@ -1076,6 +1065,10 @@ void positionner_bras_droit(uint8_t position, bool doucement) {
       servo_bras_droit.write(angle);
     
     robot.angle_bras_droit = angle;
+    
+    Serial.print("Positionnement bras droit ");
+    Serial.print(angle);
+    Serial.println("deg");
   }
 }
 

@@ -7,9 +7,17 @@ Ce fichier a tendance à créer quelques alias pour simplifier la création d'ac
 
 
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to) {
-  for (; deg_from >= deg_to; deg_from--) {
-    servo.write(deg_from);
-    delay(20);
+  if(deg_from > deg_to) {
+    for (; deg_from >= deg_to; deg_from--) {
+      servo.write(deg_from);
+      delay(20);
+    }
+  }
+  else {
+    for (; deg_from <= deg_to; deg_from++) {
+      servo.write(deg_from);
+      delay(20);
+    }
   }
 }
 
