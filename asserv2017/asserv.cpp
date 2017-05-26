@@ -100,6 +100,10 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
       return ERROR_TIMEOUT;
     }
 
+    if (match_minuteur_90s()) {
+      return ERROR_FIN_MATCH;
+    }
+
     if (robot.sickObstacle) {
       com_log_println("------------ OBSTACLE");
       asserv_raz_consignes();
@@ -165,6 +169,10 @@ uint8_t tout_droit(int32_t distance, uint16_t timeout) {
       asserv_raz_consignes();
       return ERROR_TIMEOUT;
     }
+
+    if (match_minuteur_90s()) {
+      return ERROR_FIN_MATCH;
+    }
   }
 }
 
@@ -185,6 +193,10 @@ uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
     if (timeout && timeout < timer) {
       asserv_raz_consignes();
       return ERROR_TIMEOUT;
+    }
+
+    if (match_minuteur_90s()) {
+      return ERROR_FIN_MATCH;
     }
   }
 }
