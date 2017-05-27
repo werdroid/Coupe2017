@@ -324,7 +324,7 @@ void match_gr() {
   delay(500);
 
   bras_position_croisiere();
-  asserv_go_toutdroit(-450, 3000);
+  asserv_go_toutdroit(-450, 5000);
 
 
   /**
