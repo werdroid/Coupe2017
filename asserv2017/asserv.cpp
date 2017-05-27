@@ -186,7 +186,7 @@ uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
     int32_t erreur = abs(robot.rotation - robot.consigneRotation);
 
     if (erreur <= marge_erreur_rotation) {
-      delay(500);
+      delay(200); // Modifié pour essayer d'accélerer. Si plantage, remettre à 500.
       return OK;
     }
 

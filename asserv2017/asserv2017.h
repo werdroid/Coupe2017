@@ -223,6 +223,7 @@ const uint8_t POSITION_APPROCHE_DEPOT_HAUT = 5;
 const uint8_t POSITION_MAX_SOUS_SICK = 6;
 const uint8_t POSITION_KNOCK_BLEU = 7;
 const uint8_t POSITION_KNOCK_JAUNE = 8;
+const uint8_t POSITION_KNOCK_FACE = 9;
 
 
 /*-----------------------------------------------------------------------------
@@ -275,9 +276,10 @@ uint8_t recuperer_minerais_gcc10();
 uint8_t recuperer_minerais_gcc14();
 uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire);
 uint8_t knocker_module2();
+uint8_t knocker_module2_de_face();
 uint8_t recuperer_fusee_depart();
 uint8_t recuperer_module1();
-uint8_t recuperer_module5();
+uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage);
 uint8_t degager_module5();
 uint8_t prendre_minerais();
 void bras_position_croisiere();

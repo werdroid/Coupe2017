@@ -237,14 +237,14 @@ uint8_t sick_read_data() {
   }
 }
 
-void sick_disable_detection(bool enabled) {
-  if (enabled) {
+void sick_disable_detection(bool disabled) {
+  if (disabled) {
     com_log_println("SICK sick_disable_detection=true");
   } else {
     com_log_println("SICK sick_disable_detection=false");
   }
 
-  detection_enabled = enabled;
+  detection_enabled = !disabled;
 }
 
 void sick_traiter_donnees() {
