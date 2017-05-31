@@ -81,6 +81,11 @@ inline int dist(const Point p1, const Point p2) {
 
 void sick_spi() {
   // Switch to W5200 if another device has taken control of SPI
+  // 33.3 Mhz garanti
+  // 80.0 Mhz théorique (fonction de longueur piste et multi-devices)
+  // dixit la doc de W5200
+  // SPI_CLOCK_12MHz fonctionnel en 2017
+  // SPI_CLOCK_24MHz maximum de la Teensy
   SPIFIFO.begin(W5200_SS_PIN, SPI_CLOCK_12MHz);
 }
 
