@@ -1104,7 +1104,7 @@ void gr_fusee_ouvrir() {
 
 
 void gr_coucou() {
-  for(int i = 0; i < 10; i++) {
+  for(int i = 0; i < 500; i++) {
     delay(600);
     servo_bras_gauche.write(45);
     servo_bras_droit.write(135);

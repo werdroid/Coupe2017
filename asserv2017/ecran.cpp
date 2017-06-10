@@ -40,7 +40,7 @@ void ecran_print_menu(int selector) {
   String optionsMenu[] = {
     "\n\n   Demarrer match   ",
     "\n\n   Couleur:    XXXXX",
-    "\n\n   Homologation     ",
+    "\n\n   Monitor Sick  ___",
     "\n\n   Debug            ",
     "\n\n   Coucou           ",
     "\n\n   Test tourner x10 ",
@@ -51,7 +51,7 @@ void ecran_print_menu(int selector) {
 
   if(robot.IS_PR) {
     optionsMenu[0] = "\n\n   Demarrer match PR";
-    optionsMenu[2] = "\n\n   (Homologation)   ";
+    //optionsMenu[2] = "\n\n   (Homologation)   ";
   }
   else {
     optionsMenu[0] = "\n\n   Demarrer match GR";
@@ -63,6 +63,13 @@ void ecran_print_menu(int selector) {
   } else {
     optionsMenu[1] = "\n\n   Couleur:     BLEU";
     couleur_robot = ST7735_BLUE;
+  }
+  
+  if(robot.activer_monitor_sick) {
+    optionsMenu[2] = "\n\n   Monitor Sick   ON";
+  }
+  else {
+    optionsMenu[2] = "\n\n   Monitor Sick  OFF";
   }
 
 

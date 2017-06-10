@@ -271,31 +271,40 @@ void sick_traiter_donnees() {
     points[i].x = robot.xMm + distances_values[i] * cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);
     points[i].y = robot.yMm + distances_values[i] * sin(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);
 
-    // if (index_vers_angle(i) == 0) {
-    //   com_log_print("angle 0, index:");
-    //   com_log_print(i);
-    //   com_log_print(" angle: ");
-    //   com_log_print(index_vers_angle(i) / 180.0 * MATH_PI);
-    //   com_log_print(" x: ");
-    //   com_log_print(points[i].x);
-    //   com_log_print(" y: ");
-    //   com_log_print(points[i].y);
-    //   com_log_print(" dist: ");
-    //   com_log_print(distances_values[i]);
-    //   com_log_print(" xMm: ");
-    //   com_log_print(robot.xMm);
-    //   com_log_print(" a: ");
-    //   com_log_print(robot.a);
-    //   com_log_print(" cos result: ");
-    //   com_log_print(cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI));
-    //   com_log_println();
-    // }
 
     // Points valides
     if (point_dans_la_table(points[i]) &&
       distance_valide(distances_values[i]) &&
       distances_values[i] < DISTANCE_DETECTION) {
       robot.sickObstacle = true;
+    }
+  }
+  
+  if(robot.activer_monitor_sick) {
+    for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
+      // Envoi des points pour MonitorSick
+      com_log_print("#,index:");
+      com_log_print(i);
+      com_log_print(",angleDeg:");
+      com_log_print(index_vers_angle(i));
+      com_log_print(",angleRad:");
+      com_log_print(index_vers_angle(i) / 180.0 * MATH_PI);
+      com_log_print(",x:");
+      com_log_print(points[i].x);
+      com_log_print(",y:");
+      com_log_print(points[i].y);
+      com_log_print(",dist:");
+      com_log_print(distances_values[i]);
+      com_log_print(",rssi:");
+      com_log_print(rssi_values[i]);
+      com_log_print(",Fin:0");
+      // com_log_print(",xMm:");
+      // com_log_print(robot.xMm);
+      // com_log_print(",a:");
+      // com_log_print(robot.a);
+      // com_log_print(" cos result: ");
+      // com_log_print(cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI));
+      com_log_println();
     }
   }
 }

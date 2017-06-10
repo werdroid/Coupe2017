@@ -17,6 +17,7 @@ void menu_start() {
   robot.symetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
   robot.coquillage = EEPROM.read(EEPROM_ADDRESS_COQUILLAGE);
   robot.rouleaux_actifs = EEPROM.read(EEPROM_ADDRESS_ROULEAUX);
+  robot.activer_monitor_sick = false;
   int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
   int state_rouleaux = 0;
   ecran_print_menu(selectPosition);
@@ -56,12 +57,15 @@ void menu_start() {
           ecran_print_menu(selectPosition);
           break;
         case 2:
+          robot.activer_monitor_sick = !robot.activer_monitor_sick;
+          ecran_print_menu(selectPosition);
+          /*
           if(robot.IS_PR) {
             // Nothing
           }
           else {
             homologation_gr();
-          }
+          }*/
           break;
         case 3:
           /*
@@ -88,6 +92,8 @@ void menu_start() {
         case 4:
           /*tout_droit(mm2tick(300));
           ecran_print_menu(selectPosition);*/
+          ecran_console_reset();
+          ecran_console_log("Coucou");
           gr_coucou();
           break;
         case 5:

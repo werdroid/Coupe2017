@@ -87,6 +87,7 @@ typedef struct {
   bool IS_PR;
   uint8_t symetrie; // 0=bleu 1=jaune
   bool sans_symetrie; // 1=on fait pas les symmétries
+  bool activer_monitor_sick;
   uint8_t coquillage;
   bool rouleaux_actifs;
   int angle_bras_gauche;
