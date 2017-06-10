@@ -1,0 +1,19 @@
+{
+  "name": "WeRDroid - Sick Monitor",
+  "description": "Test du Sick",
+  "version": "1.0",
+  "manifest_version": 2,
+  "minimum_chrome_version": "44",
+  "app": {
+    "background": {
+      "scripts": ["background.js"],
+	  "persistent": false
+    }
+  },
+  "permissions": [
+	  "serial",
+    {"fileSystem": ["write"]}
+	],
+
+  "icons": { "128": "img/Logo.png" }
+}
