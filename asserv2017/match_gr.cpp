@@ -105,6 +105,7 @@ void homologation_gr() {
 
   ecran_console_reset();
   ecran_console_log("Homolog GR\n");
+  robot.activer_monitor_sick = false;
 
   if(robot.symetrie) {
     ecran_console_log("Couleur : JAUNE\n");
@@ -163,6 +164,7 @@ void homologation_gr() {
 
 void debug_gr() {
   gr_rouleaux_stop();
+  robot.activer_monitor_sick = false;
 
   ecran_console_log("Debug GR\n\n");
   ecran_console_log("2 sec\n\n");
@@ -279,6 +281,7 @@ void match_gr() {
     ============================ **/
 
   ecran_console_reset();
+  robot.activer_monitor_sick = false;
   ecran_console_log("Match GR\n");
 
   if(robot.symetrie) {

@@ -1,9 +1,10 @@
+- Fonction init_match()
+
 [Avec Vladimir]
 Corriger com.cpp
 
 
 [Mai]
-- créer fonction pour reculer de qq cm
 - état du match: prêt, en cours, funny action, terminé
     + mettre au clair ce que renvoie asserv_goxy une fois les 90 secondes écoulées
 
