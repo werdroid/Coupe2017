@@ -266,7 +266,6 @@ void sick_traiter_donnees() {
       continue; // on calcule rien pour les points en dehors du cone
     }
 
-
     // Convertir les distances/degrés en points absolus sur la table
     points[i].x = robot.xMm + distances_values[i] * cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);
     points[i].y = robot.yMm + distances_values[i] * sin(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);

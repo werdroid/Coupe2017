@@ -4,8 +4,8 @@ const GR = 1;
 var robot = {
   mmX: 1500,
   mmY: 1000,
-  aDeg: 0,
-  aRad: 0
+  aDeg: 90,
+  aRad: (Math.PI/2)
 }
 
 var elem = {
@@ -63,7 +63,7 @@ traiterMessage = function(r, msgStr) {
       rssiMax = points[id]['rssi'];*/
     //console.log(rssiMin + ' - ' + rssiMax);
   }
-  else if(msgStr[0] == '$') {
+  else if(msgStr[0] == '@') {
     var action = msgStr.split('|');
     var param = JSON.parse('{' + action[2] + '}');
     switch(action[1]) {
@@ -80,7 +80,7 @@ traiterMessage = function(r, msgStr) {
         break;
     }
   }
-  else if(msgStr[0] == '@') {
+  else if(msgStr[0] == '$') {
     // Rien
   }
   else {

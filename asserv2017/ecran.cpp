@@ -49,12 +49,14 @@ void ecran_print_menu(int selector) {
     "\n\n   Servo Fusee      "
   };
 
+
   if(robot.IS_PR) {
     optionsMenu[0] = "\n\n   Demarrer match PR";
     //optionsMenu[2] = "\n\n   (Homologation)   ";
   }
   else {
     optionsMenu[0] = "\n\n   Demarrer match GR";
+    optionsMenu[5] = "\n\n   Demo";
   }
   
   if(robot.symetrie) {

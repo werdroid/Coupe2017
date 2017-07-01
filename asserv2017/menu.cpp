@@ -58,6 +58,10 @@ void menu_start() {
           break;
         case 2:
           robot.activer_monitor_sick = !robot.activer_monitor_sick;
+          if(robot.activer_monitor_sick) {
+            localisation_set({x: 1500, y: 1000, a: MATH_PI2});
+            asserv_raz_consignes();
+          }
           ecran_print_menu(selectPosition);
           /*
           if(robot.IS_PR) {
@@ -97,12 +101,13 @@ void menu_start() {
           gr_coucou();
           break;
         case 5:
-          ecran_console_reset();
+          demo_allers_retours();
+          /*ecran_console_reset();
           ecran_console_log("Tourner 10x");
           robot.activeDistance = 0;
           quadramp_set_1st_order_vars(&robot.ramp_rotation, 60, 60);
           asserv_consigne_polaire_delta(0, MATH_PI * 2 * 10);
-          for(;;);
+          for(;;);*/
           break;
         case 6:
           if(1) {

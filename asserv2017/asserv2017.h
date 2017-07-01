@@ -265,6 +265,7 @@ void match_demarrer_minuteur();
 void gr_init();
 void gr_main();
 
+void demo_allers_retours();
 void homologation_gr();
 void debug_gr();
 void match_gr();

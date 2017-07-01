@@ -96,7 +96,59 @@ void gr_main() {
 
 
 
+void demo_allers_retours() {
+  ecran_console_reset();
+  ecran_console_log("Deplacer Minerais\n\n");
+  ecran_console_log("1. Positionner\n");
+  ecran_console_log("2. Jack in\n");
+  ecran_console_log("3. BAU off\n");
+  ecran_console_log("4. Jack out\n");
 
+  wait_start_button_down();
+  ecran_console_log("Pret\n");
+  
+  delay(300);
+  localisation_set({x: 1000, y: 1000, a: 0});
+  asserv_raz_consignes();
+
+  wait_start_button_up();
+  match_demarrer_minuteur();
+  
+  //uint32_t t0 = millis();
+  uint8_t error;
+
+  aller_xy(1500, 1000, 30, 1, 10000, 15);
+  
+  bras_position_croisiere();
+  com_log_println("En attente");
+  while(!robot.sickObstacle) {
+    Serial.println("...");
+    delay(100);
+    robot.match_debut = millis();
+  }
+  com_log_println("Let's go !");
+  gr_fusee_ouvrir();
+  delay(600);
+  gr_fusee_fermer();
+  delay(400);
+  gr_fusee_ouvrir();
+  delay(400);
+
+  while(1) {
+    robot.match_debut = millis();
+    
+    aller_xy(2000, 1000, 100, 1, 10000, 20);
+    prendre_minerais();
+    aller_xy(1800, 1000, 100, 0, 10000, 20);
+    aller_xy(1000, 1000, 100, 1, 10000, 20);
+    delay(800);
+    positionner_deux_bras(POSITION_DEPOSER_BAS, false);
+    delay(800);
+    aller_xy(1200, 1000, 100, 0, 10000, 20);
+    delay(800);
+    bras_position_croisiere();
+  }
+}
 
 void homologation_gr() {
   uint8_t error;
