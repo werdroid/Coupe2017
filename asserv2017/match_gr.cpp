@@ -570,8 +570,8 @@ uint8_t recuperer_minerais_pcl() {
   com_log_println("PCL atteint.");
 
 
-  // Réalisation de l'action
-  error = aller_xy(866, 1766, VITESSE_A_VIDE, 1, 3000, 3); // Approche vers le cratère
+  // Réalisation de l'action 
+  error = aller_xy(836, 1736, VITESSE_A_VIDE, 1, 3000, 3); // Approche vers le cratère
   error = asserv_goa_point(1070, 1870, 2000); // Orientation vers centre du cratère
 
   error = prendre_minerais();
@@ -762,6 +762,11 @@ uint8_t knocker_module2() {
 
 uint8_t knocker_module2_de_face() {
   uint8_t error;
+  
+  // En jaune, c'est trop ric-rac, on ignore donc cette action
+  if(robot.symetrie) {
+    return OK;
+  }
 
   com_log_println("----- Knocker Module 2 de face -----");
   
@@ -772,14 +777,14 @@ uint8_t knocker_module2_de_face() {
 
   positionner_deux_bras(POSITION_KNOCK_FACE, false);
   
-  error = aller_xy(860, 1360, 100, 1, 5000, 3);
+  error = aller_xy(815, 1315, 100, 1, 2000, 3);
   
   asserv_go_toutdroit(-300, 2000);
   if(error) return OK;
   
   bras_position_croisiere();
   
-  error = aller_xy(750, 1700, 100, 1, 5000, 3);
+  error = aller_xy(650, 1600, 100, 1, 5000, 3);
   if(error) return OK;
   
   
