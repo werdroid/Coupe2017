@@ -78,6 +78,9 @@ document.getElementById('bEffacerSection').addEventListener('click', function() 
       elem.log.robot[r].innerHTML = elem.log.robot[r].innerHTML.substring(0,posHr);
   }
 });
+document.getElementById('bGenererJeuAleatoire').addEventListener('click', function() {
+	genererJeuAleatoire()
+});
 
 window.addEventListener('resize', table.conteneur.majPosition);
 
@@ -109,6 +112,7 @@ var genererJeuAleatoire = function() {
   var pasX = [];
   var pasY = [];
 
+	
   var nouvelleDirection = function(_r, _x, _y, pts) {
     destX[_r] = _x;
     destY[_r] = _y;
@@ -158,7 +162,8 @@ var genererJeuAleatoire = function() {
         mmY: destY[robot]
       }
     };
-    var id = donnees.enregistrer(robot, msg);
+    //var id = donnees.enregistrer(robot, msg);
+		donnees.enregistrer(robot, msg);
     
     // Ajout d'événements aléatoires
     if(alea.unSur(250)) {
@@ -169,8 +174,8 @@ var genererJeuAleatoire = function() {
       //pas[robot] = alea.nb(10);//*/
     }
     
-    table.match.positions.ajouter(robot, id);
-    table.match.destinations.ajouter(robot, id);
+    /*table.match.positions.ajouter(robot, id);
+    table.match.destinations.ajouter(robot, id);*/
    
   }
 }

@@ -95,8 +95,8 @@ var donnees = {
       match.timer[robot] = trame.t;
       var id = donnees.d[robot].push({
         id: donnees.d[robot].length,
-        t: getTimerMatch(robot),
-        //t: trame.t,
+        t: trame.t,
+        timer: getTimerMatch(robot),
         position: {
           mmX: trame.position.mmX,
           mmY: trame.position.mmY
