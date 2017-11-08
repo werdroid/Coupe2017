@@ -29,6 +29,8 @@ var str2ab = function(str) {
     Gestion du port Série
     ===================== **/
 
+// Doc: https://developer.chrome.com/apps/serial#event-onReceive
+
 var SerialConnection = function(name) {
   this.connectionId = -1;
   this.lineBuffer = "";
@@ -37,7 +39,7 @@ var SerialConnection = function(name) {
   this.onConnect = new chrome.Event();
   this.onReadLine = new chrome.Event();
   this.onError = new chrome.Event();
-  
+
   this.onDisconnect = new chrome.Event();
   this.onWarning = new chrome.Event();
   this.isConnected = false;
@@ -49,14 +51,14 @@ SerialConnection.prototype.onConnectComplete = function(connectionInfo) {
     logStatutSerial('Echec de connexion à ' + nomPort);
     return;
   }
-  
+
   this.connectionId = connectionInfo.connectionId;
   chrome.serial.onReceive.addListener(this.boundOnReceive);
   chrome.serial.onReceiveError.addListener(this.boundOnReceiveError);
-  
+
   this.isConnected = true;
   logStatutSerial(this.name + ' connecté');
-  
+
   this.onConnect.dispatch();
 };
 
@@ -126,11 +128,11 @@ SerialConnection.prototype.disconnect = function() {
   this.isConnected = false;
   chrome.serial.onReceive.removeListener(this.boundOnReceive);
   chrome.serial.onReceiveError.removeListener(this.boundOnReceiveError);
-  
+
   serial.disconnect(this.connectionId, function() {
-    logStatutSerial(that.name + ' déconnecté');  
+    logStatutSerial(that.name + ' déconnecté');
     that.onDisconnect.dispatch();
-    
+
     if(typeof(callback) === 'function')
       callback();
 
@@ -140,7 +142,7 @@ SerialConnection.prototype.disconnect = function() {
 /** ========================
     UI Choix de la connexion
     ======================== **/
-    
+
 var getDevices = function() {
   serial.getDevices(function(list) {
     if(list.length == 0) {
@@ -151,16 +153,16 @@ var getDevices = function() {
     genererSelectSerial(list);
     }
   });
-  
+
 };
 
 var genererSelectSerial = function(ports) {
   var select = [document.getElementById('serialSelect0'),
         document.getElementById('serialSelect1')];
-  
+
   select[0].appendChild(creerOption('Non connecté', 'disconnect'));
   select[1].appendChild(creerOption('Non connecté', 'disconnect'));
-  
+
   var texte, value;
   for(var i = 0; i < ports.length; i++) {
     texte = ports[i].path + ' - ' + ports[i].displayName;
@@ -168,8 +170,8 @@ var genererSelectSerial = function(ports) {
     select[0].appendChild(creerOption(texte, value));
     select[1].appendChild(creerOption(texte, value));
   }
-  
-  
+
+
   select[0].addEventListener('change', function() {
     var port = this.value;
     if(port == 'disconnect') {
