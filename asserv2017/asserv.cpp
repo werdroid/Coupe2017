@@ -294,6 +294,45 @@ void asserv_consigne_polaire_delta(int32_t distance_mm_delta, float rotation_rad
   robot.consigneRotation = robot.rotation + radian_vers_orientation(rotation_rad_delta);
 }
 
+static int32_t distance_precedente = 0; // tick
+static float rotation_precedente = 0; // tick
+static float rotation_initiale = 0; // rad
+
+void asserv_set_position(Position position) { // mm en entrée
+  asserv_maj_position(); // N-1
+
+  robot.x = mm2tick(symetrie_x(position.x));
+  robot.y = mm2tick(position.y);
+  rotation_initiale = symetrie_a_axiale_y(position.a) - robot.a; // On fait un tare en donnant l'angle
+
+  asserv_maj_position(); // N, delta est à 0 car on a pas bougé
+}
+
+void asserv_maj_position() {
+  robot.distance = (robot.codeurGauche + robot.codeurDroite) / 2;
+  robot.rotation = radian_vers_orientation(rotation_initiale) + robot.codeurGauche - robot.codeurDroite;
+
+  robot.delta_d = robot.distance - distance_precedente;
+  robot.delta_r = robot.rotation - rotation_precedente;
+
+  int32_t rotation_moyenne = (robot.rotation + rotation_precedente) / 2;
+  float rotation_moyenne_radian = orientation_vers_radian(rotation_moyenne);
+
+  float dx = robot.delta_d * cos(rotation_moyenne_radian);
+  float dy = robot.delta_d * sin(rotation_moyenne_radian);
+
+  robot.x += dx;
+  robot.y += dy;
+  robot.a = normalize_radian(orientation_vers_radian(robot.rotation));
+
+  robot.xMm = tick2mm(robot.x);
+  robot.yMm = tick2mm(robot.y);
+
+  // Sauve pour la prochaine fois
+  distance_precedente = robot.distance;
+  rotation_precedente = robot.rotation;
+}
+
 /*******************************************************************************
   Boucle temps réel
  *******************************************************************************/

@@ -12,6 +12,9 @@ void definir_vitesse_avance(uint32_t v); { // v entre 0 et 1
 void definir_vitesse_rotation(uint32_t v); { // v entre 0 et 1
 uint16_t localiser_zone();
 Point getPoint(uint8_t idPoint);
+bool robot_proche_point(uint8_t idPoint);
+bool robot_dans_zone(uint16_t idZone);
+bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 uint8_t retour(uint8_t valeur);
 bool temps_ecoule(uint32_t t0, uint32_t duree);
 bool match_minuteur_90s();
@@ -48,6 +51,8 @@ float normalize_radian(float a);
 **asserv.cpp** bas-niveau
 ```c++
 void asserv_setup();
+void asserv_set_position(Position position);
+void asserv_maj_position();
 uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant);
 uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout, uint16_t uniquement_avant);
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout);
@@ -87,15 +92,6 @@ void codeurs_sync();
 void moteurs_init();
 void moteur_gauche(int16_t pwm);
 void moteur_droite(int16_t pwm);
-```
-
-**localisation.cpp** bas-niveau
-```c++
-void localisation_set(Position position);
-void localisation_loop();
-bool robot_proche_point(uint8_t idPoint);
-bool robot_dans_zone(uint16_t idZone);
-bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 ```
 
 ### Aide git

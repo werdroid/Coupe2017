@@ -158,7 +158,7 @@ void liberer_cubes() {
 void debug_pr() {
   ecran_console_log("2 sec\n\n");
 
-  localisation_set({x: 1500, y: 750, a: 0});
+  asserv_set_position({x: 1500, y: 750, a: 0});
   delay(2000);
 
   ecran_console_log("DebutDuMatch\n");
@@ -200,7 +200,7 @@ void match_pr() {
   bouton_start_down();
 
   ecran_console_log("Pret\n");
-  localisation_set({x: 150, y: 750, a: 0});
+  asserv_set_position({x: 150, y: 750, a: 0});
   asserv_maintenir_position();
 
   bouton_wait_start_up();

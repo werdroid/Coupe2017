@@ -408,6 +408,68 @@ Point getPoint(uint8_t idPoint) {
   }
 }
 
+bool robot_proche_point(uint8_t idPoint) {
+  Point point = getPoint(idPoint);
+  return robot_dans_zone(point.x - 50, point.y - 50, point.x + 50, point.y + 50);
+}
+
+
+bool robot_dans_zone(uint16_t idZone) {
+  // En mode bit mask, donc idZone peut tester plusieurs zones d'un coup
+
+  bool result = false;
+
+
+  if((idZone & ZONE_A) == ZONE_A)
+    result |= robot_dans_zone(700, 0, 1500, 600);
+
+  if((idZone & ZONE_B) == ZONE_B)
+    result |= robot_dans_zone(700, 600, 1500, 1000);
+
+  if((idZone & ZONE_C) == ZONE_C)
+    result |= robot_dans_zone(1000, 1000, 1500, 1500);
+
+  if((idZone & ZONE_D) == ZONE_D)
+    result |= robot_dans_zone(1000, 1500, 1500, 2000);
+
+  if((idZone & ZONE_E) == ZONE_E)
+    result |= robot_dans_zone(0, 0, 700, 900);
+
+  if((idZone & ZONE_F) == ZONE_F)
+    result |= robot_dans_zone(300, 700, 700, 1500);
+
+  if((idZone & ZONE_G) == ZONE_G)
+    result |= robot_dans_zone(700, 1000, 1000, 1500);
+
+  if((idZone & ZONE_H) == ZONE_H)
+    result |= robot_dans_zone(300, 1500, 1000, 2000);
+
+  if((idZone & ZONE_I) == ZONE_I)
+    result |= robot_dans_zone(0, 900, 300, 2000);
+
+  if((idZone & ZONE_J) == ZONE_J)
+    result |= robot_dans_zone(1500, 0, 3000, 2000);
+
+  return result;
+}
+
+bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
+  if(x1 > x2 || y1 > y2) {
+    tone_play_alert();
+    com_log_println("############### Erreur : paramètres de robot_dans_zone mal définis.");
+  }
+
+  if(!robot.symetrie)
+    return (robot.xMm >= x1 && robot.xMm <= x2) && (robot.yMm >= y1 && robot.yMm <= y2);
+  else
+    return (robot.xMm <= symetrie_x(x1) && robot.xMm >= symetrie_x(x2) && (robot.yMm >= y1 && robot.yMm <= y2));
+
+  // Ne peut-on pas se contenter d'un
+  // return (symetrie_x(robot.xMm) >= x1 && symetrie_x(robot.xMm) <= x2) && (robot.yMm >= y1 && robot.yMm <= y2));
+  // ? (trop tard pour tester maintenant)
+
+}
+
 uint8_t retour(uint8_t valeur) {
   com_log_print("== Valeur de retour : ");
   com_log_println(valeur);

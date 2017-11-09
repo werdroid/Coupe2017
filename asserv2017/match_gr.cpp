@@ -100,7 +100,7 @@ void demo_allers_retours() {
   ecran_console_log("Pret\n");
 
   delay(300);
-  localisation_set({x: 1000, y: 1000, a: 0});
+  asserv_set_position({x: 1000, y: 1000, a: 0});
   asserv_maintenir_position();
 
   bouton_wait_start_up();
@@ -174,7 +174,7 @@ void homologation_gr() {
   ecran_console_log("Pret\n\n");
   delay(200);
 
-  localisation_set({x: 900, y: 200, a: MATH_PI * -0.75});  // TBC
+  asserv_set_position({x: 900, y: 200, a: MATH_PI * -0.75});  // TBC
   asserv_maintenir_position();
 
   bouton_wait_start_up();
@@ -214,8 +214,8 @@ void debug_gr() {
   ecran_console_log("2 sec\n\n");
 
   delay(200);
-  //localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});
-  localisation_set({x: 737, y: 1578, a: MATH_PI * -0.5});
+  //asserv_set_position({x: 900, y: 200, a: MATH_PI * 0.25});
+  asserv_set_position({x: 737, y: 1578, a: MATH_PI * -0.5});
   asserv_maintenir_position();
   delay(1800);
 
@@ -352,7 +352,7 @@ void match_gr() {
 
   ecran_console_log("Pret\n\n");
   delay(200);
-  localisation_set({x: 886, y: 196, a: MATH_PI * -0.75});
+  asserv_set_position({x: 886, y: 196, a: MATH_PI * -0.75});
   asserv_maintenir_position();
   bouton_wait_start_up();
 
@@ -712,7 +712,7 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
     else {
       Serial.println("Recalage");
       aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
-      localisation_set({x: 240, y: 480, a: MATH_PI * -0.5});
+      asserv_set_position({x: 240, y: 480, a: MATH_PI * -0.5});
     }
 
     // On baisse

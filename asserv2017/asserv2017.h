@@ -255,6 +255,9 @@ void definir_vitesse_avance(uint32_t v);
 void definir_vitesse_rotation(uint32_t v);
 uint16_t localiser_zone();
 Point getPoint(uint8_t idPoint);
+bool robot_proche_point(uint8_t idPoint);
+bool robot_dans_zone(uint16_t idZone);
+bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 uint8_t retour(uint8_t valeur);
 bool temps_ecoule(uint32_t t0, uint32_t duree);
 bool match_termine();
@@ -340,17 +343,12 @@ void bouton_wait_start_up();
 void bouton_wait_select_down();
 void bouton_wait_select_up();
 
-// Localisation
-void localisation_loop();
-void localisation_set(Position position);
-bool robot_proche_point(uint8_t idPoint);
-bool robot_dans_zone(uint16_t idZone);
-bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-
 // Asserv
 void asserv_setup();
 void asserv_maintenir_position();
 void asserv_loop();
+void asserv_maj_position();
+void asserv_set_position(Position position);
 
 void asserv_consigne_stop();
 void asserv_consigne_pwm(uint16_t gauche, uint16_t droite);

@@ -157,7 +157,7 @@ void interruption_sample() {
   tone_loop();
   boutons_all_pressed_restart();
 
-  localisation_loop();
+  asserv_maj_position();
   asserv_loop();
 
   tone_loop();

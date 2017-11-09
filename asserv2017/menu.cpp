@@ -58,7 +58,7 @@ void menu_start() {
         case 2:
           robot.activer_monitor_sick = !robot.activer_monitor_sick;
           if(robot.activer_monitor_sick) {
-            localisation_set({x: 1500, y: 1000, a: MATH_PI2});
+            asserv_set_position({x: 1500, y: 1000, a: MATH_PI2});
             asserv_maintenir_position();
           }
           ecran_print_menu(selectPosition);
@@ -75,7 +75,7 @@ void menu_start() {
           ecran_console_reset();
           ecran_console_log("Mode debug");
 
-          localisation_set({x: 0, y: 0, a: 0});
+          asserv_set_position({x: 0, y: 0, a: 0});
           asserv_maintenir_position();
 
           for(;;);
