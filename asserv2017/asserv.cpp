@@ -19,7 +19,13 @@ void asserv_setup() {
   Haut niveau
  *******************************************************************************/
 
-uint8_t consignesXY(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant) {
+/**
+ * A partir des coordonnées X et Y en mm, calcule et spécifie à
+ * l'asservissement les nouvelles consignes polaires.
+ * Retourne immédiatement sans code d'erreur.
+ */
+
+uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant) {
   // le vecteur à faire
   int32_t vx = consigne_x_mm - robot.xMm; // mm
   int32_t vy = consigne_y_mm - robot.yMm; // mm
@@ -74,7 +80,16 @@ uint8_t consignesXY(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniqu
   return result;
 }
 
-uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout, uint16_t uniquement_avant) {
+/**
+ * Fonction blocante pour aller en X,Y, unité en mm, par le chemin le plus court à vol d'oiseau.
+ * Peut s'arrête pour ces raisons:
+ * - OK arrivé à destination
+ * - ERROR_OBSTACLE un obstacle est sur le chemin
+ * - ERROR_FIN_MATCH on a atteint la fin du match
+ * - ERROR_TIMEOUT le temps consacré à la fonction est dépassé
+ */
+
+uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout, uint16_t uniquement_avant) {
   elapsedMillis timer;
   uint8_t result;
 
@@ -87,73 +102,98 @@ uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeo
 
   while (1) {
     synchronisation();
-    result = consignesXY(consigne_x_mm, consigne_y_mm, uniquement_avant);
+    result = asserv_consigne_xy(consigne_x_mm, consigne_y_mm, uniquement_avant);
 
     if (result == OK) {
-      delay(200);
-      asserv_raz_consignes();
+      delay(200); // stabilisation de l'inertie
+      asserv_maintenir_position();
       return OK;
     }
 
     if (timeout && timeout < timer) {
-      asserv_raz_consignes();
+      asserv_maintenir_position();
       return ERROR_TIMEOUT;
     }
 
     if (match_minuteur_90s()) {
+      asserv_maintenir_position();
       return ERROR_FIN_MATCH;
     }
 
     if (robot.sickObstacle) {
       com_log_println("------------ OBSTACLE");
-      asserv_raz_consignes();
+      asserv_maintenir_position();
       tone_play_alert();
-      delay(1000); // Ce délai est fortement utilisé dans match_gr() et match_pr(). Avant de supprimer cette ligne, penser à le remettre en dehors des appels à asserv_goxy()
       return ERROR_OBSTACLE;
     }
   }
 }
 
-// va tout droit en avant ou arrière sans se retourner
-// conseillé sur de petites distance car le point de destination
-// peut être n'importe où, par exemple à l'extérieur de la table...
+/**
+ * Va tout droit en avant ou arrière sans se retourner, bloquant,
+ * conseillé sur de petites distance car le point de destination
+ * peut être n'importe où, par exemple à l'extérieur de la table...
+ * Retour bloquant et s'arrête pour ces raisons:
+ * - OK arrivé à destination
+ * - ERROR_OBSTACLE un obstacle est sur le chemin
+ * - ERROR_FIN_MATCH on a atteint la fin du match
+ * - ERROR_TIMEOUT le temps consacré à la fonction est dépassé
+ */
+
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
   int32_t consigne_x_mm = robot.xMm + consigne_mm * cos(robot.a);
   int32_t consigne_y_mm = robot.yMm + consigne_mm * sin(robot.a);
 
-  if(consigne_mm < 0) {
-    // utilisation de symetrie_x pour compenser la symetrie_x faite à l'intérieur de asserv_goxy();
-    return asserv_goxy(symetrie_x(consigne_x_mm), consigne_y_mm, timeout, 0); // Pas uniquement en avant si on veut reculer
-  }
-  else {
-    return asserv_goxy(symetrie_x(consigne_x_mm), consigne_y_mm, timeout, 1);
+  if (consigne_mm < 0) {
+    // utilisation de symetrie_x pour compenser la symetrie_x faite à l'intérieur de asserv_go_xy();
+    return asserv_go_xy(symetrie_x(consigne_x_mm), consigne_y_mm, timeout, 0); // Pas uniquement en avant si on veut reculer
+  } else {
+    return asserv_go_xy(symetrie_x(consigne_x_mm), consigne_y_mm, timeout, 1);
   }
 }
 
-// Regarder vers le point indiqué
-uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout) {
-  consigneX = mm2tick(symetrie_x(consigneX));
-  consigneY = mm2tick(consigneY);
+/**
+ * Regarde vers le point indiqué X,Y en mm.
+ * Retour bloquant jusqu'à:
+ * - OK
+ * - ERROR_TIMEOUT
+ * - ERROR_FIN_MATCH
+ */
+
+uint8_t asserv_rotation_vers_point(int32_t pointX, int32_t pointY, uint16_t timeout) {
+  pointX = mm2tick(symetrie_x(pointX));
+  pointY = mm2tick(pointY);
 
   // le vecteur à faire
-  int32_t vx = consigneX - robot.x;
-  int32_t vy = consigneY - robot.y;
+  int32_t vx = pointX - robot.x;
+  int32_t vy = pointY - robot.y;
 
   float angleVersPoint = atan2(vy, vx); // [-pi, +pi] radians
 
   robot.sans_symetrie = 1; // on fait déjà une symétrie sur x au dessus.
-  uint8_t ret = asserv_goa(angleVersPoint, timeout);
+  uint8_t ret = asserv_rotation_relative(angleVersPoint, timeout);
   robot.sans_symetrie = 0;
   return ret;
 }
 
-uint8_t asserv_goa(float orientation, uint16_t timeout, uint8_t sans_symetrie) {
-  return faire_rotation(normalize_radian(symetrie_a_axiale_y(orientation) - robot.a), timeout);
-}
+/**
+ * Fait une distance de X mm sans se préoccuper de la rotation,
+ * pratique pour se caler contre une bordure :)
+ * Retour bloquant jusqu'à:
+ * - OK on a fait la distance
+ * - ERROR_TIMEOUT
+ * - ERROR_FIN_MATCH
+ */
 
-uint8_t tout_droit(int32_t distance, uint16_t timeout) {
+uint8_t asserv_distance(int32_t distance, uint16_t timeout) {
   elapsedMillis timer;
-  asserv_consigne_polaire_delta(distance, 0);
+  asserv_consigne_polaire_delta(mm2tick(distance), 0);
+
+  // On active seulement la distance sans la rotation
+  // pour pouvoir se plaquer contre la bordure
+  // et on réactive tout en sortant de cette fonction via asserv_maintenir_position();
+  robot.activeDistance = 1;
+  robot.activeRotation = 0;
 
   while (1) {
     synchronisation();
@@ -162,21 +202,31 @@ uint8_t tout_droit(int32_t distance, uint16_t timeout) {
 
     if (erreur <= marge_distance) {
       delay(200);
+      asserv_maintenir_position();
       return OK;
     }
 
     if (timeout && timeout < timer) {
-      asserv_raz_consignes();
+      asserv_maintenir_position();
       return ERROR_TIMEOUT;
     }
 
     if (match_minuteur_90s()) {
+      asserv_maintenir_position();
       return ERROR_FIN_MATCH;
     }
   }
 }
 
-uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
+/**
+ * Fait une rotation de A radians par rapport à l'angle actuel.
+ * Retour bloquant et s'arrête dans ces cas:
+ * - OK
+ * - ERROR_TIMEOUT
+ * - ERROR_FIN_MATCH
+ */
+
+uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout) {
   elapsedMillis timer;
   asserv_consigne_polaire_delta(0, rotation_rad);
   int32_t marge_erreur_rotation = radian_vers_orientation(0.3);
@@ -186,22 +236,31 @@ uint8_t faire_rotation(float rotation_rad, uint16_t timeout) {
     int32_t erreur = abs(robot.rotation - robot.consigneRotation);
 
     if (erreur <= marge_erreur_rotation) {
-      delay(200); // Modifié pour essayer d'accélerer. Si plantage, remettre à 500.
+      delay(200); // stabilisation d'inertie
+      asserv_maintenir_position();
       return OK;
     }
 
     if (timeout && timeout < timer) {
-      asserv_raz_consignes();
+      asserv_maintenir_position();
       return ERROR_TIMEOUT;
     }
 
     if (match_minuteur_90s()) {
+      asserv_maintenir_position();
       return ERROR_FIN_MATCH;
     }
   }
 }
 
-void asserv_raz_consignes() {
+/**
+ * Maintient de la position, malgré l'inertie ou les forces extérieures,
+ * le robot restera à cette position coûte que coûte à partir de maintenant.
+ */
+
+void asserv_maintenir_position() {
+  robot.activeDistance = 1;
+  robot.activeRotation = 1;
   robot.consigneDistance = robot.distance;
   robot.consigneRotation = robot.rotation;
 }

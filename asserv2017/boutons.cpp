@@ -39,7 +39,7 @@ void boutons_all_pressed_restart() {
   }
 }
 
-void wait_start_button_down() {
+void bouton_start_down() {
   for (;;) {
     if (start_button.update() && start_button.fallingEdge()) {
       com_log_println("Button 'Start' down");
@@ -48,7 +48,7 @@ void wait_start_button_down() {
   }
 }
 
-void wait_start_button_up() {
+void bouton_wait_start_up() {
   for (;;) {
     if (start_button.update() && start_button.risingEdge()) {
       com_log_println("Button 'Start' up");
@@ -57,7 +57,7 @@ void wait_start_button_up() {
   }
 }
 
-void wait_select_button_down() {
+void bouton_wait_select_down() {
   for (;;) {
     if (select_button.update() && select_button.fallingEdge()) {
       com_log_println("Button 'Select' down");
@@ -66,7 +66,7 @@ void wait_select_button_down() {
   }
 }
 
-void wait_select_button_up() {
+void bouton_wait_select_up() {
   for (;;) {
     if (select_button.update() && select_button.risingEdge()) {
       com_log_println("Button 'Select' up");

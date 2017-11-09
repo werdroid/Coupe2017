@@ -113,7 +113,7 @@ void liberer_cubes() {
   aller_xy(1200, 500, 50, 0, 3000, 8);
 
   // On regarde bien en avant
-  asserv_goa_point(1200, 2000, 2000);
+  asserv_rotation_vers_point(1200, 2000, 2000);
 
   // On se rapproche
   aller_xy(1200, 610, 50, 1, 5000, 2);
@@ -163,11 +163,11 @@ void debug_pr() {
 
   ecran_console_log("DebutDuMatch\n");
 
-  tout_droit(-5000, 5000);
+  asserv_distance(-5000, 5000);
   tone_play_end();
-  tout_droit(2000, 2000);
+  asserv_distance(2000, 2000);
   tone_play_end();
-  tout_droit(-5000, 5000);
+  asserv_distance(-5000, 5000);
 
 
   tone_play_end();
@@ -197,34 +197,19 @@ void match_pr() {
   ecran_console_log("3. BAU off\n");
   ecran_console_log("4. Jack out\n\n");
 
-  wait_start_button_down();
+  bouton_start_down();
 
   ecran_console_log("Pret\n");
   localisation_set({x: 150, y: 750, a: 0});
-  asserv_raz_consignes();
+  asserv_maintenir_position();
 
-  wait_start_button_up();
+  bouton_wait_start_up();
   ecran_console_log("DebutDuMatch\n");
   robot.match_debut = millis();
 
   uint8_t error;
 
-  // error = asserv_goxy(300, 750, 5000, 1);
-  // if (error) goto fin_match;
-
-  // asserv_goa_point(300, 0);
-  // error = asserv_goxy(300, 300, 10000, 1);
-  // if (error) goto fin_match;
-
-  // robot.sans_symetrie = 1;
-  // asserv_goa(MATH_PI2);
-  // robot.sans_symetrie = 0;
-
-  // asserv_goxy(300, 0, 2000);
-
   delay(9000);
-  //delay(40000);
-
 
   com_log_println("Sort de la zone de départ");
   error = aller_xy(350, 750, 100, 1, 5000, 5);
@@ -232,7 +217,7 @@ void match_pr() {
   com_log_println("Direction : les cabines");
   error = aller_xy(450, 300, 100, 1, 5000, 5);
 
-  asserv_goa_point(450, 2000, 1000);
+  asserv_rotation_vers_point(450, 2000, 1000);
 
   com_log_println("Fermeture des portes");
   error = aller_xy(450, 0, 120, 0, 1000, 3);

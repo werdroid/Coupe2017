@@ -96,14 +96,14 @@ void demo_allers_retours() {
   ecran_console_log("3. BAU off\n");
   ecran_console_log("4. Jack out\n");
 
-  wait_start_button_down();
+  bouton_start_down();
   ecran_console_log("Pret\n");
 
   delay(300);
   localisation_set({x: 1000, y: 1000, a: 0});
-  asserv_raz_consignes();
+  asserv_maintenir_position();
 
-  wait_start_button_up();
+  bouton_wait_start_up();
   match_demarrer_minuteur();
 
   //uint32_t t0 = millis();
@@ -169,15 +169,15 @@ void homologation_gr() {
   ecran_console_log("3. BAU off\n");
   ecran_console_log("4. Jack out\n\n");
 
-  wait_start_button_down();
+  bouton_start_down();
 
   ecran_console_log("Pret\n\n");
   delay(200);
 
   localisation_set({x: 900, y: 200, a: MATH_PI * -0.75});  // TBC
-  asserv_raz_consignes();
+  asserv_maintenir_position();
 
-  wait_start_button_up();
+  bouton_wait_start_up();
 
   match_demarrer_minuteur();
 
@@ -216,20 +216,20 @@ void debug_gr() {
   delay(200);
   //localisation_set({x: 900, y: 200, a: MATH_PI * 0.25});
   localisation_set({x: 737, y: 1578, a: MATH_PI * -0.5});
-  asserv_raz_consignes();
+  asserv_maintenir_position();
   delay(1800);
 
   match_demarrer_minuteur();
 
   delay(500);
 
-  //asserv_goa_point(1500, 0, 3000);
+  //asserv_rotation_vers_point(1500, 0, 3000);
   bras_position_croisiere();
 
   com_log_println("Orientation 1 dans 3 sec");
   delay(3000);
 
-  asserv_goa_point(737, 0, 3000);
+  asserv_rotation_vers_point(737, 0, 3000);
 
   com_log_println("Baisser le bras dans 3 sec");
   delay(3000);
@@ -243,7 +243,7 @@ void debug_gr() {
   com_log_println("Orientation 2 dans 3 sec");
   delay(3000);
 
-  asserv_goa_point(1500, 573, 2000); // Rotation (= "Knocker")
+  asserv_rotation_vers_point(1500, 573, 2000); // Rotation (= "Knocker")
 
   com_log_println("Croisiere dans 3 sec");
   delay(3000);
@@ -348,13 +348,13 @@ void match_gr() {
   delay(500);
   ecran_console_log(" Ok\n");
 
-  wait_start_button_down();
+  bouton_start_down();
 
   ecran_console_log("Pret\n\n");
   delay(200);
   localisation_set({x: 886, y: 196, a: MATH_PI * -0.75});
-  asserv_raz_consignes();
-  wait_start_button_up();
+  asserv_maintenir_position();
+  bouton_wait_start_up();
 
 
   /** ============
@@ -551,7 +551,7 @@ uint8_t recuperer_minerais_pcd4() {
 
   // Pas de gestion d'erreur : si problème, on essaye quand même de finir l'action
   error = aller_xy(855, 652, VITESSE_A_VIDE, 1, 3000, 2); // Approche
-  error = asserv_goa_point(650, 540, 2000); // On s'oriente vers le cratère
+  error = asserv_rotation_vers_point(650, 540, 2000); // On s'oriente vers le cratère
 
   error = prendre_minerais();
   gr_minerais_charges = true;
@@ -582,7 +582,7 @@ uint8_t recuperer_minerais_pcd7() {
   // Pas de gestion d'erreur : on est suffisamment proche du cratère pour espérer récupérer des minerais
   // même s'il y a un problème
   error = aller_xy(450, 669, VITESSE_A_VIDE, 1, 2000, 3); // Approche vers le cratère
-  error = asserv_goa_point(650, 540, 2000); // Orientation vers le cratère
+  error = asserv_rotation_vers_point(650, 540, 2000); // Orientation vers le cratère
 
   error = prendre_minerais();
   gr_minerais_charges = true;
@@ -611,7 +611,7 @@ uint8_t recuperer_minerais_pcl() {
 
   // Réalisation de l'action
   error = aller_xy(836, 1736, VITESSE_A_VIDE, 1, 3000, 3); // Approche vers le cratère
-  error = asserv_goa_point(1070, 1870, 2000); // Orientation vers centre du cratère
+  error = asserv_rotation_vers_point(1070, 1870, 2000); // Orientation vers centre du cratère
 
   error = prendre_minerais();
   gr_minerais_charges = true;
@@ -641,7 +641,7 @@ uint8_t recuperer_minerais_gcc10() {
 
   // Réalisation de l'action
   error = aller_xy(350, 1440, VITESSE_A_VIDE, 1, 3000, 3); // S'approche du cratère
-  error = asserv_goa_point(0, 2000, 2000); // S'oriente correctement
+  error = asserv_rotation_vers_point(0, 2000, 2000); // S'oriente correctement
 
   error = prendre_minerais();
   gr_minerais_charges = true;
@@ -669,7 +669,7 @@ uint8_t recuperer_minerais_gcc14() {
 
   // Réalisation de l'action
   error = aller_xy(618, 1855, VITESSE_A_VIDE, 1, 3000, 3); // S'approche du cratère
-  error = asserv_goa_point(0, 2000, 2000); // S'oriente
+  error = asserv_rotation_vers_point(0, 2000, 2000); // S'oriente
 
   error = prendre_minerais();
   gr_minerais_charges = true;
@@ -726,7 +726,7 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
     error = aller_xy(210, 520, 80, 1, 3000, 2);
     // if(error) return error; // Robot têtu : même si problème, il continuera son action de dépose. On est assez proche pour espérer qu'il en dépose au moins 1.
 
-    //error = asserv_goa_point(210, 0, 2000);
+    //error = asserv_rotation_vers_point(210, 0, 2000);
     error = aller_xy(210, 495, 80, 1, 2500, 2);
     // if(error) return error;
 
@@ -774,21 +774,21 @@ uint8_t knocker_module2() {
     error = aller_xy(737, 1578, VITESSE_A_VIDE, 1, 8000, 3);
     if(error) return error;
 
-    error = asserv_goa_point(737, 0, 3000);
+    error = asserv_rotation_vers_point(737, 0, 3000);
     //if(error) return error;
     positionner_bras_gauche(POSITION_KNOCK_JAUNE, false);
 
-    error = asserv_goa_point(1500, 573, 2000); // Rotation (= "Knocker")
+    error = asserv_rotation_vers_point(1500, 573, 2000); // Rotation (= "Knocker")
     // Pas de retour d'erreur (sinon nécessite de connaître l'angle du robot lors de l'erreur)
   }
   else {
     error = aller_xy(760, 1556, VITESSE_A_VIDE, 1, 8000, 3);
     if(error) return error;
 
-    error = asserv_goa_point(760, 0, 3000);
+    error = asserv_rotation_vers_point(760, 0, 3000);
     positionner_bras_droit(POSITION_KNOCK_BLEU, false);
 
-    error = asserv_goa_point(1500, 573, 2000); // Rotation (= "Knocker")
+    error = asserv_rotation_vers_point(1500, 573, 2000); // Rotation (= "Knocker")
   }
 
   bras_position_croisiere();
@@ -866,7 +866,7 @@ uint8_t recuperer_fusee_depart() {
 
     com_log_println("Point d'extraction de la fusée départ atteint.");
 
-    error = asserv_goa_point(0, 132, 3000);
+    error = asserv_rotation_vers_point(0, 132, 3000);
     if(error) return error;
 
     error = aller_xy(1328, 132, VITESSE_LENTE, 1, 10000, 3);
@@ -911,7 +911,7 @@ uint8_t recuperer_module1() {
   error = aller_xy(1070, 854, VITESSE_A_VIDE, 1, 8000, 3);
   if(error) return OK;
 
-  // error = asserv_goa_point(1000, 600, 1000);
+  // error = asserv_rotation_vers_point(1000, 600, 1000);
   // if(error) return OK;
 
   error = aller_xy(920, 320, VITESSE_LENTE, 1, 8000, 3);
@@ -966,13 +966,13 @@ uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) {
   error = aller_xy(320, 1200, VITESSE_A_VIDE, 1, 10000, 3);
   if(error) return OK;
 
-  // error = asserv_goa_point(500, 1100, 3000);
+  // error = asserv_rotation_vers_point(500, 1100, 3000);
   // if(error) return OK;
 
   error = aller_xy(920, 856, VITESSE_LENTE, 1, 10000, 3);
   if(error) return OK;
 
-  // error = asserv_goa_point(920, 0, 3000);
+  // error = asserv_rotation_vers_point(920, 0, 3000);
   // if(error) return OK;
 
   // TBD Faire une rotation lente si possible

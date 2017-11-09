@@ -59,7 +59,7 @@ void menu_start() {
           robot.activer_monitor_sick = !robot.activer_monitor_sick;
           if(robot.activer_monitor_sick) {
             localisation_set({x: 1500, y: 1000, a: MATH_PI2});
-            asserv_raz_consignes();
+            asserv_maintenir_position();
           }
           ecran_print_menu(selectPosition);
           /*
@@ -76,12 +76,12 @@ void menu_start() {
           ecran_console_log("Mode debug");
 
           localisation_set({x: 0, y: 0, a: 0});
-          asserv_raz_consignes();
+          asserv_maintenir_position();
 
           for(;;);
           */
           ecran_console_reset();
-          asserv_raz_consignes();
+          asserv_maintenir_position();
           ecran_console_log("Mode debug\n\n");
           ecran_console_log("Debut dans 5 sec\n\n");
           ecran_console_log("Relever BAU !\n");
@@ -93,7 +93,7 @@ void menu_start() {
 
           break;
         case 4:
-          /*tout_droit(mm2tick(300));
+          /*asserv_distance(300);
           ecran_print_menu(selectPosition);*/
           ecran_console_reset();
           ecran_console_log("Coucou");
@@ -125,9 +125,9 @@ void menu_start() {
         case 7:
           ecran_console_reset();
           ecran_console_log("Part et revient");
-          asserv_goxy(1000, 0);
-          faire_rotation(MATH_PI * 2);
-          asserv_goxy(0, 0);
+          asserv_go_xy(1000, 0);
+          asserv_rotation_relative(MATH_PI * 2);
+          asserv_go_xy(0, 0);
           for(;;);
           break;
         case 8:

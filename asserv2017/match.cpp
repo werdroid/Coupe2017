@@ -21,10 +21,10 @@ void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to) {
   }
 }
 
-// Attention, inversion de uniquement_avant et timeout par rapport à asserv_goxy
+// Attention, inversion de uniquement_avant et timeout par rapport à asserv_go_xy
 // (La logique est : on définit les paramètres de notre consigne avant de définir les conditions d'échec)
 // aller_xy = "Va là intelligement"
-// asserv_goxy = "Va là, stupide"
+// asserv_go_xy = "Va là, stupide"
 // Tous les paramètres sont obligatoires
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives) {
   uint8_t error;
@@ -40,21 +40,21 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   definir_vitesse_avance(vitesse);
 
   if(uniquement_avant) {
-    asserv_goa_point(x, y, 2000);
+    asserv_rotation_vers_point(x, y, 2000);
   }
 
   do {
-    error = asserv_goxy(x, y, timeout, uniquement_avant);
+    error = asserv_go_xy(x, y, timeout, uniquement_avant);
     tentatives++;
 
     // L'idée, c'est qu'en cas d'échec, le robot recule un peu avant de réessayer. C'est un peu codé à la dernière minute, et ça pourrait être grandement amélioré
     // Il faudrait gérer différemment le cas où on a 5 erreurs TIMEOUT vs 5 erreurs OBSTACLE vs 3 TIMEOUT + 2 OBSTACLE, etc.
     /*if((error == ERROR_OBSTACLE || error == ERROR_TIMEOUT) && tentatives >= 2) {
-      if(!match_termine()) {  // Il serait mieux de gérer ça dans tout_droit() (c'est peut-être déjà le cas ?)
+      if(!match_termine()) {  // Il serait mieux de gérer ça dans asserv_distance() (c'est peut-être déjà le cas ?)
         com_log_println("--- Reculer");
-        error2 = tout_droit(-200, 1000);  // Ca recule, mais pas de la distance voulue...
+        error2 = asserv_distance(-200, 1000);  // Ca recule, mais pas de la distance voulue...
         if(error2 == OK) { // Mis ici pour ne pas modifier asserv.cpp
-          asserv_raz_consignes();
+          asserv_maintenir_position();
           com_log_println(":)");
         }
         else {
@@ -62,8 +62,12 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
         }
       }
     }
-    // En cas d'ERROR_OBSTACLE, le robot attend 1s (delay(1000) défini dans asserv_goxy)
   } while((error == ERROR_OBSTACLE || error == ERROR_TIMEOUT) && tentatives < max_tentatives && !match_termine());//*/
+
+    // En cas d'obstacle on fait une pause avant de tenter à nouveau
+    if (error == ERROR_OBSTACLE) {
+      delay(1000);
+    }
   } while(error == ERROR_OBSTACLE && tentatives < max_tentatives && !match_termine());
 
   if(match_termine()) {

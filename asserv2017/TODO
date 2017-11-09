@@ -6,7 +6,7 @@ Corriger com.cpp
 
 [Mai]
 - état du match: prêt, en cours, funny action, terminé
-    + mettre au clair ce que renvoie asserv_goxy une fois les 90 secondes écoulées
+    + mettre au clair ce que renvoie asserv_go_xy une fois les 90 secondes écoulées
 
 [Plus ancien]
 - sortie com sur br ou usb (en fonction de l'état de usb)
@@ -15,7 +15,6 @@ Corriger com.cpp
 - clean de definir_vitesse_avance() et definir_vitesse_rotation()
 - prefixer les fichiers bas niveau de haut niveau de Rémi pour simuler des dossiers
 - documenter les fonctions utilitaires usuelles: elapsedMillis(), la fonction temps, et autres fonctions pour Rémi
-- refacto       robot.sans_symetrie = 1; asserv_goa(0); // prêt à larguer les poissons robot.sans_symetrie = 0;
 - dendinement du robot
 - moniteur exporter/importer un match, contrôler play/record/position
 

@@ -21,14 +21,12 @@ bool match_termine();
 **match_gr.cpp** haut-niveau missions du grand robot
 ```c++
 void gr_init();
-void gr_main();
 ...
 ```
 
 **match_pr.cpp** haut-niveau missions du grand robot
 ```c++
 void pr_init();
-void pr_main();
 ...
 ```
 
@@ -50,14 +48,13 @@ float normalize_radian(float a);
 **asserv.cpp** bas-niveau
 ```c++
 void asserv_setup();
-uint8_t consignesXY(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant);
-uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout, uint16_t uniquement_avant);
+uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant);
+uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout, uint16_t uniquement_avant);
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout);
-uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout);
-uint8_t asserv_goa(float orientation, uint16_t timeout, uint8_t sans_symetrie);
-uint8_t tout_droit(int32_t distance, uint16_t timeout);
-uint8_t faire_rotation(float rotation_rad, uint16_t timeout);
-void asserv_raz_consignes();
+uint8_t asserv_rotation_vers_point(int32_t consigneX, int32_t consigneY, uint16_t timeout);
+uint8_t asserv_distance(int32_t distance, uint16_t timeout);
+uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout);
+void asserv_maintenir_position();
 void asserv_consigne_stop();
 void asserv_consigne_pwm(uint16_t pwm_gauche, uint16_t pwm_droite);
 void asserv_consigne_polaire(int32_t distance_tick, int32_t rotation_tick);

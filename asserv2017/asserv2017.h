@@ -335,10 +335,10 @@ bool boutons_start_up();
 bool boutons_start_down();
 bool boutons_select_up();
 bool boutons_select_down();
-void wait_start_button_down();
-void wait_start_button_up();
-void wait_select_button_down();
-void wait_select_button_up();
+void bouton_start_down();
+void bouton_wait_start_up();
+void bouton_wait_select_down();
+void bouton_wait_select_up();
 
 // Localisation
 void localisation_loop();
@@ -349,21 +349,19 @@ bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 // Asserv
 void asserv_setup();
-void asserv_raz_consignes();
+void asserv_maintenir_position();
 void asserv_loop();
 
 void asserv_consigne_stop();
 void asserv_consigne_pwm(uint16_t gauche, uint16_t droite);
 void asserv_consigne_polaire(int32_t distance, int32_t rotation);
 void asserv_consigne_polaire_delta(int32_t distance_mm_delta, float rotation_rad_delta);
-
-uint8_t tout_droit(int32_t distance, uint16_t timeout = 0);
-uint8_t faire_rotation(float rotation_rad, uint16_t timeout = 0);
-uint8_t consignesXY(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant = 0);
-uint8_t asserv_goxy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout = 0, uint16_t uniquement_avant = 0);
-uint8_t asserv_goa(float orientation, uint16_t timeout = 5000, uint8_t sans_symetrie = 0);
-uint8_t asserv_goa_point(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0);
+uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant = 0);
+uint8_t asserv_distance(int32_t distance, uint16_t timeout = 0);
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout = 0);
+uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout = 0, uint16_t uniquement_avant = 0);
+uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout = 5000);
+uint8_t asserv_rotation_vers_point(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0);
 
 // Communication
 void com_setup();
