@@ -131,6 +131,10 @@ void setup() {
   menu_start();
 }
 
+void loop() {
+  // boucle arduino
+}
+
 void interruption_sample() {
   if (lock_loop == RT_STATE_RUNNING) {
     return;
