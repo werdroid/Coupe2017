@@ -87,14 +87,6 @@ void gr_init() {
   gr_rouleaux_stop();
 }
 
-// Lancement du programme du robot (menu, match, actions)
-
-void gr_main() {
-  com_log_println("gr_main()");
-  gr_init();
-}
-
-
 
 void demo_allers_retours() {
   ecran_console_reset();
@@ -106,19 +98,19 @@ void demo_allers_retours() {
 
   wait_start_button_down();
   ecran_console_log("Pret\n");
-  
+
   delay(300);
   localisation_set({x: 1000, y: 1000, a: 0});
   asserv_raz_consignes();
 
   wait_start_button_up();
   match_demarrer_minuteur();
-  
+
   //uint32_t t0 = millis();
   uint8_t error;
 
   aller_xy(1500, 1000, 30, 1, 10000, 15);
-  
+
   bras_position_croisiere();
   com_log_println("En attente");
   while(!robot.sickObstacle) {
@@ -136,7 +128,7 @@ void demo_allers_retours() {
 
   while(1) {
     robot.match_debut = millis();
-    
+
     aller_xy(2000, 1000, 100, 1, 10000, 20);
     prendre_minerais();
     aller_xy(1800, 1000, 100, 0, 10000, 20);
@@ -233,12 +225,12 @@ void debug_gr() {
 
   //asserv_goa_point(1500, 0, 3000);
   bras_position_croisiere();
-  
+
   com_log_println("Orientation 1 dans 3 sec");
   delay(3000);
-  
+
   asserv_goa_point(737, 0, 3000);
-  
+
   com_log_println("Baisser le bras dans 3 sec");
   delay(3000);
   if(robot.symetrie) {
@@ -247,7 +239,7 @@ void debug_gr() {
   else {
     positionner_bras_droit(POSITION_KNOCK_BLEU, false);
   }
-  
+
   com_log_println("Orientation 2 dans 3 sec");
   delay(3000);
 
@@ -257,8 +249,8 @@ void debug_gr() {
   delay(3000);
 
   bras_position_croisiere();
-    
-  
+
+
 /*
   Serial.println("Position croisiere");
   positionner_deux_bras(POSITION_CROISIERE, true);
@@ -561,7 +553,7 @@ uint8_t recuperer_minerais_pcd4() {
   if(error) return error;
   com_log_println("PCD4 atteint.");
 
-  
+
   // Pas de gestion d'erreur : si problème, on essaye quand même de finir l'action
   error = aller_xy(855, 652, VITESSE_A_VIDE, 1, 3000, 2); // Approche
   error = asserv_goa_point(650, 540, 2000); // On s'oriente vers le cratère
@@ -591,17 +583,17 @@ uint8_t recuperer_minerais_pcd7() {
 
   positionner_deux_bras(POSITION_MAX_SOUS_SICK, false);
 
-  
+
   // Pas de gestion d'erreur : on est suffisamment proche du cratère pour espérer récupérer des minerais
   // même s'il y a un problème
-  error = aller_xy(450, 669, VITESSE_A_VIDE, 1, 2000, 3); // Approche vers le cratère  
+  error = aller_xy(450, 669, VITESSE_A_VIDE, 1, 2000, 3); // Approche vers le cratère
   error = asserv_goa_point(650, 540, 2000); // Orientation vers le cratère
 
   error = prendre_minerais();
   gr_minerais_charges = true;
   com_log_println("Minerais charges");
 
-  
+
   // Dégagement
   error = aller_pt_etape(PT_ETAPE_7, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
   // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
@@ -622,7 +614,7 @@ uint8_t recuperer_minerais_pcl() {
   com_log_println("PCL atteint.");
 
 
-  // Réalisation de l'action 
+  // Réalisation de l'action
   error = aller_xy(836, 1736, VITESSE_A_VIDE, 1, 3000, 3); // Approche vers le cratère
   error = asserv_goa_point(1070, 1870, 2000); // Orientation vers centre du cratère
 
@@ -655,7 +647,7 @@ uint8_t recuperer_minerais_gcc10() {
   // Réalisation de l'action
   error = aller_xy(350, 1440, VITESSE_A_VIDE, 1, 3000, 3); // S'approche du cratère
   error = asserv_goa_point(0, 2000, 2000); // S'oriente correctement
-  
+
   error = prendre_minerais();
   gr_minerais_charges = true;
   com_log_println("Minerais charges");
@@ -688,7 +680,7 @@ uint8_t recuperer_minerais_gcc14() {
   gr_minerais_charges = true;
   com_log_println("Minerais charges");
 
- 
+
   // Dégagement
   error = aller_pt_etape(PT_ETAPE_14, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
   // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
@@ -727,10 +719,10 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
       aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
       localisation_set({x: 240, y: 480, a: MATH_PI * -0.5});
     }
-    
+
     // On baisse
     positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
-    
+
     // On dégage
     error = aller_xy(240, 670, 80, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
   }
@@ -738,14 +730,14 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
     // Approche
     error = aller_xy(210, 520, 80, 1, 3000, 2);
     // if(error) return error; // Robot têtu : même si problème, il continuera son action de dépose. On est assez proche pour espérer qu'il en dépose au moins 1.
-    
+
     //error = asserv_goa_point(210, 0, 2000);
     error = aller_xy(210, 495, 80, 1, 2500, 2);
     // if(error) return error;
 
     // On baisse
     positionner_deux_bras(POSITION_DEPOSER_BAS, false);
-    
+
     // On dégage
     error = aller_xy(260, 670, 80, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
   }
@@ -790,7 +782,7 @@ uint8_t knocker_module2() {
     error = asserv_goa_point(737, 0, 3000);
     //if(error) return error;
     positionner_bras_gauche(POSITION_KNOCK_JAUNE, false);
-    
+
     error = asserv_goa_point(1500, 573, 2000); // Rotation (= "Knocker")
     // Pas de retour d'erreur (sinon nécessite de connaître l'angle du robot lors de l'erreur)
   }
@@ -800,7 +792,7 @@ uint8_t knocker_module2() {
 
     error = asserv_goa_point(760, 0, 3000);
     positionner_bras_droit(POSITION_KNOCK_BLEU, false);
-  
+
     error = asserv_goa_point(1500, 573, 2000); // Rotation (= "Knocker")
   }
 
@@ -814,32 +806,32 @@ uint8_t knocker_module2() {
 
 uint8_t knocker_module2_de_face() {
   uint8_t error;
-  
+
   // En jaune, c'est trop ric-rac, on ignore donc cette action
   if(robot.symetrie) {
     return OK;
   }
 
   com_log_println("----- Knocker Module 2 de face -----");
-  
+
   bras_position_croisiere();
 
   error = aller_pt_etape(PT_ETAPE_8, VITESSE_A_VIDE, 1, 8000, 3);
   if(error) return OK;
 
   positionner_deux_bras(POSITION_KNOCK_FACE, false);
-  
+
   error = aller_xy(815, 1315, 100, 1, 2000, 3);
-  
+
   asserv_go_toutdroit(-300, 2000);
   if(error) return OK;
-  
+
   bras_position_croisiere();
-  
+
   error = aller_xy(650, 1600, 100, 1, 5000, 3);
   if(error) return OK;
-  
-  
+
+
   return OK;
 }
 
@@ -942,7 +934,7 @@ uint8_t recuperer_module1() {
 
 // Action à réaliser avant toute extraction de minerais.
 // Une visite de P8 (où se trouve aussi Module 5) rendrait inutile cette action.
-uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) { 
+uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) {
   uint8_t error;
   // Retrait de la gestion des erreurs : si l'action échoue et que l'on part sur une autre action, on ne sait pas où sera le module sur la table => Inutile à refaire.
 
@@ -964,15 +956,15 @@ uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) {
   // Réalisation de l'action
   error = aller_xy(490, 1455, VITESSE_A_VIDE, 1, 10000, 3);
   if(error) return OK;
-  
-  if(prendre_minerais_gcc_au_passage) {    
+
+  if(prendre_minerais_gcc_au_passage) {
     // Approche
     error = aller_xy(442, 1507, VITESSE_A_VIDE, 1, 3000, 3);
-    
+
     prendre_minerais();
     gr_minerais_charges = true;
     com_log_println("Minerais charges");
-    
+
     error = aller_xy(490, 1455, VITESSE_CHARGE, 0, 3000, 3);
   }
 

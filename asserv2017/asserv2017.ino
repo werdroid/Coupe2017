@@ -9,7 +9,7 @@
 #include <SPI.h>
 #include <elapsedMillis.h>
 #include <Ethernet.h>
-#include <socket.h>
+// #include <socket.h>
 #include <w5100.h> // modifier constancte W5200_RESET_PIN
 #include <EEPROM.h>
 
@@ -127,13 +127,6 @@ void setup() {
   // Teensy 3.1 can support up to 16 levels of nesting, so priority levels 0 to 15 are all the same, 16 to 31 are the same, and so on
   // IntervalTimer for priority 48, on Teensy 3.1/3.2 it will not block Systick at 32
 
-  // Lancement du programme du robot
-  if (analogRead(A12) < 512) { // 0V=PR et 5V=GR (sur 1024)
-    pr_main();
-  } else {
-    gr_main();
-  }
-  
   ecran_console_log("Starting menu...\n");
   menu_start();
 }

@@ -12,7 +12,7 @@
 #include <elapsedMillis.h>
 #include <Metro.h>
 #include <Ethernet.h>
-#include <socket.h>
+// #include <socket.h>
 #include <w5100.h>
 #include <EEPROM.h>
 #include <Servo.h>
@@ -263,7 +263,6 @@ void match_demarrer_minuteur();
 
 // GR
 void gr_init();
-void gr_main();
 
 void demo_allers_retours();
 void homologation_gr();
@@ -297,7 +296,6 @@ void gr_fusee_ouvrir();
 
 // PR
 void pr_init();
-void pr_main();
 
 void grosse_dune_1();
 void grosse_dune_2();
