@@ -292,10 +292,6 @@ void match_gr() {
   int const nombre_attributs = 2;
   int etat_actions[nombre_actions][nombre_attributs] = { 0 };
 
-  // compteur de l'action recolter_fusee_depart
-  // Permet de compter le nombre de déplacements d'extraction réussis réalisés
-  // (et donc de modules extraits et à ne plus extraire si on revient à l'action après une erreur)
-  int compteur_fusee_depart = 0;
   /*
     etat_actions :
 
@@ -316,7 +312,6 @@ void match_gr() {
   */
 
   // Variables internes
-  int i;
   int nb_iterations;
 
 
@@ -1035,8 +1030,6 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 
 
 uint8_t prendre_minerais() {
-  uint8_t error;
-
   positionner_bras_gauche(POSITION_RECOLTER, false);
   positionner_bras_droit(POSITION_RECOLTER, false);
   delay(500);

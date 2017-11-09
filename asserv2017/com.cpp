@@ -17,14 +17,14 @@ void com_send_robot_infos() {
   if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
-  
+
   trameMonitor.millis = millis();
   /*
 
   Serial.print('@');
   Serial.write((const uint8_t*) &trameMonitor, sizeof(TrameMonitor));
   Serial.println();//*/
-  
+
   // Patch lecture comme 2016
   Serial.print("@|Position|\"mmX\":");
   Serial.print(robot.xMm);Serial.print(",\"mmY\":");Serial.print(robot.yMm);
@@ -37,10 +37,10 @@ void com_send_robot_infos() {
   Serial.print(",\"consigneYmm\":");
   Serial.print(robot.consigneYmm);
   Serial.println();
-  
+
   /*Serial.print("angleDeg");
   Serial.println(rad2deg(robot.a));*/
-  
+
   Serial.print("@|Sick|\"vides\":");
   Serial.print(robot.sickTramesVides);
   Serial.print(",\"valides\":");
@@ -58,8 +58,6 @@ void com_send_robot_infos() {
   Serial.println();
 }
 
-
-
 // ####################################
 // Communication
 // ####################################
@@ -75,8 +73,6 @@ void com_loop() {
   }
 }
 
-#ifdef VOIR_FICHIER_HEADER
-void com_log_println(X);
-void com_log_print(X);
-#endif
-
+// Déclaré et implémenté sous forme de macro dans le header:
+// void com_log_println(X);
+// void com_log_print(X);

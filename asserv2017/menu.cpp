@@ -19,7 +19,6 @@ void menu_start() {
   robot.rouleaux_actifs = EEPROM.read(EEPROM_ADDRESS_ROULEAUX);
   robot.activer_monitor_sick = false;
   int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
-  int state_rouleaux = 0;
   ecran_print_menu(selectPosition);
 
   do {
