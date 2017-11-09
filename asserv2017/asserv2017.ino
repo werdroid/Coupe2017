@@ -131,10 +131,6 @@ void setup() {
   menu_start();
 }
 
-void loop() {
-
-}
-
 void interruption_sample() {
   if (lock_loop == RT_STATE_RUNNING) {
     return;
