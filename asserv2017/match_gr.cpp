@@ -28,65 +28,51 @@ int nb_modules_extraits_fusee_depart = 0;
 // Initialisation des actionneurs spécifiques
 
 void gr_init() {
-  com_log_println("gr_init()");
-  robot.IS_PR = false;
+  robot.IS_PR = false; // première instruction dès que possible avant menu, match, etc
+  com_printfln("gr_init()");
 
-  bool gr2016 = false; // 2017 ou 2016 ? :)
+  /**********
+  ROBOT ALIEN
+  ***********/
 
-  if(gr2016) {
-    robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 3 mai gr
-    robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 3404.0f; // 4 mai gr
-    robot.ASSERV_DISTANCE_KP = 0.1f;
-    robot.ASSERV_DISTANCE_KD = 0.8f;
-    robot.ASSERV_ROTATION_KP = 0.1f;
-    robot.ASSERV_ROTATION_KD = 1.8f;
+  // Constantes à init
+  robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
+  robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 2207.0f; // 1rad -> 2207pas
+  robot.ASSERV_DISTANCE_KP = 0.15f; // 30 avril pr
+  robot.ASSERV_DISTANCE_KD = 1.5f; // 30 avril pr
+  robot.ASSERV_ROTATION_KP = 0.09f; // 30 avril pr
+  robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr
 
-    // Actionneurs à init
-    quadramp_init(&robot.ramp_distance);
-    quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
-    quadramp_set_2nd_order_vars(&robot.ramp_distance, 1, 10);
+  // Actionneurs à init
 
-    quadramp_init(&robot.ramp_rotation);
-    quadramp_set_1st_order_vars(&robot.ramp_rotation, 100, 100);
-    quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
+  servo_bras_gauche.attach(29);
+  servo_bras_droit.attach(30);
+  servo_fusee.attach(31);
 
-  }
-  else {
-
-    /**********
-    ROBOT ALIEN
-    ***********/
-
-    // Constantes à init
-    robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
-    robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 2207.0f; // 1rad -> 2207pas
-    robot.ASSERV_DISTANCE_KP = 0.15f; // 30 avril pr
-    robot.ASSERV_DISTANCE_KD = 1.5f; // 30 avril pr
-    robot.ASSERV_ROTATION_KP = 0.09f; // 30 avril pr
-    robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr
-
-    // Actionneurs à init
-    quadramp_init(&robot.ramp_distance);
-    quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
-    quadramp_set_2nd_order_vars(&robot.ramp_distance, 1, 1);
-
-    quadramp_init(&robot.ramp_rotation);
-    quadramp_set_1st_order_vars(&robot.ramp_rotation, 100, 100);
-    quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
-
-
-    servo_bras_gauche.attach(29);
-    servo_bras_droit.attach(30);
-    servo_fusee.attach(31);
-
-    positionner_deux_bras(POSITION_RECOLTER, false);
-    gr_fusee_fermer();
-  }
-
-
-  gr_rouleaux_stop();
+  positionner_deux_bras(POSITION_RECOLTER, false);
+  gr_fusee_fermer();
 }
 
+void match_gr_arret() {
+  // ici on utilise delay et pas minuteur_attendre car le match est fini
+  asserv_consigne_stop();
+
+  com_printfln("Fin de match, funny action !");
+
+  gr_fusee_ouvrir();
+  delay(1000);
+  gr_fusee_fermer();
+  delay(800);
+  gr_fusee_ouvrir();
+  delay(800);
+  gr_fusee_fermer();
+  delay(1000);
+  gr_fusee_ouvrir();
+
+  tone_play_end();
+  com_printfln("Fin programme");
+  while(1);
+}
 
 void demo_allers_retours() {
   ecran_console_reset();
@@ -99,12 +85,12 @@ void demo_allers_retours() {
   bouton_start_down();
   ecran_console_log("Pret\n");
 
-  delay(300);
-  asserv_set_position({x: 1000, y: 1000, a: 0});
+  minuteur_attendre(300);
+  asserv_set_position(1000, 1000, 0);
   asserv_maintenir_position();
 
   bouton_wait_start_up();
-  match_demarrer_minuteur();
+  minuteur_demarrer();
 
   //uint32_t t0 = millis();
   uint8_t error;
@@ -112,19 +98,19 @@ void demo_allers_retours() {
   aller_xy(1500, 1000, 30, 1, 10000, 15);
 
   bras_position_croisiere();
-  com_log_println("En attente");
+  com_printfln("En attente");
   while(!robot.sickObstacle) {
-    Serial.println("...");
-    delay(100);
+    com_printfln("...");
+    minuteur_attendre(100);
     robot.match_debut = millis();
   }
-  com_log_println("Let's go !");
+  com_printfln("Let's go !");
   gr_fusee_ouvrir();
-  delay(600);
+  minuteur_attendre(600);
   gr_fusee_fermer();
-  delay(400);
+  minuteur_attendre(400);
   gr_fusee_ouvrir();
-  delay(400);
+  minuteur_attendre(400);
 
   while(1) {
     robot.match_debut = millis();
@@ -133,11 +119,11 @@ void demo_allers_retours() {
     prendre_minerais();
     aller_xy(1800, 1000, 100, 0, 10000, 20);
     aller_xy(1000, 1000, 100, 1, 10000, 20);
-    delay(800);
+    minuteur_attendre(800);
     positionner_deux_bras(POSITION_DEPOSER_BAS, false);
-    delay(800);
+    minuteur_attendre(800);
     aller_xy(1200, 1000, 100, 0, 10000, 20);
-    delay(800);
+    minuteur_attendre(800);
     bras_position_croisiere();
   }
 }
@@ -149,7 +135,6 @@ void homologation_gr() {
 
   ecran_console_reset();
   ecran_console_log("Homolog GR\n");
-  robot.activer_monitor_sick = false;
 
   if(robot.symetrie) {
     ecran_console_log("Couleur : JAUNE\n");
@@ -164,7 +149,7 @@ void homologation_gr() {
   ecran_console_log("annee.\n\n");
 
   ecran_console_log("1. Positionner\n");
-  delay(1500);
+  minuteur_attendre(1500);
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
   ecran_console_log("4. Jack out\n\n");
@@ -172,16 +157,16 @@ void homologation_gr() {
   bouton_start_down();
 
   ecran_console_log("Pret\n\n");
-  delay(200);
+  minuteur_attendre(200);
 
-  asserv_set_position({x: 900, y: 200, a: MATH_PI * -0.75});  // TBC
+  asserv_set_position(900, 200, MATH_PI * -0.75);  // TBC
   asserv_maintenir_position();
 
   bouton_wait_start_up();
 
-  match_demarrer_minuteur();
+  minuteur_demarrer();
 
-  delay(1000);
+  minuteur_attendre(1000);
 
 
   bras_position_croisiere();
@@ -198,41 +183,37 @@ void homologation_gr() {
 
   recuperer_module1();
 
-  delay(2000);
+  minuteur_attendre(2000);
 
   recuperer_module5(false);
 
-  while(!match_termine());
-
+  minuteur_attendre_fin_match();
 }
 
 void debug_gr() {
-  gr_rouleaux_stop();
-  robot.activer_monitor_sick = false;
-
   ecran_console_log("Debug GR\n\n");
   ecran_console_log("2 sec\n\n");
 
-  delay(200);
+  minuteur_attendre(200);
   //asserv_set_position({x: 900, y: 200, a: MATH_PI * 0.25});
-  asserv_set_position({x: 737, y: 1578, a: MATH_PI * -0.5});
+  asserv_set_position(737, 1578, MATH_PI * -0.5);
   asserv_maintenir_position();
-  delay(1800);
+  minuteur_attendre(1800);
 
-  match_demarrer_minuteur();
+  minuteur_demarrer();
 
-  delay(500);
+  minuteur_attendre(500);
 
   //asserv_rotation_vers_point(1500, 0, 3000);
   bras_position_croisiere();
 
-  com_log_println("Orientation 1 dans 3 sec");
-  delay(3000);
+  com_printfln("Orientation 1 dans 3 sec");
+  minuteur_attendre(3000);
 
   asserv_rotation_vers_point(737, 0, 3000);
 
-  com_log_println("Baisser le bras dans 3 sec");
-  delay(3000);
+  com_printfln("Baisser le bras dans 3 sec");
+  minuteur_attendre(3000);
   if(robot.symetrie) {
     positionner_bras_gauche(POSITION_KNOCK_JAUNE, false);
   }
@@ -240,41 +221,15 @@ void debug_gr() {
     positionner_bras_droit(POSITION_KNOCK_BLEU, false);
   }
 
-  com_log_println("Orientation 2 dans 3 sec");
-  delay(3000);
+  com_printfln("Orientation 2 dans 3 sec");
+  minuteur_attendre(3000);
 
   asserv_rotation_vers_point(1500, 573, 2000); // Rotation (= "Knocker")
 
-  com_log_println("Croisiere dans 3 sec");
-  delay(3000);
+  com_printfln("Croisiere dans 3 sec");
+  minuteur_attendre(3000);
 
   bras_position_croisiere();
-
-
-/*
-  Serial.println("Position croisiere");
-  positionner_deux_bras(POSITION_CROISIERE, true);
-
-  delay(7000);
-  Serial.println("Position Approche dans 3");
-  delay(1000);
-  Serial.println("2");
-  delay(1000);
-  Serial.println("1");
-  delay(1000);
-
-  positionner_deux_bras(POSITION_APPROCHE_DEPOT_HAUT, true);
-
-  delay(7000);
-  Serial.println("Position Depot Haut dans 3");
-  delay(1000);
-  Serial.println("2");
-  delay(1000);
-  Serial.println("1");
-  delay(1000);
-
-  positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
-*/
 
   tone_play_end();
 }
@@ -320,7 +275,6 @@ void match_gr() {
     ============================ **/
 
   ecran_console_reset();
-  robot.activer_monitor_sick = false;
   ecran_console_log("Match GR\n");
 
   if(robot.symetrie) {
@@ -345,14 +299,14 @@ void match_gr() {
   nb_modules_extraits_fusee_depart = 0;
 
 
-  delay(500);
+  minuteur_attendre(500);
   ecran_console_log(" Ok\n");
 
   bouton_start_down();
 
   ecran_console_log("Pret\n\n");
-  delay(200);
-  asserv_set_position({x: 886, y: 196, a: MATH_PI * -0.75});
+  minuteur_attendre(200);
+  asserv_set_position(886, 196, MATH_PI * -0.75);
   asserv_maintenir_position();
   bouton_wait_start_up();
 
@@ -361,9 +315,9 @@ void match_gr() {
     Début du match
     ============== **/
 
-  match_demarrer_minuteur();
+  minuteur_demarrer();
 
-  delay(500);
+  minuteur_attendre(500);
 
   bras_position_croisiere();
   asserv_go_toutdroit(-450, 5000);
@@ -392,8 +346,6 @@ void match_gr() {
 
     // [Prévision pour Stratégie Niveau 2]
     //  Une fois les 5 actions de base terminées, on passe à un autre boucle.
-    //while(!match_termine() && (etat_actions[0][0] == 0 || etat_actions[1][0] == 0 || etat_actions[2][0] == 0 || etat_actions[3][0] == 0 || etat_actions[4][0] == 0)) {
-    // TODO : condition match_termine() à confirmer
 
       /** =======================
         Récupération des minerais
@@ -423,37 +375,32 @@ void match_gr() {
         //case 8: error = recuperer_fusee_depart(); break;
 
         default:
-          com_log_println("! ######### ERREUR : action_en_cours inconnu");
+          com_printfln("! ######### ERREUR : action_en_cours inconnu");
           error = ERROR_STRATEGIE;
       }
 
-      if(error) {
+      if (error) {
         etat_actions[action_en_cours][1] = 1; // Enregistrement de l'erreur
-        com_log_print(":: Echec sur action ");
-        com_log_print(action_en_cours);
-        com_log_println(" ::");
+        com_printfln(":: Echec sur action %d", action_en_cours);
       }
       else {
         etat_actions[action_en_cours][0] = 1; // Enregistrement de la visite
-        com_log_print(":: Action ");
-        com_log_print(action_en_cours);
-        com_log_println(" terminée ::");
+        com_printfln(":: Action %d", action_en_cours);
       }
-
 
       /** ===================
         Collecte des minerais
         ===================== **/
 
-      while(gr_minerais_charges && !match_termine()) {
+      while(gr_minerais_charges) {
 
         error = deposer_minerais_zone_depot(false);
 
-        if(error) {
+        if (error) {
           // Minerais pas déposés : on se déplace à un point de secours pour revenir à la boucle while suivante
-          com_log_println("Echec de la dépose. En route vers point de secours.");
+          com_printfln("Echec de la dépose. En route vers point de secours.");
 
-          if(robot.xMm > 600 && robot.yMm < 1400) {
+          if (robot.xMm > 600 && robot.yMm < 1400) {
             //Pas de sous-gestion de l'erreur : Si erreur on retente d'aller au dépôt à la boucle while suivante
             //Marche arrière autorisée
             error = aller_pt_etape(PT_ETAPE_1, 100, 0, 12000, 5);
@@ -467,7 +414,7 @@ void match_gr() {
         }
         else {
           gr_minerais_charges = false; // Minerais déposés
-          com_log_println("Minerais déposés.");
+          com_printfln("Minerais déposés.");
         }
 
       }
@@ -481,7 +428,7 @@ void match_gr() {
       nb_iterations = 0; // Pour éviter la boucle infinie
       do {
         action_en_cours++;
-        if(action_en_cours >= nombre_actions) {
+        if (action_en_cours >= nombre_actions) {
           action_en_cours = 0;
         }
         nb_iterations++;
@@ -498,13 +445,9 @@ void match_gr() {
     // } // Fin du while() niveau 1
 
 
-  } while(!match_termine()); // TODO : confirmer condition de fin de match
+  } while (minuteur_temps_restant() < 500); // pas assez de temps pour commencer autre chose
 
-
-
-  com_log_println("_______ Terminé");
-
-  tone_play_end();
+  minuteur_attendre_fin_match(); // la funny action démarre toute seule à la fin du minuteur
 }
 
 
@@ -537,16 +480,16 @@ Fdep_finish   1328  132    0        132        0        132 action Fdep: x4 (4 m
 uint8_t recuperer_minerais_pcd4() {
   uint8_t error;
 
-  com_log_println("----- Minerais PCD4 -----");
+  com_printfln("----- Minerais PCD4 -----");
 
   // Initialisation de l'action
-  //com_log_println("En route vers PCD via P4.");
+  //com_printfln("En route vers PCD via P4.");
 
   bras_position_croisiere();
 
   error = aller_pt_etape(PT_ETAPE_4, VITESSE_A_VIDE, 1, 8000, 3);
   if(error) return error;
-  com_log_println("PCD4 atteint.");
+  com_printfln("PCD4 atteint.");
 
 
   // Pas de gestion d'erreur : si problème, on essaye quand même de finir l'action
@@ -555,7 +498,7 @@ uint8_t recuperer_minerais_pcd4() {
 
   error = prendre_minerais();
   gr_minerais_charges = true;
-  com_log_println("Minerais charges");
+  com_printfln("Minerais charges");
 
   // Dégagement
   error = aller_pt_etape(PT_ETAPE_4, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
@@ -568,13 +511,13 @@ uint8_t recuperer_minerais_pcd4() {
 uint8_t recuperer_minerais_pcd7() {
   uint8_t error;
 
-  com_log_println("----- Minerais PCD7 -----");
+  com_printfln("----- Minerais PCD7 -----");
 
   bras_position_croisiere();
 
   error = aller_pt_etape(PT_ETAPE_7, VITESSE_A_VIDE, 1, 8000, 3);
   if(error) return error;
-  com_log_println("PCD7 atteint.");
+  com_printfln("PCD7 atteint.");
 
   positionner_deux_bras(POSITION_MAX_SOUS_SICK, false);
 
@@ -586,7 +529,7 @@ uint8_t recuperer_minerais_pcd7() {
 
   error = prendre_minerais();
   gr_minerais_charges = true;
-  com_log_println("Minerais charges");
+  com_printfln("Minerais charges");
 
 
   // Dégagement
@@ -600,13 +543,13 @@ uint8_t recuperer_minerais_pcd7() {
 uint8_t recuperer_minerais_pcl() {
   uint8_t error;
 
-  com_log_println("----- Minerais PCL -----");
+  com_printfln("----- Minerais PCL -----");
 
   bras_position_croisiere();
 
   error = aller_pt_etape(PT_ETAPE_14, VITESSE_A_VIDE, 1, 8000, 3);
   if(error) return error;
-  com_log_println("PCL atteint.");
+  com_printfln("PCL atteint.");
 
 
   // Réalisation de l'action
@@ -615,7 +558,7 @@ uint8_t recuperer_minerais_pcl() {
 
   error = prendre_minerais();
   gr_minerais_charges = true;
-  com_log_println("Minerais charges");
+  com_printfln("Minerais charges");
 
   // Dégagement
   error = aller_pt_etape(PT_ETAPE_14, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
@@ -629,7 +572,7 @@ uint8_t recuperer_minerais_pcl() {
 uint8_t recuperer_minerais_gcc10() {
   uint8_t error;
 
-  com_log_println("----- Minerais GCC10 -----");
+  com_printfln("----- Minerais GCC10 -----");
 
   // Initialisation de l'action
 
@@ -637,7 +580,7 @@ uint8_t recuperer_minerais_gcc10() {
 
   error = aller_pt_etape(PT_ETAPE_10, VITESSE_A_VIDE, 1, 8000, 3);
   if(error) return error;
-  com_log_println("GCC10 atteint.");
+  com_printfln("GCC10 atteint.");
 
   // Réalisation de l'action
   error = aller_xy(350, 1440, VITESSE_A_VIDE, 1, 3000, 3); // S'approche du cratère
@@ -645,7 +588,7 @@ uint8_t recuperer_minerais_gcc10() {
 
   error = prendre_minerais();
   gr_minerais_charges = true;
-  com_log_println("Minerais charges");
+  com_printfln("Minerais charges");
 
   // Dégagement
   error = aller_pt_etape(PT_ETAPE_10, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
@@ -658,14 +601,14 @@ uint8_t recuperer_minerais_gcc10() {
 uint8_t recuperer_minerais_gcc14() {
   uint8_t error;
 
-  com_log_println("----- Minerais GCC14 -----");
+  com_printfln("----- Minerais GCC14 -----");
 
   // Initialisation de l'action
   bras_position_croisiere();
 
   error = aller_pt_etape(PT_ETAPE_14, VITESSE_A_VIDE, 1, 8000, 3);
   if(error) return error;
-  com_log_println("GCC14 atteint.");
+  com_printfln("GCC14 atteint.");
 
   // Réalisation de l'action
   error = aller_xy(618, 1855, VITESSE_A_VIDE, 1, 3000, 3); // S'approche du cratère
@@ -673,7 +616,7 @@ uint8_t recuperer_minerais_gcc14() {
 
   error = prendre_minerais();
   gr_minerais_charges = true;
-  com_log_println("Minerais charges");
+  com_printfln("Minerais charges");
 
 
   // Dégagement
@@ -687,15 +630,15 @@ uint8_t recuperer_minerais_gcc14() {
 uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
   uint8_t error;
 
-  com_log_println("----- Deposer vers depot -----");
+  com_printfln("----- Deposer vers depot -----");
 
 
   // En route vers dépôt
-  com_log_println("En route vers Depot.");
+  com_printfln("En route vers Depot.");
   error = aller_pt_etape(PT_ETAPE_7, VITESSE_CHARGE, 1, 9000, 3);
   if(error) return error;
 
-  com_log_println("Depot atteint.");
+  com_printfln("Depot atteint.");
 
 
 
@@ -707,12 +650,12 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
     error = aller_xy(240, 550, 80, 1, 2000, 2);
 
     if(error) {
-      Serial.println("! Recalage impossible");
+      com_printfln("! Recalage impossible");
     }
     else {
-      Serial.println("Recalage");
+      com_printfln("Recalage");
       aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
-      asserv_set_position({x: 240, y: 480, a: MATH_PI * -0.5});
+      asserv_set_position(240, 480, MATH_PI * -0.5);
     }
 
     // On baisse
@@ -755,18 +698,18 @@ uint8_t knocker_module2() {
   // Réclamation sur le nom de la fonction --> Antoine
   uint8_t error;
 
-  com_log_println("----- Knocker Module 2 -----");
+  com_printfln("----- Knocker Module 2 -----");
 
 
   // Déplacement vers base lunaire
-  com_log_println("En route vers la base lunaire, module 2.");
+  com_printfln("En route vers la base lunaire, module 2.");
 
   bras_position_croisiere();
 
   error = aller_pt_etape(PT_ETAPE_14, VITESSE_A_VIDE, 1, 8000, 3);
   if(error) return error;
 
-  com_log_println("Base lunaire, module 2 atteint.");
+  com_printfln("Base lunaire, module 2 atteint.");
 
 
   if(robot.symetrie) {
@@ -807,7 +750,7 @@ uint8_t knocker_module2_de_face() {
     return OK;
   }
 
-  com_log_println("----- Knocker Module 2 de face -----");
+  com_printfln("----- Knocker Module 2 de face -----");
 
   bras_position_croisiere();
 
@@ -834,10 +777,10 @@ uint8_t knocker_module2_de_face() {
 uint8_t recuperer_fusee_depart() {
   uint8_t error;
 
-  com_log_println("----- Recuperer Fusee Depart -----");
+  com_printfln("----- Recuperer Fusee Depart -----");
 
   // Pas de fusée pour l'instant...
-  com_log_println("Ou pas");
+  com_printfln("Ou pas");
   return OK;
   // ...
 
@@ -847,7 +790,7 @@ uint8_t recuperer_fusee_depart() {
 
 
   if(nb_modules_extraits_fusee_depart >= 4) {
-    com_log_println("La fusee est vide !");
+    com_printfln("La fusee est vide !");
     return OK;
   }
 
@@ -860,11 +803,11 @@ uint8_t recuperer_fusee_depart() {
   if(error) return error;
 
   // Réalisation de l'action
-  while(nb_modules_extraits_fusee_depart < 4 && !match_termine()) {
+  while(nb_modules_extraits_fusee_depart < 4) {
 
     // TBC Position de rotation OK avec tolérance de positionnement du robot ?
 
-    com_log_println("Point d'extraction de la fusée départ atteint.");
+    com_printfln("Point d'extraction de la fusée départ atteint.");
 
     error = asserv_rotation_vers_point(0, 132, 3000);
     if(error) return error;
@@ -896,10 +839,10 @@ uint8_t recuperer_module1() {
 
   uint8_t error;
 
-  com_log_println("----- Recuperer Module 1 -----");
+  com_printfln("----- Recuperer Module 1 -----");
 
   // Initialisation de l'action
-  com_log_println("Je vais récupérer le module 1. Taiaut !");
+  com_printfln("Je vais récupérer le module 1. Taiaut !");
 
   bras_position_croisiere();
 
@@ -918,7 +861,7 @@ uint8_t recuperer_module1() {
   if(error) return OK;
 
 
-  com_log_println("Module 1 dans la zone de départ !");
+  com_printfln("Module 1 dans la zone de départ !");
 
   // Dégagement
   asserv_go_toutdroit(-400, 2000);
@@ -933,9 +876,9 @@ uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) {
   uint8_t error;
   // Retrait de la gestion des erreurs : si l'action échoue et que l'on part sur une autre action, on ne sait pas où sera le module sur la table => Inutile à refaire.
 
-  com_log_println("----- Recuperer Module 5 -----");
+  com_printfln("----- Recuperer Module 5 -----");
   if(prendre_minerais_gcc_au_passage) {
-    com_log_println("en prenant qq minerais au passage !");
+    com_printfln("en prenant qq minerais au passage !");
   }
 
   // Initialisation de l'action
@@ -958,7 +901,7 @@ uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) {
 
     prendre_minerais();
     gr_minerais_charges = true;
-    com_log_println("Minerais charges");
+    com_printfln("Minerais charges");
 
     error = aller_xy(490, 1455, VITESSE_CHARGE, 0, 3000, 3);
   }
@@ -981,7 +924,7 @@ uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) {
 
   asserv_go_toutdroit(-400, 2000);
 
-  com_log_println("Fin du déplacement pour Module 5 dans la zone de départ.");
+  com_printfln("Fin du déplacement pour Module 5 dans la zone de départ.");
 
   // Dégagement
   // La position de fin a une marge autour permettant une rotation vers une nouvelle destination.
@@ -1003,7 +946,7 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
   // A lancer après recuperer_module1(). Une visite de (800;950) avant pousserait le module 1 qui deviendrait irrécupérable.
   uint8_t error;
 
-  com_log_println("----- Degager Module 5 -----");
+  com_printfln("----- Degager Module 5 -----");
 
   bras_position_croisiere();
 
@@ -1032,9 +975,8 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 uint8_t prendre_minerais() {
   positionner_bras_gauche(POSITION_RECOLTER, false);
   positionner_bras_droit(POSITION_RECOLTER, false);
-  delay(500);
+  minuteur_attendre(500);
   positionner_bras_droit(POSITION_CROISIERE, true);
-  //delay(800);
   positionner_bras_gauche(POSITION_CROISIERE, true);
 
   return OK;
@@ -1063,33 +1005,29 @@ Angle+ => Vers le haut
 void positionner_bras_gauche(uint8_t position, bool doucement) {
   int angle;
 
-  if(!match_termine()) {
-    switch(position) {
-      case POSITION_CROISIERE: angle = 77; break;
-      case POSITION_RECOLTER: angle = 42; break;
-      case POSITION_DEPOSER_BAS: angle = 45; break;
-      case POSITION_DEPOSER_HAUT: angle = 95; break;
-      case POSITION_APPROCHE_DEPOT_HAUT: angle = 115; break;
-      case POSITION_MAX_SOUS_SICK: angle = 95; break;
-      case POSITION_KNOCK_JAUNE: angle = 70; break;
-      case POSITION_KNOCK_BLEU: angle = 80; break; // Croisière
-      case POSITION_KNOCK_FACE: angle = 68; break;
-      default:
-        Serial.println("######### ERREUR : POSITION inconnue dans positionner_bras_gauche");
-        angle = 80; // Croisière par défaut
-    }
-
-    if(doucement)
-      servo_slowmotion(servo_bras_gauche, robot.angle_bras_gauche, angle);
-    else
-      servo_bras_gauche.write(angle);
-
-    robot.angle_bras_gauche = angle;
-
-    Serial.print("Positionnement bras gauche ");
-    Serial.print(angle);
-    Serial.println("deg");
+  switch(position) {
+    case POSITION_CROISIERE: angle = 77; break;
+    case POSITION_RECOLTER: angle = 42; break;
+    case POSITION_DEPOSER_BAS: angle = 45; break;
+    case POSITION_DEPOSER_HAUT: angle = 95; break;
+    case POSITION_APPROCHE_DEPOT_HAUT: angle = 115; break;
+    case POSITION_MAX_SOUS_SICK: angle = 95; break;
+    case POSITION_KNOCK_JAUNE: angle = 70; break;
+    case POSITION_KNOCK_BLEU: angle = 80; break; // Croisière
+    case POSITION_KNOCK_FACE: angle = 68; break;
+    default:
+      com_printfln("######### ERREUR : POSITION inconnue dans positionner_bras_gauche");
+      angle = 80; // Croisière par défaut
   }
+
+  if (doucement)
+    servo_slowmotion(servo_bras_gauche, robot.angle_bras_gauche, angle);
+  else
+    servo_bras_gauche.write(angle);
+
+  robot.angle_bras_gauche = angle;
+
+  com_printfln("Positionnement bras gauche %f deg", angle);
 }
 
 /**
@@ -1105,38 +1043,34 @@ Angle+ => Vers le bas
 void positionner_bras_droit(uint8_t position, bool doucement) {
   int angle;
 
-  if(!match_termine()) {
-    switch(position) {
-      case POSITION_CROISIERE: angle = 135; break;
-      case POSITION_RECOLTER: angle = 175; break;
-      case POSITION_DEPOSER_BAS: angle = 165; break;
-      case POSITION_DEPOSER_HAUT: angle = 113; break;
-      case POSITION_APPROCHE_DEPOT_HAUT: angle = 100; break;
-      case POSITION_MAX_SOUS_SICK: angle = 115; break;
-      case POSITION_KNOCK_BLEU: angle = 150; break;
-      case POSITION_KNOCK_JAUNE: angle = 135; break; // Croisière
-      case POSITION_KNOCK_FACE: angle = 130; break;
-      default:
-        Serial.println("######### ERREUR : POSITION inconnue dans positionner_bras_droit");
-        angle = 135; // Croisière par défaut
-    }
-
-    if(doucement)
-      servo_slowmotion(servo_bras_droit, robot.angle_bras_droit, angle);
-    else
-      servo_bras_droit.write(angle);
-
-    robot.angle_bras_droit = angle;
-
-    Serial.print("Positionnement bras droit ");
-    Serial.print(angle);
-    Serial.println("deg");
+  switch(position) {
+    case POSITION_CROISIERE: angle = 135; break;
+    case POSITION_RECOLTER: angle = 175; break;
+    case POSITION_DEPOSER_BAS: angle = 165; break;
+    case POSITION_DEPOSER_HAUT: angle = 113; break;
+    case POSITION_APPROCHE_DEPOT_HAUT: angle = 100; break;
+    case POSITION_MAX_SOUS_SICK: angle = 115; break;
+    case POSITION_KNOCK_BLEU: angle = 150; break;
+    case POSITION_KNOCK_JAUNE: angle = 135; break; // Croisière
+    case POSITION_KNOCK_FACE: angle = 130; break;
+    default:
+      com_printfln("######### ERREUR : POSITION inconnue dans positionner_bras_droit");
+      angle = 135; // Croisière par défaut
   }
+
+  if (doucement)
+    servo_slowmotion(servo_bras_droit, robot.angle_bras_droit, angle);
+  else
+    servo_bras_droit.write(angle);
+
+  robot.angle_bras_droit = angle;
+
+  com_printfln("Positionnement bras droit %f deg", angle);
 }
 
 
 void gr_fusee_init() {
-  Serial.println("###### Warning: Fonction fusee_init inutile");
+  com_printfln("###### Warning: Fonction fusee_init inutile");
 }
 
 void gr_fusee_fermer() {
@@ -1147,7 +1081,6 @@ void gr_fusee_ouvrir() {
   servo_fusee.write(160);
 }
 
-
 void gr_coucou() {
   for(int i = 0; i < 500; i++) {
     delay(600);
@@ -1156,68 +1089,5 @@ void gr_coucou() {
     delay(600);
     servo_bras_gauche.write(80);
     servo_bras_droit.write(165);
-  }
-}
-
-void funny_action() {
-  if(!robot.IS_PR) {
-    com_log_println("Fin de match, funny action !");
-    gr_fusee_ouvrir();
-    delay(1000);
-    gr_fusee_fermer();
-    delay(800);
-    gr_fusee_ouvrir();
-    delay(800);
-    gr_fusee_fermer();
-    delay(1000);
-    gr_fusee_ouvrir();
-  }
-}
-
-
-
-/******************************************
-OBSOLETE
-CODE 2016
-Laissé en attendant de faire un beau ménage...
-*****************************************/
-
-void gr_rouleaux_liberer() {
-  com_log_println("Rouleaux : libérer");
-  pinMode(29, OUTPUT);
-  pinMode(30, OUTPUT);
-  pinMode(31, OUTPUT);
-  pinMode(32, OUTPUT);
-  if(robot.rouleaux_actifs) {
-    digitalWrite(29, HIGH);
-    digitalWrite(30, LOW);
-    digitalWrite(31, HIGH);
-    digitalWrite(32, LOW);
-  }
-}
-void gr_rouleaux_avaler() {
-  com_log_println("Rouleaux : Avaler");
-  pinMode(29, OUTPUT);
-  pinMode(30, OUTPUT);
-  pinMode(31, OUTPUT);
-  pinMode(32, OUTPUT);
-  if(robot.rouleaux_actifs) {
-    digitalWrite(29, LOW);
-    digitalWrite(30, HIGH);
-    digitalWrite(31, LOW);
-    digitalWrite(32, HIGH);
-  }
-}
-void gr_rouleaux_stop() {
-  com_log_println("Rouleaux : Stop");
-  pinMode(29, OUTPUT);
-  pinMode(30, OUTPUT);
-  pinMode(31, OUTPUT);
-  pinMode(32, OUTPUT);
-  if(robot.rouleaux_actifs) {
-    digitalWrite(29, HIGH);
-    digitalWrite(30, HIGH);
-    digitalWrite(31, HIGH);
-    digitalWrite(32, HIGH);
   }
 }

@@ -10,13 +10,13 @@ void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to) {
   if(deg_from > deg_to) {
     for (; deg_from >= deg_to; deg_from--) {
       servo.write(deg_from);
-      delay(20);
+      minuteur_attendre(20);
     }
   }
   else {
     for (; deg_from <= deg_to; deg_from++) {
       servo.write(deg_from);
-      delay(20);
+      minuteur_attendre(20);
     }
   }
 }
@@ -31,15 +31,9 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   uint8_t error2;
   uint8_t tentatives = 0;
 
-  if(match_termine()) {
-    com_log_print("! Pas le temps de se déplacer (fin du match)");
-    return ERROR_FIN_MATCH;
-  }
+  asserv_vitesse_distance(vitesse);
 
-
-  definir_vitesse_avance(vitesse);
-
-  if(uniquement_avant) {
+  if (uniquement_avant) {
     asserv_rotation_vers_point(x, y, 2000);
   }
 
@@ -47,74 +41,37 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     error = asserv_go_xy(x, y, timeout, uniquement_avant);
     tentatives++;
 
-    // L'idée, c'est qu'en cas d'échec, le robot recule un peu avant de réessayer. C'est un peu codé à la dernière minute, et ça pourrait être grandement amélioré
-    // Il faudrait gérer différemment le cas où on a 5 erreurs TIMEOUT vs 5 erreurs OBSTACLE vs 3 TIMEOUT + 2 OBSTACLE, etc.
-    /*if((error == ERROR_OBSTACLE || error == ERROR_TIMEOUT) && tentatives >= 2) {
-      if(!match_termine()) {  // Il serait mieux de gérer ça dans asserv_distance() (c'est peut-être déjà le cas ?)
-        com_log_println("--- Reculer");
-        error2 = asserv_distance(-200, 1000);  // Ca recule, mais pas de la distance voulue...
-        if(error2 == OK) { // Mis ici pour ne pas modifier asserv.cpp
-          asserv_maintenir_position();
-          com_log_println(":)");
-        }
-        else {
-          com_log_println(":(");
-        }
-      }
-    }
-  } while((error == ERROR_OBSTACLE || error == ERROR_TIMEOUT) && tentatives < max_tentatives && !match_termine());//*/
-
     // En cas d'obstacle on fait une pause avant de tenter à nouveau
     if (error == ERROR_OBSTACLE) {
-      delay(1000);
+      minuteur_attendre(1000);
     }
-  } while(error == ERROR_OBSTACLE && tentatives < max_tentatives && !match_termine());
+  } while (error == ERROR_OBSTACLE && tentatives < max_tentatives);
 
-  if(match_termine()) {
-    com_log_print("! Déplacement vers ");
-    com_log_print(x);
-    com_log_print(";");
-    com_log_print(y);
-    com_log_println(" abandonné (fin du match)");
-  }
-
-  if(error != OK) {
-    com_log_print("! Déplacement vers ");
-    com_log_print(x);
-    com_log_print(";");
-    com_log_print(y);
-    com_log_print(" abandonné");
+  if (error != OK) {
+    com_printfln("! Déplacement vers %f, %f abandonné", x, y);
     switch(error) {
       case ERROR_TIMEOUT:
-        com_log_print(" (timeout ");
-        com_log_print(timeout);
-        com_log_print(" atteint)");
+        com_printfln("! Déplacement vers %f, %f abandonné (timeout %d atteint)", x, y, timeout);
         break;
       case ERROR_OBSTACLE:
-        com_log_print(" (OBSTACLE)");
+        com_printfln("! Déplacement vers %f, %f abandonné (OBSTACLE)", x, y);
         break;
       case ERROR_FIN_MATCH:
-        com_log_print(" (FIN MATCH)");
+        com_printfln("! Déplacement vers %f, %f abandonné (FIN MATCH)", x, y);
         break;
       case ERROR_STRATEGIE:
-        com_log_print(" (Stratégie)");
+        com_printfln("! Déplacement vers %f, %f abandonné (Stratégie)", x, y);
         break;
       case AUTRE:
-        com_log_print(" (AUTRE ERREUR)");
+        // TODO: ça n'a pas de sens, à préciser ce que c'est 'AUTRE'
+        com_printfln("! Déplacement vers %f, %f abandonné (AUTRE ERREUR)", x, y);
         break;
       default:
-        com_log_print(" ( ??? )");
+        com_printfln("! Déplacement vers %f, %f abandonné ( erreur inconnue a corriger )", x, y);
     }
 
-    if(tentatives >= max_tentatives) {
-      com_log_print(" après ");
-      com_log_print(tentatives);
-      com_log_print(" tentatives");
-    }
-    com_log_println();
-
-    if(error == ERROR_FIN_MATCH) {
-      match_termine();
+    if (tentatives >= max_tentatives) {
+      com_printfln("! Après %d tentatives (max)", tentatives);
     }
   }
 
@@ -139,7 +96,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
   switch(idPoint) {
 
     case PT_ETAPE_1:
-      com_log_println("Destination P1");
+      com_printfln("Destination P1");
       if(robot_dans_zone(ZONE_A)) {
         point_accessible = true;
       }
@@ -172,7 +129,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       break;
 
     case PT_ETAPE_4:
-      com_log_println("Destination P4");
+      com_printfln("Destination P4");
       if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_G)) {
         point_accessible = true;
       }
@@ -194,7 +151,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       break;
 
     case PT_ETAPE_7:
-      com_log_println("Destination P7");
+      com_printfln("Destination P7");
       if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H)) {
         point_accessible = true;
       }
@@ -212,7 +169,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       break;
 
     case PT_ETAPE_8:
-      com_log_println("Destination P8");
+      com_printfln("Destination P8");
       if(robot_dans_zone(ZONE_B | ZONE_E | ZONE_F | ZONE_G | ZONE_H | ZONE_I)) {
         point_accessible = true;
       }
@@ -228,7 +185,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       break;
 
     case PT_ETAPE_10:
-      com_log_println("Destination P10");
+      com_printfln("Destination P10");
       if(robot_dans_zone(ZONE_B | ZONE_E | ZONE_F | ZONE_G | ZONE_H | ZONE_I)) {
         point_accessible = true;
       }
@@ -244,7 +201,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       break;
 
     case PT_ETAPE_14:
-      com_log_println("Destination P14");
+      com_printfln("Destination P14");
       if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_H)) {
         point_accessible = true;
       }
@@ -262,7 +219,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       break;
 
     case PT_ETAPE_15:
-      com_log_println("Destination P15");
+      com_printfln("Destination P15");
       if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_I | ZONE_J)) {
          point_accessible = true;
       }
@@ -284,11 +241,12 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       break;
 
     default:
+      com_printfln("Point inconnu");
       je_suis_perdu = true;
   }
 
-  if(je_suis_perdu) {
-    com_log_println("! ######### ERREUR : Point Etape sans stratégie");
+  if (je_suis_perdu) {
+    com_printfln("! ######### ERREUR : Point '%d' sans stratégie", idPoint);
     return ERROR_STRATEGIE;
   }
   else {
@@ -297,7 +255,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       return aller_xy(point.x, point.y, vitesse, uniquement_avant, timeout, max_tentatives);
     }
     else {
-      com_log_println("On va faire un petit détour...");
+      com_printfln("On va faire un petit détour...");
       error = aller_pt_etape(point_de_passage, vitesse, uniquement_avant, timeout, max_tentatives);
       if(error) return error;
       return aller_pt_etape(idPoint, vitesse, uniquement_avant, timeout, max_tentatives);
@@ -306,105 +264,67 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
 
 }
 
-
-void definir_vitesse_avance(uint32_t v) { // v entre 0 et 100
-  quadramp_set_1st_order_vars(&robot.ramp_distance, v, v);
-}
-
-void definir_vitesse_rotation(uint32_t v) { // v entre 0 et 100
-  quadramp_set_1st_order_vars(&robot.ramp_rotation, v, v);
-}
-
-
-
 uint16_t localiser_zone() {
   // Ajout de zone à faire aussi dans getZone() et asserv2017.h
   if(robot_dans_zone(ZONE_F)) {
-    com_log_println("Localisé zone F");
+    com_printfln("Localisé zone F");
     return ZONE_F;
   }
   else if(robot_dans_zone(ZONE_E)) {
-    com_log_println("Localisé zone E");
+    com_printfln("Localisé zone E");
     return ZONE_E;
   }
   else if(robot_dans_zone(ZONE_B)) {
-    com_log_println("Localisé zone B");
+    com_printfln("Localisé zone B");
     return ZONE_B;
   }
   else if(robot_dans_zone(ZONE_A)) {
-    com_log_println("Localisé zone A");
+    com_printfln("Localisé zone A");
     return ZONE_A;
   }
   else if(robot_dans_zone(ZONE_H)) {
-    com_log_println("Localisé zone H");
+    com_printfln("Localisé zone H");
     return ZONE_H;
   }
   else if(robot_dans_zone(ZONE_G)) {
-    com_log_println("Localisé zone G");
+    com_printfln("Localisé zone G");
     return ZONE_G;
   }
   else if(robot_dans_zone(ZONE_J)) {
-    com_log_println("Localisé zone J");
+    com_printfln("Localisé zone J");
     return ZONE_J;
   }
   else if(robot_dans_zone(ZONE_I)) {
-    com_log_println("Localisé zone I");
+    com_printfln("Localisé zone I");
     return ZONE_I;
   }
   else if(robot_dans_zone(ZONE_C)) {
-    com_log_println("Localisé zone C");
+    com_printfln("Localisé zone C");
     return ZONE_C;
   }
   else if(robot_dans_zone(ZONE_D)) {
-    com_log_println("Localisé zone D");
+    com_printfln("Localisé zone D");
     return ZONE_D;
   }
 
-  com_log_println("##### Zone inconnue");
+  com_printfln("##### Zone inconnue");
   return ZONE_INCONNUE;
 }
-
-/*
-Fonction finalement mise directement dans robot_dans_zone()
-Zone getZone(uint16_t idZone) {
-  // Ajout de zone à faire aussi dans localiser_zone() et asserv2017.h
-  switch(idZone) {
-    case ZONE_A: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_B: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_C: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_D: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_E: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_F: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_G: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_H: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_I: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    case ZONE_J: return {x1: 0, y1: 0, x2: 500, y2: 500}; break;
-    default:
-      com_log_print("########## ERREUR: idZone '");
-      com_log_print(idZone);
-      com_log_println("' incorrect dans getZone");
-      return {x1: 0, y1: 0, x2: 3000, y2: 2000};
-  }
-}
-//*/
-
 
 // Pourrait être mis directement dans aller_pt_etape() ...
 Point getPoint(uint8_t idPoint) {
   // Ajout de point à faire aussi dans asserv2017.h
   switch(idPoint) {
-    case PT_ETAPE_1: return {x: 900, y: 200}; break;
-    case PT_ETAPE_4: return {x: 1000, y: 700}; break;
-    case PT_ETAPE_7: return {x: 336, y: 693}; break;
-    case PT_ETAPE_8: return {x: 500, y: 1100}; break;
-    case PT_ETAPE_10: return {x: 400, y: 1350}; break;
-    case PT_ETAPE_14: return {x: 750, y: 1700}; break;
-    case PT_ETAPE_15: return {x: 1400, y: 800}; break;
+    case PT_ETAPE_1: return {.x = 900, .y = 200}; break;
+    case PT_ETAPE_4: return {.x = 1000, .y = 700}; break;
+    case PT_ETAPE_7: return {.x = 336, .y = 693}; break;
+    case PT_ETAPE_8: return {.x = 500, .y = 1100}; break;
+    case PT_ETAPE_10: return {.x = 400, .y = 1350}; break;
+    case PT_ETAPE_14: return {.x = 750, .y = 1700}; break;
+    case PT_ETAPE_15: return {.x = 1400, .y = 800}; break;
     default:
-      com_log_print("! ########## ERREUR: idPoint '");
-      com_log_print(idPoint);
-      com_log_println("' incorrect dans getZone");
-      return {x: 500, y: 1100}; // P8
+      com_printfln("! ########## ERREUR: idPoint '%d' incorrect dans getZone", idPoint);
+      return {.x = 500, .y = 1100}; // P8
   }
 }
 
@@ -456,7 +376,7 @@ bool robot_dans_zone(uint16_t idZone) {
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
   if(x1 > x2 || y1 > y2) {
     tone_play_alert();
-    com_log_println("############### Erreur : paramètres de robot_dans_zone mal définis.");
+    com_printfln("############### Erreur : paramètres de robot_dans_zone mal définis.");
   }
 
   if(!robot.symetrie)
@@ -468,37 +388,4 @@ bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
   // return (symetrie_x(robot.xMm) >= x1 && symetrie_x(robot.xMm) <= x2) && (robot.yMm >= y1 && robot.yMm <= y2));
   // ? (trop tard pour tester maintenant)
 
-}
-
-uint8_t retour(uint8_t valeur) {
-  com_log_print("== Valeur de retour : ");
-  com_log_println(valeur);
-  return valeur;
-}
-
-// Utiliser elapsedMillis à la place...
-bool temps_ecoule(uint32_t t0, uint32_t duree) {
-  return !(millis() - t0 < duree);
-}
-
-bool match_minuteur_90s() {
-  return (millis() - robot.match_debut) > 89500;
-}
-
-void match_demarrer_minuteur() {
-  robot.match_debut = millis();
-  com_log_println("DebutDuMatch\n");
-}
-
-bool match_termine() {
-  if(match_minuteur_90s()) {
-    asserv_consigne_stop();
-    com_log_println("Fin du match !");
-    delay(1000);
-    funny_action();
-    return true;
-  }
-  else {
-    return false;
-  }
 }

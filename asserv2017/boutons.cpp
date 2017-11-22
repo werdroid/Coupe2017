@@ -42,7 +42,7 @@ void boutons_all_pressed_restart() {
 void bouton_start_down() {
   for (;;) {
     if (start_button.update() && start_button.fallingEdge()) {
-      com_log_println("Button 'Start' down");
+      com_printfln("Button 'Start' down");
       break;
     }
   }
@@ -51,7 +51,7 @@ void bouton_start_down() {
 void bouton_wait_start_up() {
   for (;;) {
     if (start_button.update() && start_button.risingEdge()) {
-      com_log_println("Button 'Start' up");
+      com_printfln("Button 'Start' up");
       break;
     }
   }
@@ -60,7 +60,7 @@ void bouton_wait_start_up() {
 void bouton_wait_select_down() {
   for (;;) {
     if (select_button.update() && select_button.fallingEdge()) {
-      com_log_println("Button 'Select' down");
+      com_printfln("Button 'Select' down");
       break;
     }
   }
@@ -69,7 +69,7 @@ void bouton_wait_select_down() {
 void bouton_wait_select_up() {
   for (;;) {
     if (select_button.update() && select_button.risingEdge()) {
-      com_log_println("Button 'Select' up");
+      com_printfln("Button 'Select' up");
       break;
     }
   }

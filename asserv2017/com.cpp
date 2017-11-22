@@ -1,4 +1,5 @@
 #include "asserv2017.h"
+#include <string.h>
 
 // USB serial: https://www.pjrc.com/teensy/td_serial.html#txbuffer
 // UART serial: https://www.pjrc.com/teensy/td_uart.html
@@ -7,11 +8,15 @@
 
 static Metro metro = Metro(100);
 
-typedef struct {
-  unsigned long millis;
-} TrameMonitor; // 8 octets
-
 TrameMonitor trameMonitor;
+
+void com_send_robot_state() {
+  if (lock_loop == RT_STATE_SLEEP) {
+    synchronisation();
+  }
+
+
+}
 
 void com_send_robot_infos() {
   if (lock_loop == RT_STATE_SLEEP) {
@@ -73,6 +78,22 @@ void com_loop() {
   }
 }
 
-// Déclaré et implémenté sous forme de macro dans le header:
-// void com_log_println(X);
-// void com_log_print(X);
+// Taille max d'un log, doit être le plus court possible, la communication prend du temps
+// Ls deux derniers caractères sont \n et \0
+constexpr uint8_t MAX_LOG_LEN = 120 + 2;
+char dest[MAX_LOG_LEN];
+void com_printfln(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  vsnprintf(dest, MAX_LOG_LEN - 1, format, args); // keep one char for \n
+  va_end(args);
+  strcat(dest, "\n");
+  com_print(dest);
+}
+
+void com_print(const char* str) {
+  if (lock_loop == 0) {
+    synchronisation();
+  }
+  Serial.print(str);
+}

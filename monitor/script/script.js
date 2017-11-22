@@ -62,6 +62,15 @@ table.init();
 //gabarit.init();
 //table.draw.point(500, 600, 3, 'blue');
 
+document.querySelector('#startSimuPR').addEventListener('click', e => {
+  Module._pr_init();
+  Module._match_pr();
+});
+
+document.querySelector('#startSimuGR').addEventListener('click', e => {
+  Module._gr_init();
+  Module._match_gr();
+});
 
 document.getElementById('bEffacerTout').addEventListener('click', function() {
   //elem.log.monitor.innerHTML = '';
@@ -84,7 +93,7 @@ document.getElementById('bGenererJeuAleatoire').addEventListener('click', functi
 
 window.addEventListener('resize', table.conteneur.majPosition);
 
-  
+
 /**
 Données aléatoires pour tester
 **/
@@ -112,7 +121,7 @@ var genererJeuAleatoire = function() {
   var pasX = [];
   var pasY = [];
 
-	
+
   var nouvelleDirection = function(_r, _x, _y, pts) {
     destX[_r] = _x;
     destY[_r] = _y;
@@ -128,29 +137,29 @@ var genererJeuAleatoire = function() {
 
   for(var i = 0; i < 1500; i++ ) {
     var robot = (i % 2 == 0 ? PR : GR); //(alea.unSur(2) ? PR : GR);
-    
-    
+
+
     // Avancer les robots (aléatoirement)
     x[robot] += alea.nb(100) * (alea.unSur(2) ? -1 : 1);
     y[robot] += alea.nb(80) * (alea.unSur(2) ? -1 : 1);
-    
+
     // Changement de "direction"
     if(alea.unSur(50)) {
       destX[robot] = x[robot] + alea.nb(1000) * (alea.unSur(2) ? -1 : 1);
       destY[robot] = y[robot] + alea.nb(800) * (alea.unSur(2) ? -1 : 1);
     }//*/
-    
+
     /*
     // Avancer les robots vers la direction
     // (Finalement moins "visuel" pour les tests)
     x[robot] += pasX[robot]; //parseInt((destX[robot] - x[robot])/pas[robot]);
     y[robot] += pasY[robot]; //parseInt((destY[robot] - y[robot])/pas[robot]);
-    
+
     if(Math.abs(destX[robot] - x[robot]) < 10 && Math.abs(destY[robot] - y[robot] < 10)) {
       nouvelleDirection(robot, alea.aleaX(), alea.aleaY(), alea.nb(50) + 2);
     }//*/
-    
-    
+
+
     var msg = {
       t: i*10,
       position: {
@@ -164,7 +173,7 @@ var genererJeuAleatoire = function() {
     };
     //var id = donnees.enregistrer(robot, msg);
 		donnees.enregistrer(robot, msg);
-    
+
     // Ajout d'événements aléatoires
     if(alea.unSur(250)) {
       table.match.evenements.ajouter(robot, 'Evénement ! ' + i);
@@ -173,10 +182,10 @@ var genererJeuAleatoire = function() {
       destY[robot] = alea.aleaY();
       //pas[robot] = alea.nb(10);//*/
     }
-    
+
     /*table.match.positions.ajouter(robot, id);
     table.match.destinations.ajouter(robot, id);*/
-   
+
   }
 }
 

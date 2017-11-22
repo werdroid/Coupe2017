@@ -1,8 +1,5 @@
 #include "asserv2017.h"
 
-Servo servo_parasol;
-
-
 /**************************
 **                       **
 **    HYPER IMPORTANT    **
@@ -18,8 +15,8 @@ Servo servo_parasol;
 // Initialisation des actionneurs spécifiques
 
 void pr_init() {
-  com_log_println("pr_init()");
-  robot.IS_PR = true;
+  robot.IS_PR = true; // première instruction dès que possible avant menu, match, etc
+  com_printfln("pr_init()");
 
   // Constantes à init
   robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
@@ -28,26 +25,22 @@ void pr_init() {
   robot.ASSERV_DISTANCE_KD = 1.5f; // 30 avril pr
   robot.ASSERV_ROTATION_KP = 0.09f; // 30 avril pr
   robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr
+}
 
-  // Actionneurs à init
-  quadramp_init(&robot.ramp_distance);
-  quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
-  quadramp_set_2nd_order_vars(&robot.ramp_distance, 1, 1);
+void match_pr_arret() {
+  tone_play_end();
+  asserv_consigne_stop();
 
-  quadramp_init(&robot.ramp_rotation);
-  quadramp_set_1st_order_vars(&robot.ramp_rotation, 100, 100);
-  quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
-
+  com_printfln("Fin programme");
+  while(1);
 }
 
 // Le côté de la grosse dune
 void grosse_dune_1() {
-  com_log_println("Attaque du côté de la grosse dune");
+  com_printfln("Attaque du côté de la grosse dune");
 
   // Se positionne
   aller_xy(1150, 300, 100, 1, 5000, 5);
-
-  gr_rouleaux_avaler();
 
   // Avale la dune
   aller_xy(1300, 180, 30, 1, 3000, 5);
@@ -62,12 +55,11 @@ void grosse_dune_1() {
 
 // Le milieu de la grosse dune
 void grosse_dune_2() {
-  com_log_println("Attaque de la grosse dune par le milieu");
+  com_printfln("Attaque de la grosse dune par le milieu");
 
   // Se positionne
   aller_xy(1250, 300, 50, 0, 5000, 5);
 
-  gr_rouleaux_avaler();
   // Ré-Avale la dune
   aller_xy(1450, 150, 30, 1, 3000, 5);
   delay(900);
@@ -83,11 +75,10 @@ void grosse_dune_suite() {
 }
 
 void petite_dune1() {
-  com_log_println("Attaque de la petite dune");
+  com_printfln("Attaque de la petite dune");
   // Positionnement
   aller_xy(1100, 400, 50, 0, 2000, 5);
 
-  gr_rouleaux_avaler();
   // Avale la petite dune
   aller_xy(950, 150, 50, 1, 4000, 5);
   delay(800);
@@ -107,7 +98,7 @@ void liberer_cubes() {
 
   // Penser à s'éloigner de la dune avant !
 
-  com_log_println("Libération des cubes");
+  com_printfln("Libération des cubes");
 
   // On se positionne
   aller_xy(1200, 500, 50, 0, 3000, 8);
@@ -117,48 +108,12 @@ void liberer_cubes() {
 
   // On se rapproche
   aller_xy(1200, 610, 50, 1, 5000, 2);
-
-
-  // On libère 3 secondes
-  gr_rouleaux_liberer();
-  t0 = millis();
-  while(!temps_ecoule(t0, 3000) && !match_termine());
-
-  // Un petit à-coup
-  gr_rouleaux_stop();
-  t0 = millis();
-  while(!temps_ecoule(t0, 200) && !match_termine());
-
-  gr_rouleaux_avaler();
-  t0 = millis();
-  while(!temps_ecoule(t0, 500) && !match_termine());
-
-  // Libération 2.5s
-  gr_rouleaux_liberer();
-  t0 = millis();
-  while(!temps_ecoule(t0, 2500) && !match_termine());
-
-  // Un petit à-coup
-  gr_rouleaux_stop();
-  t0 = millis();
-  while(!temps_ecoule(t0, 200) && !match_termine());
-
-  gr_rouleaux_avaler();
-  t0 = millis();
-  while(!temps_ecoule(t0, 500) && !match_termine());
-
-  // Libération 2s
-  gr_rouleaux_liberer();
-  t0 = millis();
-  while(!temps_ecoule(t0, 2000) && !match_termine());
-
-  gr_rouleaux_stop();
 }
 
 void debug_pr() {
   ecran_console_log("2 sec\n\n");
 
-  asserv_set_position({x: 1500, y: 750, a: 0});
+  asserv_set_position(1500, 750, 0);
   delay(2000);
 
   ecran_console_log("DebutDuMatch\n");
@@ -175,7 +130,7 @@ void debug_pr() {
 
 void match_pr() {
   ecran_console_reset();
-  ecran_console_log("Match GR\n\n");
+  ecran_console_log("Match PR\n\n");
 
   if(robot.symetrie) {
     ecran_console_log("Couleur : VERT\n\n");
@@ -200,7 +155,7 @@ void match_pr() {
   bouton_start_down();
 
   ecran_console_log("Pret\n");
-  asserv_set_position({x: 150, y: 750, a: 0});
+  asserv_set_position(150, 750, 0);
   asserv_maintenir_position();
 
   bouton_wait_start_up();
@@ -209,78 +164,51 @@ void match_pr() {
 
   uint8_t error;
 
-  delay(9000);
+  delay(1000);
 
-  com_log_println("Sort de la zone de départ");
+  com_printfln("Sort de la zone de départ");
   error = aller_xy(350, 750, 100, 1, 5000, 5);
 
-  com_log_println("Direction : les cabines");
+  com_printfln("Direction : les cabines");
   error = aller_xy(450, 300, 100, 1, 5000, 5);
 
   asserv_rotation_vers_point(450, 2000, 1000);
 
-  com_log_println("Fermeture des portes");
+  com_printfln("Fermeture des portes");
   error = aller_xy(450, 0, 120, 0, 1000, 3);
 
   error = aller_xy(450, 400, 50, 1, 3000, 3);
-  com_log_println("Et de deux");
+  com_printfln("Et de deux");
   error = aller_xy(600, 0, 120, 0, 1000, 3);
 
 
 
 
 
-  com_log_println("Direction : les dunes");
+  com_printfln("Direction : les dunes");
   aller_xy(450, 480, 100, 1, 5000, 8);
   aller_xy(800, 480, 100, 1, 5000, 8);
 
   /**********
   Grosse dune
   ***********/
+
   grosse_dune_1();
-
-  if(match_termine()) goto fin_match;
-
   grosse_dune_2();
-
-  if(match_termine()) goto fin_match;
 
   /**********
   Petite dune
   ***********/
-  petite_dune1();
 
-  if(match_termine()) goto fin_match;
+  petite_dune1();
 
   /*************
   Re-Grosse dune
   **************/
-  if(millis() - robot.match_debut < 70000) {
-    do {
-      grosse_dune_2();
-      if(millis() - robot.match_debut < 75000)
-        petite_dune1();
-    } while(millis() - robot.match_debut < 70000);
-  }
-  else {
-    while(millis() - robot.match_debut < 70000) {
-      petite_dune1();
-    }
-  }
 
-
-  /*************************
-  Attente de la fin du match
-  **************************/
-  /*while (millis() - robot.match_debut < 75000);
-  gr_rouleaux_stop();*/
-
-fin_match:
-  while (!match_termine());
-  funny_action();
-  tone_play_end();
+  grosse_dune_2();
+  petite_dune1();
+  petite_dune1();
 }
-
-
 
 

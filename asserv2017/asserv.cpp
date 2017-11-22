@@ -13,6 +13,14 @@ void asserv_setup() {
   robot.rotation = 0;
   robot.consigneDistance = 0;
   robot.consigneRotation = 0;
+
+  quadramp_init(&robot.ramp_distance);
+  asserv_vitesse_distance(100);
+  quadramp_set_2nd_order_vars(&robot.ramp_distance, 1, 1);
+
+  quadramp_init(&robot.ramp_rotation);
+  asserv_vitesse_rotation(100);
+  quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
 }
 
 /*******************************************************************************
@@ -105,7 +113,7 @@ uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t time
     result = asserv_consigne_xy(consigne_x_mm, consigne_y_mm, uniquement_avant);
 
     if (result == OK) {
-      delay(200); // stabilisation de l'inertie
+      minuteur_attendre(200); // stabilisation de l'inertie
       asserv_maintenir_position();
       return OK;
     }
@@ -115,13 +123,8 @@ uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t time
       return ERROR_TIMEOUT;
     }
 
-    if (match_minuteur_90s()) {
-      asserv_maintenir_position();
-      return ERROR_FIN_MATCH;
-    }
-
     if (robot.sickObstacle) {
-      com_log_println("------------ OBSTACLE");
+      com_printfln("------------ OBSTACLE");
       asserv_maintenir_position();
       tone_play_alert();
       return ERROR_OBSTACLE;
@@ -160,13 +163,13 @@ uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
  * - ERROR_FIN_MATCH
  */
 
-uint8_t asserv_rotation_vers_point(int32_t pointX, int32_t pointY, uint16_t timeout) {
-  pointX = mm2tick(symetrie_x(pointX));
-  pointY = mm2tick(pointY);
+uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout) {
+  int32_t x = mm2tick(symetrie_x(x_mm));
+  int32_t y = mm2tick(y_mm);
 
   // le vecteur à faire
-  int32_t vx = pointX - robot.x;
-  int32_t vy = pointY - robot.y;
+  int32_t vx = x - robot.x;
+  int32_t vy = y - robot.y;
 
   float angleVersPoint = atan2(vy, vx); // [-pi, +pi] radians
 
@@ -185,9 +188,9 @@ uint8_t asserv_rotation_vers_point(int32_t pointX, int32_t pointY, uint16_t time
  * - ERROR_FIN_MATCH
  */
 
-uint8_t asserv_distance(int32_t distance, uint16_t timeout) {
+uint8_t asserv_distance(int32_t distance_mm, uint16_t timeout) {
   elapsedMillis timer;
-  asserv_consigne_polaire_delta(mm2tick(distance), 0);
+  asserv_consigne_polaire_delta(mm2tick(distance_mm), 0);
 
   // On active seulement la distance sans la rotation
   // pour pouvoir se plaquer contre la bordure
@@ -201,7 +204,7 @@ uint8_t asserv_distance(int32_t distance, uint16_t timeout) {
     int32_t marge_distance = mm2tick(20);
 
     if (erreur <= marge_distance) {
-      delay(200);
+      minuteur_attendre(200);
       asserv_maintenir_position();
       return OK;
     }
@@ -209,11 +212,6 @@ uint8_t asserv_distance(int32_t distance, uint16_t timeout) {
     if (timeout && timeout < timer) {
       asserv_maintenir_position();
       return ERROR_TIMEOUT;
-    }
-
-    if (match_minuteur_90s()) {
-      asserv_maintenir_position();
-      return ERROR_FIN_MATCH;
     }
   }
 }
@@ -236,7 +234,7 @@ uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout) {
     int32_t erreur = abs(robot.rotation - robot.consigneRotation);
 
     if (erreur <= marge_erreur_rotation) {
-      delay(200); // stabilisation d'inertie
+      minuteur_attendre(200); // stabilisation d'inertie
       asserv_maintenir_position();
       return OK;
     }
@@ -244,11 +242,6 @@ uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout) {
     if (timeout && timeout < timer) {
       asserv_maintenir_position();
       return ERROR_TIMEOUT;
-    }
-
-    if (match_minuteur_90s()) {
-      asserv_maintenir_position();
-      return ERROR_FIN_MATCH;
     }
   }
 }
@@ -263,6 +256,16 @@ void asserv_maintenir_position() {
   robot.activeRotation = 1;
   robot.consigneDistance = robot.distance;
   robot.consigneRotation = robot.rotation;
+}
+
+// Vitesse en tick par delta t
+void asserv_vitesse_distance(uint32_t v) { // v entre 0 et 100
+  quadramp_set_1st_order_vars(&robot.ramp_distance, v, v);
+}
+
+// Vitesse en tick par delta t
+void asserv_vitesse_rotation(uint32_t v) { // v entre 0 et 100
+  quadramp_set_1st_order_vars(&robot.ramp_rotation, v, v);
 }
 
 /*******************************************************************************
@@ -298,12 +301,12 @@ static int32_t distance_precedente = 0; // tick
 static float rotation_precedente = 0; // tick
 static float rotation_initiale = 0; // rad
 
-void asserv_set_position(Position position) { // mm en entrée
+void asserv_set_position(int32_t x, int32_t y, float a) { // mm en entrée
   asserv_maj_position(); // N-1
 
-  robot.x = mm2tick(symetrie_x(position.x));
-  robot.y = mm2tick(position.y);
-  rotation_initiale = symetrie_a_axiale_y(position.a) - robot.a; // On fait un tare en donnant l'angle
+  robot.x = mm2tick(symetrie_x(x));
+  robot.y = mm2tick(y);
+  rotation_initiale = symetrie_a_axiale_y(a) - robot.a; // On fait un tare en donnant l'angle
 
   asserv_maj_position(); // N, delta est à 0 car on a pas bougé
 }
@@ -344,16 +347,14 @@ static int32_t erreur_rotation_precedente = 0;
 // Contrôle les moteurs en fonction des consignes et du mode actuel
 
 void asserv_loop() {
-  if (match_minuteur_90s()) { // fin match, on coupe tout !
-    asserv_consigne_stop();
-  }
-
+  // On freine, le robot oppose une résistance au mouvement
   if (robot.asserv_mode == ASSERV_MODE_STOP) {
     moteur_gauche(0);
     moteur_droite(0);
     return;
   }
 
+  // On applique une tension continue
   if (robot.asserv_mode == ASSERV_MODE_PWM) {
     moteur_gauche(robot.consigne_pwm_gauche);
     moteur_droite(robot.consigne_pwm_droite);

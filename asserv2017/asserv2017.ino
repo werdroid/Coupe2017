@@ -12,6 +12,7 @@
 // #include <socket.h>
 #include <w5100.h> // modifier constancte W5200_RESET_PIN
 #include <EEPROM.h>
+#include <string.h>
 
 #include "asserv2017.h"
 
@@ -166,15 +167,20 @@ void interruption_sample() {
   tone_loop();
 
   if ((micros() - time) >= DT_US) {
-    com_log_println("RT INTERRUPTION TOO LONG");
-    com_log_println((micros() - time));
+    com_printfln("RT INTERRUPTION TOO LONG");
   }
 
   lock_loop = RT_STATE_SLEEP;
 }
 
-/* Attend la saisie des capteurs de l'interruption */
+/**
+ * Attend que l'interruption des capteurs se fasse avant de terminer.
+ * Uniquement appelé depuis le programme principal afin d'avoir des
+ * informations à jour pour prendre des décisions sur les actions à mener.
+ */
+
 void synchronisation() {
+  minuteur_arreter_tout_si_fin_match();
   lock_loop = RT_STATE_WAITING;
   while(lock_loop != RT_STATE_SLEEP);
 }

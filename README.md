@@ -51,12 +51,12 @@ float normalize_radian(float a);
 **asserv.cpp** bas-niveau
 ```c++
 void asserv_setup();
-void asserv_set_position(Position position);
+void asserv_set_position(int32_t x, int32_t y, float a);
 void asserv_maj_position();
 uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant);
 uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout, uint16_t uniquement_avant);
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout);
-uint8_t asserv_rotation_vers_point(int32_t consigneX, int32_t consigneY, uint16_t timeout);
+uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout);
 uint8_t asserv_distance(int32_t distance, uint16_t timeout);
 uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout);
 void asserv_maintenir_position();

@@ -106,8 +106,7 @@ void LS7366R::sync()
 
   long mask = 0xFFFF0000;
   if ((count & mask) == 16711680 || (count & mask) == -16777216) {
-    com_log_print("anomalie sur le codeur droit ");
-    com_log_println(count);
+    com_printfln("anomalie sur le codeur droit ");
   }
 }
 

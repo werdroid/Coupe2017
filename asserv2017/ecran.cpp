@@ -25,18 +25,18 @@ void ecran_console_log(const char* message) {
   //SPIFIFO.begin(ecran_cs, SPI_CLOCK_4MHz);
   tft.setTextColor(ST7735_WHITE);
   tft.print(message);
-  com_log_print(message);
+  com_printfln(message);
 }
 
 void ecran_console_error(const char* message) {
   tft.setTextColor(ST7735_RED);
   tft.print(message);
-  com_log_print(message);
+  com_printfln(message);
 }
 
 void ecran_print_menu(int selector) {
   uint16_t couleur_robot;
-  
+
   String optionsMenu[] = {
     "\n\n   Demarrer match   ",
     "\n\n   Couleur:    XXXXX",
@@ -58,7 +58,7 @@ void ecran_print_menu(int selector) {
     optionsMenu[0] = "\n\n   Demarrer match GR";
     optionsMenu[5] = "\n\n   Demo";
   }
-  
+
   if(robot.symetrie) {
     optionsMenu[1] = "\n\n   Couleur:    JAUNE";
     couleur_robot = ST7735_YELLOW;
@@ -66,18 +66,12 @@ void ecran_print_menu(int selector) {
     optionsMenu[1] = "\n\n   Couleur:     BLEU";
     couleur_robot = ST7735_BLUE;
   }
-  
-  if(robot.activer_monitor_sick) {
-    optionsMenu[2] = "\n\n   Monitor Sick   ON";
-  }
-  else {
-    optionsMenu[2] = "\n\n   Monitor Sick  OFF";
-  }
 
+  optionsMenu[2] = "\n\n   Menu 2 libre";
 
   uint16_t couleur = ST7735_WHITE;
 
-  
+
   // Fond
   synchronisation();
   tft.fillScreen(couleur);

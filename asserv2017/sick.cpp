@@ -139,22 +139,20 @@ uint8_t sick_check_buffer(int length) {
         buffer[1] != SICK_STX ||
         buffer[2] != SICK_STX ||
         buffer[3] != SICK_STX) {
-    // com_log_println("Erreur trame: 4xSTX pas bon");
-    // for (int i=0; i<10; i++) com_log_println(buffer[i], HEX);
+    // com_printfln("Erreur trame: 4xSTX pas bon");
+    // for (int i=0; i<10; i++) com_printfln(buffer[i], HEX);
     return false;
   }
 
   // 4 octets taille de trame
   int taille_trame_utile = ((buffer[6] << 8) + buffer[7]);
   if (taille_trame_utile != 927 && taille_trame_utile != 936) { // sick 561 et 571
-    com_log_println("Erreur trame: trame utile devrait faire 927 ou 936, reçu:");
-    com_log_println(taille_trame_utile);
+    com_printfln("Erreur trame: trame utile devrait faire 927 ou 936, reçu: %d", taille_trame_utile);
     return false;
   }
 
   if (length < 936) {
-    com_log_println("Erreur trame: la taille de la trame devrait être au moins 936, reçu:");
-    com_log_println(length);
+    com_printfln("Erreur trame: la taille de la trame devrait être au moins 936, reçu: %d", length);
     return false;
   }
 
@@ -204,7 +202,7 @@ uint8_t sick_read_data() {
   //   i++;
   //   if (i > SICK_BUFFER_SIZE) {
   //     robot.sickTramesInvalides++;
-  //     com_log_println("trame invalide");
+  //     com_printfln("trame invalide");
   //     return 0;
   //   }
   // }
@@ -233,20 +231,19 @@ uint8_t sick_read_data() {
   } else if (len) {
     robot.sickTramesInvalides++;
     while(client.read() != -1); // purge
-    // com_log_println("trame invalide");
+    // com_printfln("trame invalide");
     return 0;
   } else {
-    com_log_println("SICK improbable");
-    com_log_println(len);
+    com_printfln("SICK improbable");
     return 1;
   }
 }
 
 void sick_disable_detection(bool disabled) {
   if (disabled) {
-    com_log_println("SICK sick_disable_detection=true");
+    com_printfln("SICK sick_disable_detection=true");
   } else {
-    com_log_println("SICK sick_disable_detection=false");
+    com_printfln("SICK sick_disable_detection=false");
   }
 
   detection_enabled = !disabled;
@@ -276,34 +273,6 @@ void sick_traiter_donnees() {
       distance_valide(distances_values[i]) &&
       distances_values[i] < DISTANCE_DETECTION) {
       robot.sickObstacle = true;
-    }
-  }
-  
-  if(robot.activer_monitor_sick) {
-    for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
-      // Envoi des points pour MonitorSick
-      com_log_print("#,index:");
-      com_log_print(i);
-      com_log_print(",angleDeg:");
-      com_log_print(index_vers_angle(i));
-      com_log_print(",angleRad:");
-      com_log_print(index_vers_angle(i) / 180.0 * MATH_PI);
-      com_log_print(",x:");
-      com_log_print(points[i].x);
-      com_log_print(",y:");
-      com_log_print(points[i].y);
-      com_log_print(",dist:");
-      com_log_print(distances_values[i]);
-      com_log_print(",rssi:");
-      com_log_print(rssi_values[i]);
-      com_log_print(",Fin:0");
-      // com_log_print(",xMm:");
-      // com_log_print(robot.xMm);
-      // com_log_print(",a:");
-      // com_log_print(robot.a);
-      // com_log_print(" cos result: ");
-      // com_log_print(cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI));
-      com_log_println();
     }
   }
 }

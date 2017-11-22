@@ -14,11 +14,13 @@ void match_activer_rouleaux();
 void menu_start() {
   int selectLength = 9;
   int select, start;
+
+  // Récupération depuis la mémoire permanente
   robot.symetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
   robot.coquillage = EEPROM.read(EEPROM_ADDRESS_COQUILLAGE);
   robot.rouleaux_actifs = EEPROM.read(EEPROM_ADDRESS_ROULEAUX);
-  robot.activer_monitor_sick = false;
   int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
+
   ecran_print_menu(selectPosition);
 
   do {
@@ -26,27 +28,27 @@ void menu_start() {
     start = boutons_start_down();
 
     if (select && !start) {
-      com_log_println("Select pressed");
+      com_printfln("Select pressed");
       delay(5);
       selectPosition = (selectPosition + 1) % selectLength;
       EEPROM.write(EEPROM_ADDRESS_SELECT, selectPosition);
       ecran_print_menu(selectPosition);
       if (menu_input_up()) {
-        com_log_println("Select released long");
+        com_printfln("Select released long");
         selectPosition = 0;
         EEPROM.write(EEPROM_ADDRESS_SELECT, selectPosition);
         ecran_print_menu(selectPosition);
       } else {
-        com_log_println("Select released");
+        com_printfln("Select released");
       }
       continue;
     }
 
     if (!select && start) {
-      com_log_println("Start pressed");
+      com_printfln("Start pressed");
       delay(5);
       menu_input_up();
-      com_log_println("Start released");
+      com_printfln("Start released");
       switch(selectPosition) {
         case 0:
           match_start();
@@ -56,30 +58,13 @@ void menu_start() {
           ecran_print_menu(selectPosition);
           break;
         case 2:
-          robot.activer_monitor_sick = !robot.activer_monitor_sick;
-          if(robot.activer_monitor_sick) {
-            asserv_set_position({x: 1500, y: 1000, a: MATH_PI2});
-            asserv_maintenir_position();
-          }
+          // Menu libre :)
+
+
+
           ecran_print_menu(selectPosition);
-          /*
-          if(robot.IS_PR) {
-            // Nothing
-          }
-          else {
-            homologation_gr();
-          }*/
           break;
         case 3:
-          /*
-          ecran_console_reset();
-          ecran_console_log("Mode debug");
-
-          asserv_set_position({x: 0, y: 0, a: 0});
-          asserv_maintenir_position();
-
-          for(;;);
-          */
           ecran_console_reset();
           asserv_maintenir_position();
           ecran_console_log("Mode debug\n\n");
@@ -93,20 +78,12 @@ void menu_start() {
 
           break;
         case 4:
-          /*asserv_distance(300);
-          ecran_print_menu(selectPosition);*/
           ecran_console_reset();
           ecran_console_log("Coucou");
           gr_coucou();
           break;
         case 5:
           demo_allers_retours();
-          /*ecran_console_reset();
-          ecran_console_log("Tourner 10x");
-          robot.activeDistance = 0;
-          quadramp_set_1st_order_vars(&robot.ramp_rotation, 60, 60);
-          asserv_consigne_polaire_delta(0, MATH_PI * 2 * 10);
-          for(;;);*/
           break;
         case 6:
           if(1) {

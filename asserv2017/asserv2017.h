@@ -1,12 +1,14 @@
 #ifndef asserv2017_h
 #define asserv2017_h
 
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library
 #include <inttypes.h>
 #include <math.h>
 #include <limits.h>
 #include <climits>
+
+#ifndef __EMSCRIPTEN__
+#include <Adafruit_GFX.h>    // Core graphics library
+#include <Adafruit_ST7735.h> // Hardware-specific library
 #include <Arduino.h>
 #include "LS7366R.h"
 #include <elapsedMillis.h>
@@ -17,6 +19,7 @@
 #include <EEPROM.h>
 #include <Servo.h>
 #include <Bounce.h>
+#endif // __EMSCRIPTEN__
 
 #define MATH_PI M_PI
 #define MATH_2PI MATH_PI * 2.0
@@ -44,9 +47,9 @@ const uint8_t RT_STATE_WAITING = 1; // le main attend la synchro de RT
 const uint8_t RT_STATE_RUNNING = 2; // RT est en cours de fonctionnement
 const uint8_t RT_STATE_NOTSTARTED = 4; // RT n'est pas encore lancé au boot
 
-const uint8_t ASSERV_MODE_STOP = 0;
-const uint8_t ASSERV_MODE_PWM = 1;
-const uint8_t ASSERV_MODE_POLAIRE = 2;
+const uint8_t ASSERV_MODE_STOP = 0; // frein
+const uint8_t ASSERV_MODE_PWM = 1; // tension uniquement
+const uint8_t ASSERV_MODE_POLAIRE = 2; // asservissement
 
 /*-----------------------------------------------------------------------------
  * Configuration
@@ -60,6 +63,7 @@ const uint8_t ASSERV_MODE_POLAIRE = 2;
 
 #define TABLE_LARGEUR_X 3000 /* mm */
 #define TABLE_LARGEUR_Y 2000 /* mm */
+#define TEMPS_JEU_MS 90000 /* ms */
 
 #define SPD_MAX_MM 200 // mm/s
 #define ACC_MAX_MM 300 // mm/s2
@@ -87,7 +91,6 @@ typedef struct {
   bool IS_PR;
   uint8_t symetrie; // 0=bleu 1=jaune
   bool sans_symetrie; // 1=on fait pas les symmétries
-  bool activer_monitor_sick;
   uint8_t coquillage;
   bool rouleaux_actifs;
   int angle_bras_gauche;
@@ -180,6 +183,37 @@ typedef struct {
   float a;
 } Position; // 12 octets
 
+// Structure à envoyer en tant que bloc binaire
+// On désiarialise via javascript avec un DataViewer
+// qui permet de lire/écrire selon chaque type:
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView
+typedef struct {
+  // Début de trame sur 4 bytes
+  char header1 = '@';
+  char header2 = '@';
+  char header3 = '@';
+  char header4 = '@';
+
+  // propriétés sur 4 bytes
+  uint32_t millis;
+  float   a; // float 32bits
+
+  // propriétés sur 2 bytes
+  int16_t xMm; // mm
+  int16_t yMm; // mm
+  uint16_t proche_distance; // distance du point le plus proche
+
+  // propriétés sur 1 byte
+  uint8_t sickObstacle;
+  uint8_t isPR;
+
+  // Fin de trame sur 4 bytes
+  char footer1 = '@';
+  char footer2 = '@';
+  char footer3 = '@';
+  char footer4 = '@';
+} TrameMonitor;
+
 extern Robot robot;
 volatile extern uint8_t lock_loop;
 
@@ -227,6 +261,20 @@ const uint8_t POSITION_KNOCK_JAUNE = 8;
 const uint8_t POSITION_KNOCK_FACE = 9;
 
 
+#ifdef __EMSCRIPTEN__
+class Servo {
+public:
+  void write(int angle);
+  void attach(int pin);
+};
+
+void com_printfln(const char* format, ...);
+void com_print(float msg);
+
+unsigned long millis();
+void delay(long time);
+#endif
+
 /*-----------------------------------------------------------------------------
  * Functions prototypes
  *----------------------------------------------------------------------------*/
@@ -244,6 +292,13 @@ int32_t symetrie_x(int32_t x);
 float symetrie_a_centrale(float a);
 float symetrie_a_axiale_y(float a);
 
+// Minuteur de match
+void minuteur_attendre(uint32_t timeout_ms);
+void minuteur_demarrer();
+uint32_t minuteur_temps_restant();
+void minuteur_attendre_fin_match();
+void minuteur_arreter_tout_si_fin_match();
+
 // General
 void synchronisation();
 
@@ -251,27 +306,22 @@ void synchronisation();
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to);
 uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
-void definir_vitesse_avance(uint32_t v);
-void definir_vitesse_rotation(uint32_t v);
 uint16_t localiser_zone();
 Point getPoint(uint8_t idPoint);
 bool robot_proche_point(uint8_t idPoint);
 bool robot_dans_zone(uint16_t idZone);
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-uint8_t retour(uint8_t valeur);
-bool temps_ecoule(uint32_t t0, uint32_t duree);
-bool match_termine();
-bool match_minuteur_90s();
-void match_demarrer_minuteur();
 
 // GR
+extern "C" {
 void gr_init();
-
+void match_gr();
+}
 void demo_allers_retours();
 void homologation_gr();
 void debug_gr();
-void match_gr();
 void gr_coucou();
+void match_gr_arret();
 
 uint8_t recuperer_minerais_pcd4();
 uint8_t recuperer_minerais_pcd7();
@@ -291,26 +341,23 @@ void positionner_deux_bras(uint8_t position, bool doucement);
 void positionner_bras_gauche(uint8_t position, bool doucement);
 void positionner_bras_droit(uint8_t position, bool doucement);
 
-void funny_action();
 void gr_fusee_init();
 void gr_fusee_fermer();
 void gr_fusee_ouvrir();
 
 
 // PR
+extern "C" {
 void pr_init();
-
+void match_pr();
+}
+void match_pr_arret();
 void grosse_dune_1();
 void grosse_dune_2();
 void grosse_dune_suite();
 void petite_dune1();
 void liberer_cubes();
 void debug_pr();
-void match_pr();
-
-void gr_rouleaux_liberer();
-void gr_rouleaux_avaler();
-void gr_rouleaux_stop();
 
 // Menu
 void menu_start();
@@ -345,29 +392,32 @@ void bouton_wait_select_up();
 
 // Asserv
 void asserv_setup();
-void asserv_maintenir_position();
 void asserv_loop();
 void asserv_maj_position();
-void asserv_set_position(Position position);
+void asserv_set_position(int32_t x, int32_t y, float a);
 
+void asserv_vitesse_distance(uint32_t v);
+void asserv_vitesse_rotation(uint32_t v);
+void asserv_maintenir_position();
 void asserv_consigne_stop();
 void asserv_consigne_pwm(uint16_t gauche, uint16_t droite);
 void asserv_consigne_polaire(int32_t distance, int32_t rotation);
 void asserv_consigne_polaire_delta(int32_t distance_mm_delta, float rotation_rad_delta);
 uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant = 0);
-uint8_t asserv_distance(int32_t distance, uint16_t timeout = 0);
+uint8_t asserv_distance(int32_t distance_mm, uint16_t timeout = 0);
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout = 0);
 uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t timeout = 0, uint16_t uniquement_avant = 0);
 uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout = 5000);
-uint8_t asserv_rotation_vers_point(int32_t consigneX, int32_t consigneY, uint16_t timeout = 0);
+uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout = 0);
 
 // Communication
 void com_setup();
 void com_loop();
 
+void com_send_robot_state();
 void com_send_robot_infos();
-#define com_log_println(X); if(lock_loop==0){synchronisation();}Serial.println(X);
-#define com_log_print(X); if(lock_loop==0){synchronisation();}Serial.print(X);
+void com_printfln(const char* format, ...);
+void com_print(const char* str);
 
 // Monitor Panel
 void monitorCodeurs();
@@ -417,4 +467,4 @@ uint8_t quadramp_is_finished(struct quadramp_filter *q);
 int32_t quadramp_do_filter(struct quadramp_filter *q, int32_t in);
 #define NEXT(n, i)  (((n) + (i)/(n)) >> 1)
 
-#endif
+#endif // ifndef asserv2017_h
