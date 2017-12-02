@@ -18,12 +18,34 @@ var etatLed = [true, true];
 //var finMatch = [false, false];
 var dernierePosition = [[0, 0], [0, 0]];
 var numMsg = [0, 0];
+var evenements = [[],[]];
 
 var match = {
   enCours: [false, false],
   termine: [false, false],
   debut: [0, 0],
-  timer: [0, 0]   // Contient le timer de match du robot (màj à chaque réception de trame)
+  timer: [0, 0],   // Contient le timer de match du robot (màj à chaque réception de trame)
+  
+  demarrer: function(r) {
+    log.robot(r, '<span class="infoTimer">== Début du match ==</span><hr>');
+    if(match.enCours[r] || match.termine[r])
+      log.robot(r, '<span class="infoTimer">(Remplace le précédent)</span>');
+
+    match.debut[r] = new Date().getTime();
+    match.enCours[r] = true;
+    match.termine[r] = false;
+    curseur.definirMin(r, donnees.getLast(r).t);
+
+    if((r == 0 && match.enCours[1]) || (r == 1 && match.enCours[0]))
+      log.robot(r, '<span class="infoTimer">Retard de ' + Math.abs(match.debut[1] - match.debut[0]) + 'ms par rapport à l\'autre robot</span>');
+
+  },
+  terminer: function(r) {
+    if(!match.termine[r]) {
+      match.termine[r] = true;
+      log.robot(r, '<span class="infoTimer">== Fin du match ==</span>');
+    }
+  }
 };
 
 
@@ -32,12 +54,58 @@ var log = {
   monitor: function(msg) {
     elem.log.monitor.innerHTML = msg + '<br>' + elem.log.monitor.innerHTML;
   },
-  robot: function(r, msg) {
-    var t = '';
-    if(match.enCours[r]) {
-      t = '<span class="infoTimer">' + getTimerMatch(r) + '</span>';
+  robot: function(r, msg, listeClass) {
+    // Ajoute une ligne de log pour le robot r sous la forme d'un div
+    // listeClass (str ou Array) permet d'ajouter des class à ce div
+    
+    var div = document.createElement('div');
+    div.classList.add('logMsg');
+    div.classList.add('r' + r);
+    div.innerHTML = msg;
+    
+    // Ajout des classes personnalisées
+    if(Array.isArray(listeClass)) {
+      listeClass.forEach(function(cl) {
+        div.classList.add(cl);
+      });
     }
-    elem.log.robot[r].innerHTML = t + msg + '<br>' + elem.log.robot[r].innerHTML;
+    else if(listeClass !== undefined) {
+        div.classList.add(listeClass);
+    }
+    
+    // Ajout du timer
+    if(match.enCours[r]) {
+      t = getTimerMatch(r);
+      div.classList.add('t' + t);
+      div.innerHTML = '<span class="infoTimer">' + t + '</span>' + div.innerHTML;
+    }
+    
+    // Insertion dans les logs
+    elem.log.robot[r].insertBefore(div, elem.log.robot[r].firstChild);
+  },
+  
+  // Met en surbrillance les lignes de log souhaitées
+  highlight: {
+    add: function(className) {
+      log.highlight.addRobot(0, className);
+      log.highlight.addRobot(1, className);
+    },
+    addRobot: function(r, className) {
+      var ensemble = elem.log.robot[r].getElementsByClassName(className);
+      for(var i = 0; i < ensemble.length; i++) {
+        ensemble[i].classList.add('highlight');
+      };
+    },
+    removeAll: function() {
+      log.highlight.removeRobot(0);
+      log.highlight.removeRobot(1);
+    },
+    removeRobot: function(r) {
+      var ensemble = elem.log.robot[r].getElementsByClassName('highlight');
+      for(var i = 0; i < ensemble.length; i++) {
+        ensemble[i].classList.remove('highlight');
+      };
+    }
   }
 }
 
@@ -73,11 +141,13 @@ document.querySelector('#startSimuGR').addEventListener('click', e => {
 });
 
 document.getElementById('bEffacerTout').addEventListener('click', function() {
-  //elem.log.monitor.innerHTML = '';
-  elem.log.robot[0].innerHTML = '';
-  elem.log.robot[1].innerHTML = '';
-  table.reinitialiser();
-  table.init();
+  log.monitor('RaZ');
+  for(var r = 0; r <= 1; r++) {
+    elem.log.robot[r].innerHTML = '';
+    numMsg[r] = 0;
+    evenements[r] = [];
+  }
+  table.effacerTout();
 });
 document.getElementById('bEffacerSection').addEventListener('click', function() {
   var posHr = 0;
@@ -135,9 +205,15 @@ var genererJeuAleatoire = function() {
   var destX = [x[0] + alea.nb(1000), x[1] - alea.nb(1000)];
   var destY = [y[0] + alea.nb(400), y[1] - alea.nb(400)];//*/
 
-  for(var i = 0; i < 1500; i++ ) {
+  for(var i = 0; i < 1500; i++ ) {    
     var robot = (i % 2 == 0 ? PR : GR); //(alea.unSur(2) ? PR : GR);
 
+    if(i == 6 || i == 7) { // Plante si appelé avant la réception du 1er point
+      match.demarrer(robot);
+    }
+    else if(i == 1488 || i == 1489) { // Pas de plantage, juste + proche de la réalité
+      match.terminer(robot);
+    }
 
     // Avancer les robots (aléatoirement)
     x[robot] += alea.nb(100) * (alea.unSur(2) ? -1 : 1);

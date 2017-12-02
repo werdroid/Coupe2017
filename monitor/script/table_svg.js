@@ -105,6 +105,15 @@ var table = {
       table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0], 3000 - ptsEtape[i][1], ptsEtape[i][2], 'purple'));
     }
   },
+  effacerTout: function() {
+    for(var r = 0; r <= 1; r++) {
+      table.obj.positions[r].forEach(function(elem) { elem.remove() });
+      table.obj.reliures[r].forEach(function(elem) { elem.remove() });
+      table.obj.destinations[r].forEach(function(elem) { elem.remove() });
+      table.obj.evenements[r].forEach(function(elem) { elem.remove() });
+      donnees.d[r] = [];
+    }
+  },
   creer: {
     point: function(x, y, diametre, couleur) {
       return table.svg
@@ -277,12 +286,8 @@ var table = {
       }
     },
     evenements: {
-      /**** A revoir ****/
-      
-      liste: [[], []],  /// Ne devrait pas être mis ici
       ajouter: function(robot, msg) {
-        var id = table.match.evenements.liste[robot].push(msg);
-        id--;
+        var id = evenements[robot].push(msg) - 1;
         table.creer.point(donnees.getLast(robot).position.mmX, donnees.getLast(robot).position.mmY, 10, (robot == PR ? 'cyan' : 'yellow'))
           .data({
             robot: robot,
@@ -292,13 +297,15 @@ var table = {
           .addClass('svg-evenement' + robot)
           .mouseover(function(e) {
             var forme = SVG.get(e.target.id);
-            var infos = forme.data('id') + '.' + table.match.evenements.liste[forme.data('robot')][forme.data('id')];
+            var infos = forme.data('id') + '.' + evenements[forme.data('robot')][forme.data('id')];
             table.majInfobulle(e.clientX, e.clientY, infos);
+            log.highlight.addRobot(forme.data('robot'), 'e'+forme.data('id'));
           })
           .mouseout(function(e) {
             infobulle.masquer();
+            log.highlight.removeAll();
           });
-        log.robot(robot, '<span class="pointRepere' + robot + '">' + id + '</span> ' + msg);
+        log.robot(robot, '<span class="pointRepere' + robot + '">' + id + '</span> ' + msg, 'e'+id);
       }
     },
     

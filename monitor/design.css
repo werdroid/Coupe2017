@@ -123,6 +123,10 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 	word-wrap: break-word;
 }
 
+.logMsg.highlight {
+  background-color: lightgreen;
+}
+
 .infoTimer {
 	color: grey;
 	padding-right: 2px;

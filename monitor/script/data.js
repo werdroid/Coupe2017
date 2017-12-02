@@ -247,18 +247,7 @@ var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
   else {
     switch(msg) {
       case "DebutDuMatch\n":
-        log.robot(r, '<span class="infoTimer">== Début du match ==</span><hr>');
-        if(match.enCours[r] || match.termine[r])
-          log.robot(r, '<span class="infoTimer">(Remplace le précédent)</span>');
-
-        match.debut[r] = new Date().getTime();
-        match.enCours[r] = true;
-        match.termine[r] = false;
-        curseur.definirMin(r, donnees.getLast(r).t);
-
-        if((r == 0 && match.enCours[1]) || (r == 1 && match.enCours[0]))
-          log.robot(r, '<span class="infoTimer">Retard de ' + Math.abs(match.debut[1] - match.debut[0]) + 'ms par rapport à l\'autre robot</span>');
-
+        match.demarrer(r);
         break;
       case "led change\n":
         etatLed[r] = !etatLed[r];
@@ -267,11 +256,8 @@ var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
       case "\n":
         break;
       case "FinProgramme\n":
-        if(!match.termine[r]) {
-          log.robot(r, msg);
-          match.termine[r] = true;
-          log.robot(r, '<span class="infoTimer">== Fin du programme ==</span>');
-        }
+        log.robot(r, msg);
+        match.terminer(r);
         break;
       case "------------ OBSTACLE\n":
         //table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
