@@ -14,7 +14,8 @@ Ensemble des positions et destinations de chaque robot, à chaque instant
 donnees.d = [
   [
     {
-      t:        temps écoulé (ms) depuis le début du match (valeur robot)
+      t:        timestamp de la donnée
+      tMatch:   temps écoulé depuis le début du match (valeur Monitor en s ; -1 si match non démarré)
       position: {
         mmX:    position du robot sur l'axe x (mm) (provient de la trame)
         mmY:    position du robot sur l'axe y (mm) (provient de la trame)
@@ -78,10 +79,10 @@ var donnees = {
   },
 
   // Retourne le jeu de données correspondant à la forme #idsvg
-  getParIdSvg: function(idsvg) {
+  /*getParIdSvg: function(idsvg) {
     var forme = SVG.get(idsvg);
     return donnees.d[forme.data('robot')][forme.data('donnee')];
-  },
+  },*/
   /*
   // Retournent une liste d'id de points
   filtrerPts: {
@@ -93,11 +94,11 @@ var donnees = {
   // Enregistre un jeu de données et retourne son indice
 	enregistrer: function(robot, trame) {
     if(trame[1] != '|') {
-      match.timer[robot] = trame.t;
+      //tRobots[robot] = trame.t;
       var id = donnees.d[robot].push({
         id: donnees.d[robot].length,
         t: trame.t,
-        timer: getTimerMatch(robot),
+        tMatch: match.getTimer(robot),
         position: {
           mmX: trame.position.mmX,
           mmY: trame.position.mmY
@@ -124,7 +125,7 @@ var donnees = {
         case 'Position':
           var id = donnees.d[robot].push({
             t: donnees.d[robot].length,
-            timer: getTimerMatch(robot),
+            tMatch: match.getTimer(robot),
             position: {
               mmX: param.mmX,
               mmY: param.mmY,
@@ -216,7 +217,7 @@ function traiterTrameMonitor(buffer) {
   var id = donnees.d[robot].push({
     id: donnees.d[robot].length,
     t: +new Date,
-    timer: getTimerMatch(robot),
+    tMatch: match.getTimer(robot),
     position: {
       mmX: trameMonitor.xMm,
       mmY: trameMonitor.yMm

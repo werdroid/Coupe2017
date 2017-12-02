@@ -127,7 +127,7 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
   background-color: lightgreen;
 }
 
-.infoTimer {
+.infoTimer, #valeurTMatch0, #valeurTMatch1 {
 	color: grey;
 	padding-right: 2px;
 	font-size: 0.8em;
@@ -198,27 +198,27 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
   background-color: white;
   padding: 1px;
 }
-#opt_svg-pt0.on {
+#opt_svg-Positions0.on {
   color: blue;
   border-color: blue;
 }
-#opt_svg-pt1.on {
+#opt_svg-Positions1.on {
   color: orange;
   border-color: orange;
 }
-#opt_svg-destination0.on {
+#opt_svg-Destinations0.on {
   color: green;
   border-color: green;
 }
-#opt_svg-destination1.on {
+#opt_svg-Destinations1.on {
   color: red;
   border-color: red;
 }
-#opt_svg-evenement0.on {
+#opt_svg-Evenements0.on {
   color: cyan;
   border-color: cyan;
 }
-#opt_svg-evenement1.on {
+#opt_svg-Evenements1.on {
   color: yellow;
   border-color: yellow;
 }

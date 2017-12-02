@@ -17,12 +17,12 @@ var elem = {
 var etatLed = [true, true];
 //var finMatch = [false, false];
 var dernierePosition = [[0, 0], [0, 0]];
+//var tRobots = [0, 0];   // Contient le timer de match du robot (màj à chaque réception de trame). Nécessaire pour dater les événements
 
 var match = {
   enCours: [false, false],
   termine: [false, false],
-  debut: [0, 0],
-  timer: [0, 0],   // Contient le timer de match du robot (màj à chaque réception de trame)
+  debut: [0, 0],  // Début du match (valeur Monitor)
   
   demarrer: function(r) {
     log.robot(r, '<span class="infoTimer">== Début du match ==</span><hr>');
@@ -38,11 +38,19 @@ var match = {
       log.robot(r, '<span class="infoTimer">Retard de ' + Math.abs(match.debut[1] - match.debut[0]) + 'ms par rapport à l\'autre robot</span>');
 
   },
+
   terminer: function(r) {
     if(!match.termine[r]) {
       match.termine[r] = true;
       log.robot(r, '<span class="infoTimer">== Fin du match ==</span>');
     }
+  },
+
+  getTimer: function(r) {
+    if(match.termine[r] || match.enCours[r])
+      return Math.trunc(((new Date().getTime()) - match.debut[r])/1000);
+    else
+      return '-1';
   }
 };
 
@@ -71,7 +79,7 @@ var log = {
     
     // Ajout du timer
     if(match.enCours[r]) {
-      t = getTimerMatch(r);
+      t = match.getTimer(r);
       div.classList.add('t' + t);
       div.innerHTML = '<span class="infoTimer">' + t + '</span>' + div.innerHTML;
     }
@@ -105,19 +113,12 @@ var log = {
   }
 }
 
-var getTimerMatch = function(r) {
-  if(match.termine[r] || match.enCours[r])
-    return Math.trunc(((new Date().getTime()) - match.debut[r])/1000);
-  else
-    return '-';
-}
-
 var curseur = {
   definirMin: function(r, min) {
-    $('#curseurTMatch' + r).slider('option', 'min',min);
+    $('#curseurTMatch' + r).slider('option', 'min', min);
   },
   definirMax: function(r, max) {
-    $('#curseurTMatch' + r).slider('option', 'max',max);
+    $('#curseurTMatch' + r).slider('option', 'max', max);
   }
 }
 

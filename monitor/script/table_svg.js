@@ -1,7 +1,6 @@
 /**
 Toutes les fonctions permettant de dessiner la table.
 
-
 Ménage suite à Transformation de Canvas à Svg en cours.
 **/
 
@@ -47,7 +46,11 @@ var table = {
     posY: 0*/
   },
   param: {
-    afficherGabarit: false
+    afficherReliures: false,
+    afficherGabarit: false,
+    afficherPositions: [true, true],
+    afficherDestinations: [false, false],
+    afficherEvenements: [true, true]
   },
   init: function() {
     this.general.scWidth = table.general.scale * table.general.width;
@@ -75,11 +78,29 @@ var table = {
     table.obj.quadrillage.add(table.creer.quadrillageVertical(100));
  
     // Création des groupes (permettront de masquer / afficher facilement un ensemble d'éléments)
-    for(i = 0; i <= 1; i++) {
-      table.obj.grpPositions[i] = table.svg.group();
-      table.obj.grpReliures[i] = table.svg.group();
-      table.obj.grpDestinations[i] = table.svg.group();
-      table.obj.grpEvenements[i] = table.svg.group();
+    // Masquage des groupes selon les paramètres
+    for(r = 0; r <= 1; r++) {
+      table.obj.grpPositions[r] = table.svg.group();
+      table.obj.grpReliures[r] = table.svg.group();
+      table.obj.grpDestinations[r] = table.svg.group();
+      table.obj.grpEvenements[r] = table.svg.group();
+
+      if(!table.param.afficherPositions[r]) {
+        table.obj.grpPositions[r].hide();
+        document.getElementById('opt_svg-Positions' + r).classList.remove('on');
+      }
+      if(!table.param.afficherDestinations[r]) {
+        table.obj.grpDestinations[r].hide();
+        document.getElementById('opt_svg-Destinations' + r).classList.remove('on');
+      }
+      if(!table.param.afficherEvenements[r]) {
+        table.obj.grpEvenements[r].hide();
+        document.getElementById('opt_svg-Evenements' + r).classList.remove('on');
+      }
+      
+      if(!table.param.afficherReliures) { // 2 grpReliures, mais 1 seul paramètre
+        table.obj.grpReliures[r].hide();
+      }
     }
     
     // Gabarit
@@ -213,18 +234,22 @@ var table = {
           .data({
             robot: robot,
             type: 'position',
-            donnee: id,
-            t: match.timer[robot]
+            id: id,
+            t: infos.t,
+            tMatch: infos.tMatch
           })
           .addClass('svg-pt' + robot)
           .mouseover(function(e) {
+            // Infos sur la position
             var forme = SVG.get(e.target.id);
-            var infos = donnees.getParIdSvg(e.target.id);
+            var infos = donnees.get(forme.data('robot'), forme.data('id'));
+            table.majInfobulle(e.clientX, e.clientY, 'Position<br>t = ' + infos.t + '<br>tMatch = ' + infos.tMatch + ' s<br>' + infos.position.mmX + ' x ' + infos.position.mmY + ' @ ' + infos.position.aDeg + '°');
+            
+            // Infos sur la destination
             var objDestination = table.obj.destinations[robot][infos.svg.destination];
-            table.majInfobulle(e.clientX, e.clientY, 'Position<br>Id = ' + infos.t + '<br>t = ' + infos.timer + ' s<br>' + infos.position.mmX + ' x ' + infos.position.mmY + ' @ ' + infos.position.aDeg + '°');
             objDestination.show();
             var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 1, 'grey');
-            forme.data('ligneDestination', ligne.attr('id'));
+            forme.data('ligneDestination', ligne.attr('id')); // Permettra d'effacer la ligne sur mouseout
           })
           .mouseout(function(e) {
             var forme = SVG.get(e.target.id);
@@ -235,7 +260,7 @@ var table = {
           });
         table.obj.grpPositions[robot].add(pt);
         infos.svg.pt = table.obj.positions[robot].push(pt) - 1;
-          
+
         // Création de la ligne pour relier
         if(id > 0) {
           var ptPrecedent = table.obj.positions[robot][donnees.get(robot, id-1).svg.pt];
@@ -243,14 +268,14 @@ var table = {
             .data({
               robot: robot,
               type: 'reliure',
-              donnee: id,
-              t: match.timer[robot]
+              id: id,
+              t: infos.t
             })
-            .addClass('svg-reliure-pt' + robot)
-            .hide();
+            .addClass('svg-reliure-pt' + robot);
           table.obj.grpReliures[robot].add(reliure);
           infos.svg.reliure = table.obj.reliures[robot].push(reliure) - 1;
         }
+
       }
     },
     destinations: {
@@ -267,19 +292,21 @@ var table = {
             .data({
               robot: robot,
               type: 'destination',
-              donnee: id,
-              t: match.timer[robot]
+              id: id,
+              t: infos.t,
+              tMatch: infos.tMatch
             })
             .addClass('svg-destination' + robot)
             .mouseover(function(e) {
-              var infos = donnees.getParIdSvg(e.target.parentNode.id);
+              var forme = SVG.get(e.target.parentNode.id);
+              //var infos = donnees.getParIdSvg(e.target.parentNode.id);
+              var infos = donnees.get(forme.data('robot'), forme.data('id'));
               //forme.stroke({width: 2});
-              table.majInfobulle(e.clientX, e.clientY, 'Destination<br>t = ' + infos.t + 'ms<br>' + infos.destination.mmX + ' x ' + infos.destination.mmY);              
+              table.majInfobulle(e.clientX, e.clientY, 'Destination<br>t = ' + infos.t + ' ms<br>' + infos.destination.mmX + ' x ' + infos.destination.mmY);              
             })
             .mouseout(function(e) {
               infobulle.masquer();
-            })
-            .hide();
+            });
           table.obj.grpDestinations[robot].add(dest);
           infos.svg.destination = table.obj.destinations[robot].push(dest) - 1;
         }
@@ -293,7 +320,8 @@ var table = {
             robot: robot,
             id: id,
             type: 'evenement',
-            t: infos.timer
+            t: donnees.getLast(robot).t,
+            tMatch: infos.tMatch
           })
           .addClass('svg-evenement' + robot)
           .mouseover(function(e) {
@@ -313,12 +341,34 @@ var table = {
     
     // N'affiche que les points compris dans [indiceMin, indiceMax] (indices de donnees.d[robot])
     filtrerIndices: function(robot, indiceMin, indiceMax) {
-      for(var i = 0; i < donnees.d[robot].length; i++) {
-        if(i >= indiceMin && i <= indiceMax)
+      // Positions, Destinations, Reliures
+      // On ne gère pas le point i=0 car aucune reliure ne lui est associée (et flemme de traiter ce cas)
+      for(var i = 1; i < donnees.d[robot].length; i++) {
+        if(i >= indiceMin && i <= indiceMax) {
           table.obj.positions[robot][donnees.d[robot][i].svg.pt].show();
-        else
+          table.obj.reliures[robot][donnees.d[robot][i].svg.reliure].show();
+          table.obj.destinations[robot][donnees.d[robot][i].svg.destination].show();
+        }
+        else {
           table.obj.positions[robot][donnees.d[robot][i].svg.pt].hide();
+          table.obj.reliures[robot][donnees.d[robot][i].svg.reliure].hide();
+          table.obj.destinations[robot][donnees.d[robot][i].svg.destination].hide();
+        }
       }
+
+      // Pour les événements, on doit regarder le t
+      // Si on utilise 2 "Jeu aléatoire" à la suite, on a 2 échelles de temps => Possible erreur d'affichage
+      var tmin = donnees.get(robot, indiceMin).t;
+      var tmax = donnees.get(robot, indiceMax).t;
+      for(var i = 0; i < evenements.e[robot].length; i++) {
+        if(evenements.e[robot][i].t >= tmin && evenements.e[robot][i].t <= tmax) { // Ce serait + logique de raisonner aussi en t plutôt qu'en id pour les Positions, Destinations, Reliures. Mais j'ai la flemme, il se fait tard, et j'ai faim :)
+          table.obj.evenements[robot][evenements.e[robot][i].svg].show();
+        }
+        else {
+          table.obj.evenements[robot][evenements.e[robot][i].svg].hide();
+        }
+      }
+
     },
     
     
@@ -372,7 +422,8 @@ $( function() {
     indiceMax = Math.min(indiceMax, donnees.d[robot].length - 1);
     
     table.match.filtrerIndices(robot, indiceMin, indiceMax);
-    $('#valeurTMatch' + robot).text('[ ' + donnees.get(robot, indiceMin).timer + ' ; ' + donnees.get(robot, indiceMax).timer + ' ]');  
+    $('#valeurT' + robot).text('[ ' + donnees.get(robot, indiceMin).t + ' ; ' + donnees.get(robot, indiceMax).t + ' ] ms');  
+    $('#valeurTMatch' + robot).text('[ ' + donnees.get(robot, indiceMin).tMatch + ' ; ' + donnees.get(robot, indiceMax).tMatch + ' ] s');
   }
 
   $('#curseurTMatch0').slider({
@@ -403,17 +454,35 @@ $( function() {
     }
   });
   
+  
   /** Options d'affichage **/
+
   // Affichage des Positions, Destinations et Evénéments
   $('.optionAffichageTable').click(function() {
-    if( $(this).hasClass('on') ) {
-      $(this).removeClass('on');
-      SVG.select( '.' + $(this).attr('id').substr(4) ).hide();
+    var id = $(this).attr('id'); // 'opt_svg-Positions0'
+    var type = id.substring(8, id.length - 1); // 'Positions'
+    var robot = id.substr(-1); // '0'
+    
+    if(table.param['afficher' + type][robot]) {
+      table.obj['grp' + type][robot].hide();
+      table.param['afficher' + type][robot] = false;
+      document.getElementById(id).classList.remove('on');
+
+      if(type == 'Positions')
+        table.obj.grpReliures[robot].hide();
     }
     else {
-      $(this).addClass('on');
-      SVG.select( '.' + $(this).attr('id').substr(4) ).show();
+      table.obj['grp' + type][robot].show();
+      table.param['afficher' + type][robot] = true;
+      document.getElementById(id).classList.add('on');
+
+      if(type == 'Positions')
+        table.obj.grpReliures[robot].show();
     }
+    
+    /*if( $(this).hasClass('on') ) {
+      //SVG.select( '.' + $(this).attr('id').substr(4) ).show();
+    }*/
     
   });
   
@@ -436,12 +505,14 @@ $( function() {
   // Affichage de lignes pour relier les points
   $('#cbRelierPoints').click(function() {
     if($(this).prop('checked')) {
-      table.svg.select('.svg-reliure-pt0').show();
-      table.svg.select('.svg-reliure-pt1').show();
+      table.param.afficherReliures = true;
+      table.obj.grpReliures[0].show();
+      table.obj.grpReliures[1].show();
     }
     else {
-      table.svg.select('.svg-reliure-pt0').hide();
-      table.svg.select('.svg-reliure-pt1').hide();
+      table.param.afficherReliures = false;
+      table.obj.grpReliures[0].hide();
+      table.obj.grpReliures[1].hide();
     }
   });
   

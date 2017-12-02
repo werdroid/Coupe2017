@@ -14,7 +14,7 @@ Ensemble des positions et destinations de chaque robot, à chaque instant
 evenements.e = [
   [
     {
-      timer:   temps écoulé (ms) depuis le début du match (valeur robot)
+      tMatch:   temps écoulé (ms) depuis le début du match (valeur monitor)
       msg:     message associé à l'événement
       idData:  id de la position (data.d) au moment de l'événement
       svg:     index (dans table.obj) de l'élément dessiné sur la table
@@ -30,9 +30,6 @@ evenements.e = [
 
 **/
 
-/* TODO : Faire le clair entre t et timer */
-/* TODO : appeler evenements.enregistrer() au lieu de table.match.evenement.ajouter() pour créer l'événement */
-
 var evenements = {
 	e: [[], []],  // PR et GR
 
@@ -40,7 +37,8 @@ var evenements = {
 	enregistrer: function(robot, message) {
     var id = evenements.e[robot].push({
       id: evenements.e[robot].length,
-      timer: getTimerMatch(robot),
+      t: donnees.getLast(robot).t,
+      tMatch: match.getTimer(robot),
       msg: message,
       idData: donnees.d[robot].length - 1
     }) - 1;
