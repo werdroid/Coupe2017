@@ -246,17 +246,27 @@ var table = {
             table.majInfobulle(e.clientX, e.clientY, 'Position<br>t = ' + infos.t + '<br>tMatch = ' + infos.tMatch + ' s<br>' + infos.position.mmX + ' x ' + infos.position.mmY + ' @ ' + infos.position.aDeg + '°');
             
             // Infos sur la destination
-            var objDestination = table.obj.destinations[robot][infos.svg.destination];
-            objDestination.show();
-            var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 1, 'grey');
-            forme.data('ligneDestination', ligne.attr('id')); // Permettra d'effacer la ligne sur mouseout
+            var grpEphemere = table.svg.group();
+            if(table.param.afficherDestinations[forme.data('robot')]) {
+              // La croix est visible, on se contente de tracer une ligne
+              var objDestination = table.obj.destinations[robot][infos.svg.destination];
+              var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 1, 'grey');
+              grpEphemere.add(ligne);
+            }
+            else {
+              // On doit retracer la ligne
+              var croixDestination = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 10, 1, (robot == PR ? 'green' : 'red'));
+              var ligne = table.creer.ligne(forme.cx(), forme.cy(), croixDestination.first().cx(), croixDestination.cy(), 1, 'grey');
+              grpEphemere.add(croixDestination).add(ligne);
+            }
+            forme.data('grpDestinationEphemere', grpEphemere.attr('id')); // Permettra d'effacer la ligne sur mouseout
           })
           .mouseout(function(e) {
             var forme = SVG.get(e.target.id);
             infobulle.masquer();
-            if(!$('#opt_svg-destination' + forme.data('robot')).hasClass('on'))
-              table.obj.destinations[robot][infos.svg.destination].hide();
-            SVG.get(forme.data('ligneDestination')).remove();
+            /*if(!$('#opt_svg-destination' + forme.data('robot')).hasClass('on'))
+              table.obj.destinations[robot][infos.svg.destination].hide();*/
+            SVG.get(forme.data('grpDestinationEphemere')).remove();
           });
         table.obj.grpPositions[robot].add(pt);
         infos.svg.pt = table.obj.positions[robot].push(pt) - 1;
@@ -355,6 +365,10 @@ var table = {
           table.obj.destinations[robot][donnees.d[robot][i].svg.destination].hide();
         }
       }
+
+      // Les objets destination sont communs tant que la destination ne change pas
+      // On force donc l'affichage de la dernière destination qui a pu être masquée inopinément
+      table.obj.destinations[robot][donnees.d[robot][indiceMax].svg.destination].show();
 
       // Pour les événements, on doit regarder le t
       // Si on utilise 2 "Jeu aléatoire" à la suite, on a 2 échelles de temps => Possible erreur d'affichage
