@@ -286,26 +286,28 @@ var table = {
       }
     },
     evenements: {
-      ajouter: function(robot, msg) {
-        var id = evenements[robot].push(msg) - 1;
-        table.creer.point(donnees.getLast(robot).position.mmX, donnees.getLast(robot).position.mmY, 10, (robot == PR ? 'cyan' : 'yellow'))
+      ajouter: function(robot, id) {
+        var infos = evenements.get(robot, id);
+        var ptEvenement = table.creer.point(donnees.getLast(robot).position.mmX, donnees.getLast(robot).position.mmY, 10, (robot == PR ? 'cyan' : 'yellow'))
           .data({
             robot: robot,
             id: id,
-            type: 'evenement'
+            type: 'evenement',
+            t: infos.timer
           })
           .addClass('svg-evenement' + robot)
           .mouseover(function(e) {
             var forme = SVG.get(e.target.id);
-            var infos = forme.data('id') + '.' + evenements[forme.data('robot')][forme.data('id')];
-            table.majInfobulle(e.clientX, e.clientY, infos);
-            log.highlight.addRobot(forme.data('robot'), 'e'+forme.data('id'));
+            var infos = evenements.get(forme.data('robot'), forme.data('id'));
+            table.majInfobulle(e.clientX, e.clientY, infos.id + '.' + infos.msg);
+            log.highlight.addRobot(forme.data('robot'), 'e'+infos.id);
           })
           .mouseout(function(e) {
             infobulle.masquer();
             log.highlight.removeAll();
           });
-        log.robot(robot, '<span class="pointRepere' + robot + '">' + id + '</span> ' + msg, 'e'+id);
+        table.obj.grpEvenements[robot].add(ptEvenement);
+        infos.svg = table.obj.evenements[robot].push(ptEvenement) - 1;
       }
     },
     

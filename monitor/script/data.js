@@ -1,5 +1,6 @@
 /**
-Gestion des données (data et log) provenant des robots
+Gestion des données (Positions, Destinations) provenant des robots
+Les événements ne sont pas gérés ici (-> evenements.js)
 **/
 
 /* RAPPEL :
@@ -8,6 +9,8 @@ const GR = 1;
 */
 
 /**
+Ensemble des positions et destinations de chaque robot, à chaque instant
+
 donnees.d = [
   [
     {
@@ -34,8 +37,6 @@ donnees.d = [
     ... Idem pour GR ...
   ]
 ]
-
-
 
 
 
@@ -239,9 +240,7 @@ var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
 
   // Traitement des messages pendant Coupe IdF 2016
   else if(msg[0] == '!') {
-    //table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
-    //log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);
-    table.match.evenements.ajouter(r, msg);
+    evenements.enregistrer(r, msg);
   }
 
   else {
@@ -260,9 +259,7 @@ var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
         match.terminer(r);
         break;
       case "------------ OBSTACLE\n":
-        //table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
-        table.match.evenements.ajouter(r, 'Obstacle');
-//        log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);
+        evenements.enregistrer(r, 'Obstacle');
         break;
       default:
         log.robot(r, msg);

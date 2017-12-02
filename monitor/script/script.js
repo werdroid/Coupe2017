@@ -17,8 +17,6 @@ var elem = {
 var etatLed = [true, true];
 //var finMatch = [false, false];
 var dernierePosition = [[0, 0], [0, 0]];
-var numMsg = [0, 0];
-var evenements = [[],[]];
 
 var match = {
   enCours: [false, false],
@@ -47,8 +45,6 @@ var match = {
     }
   }
 };
-
-
 
 var log = {
   monitor: function(msg) {
@@ -144,8 +140,7 @@ document.getElementById('bEffacerTout').addEventListener('click', function() {
   log.monitor('RaZ');
   for(var r = 0; r <= 1; r++) {
     elem.log.robot[r].innerHTML = '';
-    numMsg[r] = 0;
-    evenements[r] = [];
+    evenements.e[r] = [];
   }
   table.effacerTout();
 });
@@ -252,7 +247,7 @@ var genererJeuAleatoire = function() {
 
     // Ajout d'événements aléatoires
     if(alea.unSur(250)) {
-      table.match.evenements.ajouter(robot, 'Evénement ! ' + i);
+      evenements.enregistrer(robot, 'Evénement ! ' + i);
       //nouvelleDirection(robot, alea.aleaX(), alea.aleaY(), alea.nb(10) + 2);
       destX[robot] = alea.aleaX();
       destY[robot] = alea.aleaY();
