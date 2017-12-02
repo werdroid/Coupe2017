@@ -260,20 +260,20 @@ var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
           log.robot(r, '<span class="infoTimer">Retard de ' + Math.abs(match.debut[1] - match.debut[0]) + 'ms par rapport à l\'autre robot</span>');
 
         break;
-      case "led change\r\n":
+      case "led change\n":
         etatLed[r] = !etatLed[r];
         elem.led[r].className = (etatLed[r] ? 'on' : 'off');
         break;
-      case "\r\n":
+      case "\n":
         break;
-      case "fin match\r\n":
+      case "FinProgramme\n":
         if(!match.termine[r]) {
           log.robot(r, msg);
           match.termine[r] = true;
-          log.robot(r, '<span class="infoTimer">== Fin du match ==</span>');
+          log.robot(r, '<span class="infoTimer">== Fin du programme ==</span>');
         }
         break;
-      case "------------ OBSTACLE\r\n":
+      case "------------ OBSTACLE\n":
         //table.draw.pointRepere(dernierePosition[r][0], dernierePosition[r][1], ++numMsg[r], (r == 0 ? 'cyan' : 'yellow'));
         table.match.evenements.ajouter(r, 'Obstacle');
 //        log.robot(r, '<span class="pointRepere' + r + '">' + numMsg[r] + '</span> ' + msg);

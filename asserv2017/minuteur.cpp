@@ -45,7 +45,7 @@ void minuteur_arreter_tout_si_fin_match() {
 
 void minuteur_demarrer() {
   robot.match_debut = millis();
-  com_printfln("Minuteur de match démarré !\n");
+  com_printfln("DebutDuMatch\n");
 }
 
 /**

@@ -70,7 +70,7 @@ void match_gr_arret() {
   gr_fusee_ouvrir();
 
   tone_play_end();
-  com_printfln("Fin programme");
+  com_printfln("FinProgramme");
   while(1);
 }
 
