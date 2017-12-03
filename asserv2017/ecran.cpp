@@ -67,8 +67,13 @@ void ecran_print_menu(int selector) {
     couleur_robot = ST7735_BLUE;
   }
 
-  optionsMenu[2] = "\n\n   Menu 2 libre";
-
+  if(robot.activer_monitor_sick) {
+    optionsMenu[2] = "\n\n   Monitor Sick   ON";
+  }
+  else {
+    optionsMenu[2] = "\n\n   Monitor Sick  OFF";
+  }
+  
   uint16_t couleur = ST7735_WHITE;
 
 

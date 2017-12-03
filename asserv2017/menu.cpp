@@ -58,9 +58,11 @@ void menu_start() {
           ecran_print_menu(selectPosition);
           break;
         case 2:
-          // Menu libre :)
-
-
+          robot.activer_monitor_sick = !robot.activer_monitor_sick;
+          if(robot.activer_monitor_sick) {
+            asserv_set_position(1500, 1000, MATH_PI2);
+            asserv_maintenir_position();
+          }
 
           ecran_print_menu(selectPosition);
           break;

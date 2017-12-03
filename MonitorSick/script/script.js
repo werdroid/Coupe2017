@@ -84,7 +84,15 @@ traiterMessage = function(r, msgStr) {
     // Rien
   }
   else {
-    log.monitor(msgStr);
+    switch(msgStr) {
+      case "DebutDuMatch\n":
+      case "led change\n":
+      case "RT INTERRUPTION TOO LONG\n":
+      case "\n":
+        break;
+      default:
+        log.monitor(msgStr);
+    }
   }
 }
 

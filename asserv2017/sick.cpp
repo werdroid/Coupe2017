@@ -275,5 +275,14 @@ void sick_traiter_donnees() {
       robot.sickObstacle = true;
     }
   }
+  
+  // Démonstration fonctionnement Sick (utilisable avec MonitorSick)
+  if(robot.activer_monitor_sick) {
+    for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
+      // Envoi des points pour MonitorSick
+      // (Destiné uniquement aux présentations au public)
+      com_printfln("#,index:%d,angleDeg:%d,x:%d,y:%d,dist:%d,rssi:%d", i, index_vers_angle(i), points[i].x, points[i].y, distances_values[i], rssi_values[i]);
+    }
+  }
 }
 
