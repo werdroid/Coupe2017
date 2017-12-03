@@ -38,27 +38,27 @@ void ecran_print_menu(int selector) {
   uint16_t couleur_robot;
 
   String optionsMenu[] = {
-    "\n\n   Demarrer match   ",
-    "\n\n   Couleur:    XXXXX",
+    "\n\n   Demarrer match __",
+    "\n\n   Couleur:    _____",
+    "\n\n   (Libre 2)        ",
+    "\n\n   Servo Fusee      ",
+    "\n\n   (Libre 4)        ",
+    "\n\n   Prg: ____________",
+    "\n\n   Demarrer Program.",
     "\n\n   Monitor Sick  ___",
-    "\n\n   Debug            ",
-    "\n\n   Coucou           ",
-    "\n\n   Test tourner x10 ",
-    "\n\n   30 cm avant      ",
-    "\n\n   Test part/revient",
-    "\n\n   Servo Fusee      "
+    "\n\n   (Libre 8)        "
   };
 
 
+  // Menu 0 : Identification robot
   if(robot.IS_PR) {
     optionsMenu[0] = "\n\n   Demarrer match PR";
-    //optionsMenu[2] = "\n\n   (Homologation)   ";
   }
   else {
     optionsMenu[0] = "\n\n   Demarrer match GR";
-    optionsMenu[5] = "\n\n   Demo";
   }
 
+  // Menu 1 : Couleur
   if(robot.symetrie) {
     optionsMenu[1] = "\n\n   Couleur:    JAUNE";
     couleur_robot = ST7735_YELLOW;
@@ -67,11 +67,25 @@ void ecran_print_menu(int selector) {
     couleur_robot = ST7735_BLUE;
   }
 
+  // Menu 5 : Affichage du programme sélectionné
+  switch(robot.programme) {
+    //                       "\n\n   Prg:             "
+    case 0: optionsMenu[5] = "\n\n   Prg:        Debug"; break;
+    case 1: optionsMenu[5] = "\n\n   Prg: Avancer 30cm"; break;
+    case 2: optionsMenu[5] = "\n\n   Prg:  Tourner x10"; break;
+    case 3: optionsMenu[5] = "\n\n   Prg: Part/Revient"; break;
+    case 4: optionsMenu[5] = "\n\n   Prg: Homologation"; break;
+    case 5: optionsMenu[5] = "\n\n   Prg:       Coucou"; break;
+    case 6: optionsMenu[5] = "\n\n   Prg:     Demo A/R"; break;
+    case 7: optionsMenu[5] = "\n\n   Prg:   DO NOT USE"; break;
+  }
+  
+  // Menu 7 : Activer/Désactiver MonitorSick (usage de démonstration uniquement)
   if(robot.activer_monitor_sick) {
-    optionsMenu[2] = "\n\n   Monitor Sick   ON";
+    optionsMenu[7] = "\n\n   Monitor Sick   ON";
   }
   else {
-    optionsMenu[2] = "\n\n   Monitor Sick  OFF";
+    optionsMenu[7] = "\n\n   Monitor Sick  OFF";
   }
   
   uint16_t couleur = ST7735_WHITE;

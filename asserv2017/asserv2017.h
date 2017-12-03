@@ -92,7 +92,7 @@ typedef struct {
   uint8_t symetrie; // 0=bleu 1=jaune
   bool sans_symetrie; // 1=on fait pas les symmétries
   bool activer_monitor_sick;
-  uint8_t coquillage;
+  uint8_t programme;
   bool rouleaux_actifs;
   int angle_bras_gauche;
   int angle_bras_droit;
@@ -362,6 +362,7 @@ void debug_pr();
 
 // Menu
 void menu_start();
+void menu_changer_programme();
 
 // Tone
 void tone_setup();
