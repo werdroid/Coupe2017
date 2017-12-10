@@ -24,6 +24,10 @@ var table = {
     reliures: [[],[]],
     destinations: [[],[]],
     evenements: [[],[]],
+
+    repereX: null,
+    repereY: null,
+    grpRepere: null
   },
   conteneur: {
     elem: document.getElementById('blocTable'),
@@ -77,6 +81,10 @@ var table = {
     table.obj.quadrillage.add(table.creer.quadrillageHorizontal(100));
     table.obj.quadrillage.add(table.creer.quadrillageVertical(100));
  
+    // Repère
+    table.obj.grpRepere = table.repere.creer();
+    table.repere.afficher(false);
+
     // Création des groupes (permettront de masquer / afficher facilement un ensemble d'éléments)
     // Masquage des groupes selon les paramètres
     for(r = 0; r <= 1; r++) {
@@ -125,6 +133,7 @@ var table = {
       table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0], ptsEtape[i][1], ptsEtape[i][2], 'green'));
       table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0], 3000 - ptsEtape[i][1], ptsEtape[i][2], 'purple'));
     }
+
   },
   effacerTout: function() {
     for(var r = 0; r <= 1; r++) {
@@ -224,6 +233,31 @@ var table = {
       table.ctx.fillText(txt, x * table.general.scale, y * table.general.scale);*/
     }
   },
+  repere: {
+    creer: function() {
+      var group = table.svg.group();
+
+      table.obj.repereX = table.creer.ligne(1500 * table.general.scale, 0, 1500 * table.general.scale, table.general.scHeight, 2, 'purple');
+      table.obj.repereY = table.creer.ligne(0, 1000 * table.general.scale, table.general.scWidth, 1000 * table.general.scale, 2, 'purple');
+      
+      group.add(table.obj.repereX);
+      group.add(table.obj.repereY);
+
+      return group;
+    },
+    afficher: function(aff) {
+      if(aff)
+        table.obj.grpRepere.show();
+      else
+        table.obj.grpRepere.hide();
+    },
+    positionner: function(x, y) {
+      x *= table.general.scale;
+      y *= table.general.scale;
+      table.obj.repereX.plot(x, 0, x, table.general.scHeight);
+      table.obj.repereX.plot(0, y, table.general.scWidth, y);
+    }
+  },
   match: {
     positions: {
       // Ajouter un point sur la table et enregistre sa référence dans donnees.d[r][#][svg][pt]
@@ -286,6 +320,17 @@ var table = {
           infos.svg.reliure = table.obj.reliures[robot].push(reliure) - 1;
         }
 
+      },
+      afficherReliures: function(activer) {
+        table.param.afficherReliures = activer;
+        if(activer) {
+          table.obj.grpReliures[0].show();
+          table.obj.grpReliures[1].show();
+        }
+        else {
+          table.obj.grpReliures[0].hide();
+          table.obj.grpReliures[1].hide();
+        }
       }
     },
     destinations: {
@@ -436,6 +481,7 @@ $( function() {
     indiceMax = Math.min(indiceMax, donnees.d[robot].length - 1);
     
     table.match.filtrerIndices(robot, indiceMin, indiceMax);
+    log.filtrer(robot, indiceMin, indiceMax);
     $('#valeurT' + robot).text('[ ' + donnees.get(robot, indiceMin).t + ' ; ' + donnees.get(robot, indiceMax).t + ' ] ms');  
     $('#valeurTMatch' + robot).text('[ ' + donnees.get(robot, indiceMin).tMatch + ' ; ' + donnees.get(robot, indiceMax).tMatch + ' ] s');
   }
@@ -518,16 +564,7 @@ $( function() {
   
   // Affichage de lignes pour relier les points
   $('#cbRelierPoints').click(function() {
-    if($(this).prop('checked')) {
-      table.param.afficherReliures = true;
-      table.obj.grpReliures[0].show();
-      table.obj.grpReliures[1].show();
-    }
-    else {
-      table.param.afficherReliures = false;
-      table.obj.grpReliures[0].hide();
-      table.obj.grpReliures[1].hide();
-    }
+    table.match.positions.afficherReliures( $(this).prop('checked') );
   });
   
   $('#cbAfficherGabarit').click(function() {

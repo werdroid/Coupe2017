@@ -32,7 +32,7 @@ var match = {
     match.debut[r] = new Date().getTime();
     match.enCours[r] = true;
     match.termine[r] = false;
-    curseur.definirMin(r, donnees.getLast(r).t);
+    curseur.definirMin(r, donnees.d[r].length - 1);
 
     if((r == 0 && match.enCours[1]) || (r == 1 && match.enCours[0]))
       log.robot(r, '<span class="infoTimer">Retard de ' + Math.abs(match.debut[1] - match.debut[0]) + 'ms par rapport à l\'autre robot</span>');
@@ -81,6 +81,8 @@ var log = {
     if(match.enCours[r]) {
       t = match.getTimer(r);
       div.classList.add('t' + t);
+      //if(donnees.d[r].length > 0)
+      div.dataset.t = donnees.getLast(r).t;
       div.innerHTML = '<span class="infoTimer">' + t + '</span>' + div.innerHTML;
     }
     
@@ -88,6 +90,18 @@ var log = {
     elem.log.robot[r].insertBefore(div, elem.log.robot[r].firstChild);
   },
   
+  filtrer: function(r, indiceMin, indiceMax) {
+    var tmin = donnees.get(r, indiceMin).t;
+    var tmax = donnees.get(r, indiceMax).t;
+    var $logMsg = $('.logMsg.r' + r)
+    $logMsg.filter(function() { 
+      return $(this).data("t") >= tmin && $(this).data("t") <= tmax;
+    }).css('opacity','1');
+    $logMsg.filter(function() { 
+      return $(this).data("t") < tmin || $(this).data("t") > tmax;
+    }).css('opacity','0.2');
+  },
+
   // Met en surbrillance les lignes de log souhaitées
   highlight: {
     add: function(className) {
@@ -123,18 +137,33 @@ var curseur = {
 }
 
 
+var demarrerSimu = function(robot) {
+  // Force la reliure des points
+  document.getElementById('cbRelierPoints').checked = true;
+  table.match.positions.afficherReliures(true);
+
+  // Démarrage de la simu
+  if(robot == PR) {
+    Module._pr_init();
+    Module._match_pr();
+  }
+  else {
+    Module._gr_init();
+    Module._match_gr();
+  }
+  //match.demarrer(robot);
+}
+
 table.init();
 //gabarit.init();
 //table.draw.point(500, 600, 3, 'blue');
 
 document.querySelector('#startSimuPR').addEventListener('click', e => {
-  Module._pr_init();
-  Module._match_pr();
+  demarrerSimu(PR);
 });
 
 document.querySelector('#startSimuGR').addEventListener('click', e => {
-  Module._gr_init();
-  Module._match_gr();
+  demarrerSimu(GR);
 });
 
 document.getElementById('bEffacerTout').addEventListener('click', function() {
@@ -156,6 +185,14 @@ document.getElementById('bEffacerSection').addEventListener('click', function() 
 document.getElementById('bGenererJeuAleatoire').addEventListener('click', function() {
 	genererJeuAleatoire()
 });
+
+/*
+document.getElementById('logRobot1').addEventListener('mouseover', function(e) {
+  if(!e.target.classList.contains('logMsg'))
+    return;
+    
+  console.log(e.target.dataset.t);
+})*/
 
 window.addEventListener('resize', table.conteneur.majPosition);
 
@@ -262,3 +299,4 @@ var genererJeuAleatoire = function() {
 }
 
 //genererJeuAleatoire();
+setTimeout(demarrerSimu, 2000, GR);

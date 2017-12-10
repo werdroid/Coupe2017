@@ -30,6 +30,8 @@ void minuteur_arreter_tout_si_fin_match() {
   if (minuteur_temps_restant() < 250) {
     // 250ms restant, inutile de déplacer un servo ou l'asserv,
     // on lance la procédure d'arrêt
+    com_printfln("Moins de 250 ms restants !");
+    
     if (robot.IS_PR) {
       match_pr_arret();
     } else {
@@ -63,5 +65,7 @@ uint32_t minuteur_temps_restant() {
  */
 
 void minuteur_attendre_fin_match() {
+  com_printfln("Attente fin du match.");
+  
   minuteur_attendre(TEMPS_JEU_MS);
 }

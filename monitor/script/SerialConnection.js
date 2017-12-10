@@ -150,7 +150,7 @@ var getDevices = function() {
     }
     else {
       logStatutSerial(list.length + ' ports disponibles.');
-    genererSelectSerial(list);
+      genererSelectSerial(list);
     }
   });
 

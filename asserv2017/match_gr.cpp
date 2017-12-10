@@ -381,11 +381,11 @@ void match_gr() {
 
       if (error) {
         etat_actions[action_en_cours][1] = 1; // Enregistrement de l'erreur
-        com_printfln(":: Echec sur action %d", action_en_cours);
+        com_printfln(":: Echec sur action %d ::", action_en_cours);
       }
       else {
         etat_actions[action_en_cours][0] = 1; // Enregistrement de la visite
-        com_printfln(":: Action %d", action_en_cours);
+        com_printfln(":: Action %d terminee ::", action_en_cours);
       }
 
       /** ===================

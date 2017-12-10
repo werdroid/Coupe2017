@@ -41,7 +41,7 @@ void ecran_console_log(const char* message) {
   return;
 }
 
-void com_print(const char* msg) { EM_ASM_({ log.robot($0 ? 0 : 1, Pointer_stringify($1));}, robot.IS_PR, msg); }
+void com_print(const char* msg) { EM_ASM_({ traiterMessage($0 ? 0 : 1, Pointer_stringify($1));}, robot.IS_PR, msg); }
 
 // Taille max d'un log, doit être le plus court possible, la communication prend du temps
 // Ls deux derniers caractères sont \n et \0
@@ -80,6 +80,9 @@ void bouton_wait_select_up() {}
 void asserv_vitesse_distance(uint32_t v) {}
 void asserv_vitesse_rotation(uint32_t v) {}
 void asserv_set_position(int32_t x, int32_t y, float a) {
+  robot.xMm = symetrie_x(x);
+  robot.yMm = y;
+  robot.a = symetrie_a_axiale_y(a);
   com_send_robot_state(); // données changées donc on envoie au monitor
 }
 void asserv_maintenir_position() {}
@@ -107,6 +110,9 @@ uint8_t asserv_distance(int32_t consigne_mm, uint16_t timeout) {
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
   robot.xMm += consigne_mm * cos(robot.a);
   robot.yMm += consigne_mm * sin(robot.a);
+  
+  /** TODO : Corriger problème quand consigne_mm < 0 **/
+  
   com_send_robot_state(); // données changées donc on envoie au monitor
   return OK;
 }

@@ -247,6 +247,7 @@ var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
   else {
     switch(msg) {
       case "DebutDuMatch\n":
+      case "DebutDuMatch\n\n":
         match.demarrer(r);
         break;
       case "led change\n":
