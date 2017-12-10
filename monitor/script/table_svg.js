@@ -134,6 +134,9 @@ var table = {
       table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0], 3000 - ptsEtape[i][1], ptsEtape[i][2], 'purple'));
     }
 
+    table.obj.grpPositions[0].front();
+    table.obj.grpPositions[1].front();
+
   },
   effacerTout: function() {
     for(var r = 0; r <= 1; r++) {
@@ -284,13 +287,13 @@ var table = {
             if(table.param.afficherDestinations[forme.data('robot')]) {
               // La croix est visible, on se contente de tracer une ligne
               var objDestination = table.obj.destinations[robot][infos.svg.destination];
-              var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 1, 'grey');
+              var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 1, 'grey').back();
               grpEphemere.add(ligne);
             }
             else {
               // On doit retracer la ligne
-              var croixDestination = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 10, 1, (robot == PR ? 'green' : 'red'));
-              var ligne = table.creer.ligne(forme.cx(), forme.cy(), croixDestination.first().cx(), croixDestination.cy(), 1, 'grey');
+              var croixDestination = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 10, 1, (robot == PR ? 'green' : 'red')).back();
+              var ligne = table.creer.ligne(forme.cx(), forme.cy(), croixDestination.first().cx(), croixDestination.cy(), 1, 'grey').back();
               grpEphemere.add(croixDestination).add(ligne);
             }
             forme.data('grpDestinationEphemere', grpEphemere.attr('id')); // Permettra d'effacer la ligne sur mouseout
