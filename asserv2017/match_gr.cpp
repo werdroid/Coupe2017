@@ -444,7 +444,6 @@ void match_gr() {
     // [Prévision pour stratégie Niveau 2]
     // } // Fin du while() niveau 1
 
-
   } while (minuteur_temps_restant() < 500); // pas assez de temps pour commencer autre chose
 
   minuteur_attendre_fin_match(); // la funny action démarre toute seule à la fin du minuteur

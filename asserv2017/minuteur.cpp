@@ -31,7 +31,7 @@ void minuteur_arreter_tout_si_fin_match() {
     // 250ms restant, inutile de déplacer un servo ou l'asserv,
     // on lance la procédure d'arrêt
     com_printfln("Moins de 250 ms restants !");
-    
+
     if (robot.IS_PR) {
       match_pr_arret();
     } else {
@@ -41,7 +41,7 @@ void minuteur_arreter_tout_si_fin_match() {
 }
 
 /**
- * Démarre le minuteur de 90s du match.
+ * Démarre le minuteur de 90s du match. On sauve la date actuelle en ms.
  * Retour non bloquant.
  */
 
@@ -52,11 +52,12 @@ void minuteur_demarrer() {
 
 /**
  * Donne le temps restant avant la fin du match de 90s.
+ * On fait la différence entre maintenant et la date de lancement moins le temps de jeu.
  * Retour non bloquant.
  */
 
 uint32_t minuteur_temps_restant() {
-  return TEMPS_JEU_MS - robot.match_debut;
+  return TEMPS_JEU_MS - (millis() - robot.match_debut);
 }
 
 /**
@@ -66,6 +67,6 @@ uint32_t minuteur_temps_restant() {
 
 void minuteur_attendre_fin_match() {
   com_printfln("Attente fin du match.");
-  
+
   minuteur_attendre(minuteur_temps_restant());
 }
