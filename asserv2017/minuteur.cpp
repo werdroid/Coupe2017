@@ -67,5 +67,5 @@ uint32_t minuteur_temps_restant() {
 void minuteur_attendre_fin_match() {
   com_printfln("Attente fin du match.");
   
-  minuteur_attendre(TEMPS_JEU_MS);
+  minuteur_attendre(minuteur_temps_restant());
 }
