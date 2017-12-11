@@ -70,3 +70,10 @@ void minuteur_attendre_fin_match() {
 
   minuteur_attendre(minuteur_temps_restant());
 }
+
+void minuteur_entrer_dans_une_boucle_infinie_et_ne_plus_jamais_en_sortir() {
+  //while(1);
+  // TODO :: Remettre while(1) quand cette fonction sera correctement remplacée par son équivalent dans le simulateur
+  com_printfln("Je suis dans une boucle infinie et je n'en sortirai plus jamais.");
+}
+

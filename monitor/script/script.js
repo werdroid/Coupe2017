@@ -151,7 +151,6 @@ var demarrerSimu = function(robot) {
     Module._gr_init();
     Module._match_gr();
   }
-  //match.demarrer(robot);
 }
 
 table.init();

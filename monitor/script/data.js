@@ -216,7 +216,7 @@ function traiterTrameMonitor(buffer) {
 
   var id = donnees.d[robot].push({
     id: donnees.d[robot].length,
-    t: +new Date,
+    t: trameMonitor.millis,
     tMatch: match.getTimer(robot),
     position: {
       mmX: trameMonitor.xMm,

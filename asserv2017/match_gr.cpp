@@ -71,7 +71,8 @@ void match_gr_arret() {
 
   tone_play_end();
   com_printfln("FinProgramme");
-  while(1);
+
+  minuteur_entrer_dans_une_boucle_infinie_et_ne_plus_jamais_en_sortir();
 }
 
 void demo_allers_retours() {
@@ -433,6 +434,7 @@ void match_gr() {
         }
         nb_iterations++;
       } while(etat_actions[action_en_cours][0] == 1 && nb_iterations <= nombre_actions);
+
         // tant qu'on n'a pas trouvé un point de collecte non visité, ET qu'on n'a pas parcouru toutes les actions possibles 1 fois
         // En stratégie Niveau 1, le <= plutôt que < est volontaire :
         //    Si toutes les actions sont visitées (etat_actions[][0] à 1),
@@ -444,8 +446,9 @@ void match_gr() {
     // [Prévision pour stratégie Niveau 2]
     // } // Fin du while() niveau 1
 
-  } while (minuteur_temps_restant() < 500); // pas assez de temps pour commencer autre chose
-
+  } while (minuteur_temps_restant() > 500 && nb_iterations <= nombre_actions); // pas assez de temps pour commencer autre chose
+  // --- 2ème condition ajoutée déc 2017 pour éviter boucle infinie sur le simulateur
+  
   minuteur_attendre_fin_match(); // la funny action démarre toute seule à la fin du minuteur
 }
 
@@ -1026,7 +1029,7 @@ void positionner_bras_gauche(uint8_t position, bool doucement) {
 
   robot.angle_bras_gauche = angle;
 
-  com_printfln("Positionnement bras gauche %f deg", angle);
+  com_printfln("Positionnement bras gauche %d deg", angle);
 }
 
 /**
@@ -1064,7 +1067,7 @@ void positionner_bras_droit(uint8_t position, bool doucement) {
 
   robot.angle_bras_droit = angle;
 
-  com_printfln("Positionnement bras droit %f deg", angle);
+  com_printfln("Positionnement bras droit %d deg", angle);
 }
 
 

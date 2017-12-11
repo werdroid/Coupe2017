@@ -58,7 +58,7 @@ void com_printfln(const char* format, ...) {
 
 TrameMonitor trameMonitor;
 void com_send_robot_state() {
-  trameMonitor.millis = 1234;
+  trameMonitor.millis = millis();
   trameMonitor.a = robot.a;
   trameMonitor.xMm = robot.xMm; // mm
   trameMonitor.yMm = robot.yMm; // mm
@@ -135,6 +135,13 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
 void tone_play_start() { com_printfln("SIMU: musique start"); }
 void tone_play_alert() { com_printfln("SIMU: musique alert"); }
 void tone_play_end() { com_printfln("SIMU: musique end"); }
+
+/*
+//Visiblement, ça ne suffit pas à remplacer celle dans minuteur.cpp, et je compte sur toi pour faire ce qui va bien :)
+void minuteur_entrer_dans_une_boucle_infinie_et_ne_plus_jamais_en_sortir() {
+  com_printfln("SIMU: Je suis dans une boucle infinie et je n'en sortirai plus jamais.");
+  com_printfln("! SIMU: Tout ce qui pourrait se produire maintenant n'est que fruit de ton imagination.");
+}//*/
 
 #endif // __EMSCRIPTEN__
 

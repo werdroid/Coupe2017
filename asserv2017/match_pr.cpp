@@ -31,8 +31,8 @@ void match_pr_arret() {
   tone_play_end();
   asserv_consigne_stop();
 
-  com_printfln("Fin programme");
-  while(1);
+  com_printfln("FinProgramme");
+  minuteur_entrer_dans_une_boucle_infinie_et_ne_plus_jamais_en_sortir();
 }
 
 // Le côté de la grosse dune
