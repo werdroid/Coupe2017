@@ -489,17 +489,34 @@ $( function() {
     $('#valeurTMatch' + robot).text('[ ' + donnees.get(robot, indiceMin).tMatch + ' ; ' + donnees.get(robot, indiceMax).tMatch + ' ] s');
   }
 
+  var gererSlideEvent = function(robot, ui) {
+    // Bouge l'autre curseur si Curseur Progressif est sélectionné
+    if(document.getElementById('curseurProgressif').checked) {
+      if(ui.handleIndex == 0) {
+       $('#curseurTMatch' + robot).slider('values', [ ui.values[0], Math.min(ui.values[0] + 6, donnees.d[robot].length - 1) ]);
+      }
+      else {
+        $('#curseurTMatch' + robot).slider('values', [ Math.max(ui.values[1] - 6, 0) ]);
+      }
+    }
+
+    filtrerAffichage(robot, ui.values[0], ui.values[1]);
+
+    // Bouge l'autre slider si les curseurs sont liés
+    if(document.getElementById('lierCurseursTMatch').checked) {
+      var lautre = (robot == PR ? GR : PR);
+      $('#curseurTMatch' + lautre).slider('values', [ ui.values[0], ui.values[1] ]);
+      filtrerAffichage(lautre, ui.values[0], ui.values[1]);
+    }
+  }
+
   $('#curseurTMatch0').slider({
     range: true,
     min: -10,
     max: 1000,
     values: [0, 1000],
     slide: function(event, ui) {
-      filtrerAffichage(PR, ui.values[0], ui.values[1]);
-      if($('#lierCurseursTMatch').prop('checked')) {
-        $('#curseurTMatch1').slider('values', [ ui.values[0], ui.values[1] ]);
-        filtrerAffichage(GR, ui.values[0], ui.values[1]);
-      }
+      gererSlideEvent(PR, ui);
     }
     
   });
@@ -509,11 +526,7 @@ $( function() {
     max: 1000,
     values: [0, 1000],
     slide: function(event, ui) {
-      filtrerAffichage(GR, ui.values[0], ui.values[1]);
-      if($('#lierCurseursTMatch').prop('checked')) {
-        $('#curseurTMatch0').slider('values', [ ui.values[0], ui.values[1] ]);
-        filtrerAffichage(PR, ui.values[0], ui.values[1]);
-      }
+      gererSlideEvent(GR, ui);
     }
   });
   

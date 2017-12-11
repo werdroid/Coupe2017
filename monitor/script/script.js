@@ -94,9 +94,12 @@ var log = {
     var tmin = donnees.get(r, indiceMin).t;
     var tmax = donnees.get(r, indiceMax).t;
     var $logMsg = $('.logMsg.r' + r)
-    $logMsg.filter(function() { 
-      return $(this).data("t") >= tmin && $(this).data("t") <= tmax;
-    }).css('opacity','1');
+    var $logMsgDansFiltre = $logMsg.filter(function() { 
+                              return $(this).data("t") >= tmin && $(this).data("t") <= tmax;
+                            });
+    if($logMsgDansFiltre.length > 0)                            
+      $logMsgDansFiltre.first().get()[0].scrollIntoViewIfNeeded(); // pour avoir celui du milieu : eq( parseInt($logMsgDansFiltre.length / 2) )
+    $logMsgDansFiltre.css('opacity','1');
     $logMsg.filter(function() { 
       return $(this).data("t") < tmin || $(this).data("t") > tmax;
     }).css('opacity','0.2');
