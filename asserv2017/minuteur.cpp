@@ -13,7 +13,12 @@ void minuteur_attendre(uint32_t timeout_ms) {
       break;
     }
 
-    minuteur_arreter_tout_si_fin_match();
+    // Si le minuteur a démarré, alors on va vérifier que le match
+    // n'est pas terminé avant de lancer un delay(), si c'est le cas
+    // alors on lancera la procédure d'arrêt.
+    if (robot.match_debut) {
+      minuteur_arreter_tout_si_fin_match();
+    }
 
     delay(DT_MS);
   }
@@ -30,13 +35,22 @@ void minuteur_arreter_tout_si_fin_match() {
   if (minuteur_temps_restant() < 250) {
     // 250ms restant, inutile de déplacer un servo ou l'asserv,
     // on lance la procédure d'arrêt
-    com_printfln("Moins de 250 ms restants !");
+    com_printfln("Fin minuteur, procedure d'arret");
+
+    // Le match est terminé, on désactive donc le minuteur
+    // pour éviter qu'on arrête une seconde fois le match
+    robot.match_debut = 0;
 
     if (robot.IS_PR) {
       match_pr_arret();
     } else {
       match_gr_arret();
     }
+
+    // Après la procédure d'arrêt, on coupe le programme en le
+    // faisant boucler indéfiniement.
+    com_printfln("Fin programme");
+    while(1) delay(DT_MS);
   }
 }
 
@@ -66,7 +80,7 @@ uint32_t minuteur_temps_restant() {
  */
 
 void minuteur_attendre_fin_match() {
-  com_printfln("Attente fin du match.");
+  com_printfln("Attente fin du match (reste %d ms)", minuteur_temps_restant());
 
   minuteur_attendre(minuteur_temps_restant());
 }

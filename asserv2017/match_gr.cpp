@@ -54,25 +54,20 @@ void gr_init() {
 }
 
 void match_gr_arret() {
-  // ici on utilise delay et pas minuteur_attendre car le match est fini
+  com_printfln("On stop les moteurs");
   asserv_consigne_stop();
 
-  com_printfln("Fin de match, funny action !");
-
+  com_printfln("Funny action !");
   gr_fusee_ouvrir();
-  delay(1000);
+  minuteur_attendre(1000);
   gr_fusee_fermer();
-  delay(800);
+  minuteur_attendre(800);
   gr_fusee_ouvrir();
-  delay(800);
+  minuteur_attendre(800);
   gr_fusee_fermer();
-  delay(1000);
+  minuteur_attendre(1000);
   gr_fusee_ouvrir();
-
   tone_play_end();
-  com_printfln("FinProgramme");
-
-  minuteur_entrer_dans_une_boucle_infinie_et_ne_plus_jamais_en_sortir();
 }
 
 void demo_allers_retours() {
@@ -448,7 +443,7 @@ void match_gr() {
 
   } while (minuteur_temps_restant() > 500 && nb_iterations <= nombre_actions); // pas assez de temps pour commencer autre chose
   // --- 2ème condition ajoutée déc 2017 pour éviter boucle infinie sur le simulateur
-  
+
   minuteur_attendre_fin_match(); // la funny action démarre toute seule à la fin du minuteur
 }
 

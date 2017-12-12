@@ -299,7 +299,6 @@ void minuteur_demarrer();
 uint32_t minuteur_temps_restant();
 void minuteur_attendre_fin_match();
 void minuteur_arreter_tout_si_fin_match();
-void minuteur_entrer_dans_une_boucle_infinie_et_ne_plus_jamais_en_sortir();
 
 // General
 void synchronisation();

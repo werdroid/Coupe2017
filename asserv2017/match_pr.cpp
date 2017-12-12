@@ -28,11 +28,11 @@ void pr_init() {
 }
 
 void match_pr_arret() {
-  tone_play_end();
+  com_printfln("On stop les moteurs");
   asserv_consigne_stop();
 
-  com_printfln("FinProgramme");
-  minuteur_entrer_dans_une_boucle_infinie_et_ne_plus_jamais_en_sortir();
+  com_printfln("Funny action !");
+  // ...
 }
 
 // Le côté de la grosse dune
