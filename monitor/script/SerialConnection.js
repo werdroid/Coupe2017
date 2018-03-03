@@ -117,7 +117,7 @@ SerialConnection.prototype.send = function(msg) {
   serial.send(this.connectionId, str2ab(msg), function() {});
 };
 
-SerialConnection.prototype.disconnect = function() {
+SerialConnection.prototype.disconnect = function(callback) {
   if (this.connectionId < 0) {
     throw 'Invalid connection';
   }
@@ -147,6 +147,7 @@ var getDevices = function() {
   serial.getDevices(function(list) {
     if(list.length == 0) {
       logStatutSerial('Aucun port disponible');
+      genererSelectSerial(list); // On va quand même le faire puisqu'il faut ajouter la simu
     }
     else {
       logStatutSerial(list.length + ' ports disponibles.');
@@ -156,12 +157,16 @@ var getDevices = function() {
 
 };
 
-var genererSelectSerial = function(ports) {
-  var select = [document.getElementById('serialSelect0'),
+var select = [document.getElementById('serialSelect0'),
         document.getElementById('serialSelect1')];
 
+var genererSelectSerial = function(ports) {
+  
   select[0].appendChild(creerOption('Non connecté', 'disconnect'));
   select[1].appendChild(creerOption('Non connecté', 'disconnect'));
+
+  select[0].appendChild(creerOption('Simulateur', 'simu'));
+  select[1].appendChild(creerOption('Simulateur', 'simu'));
 
   var texte, value;
   for(var i = 0; i < ports.length; i++) {
@@ -171,39 +176,11 @@ var genererSelectSerial = function(ports) {
     select[1].appendChild(creerOption(texte, value));
   }
 
-
   select[0].addEventListener('change', function() {
-    var port = this.value;
-    if(port == 'disconnect') {
-      connection0.disconnect();
-    }
-    else {
-      if(select[1].value == port) {
-        select[1].value = 'disconnect';
-        connection1.disconnect(function() {
-          connection0.connect(port);
-        });
-      }
-      else {
-        connection0.connect(port);
-      }
-    }
+    triggerSerialConnection(0);
   });
   select[1].addEventListener('change', function() {
-    var port = this.value;
-    if(port == 'disconnect')
-      connection1.disconnect();
-    else {
-      if(select[0].value == port) {
-        select[0].value = 'disconnect';
-        connection0.disconnect(function() {
-          connection1.connect(port);
-        });
-      }
-      else {
-        connection1.connect(port);
-      }
-    }
+    triggerSerialConnection(1);
   });
 }
 
@@ -215,25 +192,54 @@ var creerOption = function(texte, value) {
   return option;
 }
 
+var triggerSerialConnection = function(caller) {
+  var thisOne = caller;
+  var theOther = (thisOne == 0 ? 1 : 0);
+
+  var port = select[thisOne].value;
+
+  if(port == 'disconnect') {
+    connection[thisOne].disconnect();
+  }
+  else if(port == 'simu') {
+    simu.demarrer(thisOne);
+  }
+  else {
+    if(select[theOther].value == port) {
+      select[theOther].value = 'disconnect';
+      connection[theOther].disconnect(function() {
+        connection[thisOne].connect(port);
+      });
+    }
+    else {
+      connection[thisOne].connect(port);
+    }
+  }
+}
+
+var changeSerialConnection = function(robot, value) {
+  select[robot].value = value;
+  triggerSerialConnection(robot);
+}
+
 
 /** ====================================
     Traitement spécifique des événements
     ==================================== **/
 
-var connection0 = new SerialConnection('PR');
-var connection1 = new SerialConnection('GR');
+var connection = [new SerialConnection('PR'), new SerialConnection('GR')];
 
-connection0.onReadLine.addListener(function(line) {
+connection[0].onReadLine.addListener(function(line) {
   traiterMessage(0, line);
 });
-connection1.onReadLine.addListener(function(line) {
+connection[1].onReadLine.addListener(function(line) {
   traiterMessage(1, line);
 });
 
-connection0.onError.addListener(function(erreur) {
+connection[0].onError.addListener(function(erreur) {
   document.getElementById('serialSelect0').value = 'disconnect';
 });
-connection1.onError.addListener(function(erreur) {
+connection[1].onError.addListener(function(erreur) {
   document.getElementById('serialSelect1').value = 'disconnect';
 });
 
@@ -246,13 +252,13 @@ var logStatutSerial = function(msg) {
 
 document.getElementById('bReconnecter').addEventListener('click', function() {
   if(document.getElementById('serialSelect0').value != 'disconnect') {
-    connection0.disconnect(function() {
-      connection0.connect(document.getElementById('serialSelect0').value);
+    connection[0].disconnect(function() {
+      connection[0].connect(document.getElementById('serialSelect0').value);
     });
   }
   if(document.getElementById('serialSelect1').value != 'disconnect') {
-    connection1.disconnect(function() {
-      connection1.connect(document.getElementById('serialSelect1').value);
+    connection[1].disconnect(function() {
+      connection[1].connect(document.getElementById('serialSelect1').value);
     });
   }
 });

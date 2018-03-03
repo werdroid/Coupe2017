@@ -197,20 +197,29 @@ var curseur = {
   }
 }
 
+var simu = {
+  inhiber: [false, false],
 
-var demarrerSimu = function(robot) {
-  // Force la reliure des points
-  document.getElementById('cbRelierPoints').checked = true;
-  table.match.positions.afficherReliures(true);
+  demarrer: function(robot) {
+    if(simu.inhiber[robot]) {
+      log.monitor('Redémarrer le Monitor pour relancer une simulation sur ' + (robot == PR ? 'PR' : 'GR'));
+      return;
+    }
+    simu.inhiber[robot] = true;
 
-  // Démarrage de la simu
-  if(robot == PR) {
-    Module._pr_init();
-    Module._match_pr();
-  }
-  else {
-    Module._gr_init();
-    Module._match_gr();
+    // Force la reliure des points
+    document.getElementById('cbRelierPoints').checked = true;
+    table.match.positions.afficherReliures(true);
+
+    // Démarrage de la simu
+    if(robot == PR) {
+      Module._pr_init();
+      Module._match_pr();
+    }
+    else {
+      Module._gr_init();
+      Module._match_gr();
+    }
   }
 }
 
@@ -218,13 +227,13 @@ table.init();
 //gabarit.init();
 //table.draw.point(500, 600, 3, 'blue');
 
-document.querySelector('#startSimuPR').addEventListener('click', e => {
-  demarrerSimu(PR);
+/*document.querySelector('#startSimuPR').addEventListener('click', e => {
+  simu.demarrer(PR);
 });
 
 document.querySelector('#startSimuGR').addEventListener('click', e => {
-  demarrerSimu(GR);
-});
+  simu.demarrer(GR);
+});*/
 
 document.getElementById('bEffacerTout').addEventListener('click', function() {
   log.monitor('RaZ');
@@ -359,7 +368,7 @@ var genererJeuAleatoire = function() {
 // Connexion / lancement automatique au démarrage du Monitor
 
 
-/* // Robots réels
+/* // Robots réels (à revoir depuis ajustements sur connect)
 connection1.connect('COM5');
 document.getElementById('serialSelect1').value = 'COM5';
 setTimeout(function() {
@@ -369,6 +378,16 @@ setTimeout(function() {
 }, 1000);
 //*/
 
-//genererJeuAleatoire(); // Jeu aléatoire (avec événements)
 
-//setTimeout(demarrerSimu, 2000, GR); // Simulateur
+setTimeout(function() {
+
+  // Jeu aléatoire (avec événements)
+  //genererJeuAleatoire();
+  
+  // Simulateur
+  changeSerialConnection(GR, 'simu');
+
+
+}, 500);
+
+
