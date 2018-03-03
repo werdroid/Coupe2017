@@ -97,8 +97,11 @@ var log = {
     var $logMsgDansFiltre = $logMsg.filter(function() { 
                               return $(this).data("t") >= tmin && $(this).data("t") <= tmax;
                             });
-    if($logMsgDansFiltre.length > 0)                            
-      $logMsgDansFiltre.first().get()[0].scrollIntoViewIfNeeded(); // pour avoir celui du milieu : eq( parseInt($logMsgDansFiltre.length / 2) )
+    if($logMsgDansFiltre.length > 0) {
+      $logMsgDansFiltre.first().get()[0].scrollIntoViewIfNeeded();                
+      // Mieux sur le papier, mais moins agréable à l'oeil (avis perso)
+      // $logMsgDansFiltre.eq( parseInt($logMsgDansFiltre.length / 2) ).get()[0].scrollIntoView( {block: 'center', inline: 'center'});
+    }
     $logMsgDansFiltre.css('opacity','1');
     $logMsg.filter(function() { 
       return $(this).data("t") < tmin || $(this).data("t") > tmax;
@@ -106,8 +109,9 @@ var log = {
   },
 
   // Met en surbrillance les lignes de log souhaitées
+  // La sélection se fait par le class du log (par exemple : t1 pour les logs t = 1, e2 pour l'événement 2)
   highlight: {
-    add: function(className) {
+    addAll: function(className) {
       log.highlight.addRobot(0, className);
       log.highlight.addRobot(1, className);
     },
@@ -116,6 +120,7 @@ var log = {
       for(var i = 0; i < ensemble.length; i++) {
         ensemble[i].classList.add('highlight');
       };
+      ensemble[parseInt((ensemble.length - 1)/2)].scrollIntoViewIfNeeded();
     },
     removeAll: function() {
       log.highlight.removeRobot(0);
@@ -123,9 +128,10 @@ var log = {
     },
     removeRobot: function(r) {
       var ensemble = elem.log.robot[r].getElementsByClassName('highlight');
-      for(var i = 0; i < ensemble.length; i++) {
+      // Quand on retire un highlight, il n'apparaît plus dans ensemble. On les retire donc en partant de la fin.
+      for(var i = ensemble.length - 1; i >= 0; i--) {
         ensemble[i].classList.remove('highlight');
-      };
+      }
     }
   }
 }
@@ -282,7 +288,6 @@ var genererJeuAleatoire = function() {
         mmY: destY[robot]
       }
     };
-    //var id = donnees.enregistrer(robot, msg);
 		donnees.enregistrer(robot, msg);
 
     // Ajout d'événements aléatoires
@@ -294,8 +299,6 @@ var genererJeuAleatoire = function() {
       //pas[robot] = alea.nb(10);//*/
     }
 
-    /*table.match.positions.ajouter(robot, id);
-    table.match.destinations.ajouter(robot, id);*/
 
   }
 }

@@ -297,6 +297,9 @@ var table = {
               grpEphemere.add(croixDestination).add(ligne);
             }
             forme.data('grpDestinationEphemere', grpEphemere.attr('id')); // Permettra d'effacer la ligne sur mouseout
+            
+            // Highlight log
+            log.highlight.addRobot(forme.data('robot'), 't'+infos.tMatch);
           })
           .mouseout(function(e) {
             var forme = SVG.get(e.target.id);
@@ -304,6 +307,7 @@ var table = {
             /*if(!$('#opt_svg-destination' + forme.data('robot')).hasClass('on'))
               table.obj.destinations[robot][infos.svg.destination].hide();*/
             SVG.get(forme.data('grpDestinationEphemere')).remove();
+            log.highlight.removeAll();
           });
         table.obj.grpPositions[robot].add(pt);
         infos.svg.pt = table.obj.positions[robot].push(pt) - 1;

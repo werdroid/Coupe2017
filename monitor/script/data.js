@@ -11,20 +11,23 @@ const GR = 1;
 /**
 Ensemble des positions et destinations de chaque robot, à chaque instant
 
+~ indique qu'il s'agit d'une variable à usage interne : n'a pas à être renseigné pendant la création de la trame
 donnees.d = [
   [
     {
       t:        timestamp de la donnée
-      tMatch:   temps écoulé depuis le début du match (valeur Monitor en s ; -1 si match non démarré)
+      ~tMatch:   temps écoulé depuis le début du match (valeur Monitor en s ; -1 si match non démarré)
       position: {
         mmX:    position du robot sur l'axe x (mm) (provient de la trame)
         mmY:    position du robot sur l'axe y (mm) (provient de la trame)
+        a:      angle du robot
+        aDeg:   angle du robot (en °)
       },
       destination: {
         mmX:    (provient de la trame)
         mmY:    (provient de la trame)
       },
-      svg: {    Ensemble des index (dans table.obj) des éléments dessinés sur la table et liés à cette trame
+      ~svg: {    Ensemble des index (dans table.obj) des éléments dessinés sur la table et liés à cette trame
         pt:     pt position,
         reliure:
         destination:  croix destination
@@ -91,75 +94,24 @@ var donnees = {
     }
   },*/
 
-  // Enregistre un jeu de données et retourne son indice
-	enregistrer: function(robot, trame) {
-    if(trame[1] != '|') {
-      //tRobots[robot] = trame.t;
-      var id = donnees.d[robot].push({
+  
+  // Enregistre un jeu de données, l'affiche sur le Monitor, et retourne son indice
+	// trame ne doit contenir que les éléments provenant du robot
+  //    Cf. liste tout en haut de ce fichier
+  //    Les variables à usage interne (svg, id, ...) sont ajoutées ici
+  enregistrer: function(robot, trame) {
+    Object.assign(trame, {
         id: donnees.d[robot].length,
-        t: trame.t,
         tMatch: match.getTimer(robot),
-        position: {
-          mmX: trame.position.mmX,
-          mmY: trame.position.mmY
-        },
-        destination: {
-          mmX: trame.destination.mmX,
-          mmY: trame.destination.mmY
-        },
-        svg: {},
-        logs: []
-      }) - 1;
-      table.match.positions.ajouter(robot, id);
-      table.match.destinations.ajouter(robot, id);
-      curseur.definirMax(robot, id);
+        svg: {}
+      });
 
-    }
-    else {
-      // Compatibilité avec Coupe IdF 2016
-      var action = trame.split('|');
-      var param = JSON.parse('{' + action[2] + '}');
-      switch(action[1]) {
-        case 'Codeurs':
-          break;
-        case 'Position':
-          var id = donnees.d[robot].push({
-            t: donnees.d[robot].length,
-            tMatch: match.getTimer(robot),
-            position: {
-              mmX: param.mmX,
-              mmY: param.mmY,
-              a: param.angleRad,
-              aDeg: param.angleDeg
-            },
-            destination: {
-              mmX: param.consigneXmm,
-              mmY: param.consigneYmm
-            },
-            svg: {},
-            logs: []
-          }) - 1;
-          table.match.positions.ajouter(robot, id);
-          table.match.destinations.ajouter(robot, id);
-          curseur.definirMax(robot, id);
-
-          /*dernierePosition[r][0] = param.mmX;
-          dernierePosition[r][1] = param.mmY;*/
-          break;
-        case 'Moteurs':
-          break;
-        case 'Asserv':
-          break;
-        case 'ErreurConsigne':
-          break;
-        case 'Sick':
-          elem.obstacle[robot].className = param.obstacle;
-          break;
-        default:
-          log.monitor(action[1] + ' inconnue (en provenance de ' + r + '.');
-      }
-    }
-	}
+    var id = donnees.d[robot].push(trame) - 1;
+    //tRobots[robot] = trame.t;
+    table.match.positions.ajouter(robot, id);
+    table.match.destinations.ajouter(robot, id);
+    curseur.definirMax(robot, id);
+  }
 
 }
 
@@ -209,63 +161,123 @@ function traiterTrameMonitor(buffer) {
   }
 
   console.log(trameMonitor);
-
+  
   // Dans le robot isPR = 1 c'est le petit robot
   // Dans le monitor 0 c'est le petit robot
   var robot = trameMonitor.isPR ? 0 : 1;
 
-  var id = donnees.d[robot].push({
-    id: donnees.d[robot].length,
+  // Enregistrement
+  donnees.enregistrer(robot, {
     t: trameMonitor.millis,
-    tMatch: match.getTimer(robot),
     position: {
       mmX: trameMonitor.xMm,
-      mmY: trameMonitor.yMm
+      mmY: trameMonitor.yMm,
+      aDeg: parseInt(trameMonitor.a * 180 / Math.PI)
     },
-    destination: {
-      mmX: trameMonitor.xMm,
-      mmY: trameMonitor.yMm
-    },
-    svg: {},
-    logs: []
-  }) - 1;
-  table.match.positions.ajouter(robot, id);
-  table.match.destinations.ajouter(robot, id);
-  curseur.definirMax(robot, id);
+    destination: {  /**** TODO : Réceptionner la destination *****/
+      mmX: 0,
+      mmY: 0
+    }
+  });
+  
+  // Affichage d'un obstacle
+  elem.obstacle[robot].className = (trameMonitor.sickObstacle == 1 ? 'oui' : 'non');
+  
 }
 
-var traiterMessage = function(r, msg) { // r = robot émetteur (0 ou 1)
+// Traitement d'un message reçu depuis le port Série
+// r = robot émetteur (0 ou 1)
+var traiterMessage = function(r, msg) {
+  
+  // Réception de données sous forme Str.
+  // Normalement obsolète pour la Position, conservé pour rester Compatible ou pour la transmission de données particulières
   if (msg[0] == '@') {
-    donnees.enregistrer(r, msg);
+    if(trame[1] == '|') {
+      traiterData(r, msg);
+    }
+    else {
+      log.robot(r, msg);
+    }
   }
 
-  // Traitement des messages pendant Coupe IdF 2016
+  // Réception d'un événement
   else if(msg[0] == '!') {
     evenements.enregistrer(r, msg);
   }
 
-  else {
+  // Réception d'un mot-clé
+  else if(msg[0] == '#') {
     switch(msg) {
-      case "DebutDuMatch\n":
-      case "DebutDuMatch\n\n":
+      case "#DebutDuMatch\n":
+      case "#DebutDuMatch\n\n":
         match.demarrer(r);
         break;
-      case "led change\n":
+      case "#LedChange\n":
         etatLed[r] = !etatLed[r];
         elem.led[r].className = (etatLed[r] ? 'on' : 'off');
         break;
-      case "\n":
-        break;
-      case "FinProgramme\n":
+      case "#FinProgramme\n":
         log.robot(r, msg);
         match.terminer(r);
         break;
-      case "------------ OBSTACLE\n":
+      case "#-----OBSTACLE\n":
         evenements.enregistrer(r, 'Obstacle');
         break;
       default:
-        log.robot(r, msg);
+        log.robot(r, msg + ' [[Non interprété]]');
     }
+  }
+  
+  // Tout autre message non vide
+  else if(msg != "\n") {
+    log.robot(r, msg);
   }
 }
 
+
+// Traitement d'une trame textuelle
+var logTransmissionPositionObsolete = [true, true]; // Utilisé pour afficher un log spécifique 1 seule fois
+var traiterData = function(robot, trame) {
+  /*
+    Les trames arrivent sous forme de str
+    @|<Type>|<JSONData>
+  */
+  var action = trame.split('|');
+  var param = JSON.parse('{' + action[2] + '}');
+  switch(action[1]) {
+    case 'Codeurs':
+      break;
+    case 'Position':
+      // OBSOLETE - Conservé pour compatibilité avec anciens codes (Coupe IdF 2016 -> Coupe 2017)
+      if(logTransmissionPositionObsolete[robot]) {
+        evenements.enregistrer(robot, 'Trame Position reçue en vieux format (cet avertissement ne s\'affichera qu\'une fois)');
+        logTransmissionPositionObsolete[robot] = false;
+      }
+      var trame = {
+        t: donnees.d[robot].length,
+        position: {
+          mmX: param.mmX,
+          mmY: param.mmY,
+          a: param.angleRad,
+          aDeg: param.angleDeg
+        },
+        destination: {
+          mmX: param.consigneXmm,
+          mmY: param.consigneYmm
+        }
+      };
+      donnees.enregistrer(robot, trame);
+      break;
+    case 'Moteurs':
+      break;
+    case 'Asserv':
+      break;
+    case 'ErreurConsigne':
+      break;
+    case 'Sick':
+      elem.obstacle[robot].className = param.obstacle;
+      break;
+    default:
+      log.monitor(action[1] + ' inconnue (en provenance de ' + r + '.');
+  }
+}

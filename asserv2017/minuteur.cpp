@@ -49,7 +49,7 @@ void minuteur_arreter_tout_si_fin_match() {
 
     // Après la procédure d'arrêt, on coupe le programme en le
     // faisant boucler indéfiniement.
-    com_printfln("Fin programme");
+    com_printfln("#FinProgramme");
     while(1) delay(DT_MS);
   }
 }
@@ -61,7 +61,7 @@ void minuteur_arreter_tout_si_fin_match() {
 
 void minuteur_demarrer() {
   robot.match_debut = millis();
-  com_printfln("DebutDuMatch\n");
+  com_printfln("#DebutDuMatch\n");
 }
 
 /**

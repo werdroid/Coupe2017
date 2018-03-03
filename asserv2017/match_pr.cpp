@@ -116,7 +116,7 @@ void debug_pr() {
   asserv_set_position(1500, 750, 0);
   delay(2000);
 
-  ecran_console_log("DebutDuMatch\n");
+  ecran_console_log("#DebutDuMatch\n");
 
   asserv_distance(-5000, 5000);
   tone_play_end();
@@ -159,7 +159,7 @@ void match_pr() {
   asserv_maintenir_position();
 
   bouton_wait_start_up();
-  ecran_console_log("DebutDuMatch\n");
+  ecran_console_log("#DebutDuMatch\n");
   robot.match_debut = millis();
 
   uint8_t error;

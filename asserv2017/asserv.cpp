@@ -124,7 +124,7 @@ uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t time
     }
 
     if (robot.sickObstacle) {
-      com_printfln("------------ OBSTACLE");
+      com_printfln("#-----OBSTACLE");
       asserv_maintenir_position();
       tone_play_alert();
       return ERROR_OBSTACLE;

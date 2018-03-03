@@ -20,7 +20,7 @@ void led_update() {
   if (metro.check()) {
     led_state = 1 - led_state;
     digitalWrite(PIN_DOUT_LED_INTERN, led_state);
-    com_printfln("led change");
+    com_printfln("#LedChange");
   }
 }
 
