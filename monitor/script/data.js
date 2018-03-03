@@ -48,7 +48,7 @@ donnees.d = [
 
 
 var donnees = {
-	d: [[], []],  // PR et GR
+  d: [[], []],  // PR et GR
 
   // Retourne le jeu de données à l'indice indiqué
   // si id < 0, retourne à partir de la fin
@@ -75,30 +75,16 @@ var donnees = {
     });
   },
 
-
   // Retourne le dernier jeu de données du robot
   getLast: function(robot) {
     return donnees.get(robot, -1);
   },
 
-  // Retourne le jeu de données correspondant à la forme #idsvg
-  /*getParIdSvg: function(idsvg) {
-    var forme = SVG.get(idsvg);
-    return donnees.d[forme.data('robot')][forme.data('donnee')];
-  },*/
-  /*
-  // Retournent une liste d'id de points
-  filtrerPts: {
-    parDestination: function(robot, idDest) {
-
-    }
-  },*/
-
   
   // Enregistre un jeu de données, l'affiche sur le Monitor, et retourne son indice
-	// trame ne doit contenir que les éléments provenant du robot
+  // trame ne doit contenir que les éléments provenant du robot
   //    Cf. liste tout en haut de ce fichier
-  //    Les variables à usage interne (svg, id, ...) sont ajoutées ici
+  //    Les variables à usage interne indiquées par un ~ (svg, id, ...) sont ajoutées ici
   enregistrer: function(robot, trame) {
     Object.assign(trame, {
         id: donnees.d[robot].length,
@@ -192,7 +178,7 @@ var traiterMessage = function(r, msg) {
   // Réception de données sous forme Str.
   // Normalement obsolète pour la Position, conservé pour rester Compatible ou pour la transmission de données particulières
   if (msg[0] == '@') {
-    if(trame[1] == '|') {
+    if(msg[1] == '|') {
       traiterData(r, msg);
     }
     else {
@@ -250,8 +236,8 @@ var traiterData = function(robot, trame) {
     case 'Position':
       // OBSOLETE - Conservé pour compatibilité avec anciens codes (Coupe IdF 2016 -> Coupe 2017)
       if(logTransmissionPositionObsolete[robot]) {
-        evenements.enregistrer(robot, 'Trame Position reçue en vieux format (cet avertissement ne s\'affichera qu\'une fois)');
         logTransmissionPositionObsolete[robot] = false;
+        log.monitor((robot == 0 ? 'PR':'GR') + ' communique sa position avec un style de trames obsolète (@|Position|...)');
       }
       var trame = {
         t: donnees.d[robot].length,

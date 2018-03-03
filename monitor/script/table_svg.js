@@ -382,7 +382,7 @@ var table = {
             robot: robot,
             id: id,
             type: 'evenement',
-            t: donnees.getLast(robot).t,
+            t: infos.t,
             tMatch: infos.tMatch
           })
           .addClass('svg-evenement' + robot)

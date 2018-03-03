@@ -31,10 +31,10 @@ evenements.e = [
 **/
 
 var evenements = {
-	e: [[], []],  // PR et GR
+  e: [[], []],  // PR et GR
 
   // Enregistre un jeu de données et retourne son indice
-	enregistrer: function(robot, message) {
+  enregistrer: function(robot, message) {
     var id = evenements.e[robot].push({
       id: evenements.e[robot].length,
       t: donnees.getLast(robot).t,
@@ -45,7 +45,7 @@ var evenements = {
     table.match.evenements.ajouter(robot, id);
     
     log.robot(robot, '<span class="pointRepere' + robot + '">' + id + '</span> ' + message, 'e'+id);
-	},
+  },
   
   // Retourne le jeu de données à l'indice indiqué
   // si id < 0, retourne à partir de la fin

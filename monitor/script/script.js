@@ -304,4 +304,4 @@ var genererJeuAleatoire = function() {
 }
 
 //genererJeuAleatoire();
-setTimeout(demarrerSimu, 2000, GR);
+//setTimeout(demarrerSimu, 2000, GR);
