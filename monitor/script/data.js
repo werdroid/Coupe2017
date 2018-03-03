@@ -192,6 +192,7 @@ var traiterMessage = function(r, msg) {
   }
 
   // Réception d'un mot-clé
+  // (# = Nouveauté 2018. Les messages 2017 ne sont plus interprétés => spam du log)
   else if(msg[0] == '#') {
     switch(msg) {
       case "#DebutDuMatch\n":

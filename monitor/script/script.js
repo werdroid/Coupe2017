@@ -55,13 +55,16 @@ var match = {
 };
 
 var log = {
+  // Ajoute une ligne de log dans la zone en bas à gauche (messages généraux du Monitor)
   monitor: function(msg) {
     elem.log.monitor.innerHTML = msg + '<br>' + elem.log.monitor.innerHTML;
   },
-  robot: function(r, msg, listeClass) {
-    // Ajoute une ligne de log pour le robot r sous la forme d'un div
-    // listeClass (str ou Array) permet d'ajouter des class à ce div
-    
+
+  // Ajoute une ligne de log pour le robot r sous la forme d'un div
+  //   listeClass (str ou Array) ajoute des class à ce div
+  //   dataset (objet) ajoute des data-* supplémentaires
+  robot: function(r, msg, listeClass, dataset) {
+      
     var div = document.createElement('div');
     div.classList.add('logMsg');
     div.classList.add('r' + r);
@@ -76,7 +79,12 @@ var log = {
     else if(listeClass !== undefined) {
         div.classList.add(listeClass);
     }
-    
+
+    // Ajout des data-* personnalisées
+    for(var keys in dataset) {
+      div.dataset[keys] = dataset[keys];
+    }
+
     // Ajout du timer
     if(match.enCours[r]) {
       t = match.getTimer(r);
@@ -90,6 +98,7 @@ var log = {
     elem.log.robot[r].insertBefore(div, elem.log.robot[r].firstChild);
   },
   
+  // Modifie l'opacité des logs non compris entre indiceMin et indiceMax
   filtrer: function(r, indiceMin, indiceMax) {
     var tmin = donnees.get(r, indiceMin).t;
     var tmax = donnees.get(r, indiceMax).t;
@@ -108,33 +117,76 @@ var log = {
     }).css('opacity','0.2');
   },
 
-  // Met en surbrillance les lignes de log souhaitées
-  // La sélection se fait par le class du log (par exemple : t1 pour les logs t = 1, e2 pour l'événement 2)
+  
+  // Gestion de la surbrillance des lignes de log souhaitées.
+  // Utilisé pour repérer un log à partir d'un élément dessiné sur la table
   highlight: {
-    addAll: function(className) {
-      log.highlight.addRobot(0, className);
-      log.highlight.addRobot(1, className);
+
+    // Surligner les logs répondant à une class donnée (par exemple : t1 pour les logs à tMatch = 1, e2 pour l'événement 2)
+    addByClass: function(r, className) {
+      var listeLogs = elem.log.robot[r].getElementsByClassName(className);
+      log.highlight.addList(listeLogs);
     },
-    addRobot: function(r, className) {
-      var ensemble = elem.log.robot[r].getElementsByClassName(className);
-      for(var i = 0; i < ensemble.length; i++) {
-        ensemble[i].classList.add('highlight');
+
+    // Surligner les logs ayant un data- spécifié ou répondant à un data- particulier
+    addByData: function(r, cle, valeur) {
+      if(valeur === undefined)
+        var recherche = '[data-' + cle + ']';
+      else
+        var recherche = '[data-' + cle + '=\'' + valeur + '\']';
+        
+      var listeLogs = elem.log.robot[r].querySelectorAll(recherche);
+      log.highlight.addList(listeLogs);
+    },
+
+    // (Application du highlight)
+    addList: function(listeLogs) {
+      for(var i = 0; i < listeLogs.length; i++) {
+        listeLogs[i].classList.add('highlight');
       };
-      ensemble[parseInt((ensemble.length - 1)/2)].scrollIntoViewIfNeeded();
+      listeLogs[parseInt((listeLogs.length - 1)/2)].scrollIntoViewIfNeeded();
     },
+
+    // Enlever toutes les surbrillances
     removeAll: function() {
       log.highlight.removeRobot(0);
       log.highlight.removeRobot(1);
     },
     removeRobot: function(r) {
-      var ensemble = elem.log.robot[r].getElementsByClassName('highlight');
-      // Quand on retire un highlight, il n'apparaît plus dans ensemble. On les retire donc en partant de la fin.
-      for(var i = ensemble.length - 1; i >= 0; i--) {
-        ensemble[i].classList.remove('highlight');
+      var listeLogs = elem.log.robot[r].getElementsByClassName('highlight');
+      // Quand on retire un highlight, il n'apparaît plus dans listeLogs. On les retire donc en partant de la fin.
+      for(var i = listeLogs.length - 1; i >= 0; i--) {
+        listeLogs[i].classList.remove('highlight');
       }
     }
+  },
+
+  // Positionner les repères à partir du survol d'un log
+  reperer: function(e) {
+    // Récupération du robot survolé
+    var robot;
+    if(e.target.classList.contains('r0'))
+      robot = 0;
+    else if(e.target.classList.contains('r1'))
+      robot = 1;
+
+    // Survol d'un événement ?
+    if(e.target.dataset.evenement !== undefined) {
+      var infosEvenement = evenements.get(robot, e.target.dataset.evenement);
+      var infos = donnees.get(robot, infosEvenement.idData);
+      table.repere.positionner(infos.position.mmX, infos.position.mmY);
+      table.repere.afficher(true);
+    }
+    else {
+      table.repere.afficher(false);
+    }
   }
+  
 }
+
+elem.log.robot[0].addEventListener('mouseover', log.reperer);
+elem.log.robot[1].addEventListener('mouseover', log.reperer);
+
 
 var curseur = {
   definirMin: function(r, min) {
@@ -303,5 +355,20 @@ var genererJeuAleatoire = function() {
   }
 }
 
-//genererJeuAleatoire();
-//setTimeout(demarrerSimu, 2000, GR);
+
+// Connexion / lancement automatique au démarrage du Monitor
+
+
+/* // Robots réels
+connection1.connect('COM5');
+document.getElementById('serialSelect1').value = 'COM5';
+setTimeout(function() {
+  connection0.connect('COM4');
+  document.getElementById('serialSelect0').value = 'COM4';
+  // connection1.connect('COM7');
+}, 1000);
+//*/
+
+//genererJeuAleatoire(); // Jeu aléatoire (avec événements)
+
+//setTimeout(demarrerSimu, 2000, GR); // Simulateur

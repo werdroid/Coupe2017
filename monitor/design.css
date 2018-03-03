@@ -127,6 +127,10 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
   background-color: lightgreen;
 }
 
+.logMsg[data-evenement]:hover {
+  background-color: lightgreen;
+}
+
 .infoTimer, #valeurTMatch0, #valeurTMatch1 {
 	color: grey;
 	padding-right: 2px;

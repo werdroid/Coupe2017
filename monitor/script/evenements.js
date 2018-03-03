@@ -44,7 +44,7 @@ var evenements = {
     }) - 1;
     table.match.evenements.ajouter(robot, id);
     
-    log.robot(robot, '<span class="pointRepere' + robot + '">' + id + '</span> ' + message, 'e'+id);
+    log.robot(robot, '<span class="pointRepere' + robot + '">' + id + '</span> ' + message, undefined, {evenement: id});
   },
   
   // Retourne le jeu de données à l'indice indiqué

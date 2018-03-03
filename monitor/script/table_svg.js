@@ -236,12 +236,13 @@ var table = {
       table.ctx.fillText(txt, x * table.general.scale, y * table.general.scale);*/
     }
   },
+  
   repere: {
     creer: function() {
       var group = table.svg.group();
 
-      table.obj.repereX = table.creer.ligne(1500 * table.general.scale, 0, 1500 * table.general.scale, table.general.scHeight, 2, 'purple');
-      table.obj.repereY = table.creer.ligne(0, 1000 * table.general.scale, table.general.scWidth, 1000 * table.general.scale, 2, 'purple');
+      table.obj.repereX = table.creer.ligne(1500 * table.general.scale, 0, 1500 * table.general.scale, table.general.scHeight, 2, 'lightgreen');
+      table.obj.repereY = table.creer.ligne(0, 1000 * table.general.scale, table.general.scWidth, 1000 * table.general.scale, 2, 'lightgreen');
       
       group.add(table.obj.repereX);
       group.add(table.obj.repereY);
@@ -258,9 +259,10 @@ var table = {
       x *= table.general.scale;
       y *= table.general.scale;
       table.obj.repereX.plot(x, 0, x, table.general.scHeight);
-      table.obj.repereX.plot(0, y, table.general.scWidth, y);
+      table.obj.repereY.plot(0, y, table.general.scWidth, y);
     }
   },
+
   match: {
     positions: {
       // Ajouter un point sur la table et enregistre sa référence dans donnees.d[r][#][svg][pt]
@@ -299,7 +301,7 @@ var table = {
             forme.data('grpDestinationEphemere', grpEphemere.attr('id')); // Permettra d'effacer la ligne sur mouseout
             
             // Highlight log
-            log.highlight.addRobot(forme.data('robot'), 't'+infos.tMatch);
+            log.highlight.addByClass(forme.data('robot'), 't'+infos.tMatch);
           })
           .mouseout(function(e) {
             var forme = SVG.get(e.target.id);
@@ -390,7 +392,7 @@ var table = {
             var forme = SVG.get(e.target.id);
             var infos = evenements.get(forme.data('robot'), forme.data('id'));
             table.majInfobulle(e.clientX, e.clientY, infos.id + '.' + infos.msg);
-            log.highlight.addRobot(forme.data('robot'), 'e'+infos.id);
+            log.highlight.addByData(forme.data('robot'), 'evenement', infos.id);
           })
           .mouseout(function(e) {
             infobulle.masquer();
