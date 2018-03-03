@@ -156,6 +156,26 @@ var table = {
         .fill(couleur)
         .stroke('none');
     },
+    pointOriente: function(x, y, a, diametre, couleur) {        
+      // Point de base
+      var pt = table.creer.point(x, y, diametre, couleur);
+      
+      // Ligne traversante
+      // Ligne ajoutée dans le point pour garder le centre du groupe ptOriente au centre du point de base
+      // Sinon, ça complique la gestion des reliures entre les points...
+      var rayon = parseInt(diametre / 2);
+      var demiRayon = parseInt(diametre / 4);
+      var p1_x = x * table.general.scale - demiRayon * Math.cos(a);
+      var p1_y = y * table.general.scale - demiRayon * Math.sin(a);
+      var p2_x = x * table.general.scale + rayon * Math.cos(a);
+      var p2_y = y * table.general.scale + rayon * Math.sin(a);
+      var ligne = table.creer.ligne(p1_x, p1_y, p2_x, p2_y, 1, 'white');
+
+      var group = table.svg.group();
+      group.add(pt);
+      group.add(ligne);
+      return group;
+    },
     pointRepere: function(x, y, numero, couleur) {
       table.creer.point(x - 4, y - 4, 8, couleur);
       //table.creer.texte(numero, x + 3, y - 5, couleur, '11px Calibri');
@@ -269,7 +289,8 @@ var table = {
       ajouter: function(robot, id) {
         // Création du point et événements associés
         var infos = donnees.get(robot, id);
-        var pt = table.creer.point(infos.position.mmX, infos.position.mmY, 4, (robot == PR ? 'blue' : 'orange'))
+
+        var pt = table.creer.pointOriente(infos.position.mmX, infos.position.mmY, infos.position.a, 5, (robot == PR ? 'blue' : 'orange'))
           .data({
             robot: robot,
             type: 'position',
@@ -280,8 +301,8 @@ var table = {
           .addClass('svg-pt' + robot)
           .mouseover(function(e) {
             // Infos sur la position
-            var forme = SVG.get(e.target.id);
-            var infos = donnees.get(forme.data('robot'), forme.data('id'));
+            var forme = SVG.get(e.target.parentNode.id);
+            var infos = donnees.get(robot, id);
             table.majInfobulle(e.clientX, e.clientY, 'Position<br>t = ' + infos.t + '<br>tMatch = ' + infos.tMatch + ' s<br>' + infos.position.mmX + ' x ' + infos.position.mmY + ' @ ' + infos.position.aDeg + '°');
             
             // Infos sur la destination
@@ -301,10 +322,10 @@ var table = {
             forme.data('grpDestinationEphemere', grpEphemere.attr('id')); // Permettra d'effacer la ligne sur mouseout
             
             // Highlight log
-            log.highlight.addByClass(forme.data('robot'), 't'+infos.tMatch);
+            log.highlight.addByClass(robot, 't'+infos.tMatch);
           })
           .mouseout(function(e) {
-            var forme = SVG.get(e.target.id);
+            var forme = SVG.get(e.target.parentNode.id);
             infobulle.masquer();
             /*if(!$('#opt_svg-destination' + forme.data('robot')).hasClass('on'))
               table.obj.destinations[robot][infos.svg.destination].hide();*/
@@ -364,7 +385,7 @@ var table = {
             .mouseover(function(e) {
               var forme = SVG.get(e.target.parentNode.id);
               //var infos = donnees.getParIdSvg(e.target.parentNode.id);
-              var infos = donnees.get(forme.data('robot'), forme.data('id'));
+              var infos = donnees.get(robot, id);
               //forme.stroke({width: 2});
               table.majInfobulle(e.clientX, e.clientY, 'Destination<br>t = ' + infos.t + ' ms<br>' + infos.destination.mmX + ' x ' + infos.destination.mmY);              
             })
@@ -390,7 +411,7 @@ var table = {
           .addClass('svg-evenement' + robot)
           .mouseover(function(e) {
             var forme = SVG.get(e.target.id);
-            var infos = evenements.get(forme.data('robot'), forme.data('id'));
+            var infos = evenements.get(robot, id);
             table.majInfobulle(e.clientX, e.clientY, infos.id + '.' + infos.msg);
             log.highlight.addByData(forme.data('robot'), 'evenement', infos.id);
           })

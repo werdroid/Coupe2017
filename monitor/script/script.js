@@ -141,6 +141,8 @@ var log = {
 
     // (Application du highlight)
     addList: function(listeLogs) {
+      if(listeLogs.length == 0) return;
+      
       for(var i = 0; i < listeLogs.length; i++) {
         listeLogs[i].classList.add('highlight');
       };
@@ -342,7 +344,8 @@ var genererJeuAleatoire = function() {
       t: i*10,
       position: {
         mmX: x[robot],
-        mmY: y[robot]
+        mmY: y[robot],
+        a: 0
       },
       destination: {
         mmX: destX[robot],

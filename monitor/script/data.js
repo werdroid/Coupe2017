@@ -158,6 +158,7 @@ function traiterTrameMonitor(buffer) {
     position: {
       mmX: trameMonitor.xMm,
       mmY: trameMonitor.yMm,
+      a: trameMonitor.a,
       aDeg: parseInt(trameMonitor.a * 180 / Math.PI)
     },
     destination: {  /**** TODO : Réceptionner la destination *****/
