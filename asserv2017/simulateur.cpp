@@ -91,6 +91,25 @@ void asserv_consigne_pwm(uint16_t gauche, uint16_t droite) {}
 void asserv_consigne_polaire(int32_t distance, int32_t rotation) {}
 void asserv_consigne_polaire_delta(int32_t distance_mm_delta, float rotation_rad_delta) {}
 uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant) {
+  
+  // le vecteur à faire
+  int32_t vx = consigne_x_mm - robot.xMm; // mm
+  int32_t vy = consigne_y_mm - robot.yMm; // mm
+  robot.a = atan2(vy, vx);
+
+  /*
+  // Il peut être intéressant d'afficher des points intermédiaires pour vérifier l'orientation du robot
+  // (permettrait surtout de repérer une marche arrière)
+  // Pas réussi à réintégrer les calculs marche arrière / marche avant, ce sera pour plus tard ( TODO )
+  int i;
+  int points_intermediaires = 3;
+  for(i = 1; i < points_intermediaires; i++) {
+    robot.xMm = robot.xMm + vx/points_intermediaires;
+    robot.yMm = robot.yMm + vy/points_intermediaires;
+    com_send_robot_state(); // données changées donc on envoie au monitor
+  }
+  */
+  
   robot.xMm = consigne_x_mm;
   robot.yMm = consigne_y_mm;
   com_send_robot_state(); // données changées donc on envoie au monitor
@@ -110,8 +129,6 @@ uint8_t asserv_distance(int32_t consigne_mm, uint16_t timeout) {
 uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
   robot.xMm += consigne_mm * cos(robot.a);
   robot.yMm += consigne_mm * sin(robot.a);
-
-  /** TODO : Corriger problème quand consigne_mm < 0 **/
 
   com_send_robot_state(); // données changées donc on envoie au monitor
   return OK;
