@@ -15,6 +15,8 @@ bool gr_minerais_charges = false; // Etat chargé/à vide
 int nb_modules_extraits_fusee_depart = 0;
 
 
+// Ceci est un test 2018
+
 /* Glossaire
   PCD : Petit Cratère Départ
   PCL : Petit Cratère Lunaire
