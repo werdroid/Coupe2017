@@ -113,3 +113,11 @@ void com_serial1_print(const char* str);
 - `git diff fichier123` fait un différentiel du fichier par rapport à celui dans .git
 
 
+### Guide d'ajout d'un champ aux trame "robot state"
+
+Robot state c'est une trame binaire contenant des infos à envoyer du robot ou simulateur au moniteur pour regarder son contenu graphiquement.
+
+- ajouter le champs dans la structure `TrameMonitor` dans `asserv2017.h`, en groupant les tailles (1, 2, 4 octets)
+- remplir trameMonitor dans `simulateur.cpp` si le simulateur génère cette info
+- remplir trameMonitor dans `com.cpp`
+- c'est bon ! l'info sera envoyée automatiquement

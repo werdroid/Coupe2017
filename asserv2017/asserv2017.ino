@@ -143,7 +143,6 @@ void interruption_sample() {
   lock_loop = RT_STATE_RUNNING; // évite de rentrer dans la fonction si elle est déjà en cours
 
   time_total = 0;
-  unsigned long time = micros();
 
   tone_loop();
 
@@ -166,7 +165,9 @@ void interruption_sample() {
   led_update();
   tone_loop();
 
-  if ((micros() - time) >= DT_US) {
+  robot.time_total = time_total;
+
+  if (time_total >= DT_US) {
     com_printfln("RT INTERRUPTION TOO LONG");
   }
 

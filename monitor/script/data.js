@@ -80,7 +80,7 @@ var donnees = {
     return donnees.get(robot, -1);
   },
 
-  
+
   // Enregistre un jeu de données, l'affiche sur le Monitor, et retourne son indice
   // trame ne doit contenir que les éléments provenant du robot
   //    Cf. liste tout en haut de ce fichier
@@ -105,7 +105,7 @@ var donnees = {
 // en binaire via un buffer, il faut parser cela puis
 // envoyer le résultat dans notre structure JS
 function traiterTrameMonitor(buffer) {
-  console.log('nouvelle trame monitor');
+  console.log('nouvelle trame robot state monitor');
   var offset = 0;
   var HEAP8 = new Int8Array(buffer);
   var HEAP16 = new Int16Array(buffer);
@@ -132,13 +132,17 @@ function traiterTrameMonitor(buffer) {
       nextChar() !== '@') {
     throw new Error('Trame monitor ne commence pas par 4 arobases, trash it. Did you forget to sync serializer and deserializer?');
   }
+
+  // pour la lecture, l'ordre est important
   trameMonitor.millis = nextUInt32();
   trameMonitor.a = nextFloat();
+  trameMonitor.time_total = nextUInt32();
   trameMonitor.xMm = nextInt16();
   trameMonitor.yMm = nextInt16();
   trameMonitor.proche_distance = nextUInt16();
   trameMonitor.sickObstacle = nextUInt8();
   trameMonitor.isPR = nextUInt8();
+
   if (nextChar() !== '@' ||
       nextChar() !== '@' ||
       nextChar() !== '@' ||
@@ -147,7 +151,7 @@ function traiterTrameMonitor(buffer) {
   }
 
   console.log(trameMonitor);
-  
+
   // Dans le robot isPR = 1 c'est le petit robot
   // Dans le monitor 0 c'est le petit robot
   var robot = trameMonitor.isPR ? 0 : 1;
@@ -155,6 +159,13 @@ function traiterTrameMonitor(buffer) {
   // Enregistrement
   donnees.enregistrer(robot, {
     t: trameMonitor.millis,
+    stats: { // signes vitaux du robot (cpu)
+      time_total: trameMonitor.time_total
+    },
+    sick: {
+      sickObstacle: trameMonitor.sickObstacle,
+      proche_distance: trameMonitor.proche_distance
+    },
     position: {
       mmX: trameMonitor.xMm,
       mmY: trameMonitor.yMm,
@@ -166,16 +177,16 @@ function traiterTrameMonitor(buffer) {
       mmY: 0
     }
   });
-  
+
   // Affichage d'un obstacle
   elem.obstacle[robot].className = (trameMonitor.sickObstacle == 1 ? 'oui' : 'non');
-  
+
 }
 
 // Traitement d'un message reçu depuis le port Série
 // r = robot émetteur (0 ou 1)
 var traiterMessage = function(r, msg) {
-  
+
   // Réception de données sous forme Str.
   // Normalement obsolète pour la Position, conservé pour rester Compatible ou pour la transmission de données particulières
   if (msg[0] == '@') {
@@ -215,7 +226,7 @@ var traiterMessage = function(r, msg) {
         log.robot(r, msg + ' [[Non interprété]]');
     }
   }
-  
+
   // Tout autre message non vide
   else if(msg != "\n") {
     log.robot(r, msg);
