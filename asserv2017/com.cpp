@@ -94,7 +94,7 @@ void com_printfln(const char* format, ...) {
 
 // Sortie USB des logs
 void com_print(const char* str) {
-  if (lock_loop == 0) {
+  if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
   Serial.print(str);
@@ -102,7 +102,7 @@ void com_print(const char* str) {
 
 // Sortie sur le pin 1
 void com_serial1_print(const char* str) {
-  if (lock_loop == 0) {
+  if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
   Serial1.print(str);
