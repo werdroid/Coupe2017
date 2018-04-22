@@ -1,29 +1,41 @@
 #include "asserv2017.h"
 
-Servo servo_fusee;
-Servo servo_bras_gauche;
-Servo servo_bras_droit;
+Servo servo_eau_propre; //TBC_RSE
+Servo servo_eau_usee; //TBC_RSE
+Servo servo_tri_eau; //TBC_RSE
 
 // Vitesses par défaut
-uint32_t const VITESSE_A_VIDE = 100;
-uint32_t const VITESSE_CHARGE = 90; //80;
-uint32_t const VITESSE_LENTE = 50; //20;
+uint32_t const VITESSE_RAPIDE = 100;
+uint32_t const VITESSE_LENTE = 50;
 
 // Variables globales de stratégie
 // Initialisées avec des variables par défaut. Mieux vaut les re-initialiser dans match_gr & co
-bool gr_minerais_charges = false; // Etat chargé/à vide
-int nb_modules_extraits_fusee_depart = 0;
+bool gr_eau_propre_chargee = false; // Etat chargé/à vide
+bool gr_eau_usee_chargee = false; // Etat chargé/à vide
+bool tbl_panneau_allume = false;
+bool tbl_abeille_activee = false;
+bool tbl_REP_vide = false;
+bool tbl_REM_vide = false;
+bool tbl_REP_opp_vide = false;
+bool tbl_REM_opp_vide = false;
 
-
-// Ceci est un test 2018
-// Test Antoine
-
-/* Glossaire
-  PCD : Petit Cratère Départ
-  PCL : Petit Cratère Lunaire
-  GCC : Grand Cratère Coin
-  Depot : zone de sa couleur devant la soute de la navette (coin de la table)
+/* Glossaire 2018 //Parce que je pense à vous.
   Depart : zone de sa couleur proche du milieu de la table
+  REP : Recuperateur Eau Propre (notre côté du terrain)
+  REM : Recuperateur Eau Mixte (notre côté du terrain)
+  REP_opp : Recuperateur Eau Propre opp (côté adverse du terrain)
+  REM_opp : Recuperateur Eau Mixte opp (côté adverse du terrain)
+  CHATEAU : CHATEAU d'eau (le notre)
+  STATION : STATION d'epuration (la notre)
+  ABEILLE : ABEILLE qui pique (la notre)
+  PANNEAU : PANNEAU domotique (le notre)
+  CUB_1 : groupe de cubes (modules de constructions de batiments HQE) à l'emplacement 1 centré sur [850;540]
+  CUB_2 : groupe de cubes à l'emplacement 2 centré sur [300;1190]
+  CUB_3 : groupe de cubes à l'emplacement 3 centré sur [1100;1500]
+  CUB_1_opp : idem CUB_1 par symétrie
+  CUB_2_opp : idem CUB_2 par symétrie
+  CUB_3_opp : idem CUB_3 par symétrie
+  ZOC : ZOne de Construction des batiments HQE
 */
 
 
@@ -34,8 +46,8 @@ void gr_init() {
   robot.IS_PR = false; // première instruction dès que possible avant menu, match, etc
   com_printfln("gr_init()");
 
-  /**********
-  ROBOT ALIEN
+  /***********
+  ROBOT GR2018
   ***********/
 
   // Constantes à init
@@ -48,32 +60,24 @@ void gr_init() {
 
   // Actionneurs à init
 
-  servo_bras_gauche.attach(29);
-  servo_bras_droit.attach(30);
-  servo_fusee.attach(31);
+  servo_bras_gauche.attach(29); //TBD_RSE
+  servo_bras_droit.attach(30); //TBD_RSE
+  servo_fusee.attach(31); //TBD_RSE
 
-  positionner_deux_bras(POSITION_RECOLTER, false);
-  gr_fusee_fermer();
+  positionner_deux_bras(POSITION_RECOLTER, false); //TBD_RSE
+  gr_fusee_fermer(); //TBD_RSE
 }
 
 void match_gr_arret() {
-  com_printfln("On stop les moteurs");
+  com_printfln("On stoppe les moteurs");
   asserv_consigne_stop();
 
-  com_printfln("Funny action !");
-  gr_fusee_ouvrir();
-  minuteur_attendre(1000);
-  gr_fusee_fermer();
-  minuteur_attendre(800);
-  gr_fusee_ouvrir();
-  minuteur_attendre(800);
-  gr_fusee_fermer();
-  minuteur_attendre(1000);
-  gr_fusee_ouvrir();
+  // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
+  
   tone_play_end();
 }
 
-void demo_allers_retours() {
+void demo_allers_retours() { //TBD_RSE
   ecran_console_reset();
   ecran_console_log("Deplacer Minerais\n\n");
   ecran_console_log("1. Positionner\n");
@@ -127,7 +131,7 @@ void demo_allers_retours() {
   }
 }
 
-void homologation_gr() {
+void homologation_gr() { //TBD_RSE
   uint8_t error;
   uint8_t tentatives = 0;
 
@@ -189,7 +193,7 @@ void homologation_gr() {
   minuteur_attendre_fin_match();
 }
 
-void debug_gr() {
+void debug_gr() { //TBD_RSE
   ecran_console_log("Debug GR\n\n");
   ecran_console_log("2 sec\n\n");
 
@@ -233,6 +237,10 @@ void debug_gr() {
   tone_play_end();
 }
 
+// ============================================================
+// Debut section Edition ATN/DKI
+// ============================================================
+
 void match_gr() {
   int start;
   uint8_t error;
@@ -248,17 +256,16 @@ void match_gr() {
 
   /*
     etat_actions :
-
     Dimension 1 :
-    n - recuperer_module1
-    n - degager_module5 (ou recuperer_module5, à choisir)
-    n - recuperer_minerais_pcd7
-    n - knocker_module2
-    n - recuperer_minerais_pcl
-      n - recuperer_minerais_pcd4
-      n - recuperer_minerais_gcc10
-      n - recuperer_minerais_gcc14
-    n - recuperer_Fdep
+	  n - vider_REP
+	  n - vider_REM
+	  n - vider_REP_opp
+	  n - vider_REM_opp
+	  n - activer_panneau
+      n - activer_abeille
+	  n - constr_CUB_1 (jusque ZOC)
+	  n - degager_CUB_2 (non défini TBC_ATN)
+	  n - degager_CUB_3 (hors STATION, chez STATION opp)
 
     Dimension 2 :
       0 - Visite (0 non, 1 oui)
@@ -277,10 +284,10 @@ void match_gr() {
   ecran_console_log("Match GR\n");
 
   if(robot.symetrie) {
-    ecran_console_log("Couleur : JAUNE\n");
+    ecran_console_log("Couleur : ORANGE\n");
   }
   else {
-    ecran_console_log("Couleur : BLEU\n");
+    ecran_console_log("Couleur : VERT\n");
   }
   ecran_console_log("\n\n");
 
@@ -294,8 +301,14 @@ void match_gr() {
 
   // Initialisation des variables de stratégie
   action_en_cours = 0; ////// ATTENTION, != 0 pour TESTS UNIQUEMENT
-  gr_minerais_charges = false; // Etat chargé/à vide
-  nb_modules_extraits_fusee_depart = 0;
+  bool gr_eau_propre_chargee = false; // Etat chargé/à vide
+  bool gr_eau_usee_chargee = false; // Etat chargé/à vide
+  bool tbl_panneau_allume = false;
+  bool tbl_abeille_activee = false;
+  bool tbl_REP_vide = false;
+  bool tbl_REM_vide = false;
+  bool tbl_REP_opp_vide = false;
+  bool tbl_REM_opp_vide = false;
 
 
   minuteur_attendre(500);
@@ -305,7 +318,7 @@ void match_gr() {
 
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
-  asserv_set_position(886, 196, MATH_PI * -0.75);
+  asserv_set_position(886, 196, MATH_PI * -0.75); //TBC_ATN
   asserv_maintenir_position();
   bouton_wait_start_up();
 
@@ -315,66 +328,92 @@ void match_gr() {
     ============== **/
 
   minuteur_demarrer();
-
-  minuteur_attendre(500);
-
-  bras_position_croisiere();
-  asserv_go_toutdroit(-450, 5000);
+  minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
+  asserv_go_toutdroit(-450, 5000); //TBC_ATN
 
 
   /**
-  Stratégie de jeu :
+	Stratégie de jeu 2018 GR seul [Niveau 1]:
+	=========================================
 
-    Visiter dans l'ordre :
-    PCD 4, Depot, PCL, Depot, GCC 10, Depot
-    Si le temps le permet, visiter :
-    GCC 14, Depot, PCD 7, Depot
+	Visiter dans l'ordre :
+	PANNEAU, REP, CHATEAU, ABEILLE, REM, degager CUB_3, STATION, tout en évitant les cubes sur le chemin.
+	Si le temps le permet, visiter :
+	CUB 1, ZOC
 
-    Gestion des erreurs :
-      Si une action de mouvement vers un cratère est obstruée (max_tentatives = 3 atteint),
-        aller au cratère suivant et revisiter le cratère manqué à la fin.
-      Si une action de mouvement vers le dépôt est obstruée (max_tentatives = 3 atteint),
-        et que l'on est à x > 600 et y < 1400, (vers le milieu de la table)
-          aller à p1.
-        et que l'on est à x < 600 ou y > 1400, (vers le bord de la table)
-          aller à p14.
-        Puis aller au dépôt.
+	Gestion des erreurs :
+	Si une action de mouvement est obstruée (max_tentatives = 3 atteint),
+		aller à l'action suivante et retenter l'action précédente manquée à la fin.
+	Si une action de mouvement vers une zone de dépôt (CHATEAU, STATION, ZOC) est obstruée (max_tentatives = 3 atteint),
+		Si destination = CHATEAU
+			aller à un point de retrait: Aller à [610;1540]
+			puis aller à CHATEAU
+		Si destination = STATION
+			aller à un point de retrait: Aller à [400;840]
+			puis aller à STATION
+		Si destination = ZOC
+			aller à un point de retrait: Aller à [850;1190]	directement, tourner sans reculer et mettre les cubes en vrac
+
+	Coordonnées des points de passage pré-enregistrées.
+
+	Stratégie de jeu 2018 GR seul [Niveau 2]:
+	=========================================
+	
+	Choix dynamique de la prochaine action en fonction de l'espérance de points associé à chaque action.
+	Anticiper les blocages par d'autres robots sur les itinéraires et l'intégrer au choix de la prochaine action.
+	Intégrer la possibilité de se localiser sur le terrain avec les balises si GR perdu (définir conditions pour estimer que GR est perdu).
+	Intégrer la vision de srécupérateurs par le SICK pour anticiper les erreurs de position.
+
+	Stratégie de jeu 2018 GR seul [Niveau 3]:
+	=========================================
+
+	Intégrer la vision du jeu des robots adverses pour le choix des actions (comptage du temps passé des robots devant les récupérateurs).
+	Vider les récupérateurs d'eau adverses.
+
+	Coordonnées des points de passage gérées par le robot.
+
+	Stratégie de jeu 2018 GR seul [Niveau 4]:
+	=========================================
+
+	Prévision du déplacement des robots adverses et intégration au choix de la prochaine action.
+
+	
+	Stratégie de jeu 2018 GR seul [Niveau 5]:
+	=========================================
+
+	Interruption d'une action en cours pour une autre action au cours du mouvement si l'espérance de points est modifiée.
+	Evitement fluide des robots adverses.
+
   **/
 
   do {
 
-    // [Prévision pour Stratégie Niveau 2]
-    //  Une fois les 5 actions de base terminées, on passe à un autre boucle.
+    // [Prévision pour Stratégie Niveau 2 2017]
+    //  Une fois les actions de base terminées, on passe à une autre boucle.
 
       /** =======================
-        Récupération des minerais
-        ========================= **/
-      /*Proposition stratégie v1 Antoine
-        0 - recuperer_module1()
-        1 - degager_module5()
-        2 - recuperer_minerais_pcd7()
-        3 - knocker_module2()
-        4 - recuperer_minerais_pcl()
-        5 - recuperer_minerais_pcd4()
-        6 - recuperer_minerais_gcc10()
-        7 - recuperer_minerais_gcc14()
-        8 - recuperer_fusee_depart()
+		  Réalisation des actions
+          ======================= **/
+
+      /*Proposition stratégie 2018 v1 Antoine
+		  0 - activer_panneau
+		  1 - vider_REP (puis CHATEAU)
+		  2 - activer_abeille
+		  3 - vider_REM (puis degager CUB_3 puis STATION)
+		  4 - constr_CUB_1
       */
+
+	  //Nota : seules les actions primaires sont à instruire ici (prendre un élément), les autres actions (déposer l'élément, dégager un élément qui gêne) en découlent
+
       switch(action_en_cours) {
-        case 0: error = recuperer_module1(); break;
-        case 1: error = recuperer_module5(true); break;
-        case 2: error = recuperer_minerais_pcd7(); break;
-        case 3: error = knocker_module2_de_face(); break;
-        case 4: error = recuperer_minerais_pcl(); break;
-        case 5: error = recuperer_minerais_pcd7(); break;
-        case 6: error = recuperer_minerais_gcc10(); break;
-        case 7: error = recuperer_minerais_gcc14(); break;
-        case 8: error = recuperer_minerais_gcc10(); break;
-        //case 8: error = recuperer_minerais_pcd4(); break;
-        //case 8: error = recuperer_fusee_depart(); break;
+	    case 0: error = activer_panneau(); break;
+		case 1: error = vider_REP(); break;
+		case 2: error = activer_abeille(); break;
+		case 3: error = vider_REM(); break;
+		case 4: error = constr_CUB_1(); break;
 
         default:
-          com_printfln("! ######### ERREUR : action_en_cours inconnu");
+          com_printfln("! ######### ERREUR : action_en_cours inconnue");
           error = ERROR_STRATEGIE;
       }
 
@@ -387,12 +426,16 @@ void match_gr() {
         com_printfln(":: Action %d terminee ::", action_en_cours);
       }
 
-      /** ===================
-        Collecte des minerais
-        ===================== **/
+      /** =============================
+          Dépose des éléments collectés
+          ============================= **/
 
+	  //while(gr_eau_propre_chargee) {}  //TBD_ATN
+	  //while(gr_eau_usee_chargee) {} //TBD_ATN
+
+	   /*2017 pour mémoire 
       while(gr_minerais_charges) {
-
+		  
         error = deposer_minerais_zone_depot(false);
 
         if (error) {
@@ -417,7 +460,7 @@ void match_gr() {
         }
 
       }
-
+	  */
 
       /** ========
         Et après ?
@@ -434,24 +477,24 @@ void match_gr() {
       } while(etat_actions[action_en_cours][0] == 1 && nb_iterations <= nombre_actions);
 
         // tant qu'on n'a pas trouvé un point de collecte non visité, ET qu'on n'a pas parcouru toutes les actions possibles 1 fois
-        // En stratégie Niveau 1, le <= plutôt que < est volontaire :
+        // En stratégie Niveau 1 2017, le <= plutôt que < est volontaire :
         //    Si toutes les actions sont visitées (etat_actions[][0] à 1),
         //    la boucle finira avec action_en_cours = action_en_cours + 1
         //    On recommencera donc des actions déjà accomplies (sait-on jamais, on en a peut-être oublié ?)
-        // En stratégie Niveau 2, mettre <
+        // En stratégie Niveau 2 2017, mettre <
 
 
-    // [Prévision pour stratégie Niveau 2]
+    // [Prévision pour stratégie Niveau 2 2017]
     // } // Fin du while() niveau 1
 
   } while (minuteur_temps_restant() > 500 && nb_iterations <= nombre_actions); // pas assez de temps pour commencer autre chose
   // --- 2ème condition ajoutée déc 2017 pour éviter boucle infinie sur le simulateur
 
-  minuteur_attendre_fin_match(); // la funny action démarre toute seule à la fin du minuteur
+  minuteur_attendre_fin_match(); // les actions de fin (funny action, buzzer, afficheur) démarrent à la fin du minuteur
 }
 
 
-/* Points étapes et orientations à viser pour initialiser les actions
+/* Points étapes et orientations à viser pour initialiser les actions // MAJ TBD_ATN
 PCD1  : pt4;  viser x = 650;  y = 540;
 PCD2  : pt7;  viser x = 650;  y = 540;
 PCL   : pt14; viser x = 1070; y = 1870;
@@ -462,7 +505,7 @@ M2knk : pt14; viser x = 737;  y = 0;
 Fdep  : pt15; /
 */
 
-/* Déplacements pour les actions
+/* Déplacements pour les actions // MAJ TBD_ATN
 Déplacement   x    y    theta_start_x  theta_start_y  theta_finish_x  theta_finish_y
 Depot_start   245  520    80        0        80        0
 Depot_finish 290  665    80        0        80        0
@@ -477,97 +520,34 @@ Fdep_finish   1328  132    0        132        0        132 action Fdep: x4 (4 m
 
 */
 
-uint8_t recuperer_minerais_pcd4() {
-  uint8_t error;
 
-  com_printfln("----- Minerais PCD4 -----");
+/** ==============
+    Actions de jeu
+    ============== **/
 
-  // Initialisation de l'action
-  //com_printfln("En route vers PCD via P4.");
+/* Actions 2018
 
-  bras_position_croisiere();
+Fonction					=> note si succès
+-------------------------------------------------------------
+uint8_t vider_REP()			=> tbl_REP_vide = true;
+uint8_t vider_REM()			=> tbl_REM_vide = true;
+uint8_t vider_REP_opp()		=> tbl_REP_opp_vide = true;
+uint8_t vider_REM_opp()		=> tbl_REM_opp_vide = true;
 
-  error = aller_pt_etape(PT_ETAPE_4, VITESSE_A_VIDE, 1, 8000, 3);
-  if(error) return error;
-  com_printfln("PCD4 atteint.");
+uint8_t deposer_chateau()	=> gr_eau_propre_chargee = false;
+uint8_t deposer_station()	=> gr_eau_usee_chargee = false;
 
+uint8_t activer_panneau()	=> tbl_panneau_allume = true;
+uint8_t activer_abeille()	=> tbl_abeille_activee = true;
 
-  // Pas de gestion d'erreur : si problème, on essaye quand même de finir l'action
-  error = aller_xy(855, 652, VITESSE_A_VIDE, 1, 3000, 2); // Approche
-  error = asserv_rotation_vers_point(650, 540, 2000); // On s'oriente vers le cratère
+uint8_t constr_CUB_1() (jusque ZOC)
+uint8_t degager_CUB_2() (non défini TBC_ATN)
+uint8_t degager_CUB_3() (hors STATION, chez STATION opp)
 
-  error = prendre_minerais();
-  gr_minerais_charges = true;
-  com_printfln("Minerais charges");
-
-  // Dégagement
-  error = aller_pt_etape(PT_ETAPE_4, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
-
-
-  return OK;
-}
+*/
 
 
-uint8_t recuperer_minerais_pcd7() {
-  uint8_t error;
-
-  com_printfln("----- Minerais PCD7 -----");
-
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_7, VITESSE_A_VIDE, 1, 8000, 3);
-  if(error) return error;
-  com_printfln("PCD7 atteint.");
-
-  positionner_deux_bras(POSITION_MAX_SOUS_SICK, false);
-
-
-  // Pas de gestion d'erreur : on est suffisamment proche du cratère pour espérer récupérer des minerais
-  // même s'il y a un problème
-  error = aller_xy(450, 669, VITESSE_A_VIDE, 1, 2000, 3); // Approche vers le cratère
-  error = asserv_rotation_vers_point(650, 540, 2000); // Orientation vers le cratère
-
-  error = prendre_minerais();
-  gr_minerais_charges = true;
-  com_printfln("Minerais charges");
-
-
-  // Dégagement
-  error = aller_pt_etape(PT_ETAPE_7, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
-  // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
-
-  return OK;
-}
-
-
-uint8_t recuperer_minerais_pcl() {
-  uint8_t error;
-
-  com_printfln("----- Minerais PCL -----");
-
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_14, VITESSE_A_VIDE, 1, 8000, 3);
-  if(error) return error;
-  com_printfln("PCL atteint.");
-
-
-  // Réalisation de l'action
-  error = aller_xy(836, 1736, VITESSE_A_VIDE, 1, 3000, 3); // Approche vers le cratère
-  error = asserv_rotation_vers_point(1070, 1870, 2000); // Orientation vers centre du cratère
-
-  error = prendre_minerais();
-  gr_minerais_charges = true;
-  com_printfln("Minerais charges");
-
-  // Dégagement
-  error = aller_pt_etape(PT_ETAPE_14, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
-  // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
-
-
-  return OK;
-}
-
+/* Actions 2017 pour mémoire
 
 uint8_t recuperer_minerais_gcc10() {
   uint8_t error;
@@ -596,36 +576,6 @@ uint8_t recuperer_minerais_gcc10() {
 
   return OK;
 }
-
-
-uint8_t recuperer_minerais_gcc14() {
-  uint8_t error;
-
-  com_printfln("----- Minerais GCC14 -----");
-
-  // Initialisation de l'action
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_14, VITESSE_A_VIDE, 1, 8000, 3);
-  if(error) return error;
-  com_printfln("GCC14 atteint.");
-
-  // Réalisation de l'action
-  error = aller_xy(618, 1855, VITESSE_A_VIDE, 1, 3000, 3); // S'approche du cratère
-  error = asserv_rotation_vers_point(0, 2000, 2000); // S'oriente
-
-  error = prendre_minerais();
-  gr_minerais_charges = true;
-  com_printfln("Minerais charges");
-
-
-  // Dégagement
-  error = aller_pt_etape(PT_ETAPE_14, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
-  // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
-
-  return OK;
-}
-
 
 uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
   uint8_t error;
@@ -692,8 +642,6 @@ uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
   return OK;
 }
 
-
-
 uint8_t knocker_module2() {
   // Réclamation sur le nom de la fonction --> Antoine
   uint8_t error;
@@ -742,95 +690,6 @@ uint8_t knocker_module2() {
   return OK;
 }
 
-uint8_t knocker_module2_de_face() {
-  uint8_t error;
-
-  // En jaune, c'est trop ric-rac, on ignore donc cette action
-  if(robot.symetrie) {
-    return OK;
-  }
-
-  com_printfln("----- Knocker Module 2 de face -----");
-
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_8, VITESSE_A_VIDE, 1, 8000, 3);
-  if(error) return OK;
-
-  positionner_deux_bras(POSITION_KNOCK_FACE, false);
-
-  error = aller_xy(815, 1315, 100, 1, 2000, 3);
-
-  asserv_go_toutdroit(-300, 2000);
-  if(error) return OK;
-
-  bras_position_croisiere();
-
-  error = aller_xy(650, 1600, 100, 1, 5000, 3);
-  if(error) return OK;
-
-
-  return OK;
-}
-
-
-uint8_t recuperer_fusee_depart() {
-  uint8_t error;
-
-  com_printfln("----- Recuperer Fusee Depart -----");
-
-  // Pas de fusée pour l'instant...
-  com_printfln("Ou pas");
-  return OK;
-  // ...
-
-
-
-  // Initialisation de l'action
-
-
-  if(nb_modules_extraits_fusee_depart >= 4) {
-    com_printfln("La fusee est vide !");
-    return OK;
-  }
-
-
-  error = aller_pt_etape(PT_ETAPE_15, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return error;
-
-
-  error = aller_xy(1452, 132, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return error;
-
-  // Réalisation de l'action
-  while(nb_modules_extraits_fusee_depart < 4) {
-
-    // TBC Position de rotation OK avec tolérance de positionnement du robot ?
-
-    com_printfln("Point d'extraction de la fusée départ atteint.");
-
-    error = asserv_rotation_vers_point(0, 132, 3000);
-    if(error) return error;
-
-    error = aller_xy(1328, 132, VITESSE_LENTE, 1, 10000, 3);
-    if(error) return error;
-
-    // TBD Baisser bras droit ou symétrie gauche ?
-
-    error = aller_xy(1452, 132, VITESSE_A_VIDE, 0, 10000, 3);
-    if(error) return error;
-
-    nb_modules_extraits_fusee_depart++;
-  }
-
-
-  // Dégagement
-  // La position de fin a une marge autour permettant une rotation vers une nouvelle destination. TBD
-
-  return OK;
-}
-
-
 uint8_t recuperer_module1() {
   // Gestion des erreurs :
   // si l'action échoue et que l'on part sur une autre action, on ne sait pas où sera le module sur la table
@@ -868,7 +727,6 @@ uint8_t recuperer_module1() {
 
   return OK;
 }
-
 
 // Action à réaliser avant toute extraction de minerais.
 // Une visite de P8 (où se trouve aussi Module 5) rendrait inutile cette action.
@@ -932,16 +790,6 @@ uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) {
   return OK;
 }
 
-
-
-/*DELETED Action de préparation du terrain : évacuation des modules lunaires de la piste de déplacement
-// Dégagement de Module 1 (1000;600) vers (1200+;1400+) depuis P1 (900;200) puis dégagement par l'arrière vers (1100;1000)
-aller_pt_etape(PT_ETAPE_1, VITESSE_A_VIDE, 1, 10000, 3)
-aller_xy(1200, 1400, VITESSE_LENTE, 1, 10000, 3) //TBC_RS : arguments fonction aller_xy
-aller_xy(1100, 1000, VITESSE_A_VIDE, 0, 10000, 3)
-*/
-
-
 uint8_t degager_module5() { //Action de préparation du terrain : évacuation des modules lunaires de la piste de déplacement
   // A lancer après recuperer_module1(). Une visite de (800;950) avant pousserait le module 1 qui deviendrait irrécupérable.
   uint8_t error;
@@ -970,7 +818,17 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 
   return OK;
 }
+*/
 
+// ============================================================
+// Fin section Edition ATN/DKI
+// ============================================================
+
+// Il faudrait prévoir les fonctions suivantes pour les actionneurs : //TBD_RSE
+// vider_REP()
+// vider_REM()
+// vider_REP_opp()
+// vider_REM_opp() (attention, séquence des balles opposée)
 
 uint8_t prendre_minerais() {
   positionner_bras_gauche(POSITION_RECOLTER, false);
