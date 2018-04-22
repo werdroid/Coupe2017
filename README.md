@@ -112,4 +112,6 @@ void com_serial1_print(const char* str);
 - `git checkout fichier123` reset le fichier par celui qui est dans .git
 - `git diff fichier123` fait un différentiel du fichier par rapport à celui dans .git
 
+- `git stash` met tout de côté
+- `git stash pop` récupère ce qui a été mis de côté
 
