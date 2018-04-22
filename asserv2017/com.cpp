@@ -68,7 +68,8 @@ void com_send_robot_infos() {
 // ####################################
 
 void com_setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // serial par l'USB
+  Serial1.begin(115200); // serial hardware pin 0 et 1
   metro.reset();
 }
 
@@ -91,9 +92,18 @@ void com_printfln(const char* format, ...) {
   com_print(dest);
 }
 
+// Sortie USB des logs
 void com_print(const char* str) {
   if (lock_loop == 0) {
     synchronisation();
   }
   Serial.print(str);
+}
+
+// Sortie sur le pin 1
+void com_serial1_print(const char* str) {
+  if (lock_loop == 0) {
+    synchronisation();
+  }
+  Serial1.print(str);
 }

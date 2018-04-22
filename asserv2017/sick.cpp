@@ -8,7 +8,7 @@
 
 const uint16_t SICK_LIMIT_MIN = 90; // 50 = valeurs hors de portée ou signal trop faible, 90 = USB mm
 const uint16_t SICK_LIMIT_MAX = 3600; // diagonale de la table mm
-const uint16_t TABLE_MARGE_BORDURE = 200; // mm
+const uint16_t TABLE_MARGE_BORDURE = 200; // mmm
 const uint16_t DISTANCE_DETECTION = 500; // mm (30 c'est juste)
 
 /*------------------------------------------------------------------------------
@@ -51,12 +51,12 @@ bool detection_enabled = true; // à faux, le sick ne détectera jamais rien com
  * Utilitaires
  *--------------------------------------------------------------------------- */
 
-// Dans la table avec marges de sécurité (on ignore les éléments intérieurs proches de la bordure)
+// Dans la table avec marges de sécurité
 inline bool point_dans_la_table(const Point point) {
   return point.x > TABLE_MARGE_BORDURE &&
           point.y > TABLE_MARGE_BORDURE &&
-          point.x < TABLE_LARGEUR_X - TABLE_MARGE_BORDURE &&
-          point.y < TABLE_LARGEUR_Y - TABLE_MARGE_BORDURE;
+          point.x < TABLE_LARGEUR_X + TABLE_MARGE_BORDURE &&
+          point.y < TABLE_LARGEUR_Y + TABLE_MARGE_BORDURE;
 }
 
 inline bool angle_dans_le_cone(int16_t angle) {
@@ -275,7 +275,7 @@ void sick_traiter_donnees() {
       robot.sickObstacle = true;
     }
   }
-  
+
   // Démonstration fonctionnement Sick (utilisable avec MonitorSick)
   if(robot.activer_monitor_sick) {
     for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {

@@ -261,19 +261,21 @@ const uint8_t POSITION_KNOCK_BLEU = 7;
 const uint8_t POSITION_KNOCK_JAUNE = 8;
 const uint8_t POSITION_KNOCK_FACE = 9;
 
+/*-----------------------------------------------------------------------------
+ * Simulator only (not robot)
+ *----------------------------------------------------------------------------*/
 
 #ifdef __EMSCRIPTEN__
+
 class Servo {
 public:
   void write(int angle);
   void attach(int pin);
 };
 
-void com_printfln(const char* format, ...);
-void com_print(float msg);
-
 unsigned long millis();
 void delay(long time);
+
 #endif
 
 /*-----------------------------------------------------------------------------
@@ -420,6 +422,7 @@ void com_send_robot_state();
 void com_send_robot_infos();
 void com_printfln(const char* format, ...);
 void com_print(const char* str);
+void com_serial1_print(const char* str);
 
 // Monitor Panel
 void monitorCodeurs();

@@ -94,6 +94,13 @@ void moteur_gauche(int16_t pwm);
 void moteur_droite(int16_t pwm);
 ```
 
+**com.cpp** bas-niveau
+```c++
+void com_print(const char* str);
+void com_printfln(const char* format, ...);
+void com_serial1_print(const char* str);
+```
+
 ### Aide git
 1. `git pull origin master` met à jour les données de .git
 1. `git merge origin/master` met les éventuelles nouveautés de .git dans le projet
