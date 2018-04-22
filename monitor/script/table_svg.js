@@ -72,10 +72,18 @@ var table = {
       .fill('none')//table.svg.image('img/imageTable_rognee.png', '100%', '100%'))
       .stroke({width: 1, color: 'black'});
     table.svg
-      .image('img/imageTable_rognee.png')
+      .image('img/Table2018.png')
       .width(table.general.scWidth)
       .height(table.general.scHeight);//*/
-      
+    
+    // Les cubes 2018
+    table.creer.groupeCubes(850, 540);
+    table.creer.groupeCubes(300, 1190);
+    table.creer.groupeCubes(1100, 1500);
+    table.creer.groupeCubes(2150, 540);
+    table.creer.groupeCubes(2700, 1190);
+    table.creer.groupeCubes(1900, 1500);
+    
     // Grille
     table.obj.quadrillage = table.svg.group();
     table.obj.quadrillage.add(table.creer.quadrillageHorizontal(100));
@@ -184,9 +192,17 @@ var table = {
       //table.ctx.strokeStyle = "yellow";
       table.svg
           .rect(58 * table.general.scale, 58 * table.general.scale)
-          .stroke({width: 1, color: 'yellow'})
+          .stroke({width: 1, color: 'darkgreen'})
           .fill('none')
           .move(x * table.general.scale, y * table.general.scale);
+    },
+    groupeCubes: function(cx, cy) { // Crée 5 cubes en croix (2018)
+      var tailleCube = 58;
+      table.creer.cube(cx - tailleCube/2, cy - tailleCube/2);
+      table.creer.cube(cx - tailleCube/2, cy - tailleCube/2 - tailleCube);
+      table.creer.cube(cx - tailleCube/2, cy + tailleCube/2);
+      table.creer.cube(cx - tailleCube/2 - tailleCube, cy - tailleCube/2);
+      table.creer.cube(cx + tailleCube/2, cy - tailleCube/2);
     },
     ligne: function(x1, y1, x2, y2, epaisseur, couleur) {
       return table.svg.line(x1, y1, x2, y2).stroke({width: epaisseur, color: couleur});
