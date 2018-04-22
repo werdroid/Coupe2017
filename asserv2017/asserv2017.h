@@ -154,8 +154,9 @@ typedef struct {
   uint16_t proche_distance; // distance du point le plus proche
 
   // Profiling du CPU
-  uint32_t time_codeurs;
-  uint32_t time_sick;
+  uint32_t time_codeurs; // temps de lecture des codeurs
+  uint32_t time_sick; // temps de lecture du SICK
+  uint32_t time_total; // temps complet de la dernière interruption
 
   // Configuration, initialisée au tout début
   float ASSERV_COEFF_TICKS_PAR_MM;
@@ -198,6 +199,7 @@ typedef struct {
   // propriétés sur 4 bytes
   uint32_t millis;
   float   a; // float 32bits
+  uint32_t time_total;
 
   // propriétés sur 2 bytes
   int16_t xMm; // mm

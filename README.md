@@ -115,3 +115,11 @@ void com_serial1_print(const char* str);
 - `git stash` met tout de côté
 - `git stash pop` récupère ce qui a été mis de côté
 
+### Guide d'ajout d'un champ aux trame "robot state"
+
+Robot state c'est une trame binaire contenant des infos à envoyer du robot ou simulateur au moniteur pour regarder son contenu graphiquement.
+
+- ajouter le champs dans la structure `TrameMonitor` dans `asserv2017.h`, en groupant les tailles (1, 2, 4 octets)
+- remplir trameMonitor dans `simulateur.cpp` si le simulateur génère cette info
+- remplir trameMonitor dans `com.cpp`
+- c'est bon ! l'info sera envoyée automatiquement

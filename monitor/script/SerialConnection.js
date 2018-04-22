@@ -67,7 +67,19 @@ SerialConnection.prototype.onReceive = function(receiveInfo) {
     return;
   }
 
-  this.lineBuffer += ab2str(receiveInfo.data);
+  var buffer = receiveInfo.data;
+  var bufView = new Uint8Array(buffer);
+
+  // la trame reçue est une trame "robot state" qui contient du binaire
+  // donc on ne transforme pas en string
+  // or le format de nos trames binaires commencent et terminent par un @
+  if (String.fromCharCode(bufView[0]) === '@' && String.fromCharCode(bufView[bufView.length - 1]) === '@') {
+    // on traite la trame binaire par la fonction qui va bien
+    traiterTrameMonitor(buffer);
+    return;
+  }
+
+  this.lineBuffer += ab2str(buffer);
 
   var index;
   while ((index = this.lineBuffer.indexOf('\n')) >= 0) {
@@ -161,7 +173,7 @@ var select = [document.getElementById('serialSelect0'),
         document.getElementById('serialSelect1')];
 
 var genererSelectSerial = function(ports) {
-  
+
   select[0].appendChild(creerOption('Non connecté', 'disconnect'));
   select[1].appendChild(creerOption('Non connecté', 'disconnect'));
 

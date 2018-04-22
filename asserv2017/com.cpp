@@ -15,24 +15,30 @@ void com_send_robot_state() {
     synchronisation();
   }
 
+  trameMonitor.millis = millis();
+  trameMonitor.a = robot.a;
+  trameMonitor.xMm = robot.xMm; // mm
+  trameMonitor.yMm = robot.yMm; // mm
+  trameMonitor.isPR = robot.IS_PR;
 
+  trameMonitor.proche_distance = robot.proche_distance;
+  trameMonitor.sickObstacle = robot.sickObstacle;
+  trameMonitor.time_total = robot.time_total;
+
+  Serial.write((uint8_t *)&trameMonitor, sizeof(trameMonitor));
 }
 
+// Ancienne méthode pour envoyer les infos sous forme textuelle
+// Maintenant com_send_robot_state prend le relai et envoie du binaire
 void com_send_robot_infos() {
   if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
 
-  trameMonitor.millis = millis();
-  /*
-
-  Serial.print('@');
-  Serial.write((const uint8_t*) &trameMonitor, sizeof(TrameMonitor));
-  Serial.println();//*/
-
-  // Patch lecture comme 2016
   Serial.print("@|Position|\"mmX\":");
-  Serial.print(robot.xMm);Serial.print(",\"mmY\":");Serial.print(robot.yMm);
+  Serial.print(robot.xMm);
+  Serial.print(",\"mmY\":");
+  Serial.print(robot.yMm);
   Serial.print(",\"angleRad\":");
   Serial.print(robot.a);
   Serial.print(",\"angleDeg\":");
@@ -42,9 +48,6 @@ void com_send_robot_infos() {
   Serial.print(",\"consigneYmm\":");
   Serial.print(robot.consigneYmm);
   Serial.println();
-
-  /*Serial.print("angleDeg");
-  Serial.println(rad2deg(robot.a));*/
 
   Serial.print("@|Sick|\"vides\":");
   Serial.print(robot.sickTramesVides);
@@ -75,7 +78,8 @@ void com_setup() {
 
 void com_loop() {
   if (metro.check()) {
-    com_send_robot_infos();
+    com_send_robot_state(); // envoie binaire
+    // com_send_robot_infos(); // envoie textuel, deprecated
   }
 }
 
@@ -94,7 +98,7 @@ void com_printfln(const char* format, ...) {
 
 // Sortie USB des logs
 void com_print(const char* str) {
-  if (lock_loop == 0) {
+  if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
   Serial.print(str);
@@ -102,7 +106,7 @@ void com_print(const char* str) {
 
 // Sortie sur le pin 1
 void com_serial1_print(const char* str) {
-  if (lock_loop == 0) {
+  if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
   Serial1.print(str);
