@@ -25,7 +25,7 @@ void com_send_robot_state() {
   trameMonitor.sickObstacle = robot.sickObstacle;
   trameMonitor.time_total = robot.time_total;
 
-  Serial.write(&trameMonitor, sizeof(trameMonitor));
+  Serial.write((uint8_t *)&trameMonitor, sizeof(trameMonitor));
 }
 
 // Ancienne méthode pour envoyer les infos sous forme textuelle
