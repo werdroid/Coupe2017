@@ -130,7 +130,7 @@ function traiterTrameMonitor(buffer) {
       nextChar() !== '@' ||
       nextChar() !== '@' ||
       nextChar() !== '@') {
-    throw new Error('Trame monitor ne commence pas par 4 arobases, trash it. Did you forget to sync serializer and deserializer?');
+    throw new Error('Trame monitor ne commence pas par 4 arobases, trash it.');
   }
 
   // pour la lecture, l'ordre est important
@@ -147,7 +147,7 @@ function traiterTrameMonitor(buffer) {
       nextChar() !== '@' ||
       nextChar() !== '@' ||
       nextChar() !== '@') {
-    throw new Error('Trame monitor ne termine pas par 4 arobases, trash it. Did you forget to sync serializer and deserializer?');
+    throw new Error('Trame monitor ne termine pas par 4 arobases, trash it.');
   }
 
   console.log(trameMonitor);
