@@ -105,7 +105,7 @@ var donnees = {
 // en binaire via un buffer, il faut parser cela puis
 // envoyer le résultat dans notre structure JS
 function traiterTrameMonitor(buffer) {
-  console.log('nouvelle trame robot state monitor');
+  console.log('nouvelle trame robot state monitor', buffer);
   var offset = 0;
   var HEAP8 = new Int8Array(buffer);
   var HEAP16 = new Int16Array(buffer);
@@ -114,7 +114,6 @@ function traiterTrameMonitor(buffer) {
   var HEAPU16 = new Uint16Array(buffer);
   var HEAPU32 = new Uint32Array(buffer);
   var HEAPF32 = new Float32Array(buffer);
-  var HEAPF64 = new Float64Array(buffer);
   function nextChar() {    return String.fromCharCode(nextUInt8()); }
   function nextUInt8() {   var value = HEAPU8[offset >> 0]; offset += 1; return value; }
   function nextUInt16() {  var value = HEAPU16[offset >> 1]; offset += 2; return value; }
@@ -123,7 +122,6 @@ function traiterTrameMonitor(buffer) {
   function nextInt16() {   var value = HEAP16[offset >> 1]; offset += 2; return value; }
   function nextInt32() {   var value = HEAP32[offset >> 2]; offset += 4; return value; }
   function nextFloat() {   var value = HEAPF32[offset >> 2]; offset += 4; return value; }
-  function nextDouble() {  var value = HEAPF64[offset >> 3]; offset += 8; return value; }
 
   var trameMonitor = {};
   if (nextChar() !== '@' ||
