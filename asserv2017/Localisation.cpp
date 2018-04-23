@@ -102,6 +102,10 @@ void localiser_robots() {
 	}
 	
 	// Initialisation des valeurs pour l'index 0 (ne seront pas réécrites)
+  /*** [RSE] Nota: Toutes ces variables ont-elles besoin d'être conservées pour tous les points ?
+       Par exemple, si variation n'est utilisé que dans sa propre itération (ce qui semble être actuellement le cas), on peut déclarer un simple bool variation;
+       En revanche, objecttotalangle semble nécessiter un tableau vu qu'on utilise des objecttotalangle[i] et des objecttotalangle[i-1]
+  ***/ 
 	variation[0] = false;
 	objectsize[0] = 0;
 	objecttotalangle[0] = 0;
@@ -127,12 +131,21 @@ void localiser_robots() {
 		*/
 
 		// Repérage robots
-    sick.rssi_values[0] = 1;
+    sick.rssi_values[0] = 1; // [RSE] A placer en dehors du for
     
 		if (point_interieur_table(sick.points[i]) && distance_valide(sick.distances_values[i])) {
 
 			i++; //on saute la première valeur : à index = 0 on ne calcule rien, à index = 1 on compare entre les valeurs des index 1 et 0
-
+      /** [RSE] Il est très vivement déconseillé de modifier la variable d'itération (ici i) dans sa boucle
+          Ici, i sera incrémenté 2 fois à chaque itération. i vaudra donc 1 puis 3 puis 5 puis 7.
+          Est-ce bien le fonctionnement attendu ?
+          Si oui, faire plutôt
+            for(i = 1; i < LENGTH; i+=2) { }
+          Sinon, faire plutôt
+            for(i = 1; i < LENGTH; i++) { }
+      **/
+          
+      
 			if (abs(sick.distances_values[i] - sick.distances_values[i - 1]) < OBJECT_CHANGE_DISTANCE) {
 				variation[i] = false; //same obj
       }
@@ -141,8 +154,16 @@ void localiser_robots() {
 			}
 
 			maxindexsizeatdistance = 2 * sick.distances_values[i] * tan((index_vers_angle(i - 1) - index_vers_angle(i) / 180.0 * MATH_PI) / 2);
-
+             //                                         [RSE] Ne devrait-il pas y avoir une parenthèse ici...   ^   ... ald ...   ^    ?
+             // [RSE] Nota: rad2deg() et deg2rad(); sont disponibles dans utils.cpp pour les conversions d'angle.
+      
+      
 			if(!variation[i]) {
+        /*** [RSE] Nota: Si variation[i] ne sert qu'ici, on peut intégrer directement la condition ici : if(!(abs(...) < ...))
+            Dans ce cas, préciser en commentaire qu'on cherche à 'détecter une variation' (?)
+            Ok pour laisser tel quel si plus lisible actuellement
+            ***/
+        // [RSE] Nota: quand le script sera au point, des commentaires seront le bienvenu :)
 				objectsize[i] = objectsize[i - 1] + maxindexsizeatdistance;
 				objectindexes++;
 				objecttotalangle[i] = objecttotalangle[i - 1] + index_vers_angle(i);
@@ -161,8 +182,8 @@ void localiser_robots() {
 				objecttotalangle[i] = index_vers_angle(i);
 				objecttotaldistances[i] = sick.distances_values[i];
 				objecttotalforce[i] = sick.rssi_values[i];
-				forcescore[i] = 9999 * FORCE_CHOICE_COEFF;
-				distancescore[i] = 9999 * SIZE_CHOICE_COEFF;
+				forcescore[i] = INT_MAX; // 9999 * FORCE_CHOICE_COEFF; // [RSE] Je viens de découvrir INT_MAX : https://stackoverflow.com/a/2273953 . A confirmer que cela correspond bien au besoin.
+				distancescore[i] = 9999 * SIZE_CHOICE_COEFF; // [RSE] Et si oui, appliquer la même modif ici :)
 			}
 
 			// Repérage balises
@@ -182,22 +203,25 @@ void localiser_robots() {
 
 			// Repérage robots
 
-			forcescore[i] = 0;
+			forcescore[i] = 0; // [RSE] Cela vient mettre en doute l'intérêt de forcescore[i]. Pour une prochaine évolution ?
 
 			if (MAT_ROBOT_DIAMETER_MIN < objectminsize[i] && objectmaxsize[i] < MAT_ROBOT_DIAMETER_MAX) {
 				distancescore[i] = abs(objectsize[i] - MAT_ROBOT_DIAMETER_TYP) * SIZE_CHOICE_COEFF;
       }
 			else {
-				distancescore[i] = 9999 * SIZE_CHOICE_COEFF;
+				distancescore[i] = 9999 * SIZE_CHOICE_COEFF; // [RSE] INT_MAX ?
 			}
 
 			choicescore[i] = forcescore[i] + distancescore[i];
       
-      // TODO : Envoyer les points + score vers MonitorSick
+      // [RSE] Exemple d'envoi d'infos vers le Monitor pour test
+      com_printfln("@|Localisation|i:%d,score:%d", i, choicescore[i]);
+
     }
 		else {
 			positionValide = false;
-      return; // TODO @ATN : Cela interrompt toute la fonction (pas uniquement l'itération du for). Est-ce bien le comportement voulu ?
+      com_printfln("! Echec de localisation");
+      return; // [RSE] Cela interrompt toute la fonction (pas uniquement l'itération du for). Est-ce bien le comportement voulu ?
 			//log : échec localisation
 		}
 	}
@@ -214,8 +238,8 @@ void localiser_robots() {
 	//repérage balises
 	//objectcenterdistance[i] = objectmeandistance[i] + 0.87 * BALISE_DIAMETER / 2; //0.87 : constante d'estimation du centre
 /*********
-// TODO @ATN : Ces lignes ne compilent pas car i n'est plus défini ici.
-//  Voir s'il faut les intégrer dans le for ou pas...
+// [RSE] Ces lignes ne compilent pas car i n'est plus défini ici.
+//  Voir s'il faut les intégrer dans le for ou pas... Dans le doute, je les ai commentées pour pouvoir compiler
 	//repérage robots
 	objectcenterdistance[i] = objectmeandistance[i] + 0.87 * MAT_ROBOT_DIAMETER_TYP / 2; //0.87 : constante d'estimation du centre
 
