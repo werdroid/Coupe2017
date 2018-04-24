@@ -102,20 +102,35 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 
 /********************/
 
-
 #led0, #led1 {
-	position: absolute;
+    position: absolute;
 	top: 0px;
-	bottom: 0px;
+	height: 20px;
 	right: 0px;
 	width: 20px;
-	height: 20px;
 	/*border-radius: 10px;*/
 }
-#led0.off { background-color: #dddddd; }
-#led0.on { background-color: blue; }
-#led1.off { background-color: #dddddd; }
-#led1.on { background-color: orange; }
+
+.cpu_box {
+  position: absolute;
+  right: 23px;
+  top: 0px;
+  background-color: #eeeeee;
+  height: 20px;
+  width: 10px;
+}
+#cpu0, #cpu1 {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 0%;
+}
+
+#led0.off, #led1.off { background-color: #dddddd; }
+#led0.on, #cpu0 { background-color: blue; }
+#led1.on, #cpu1 { background-color: orange; }
+
 
 #logRobot0, #logRobot1 {
   flex-grow: 1;

@@ -8,6 +8,7 @@ var elem = {
   },
   infoTable: document.getElementById('infoTable'),
   table: document.getElementById('table'), // utiliser table.elem pour celui-là
+  cpu: [document.getElementById('cpu0'), document.getElementById('cpu1')],
   led: [document.getElementById('led0'), document.getElementById('led1')],
   obstacle: [document.getElementById('obstacle0'), document.getElementById('obstacle1')],
   curseur: [document.getElementById('curseurTMatch0'), document.getElementById('curseurTMatch1')],

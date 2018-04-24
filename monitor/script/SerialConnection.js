@@ -69,7 +69,7 @@ SerialConnection.prototype.onReceive = function(receiveInfo) {
 
   var buffer = receiveInfo.data;
   var bufView = new Uint8Array(buffer);
-
+  
   // la trame reçue est une trame "robot state" qui contient du binaire
   // donc on ne transforme pas en string
   // or le format de nos trames binaires commencent et terminent par un @

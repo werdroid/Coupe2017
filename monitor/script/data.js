@@ -141,6 +141,11 @@ function traiterTrameMonitor(robot, buffer) {
   trameMonitor.proche_distance = nextUInt16();
   trameMonitor.sickObstacle = nextUInt8();
   trameMonitor.isPR = nextUInt8();
+  trameMonitor.led_state = nextUInt8();
+  
+  trameMonitor.empty = nextUInt8();
+  trameMonitor.empty = nextUInt8();
+  trameMonitor.empty = nextUInt8();
 
   if (nextChar() !== '@' ||
       nextChar() !== '@' ||
@@ -164,11 +169,20 @@ function traiterTrameMonitor(robot, buffer) {
     }
   }
   
-  // Enregistrement
+  // === Calculs ===
+  // % CPU (l'affichage se fera plus tard)
+  var cpuPourcent = trameMonitor.time_total / 100; // On divise par (1/100)*1000000 *100 [= DT_US * 100 pour affichage en %]
+  if(cpuPourcent > 75) {
+    elem.cpu[robot].style.backgroundColor = 'red'; // restera rouge jusqu'au redémarrage
+    evenements.enregistrer(robot, 'CPU ' + cpuPourcent + '%');
+  }
+  
+  // === Enregistrement ===
   donnees.enregistrer(robot, {
     t: trameMonitor.millis,
     stats: { // signes vitaux du robot (cpu)
-      time_total: trameMonitor.time_total
+      time_total: trameMonitor.time_total,
+      cpu_pourcent:  cpuPourcent
     },
     sick: {
       sickObstacle: trameMonitor.sickObstacle,
@@ -186,9 +200,10 @@ function traiterTrameMonitor(robot, buffer) {
     }
   });
 
-  // Affichage d'un obstacle
+  // === Affichages ===
   elem.obstacle[robot].className = (trameMonitor.sickObstacle == 1 ? 'oui' : 'non');
-
+  elem.cpu[robot].style.height = cpuPourcent + '%'; 
+  elem.led[robot].className = (trameMonitor.led_state ? 'on' : 'off');
 }
 
 // Traitement d'un message reçu depuis le port Série
@@ -219,7 +234,7 @@ var traiterMessage = function(r, msg) {
       case "#DebutDuMatch\n\n":
         match.demarrer(r);
         break;
-      case "#LedChange\n":
+      case "#LedChange\n": // Ne devrait plus être utilisé
         etatLed[r] = !etatLed[r];
         elem.led[r].className = (etatLed[r] ? 'on' : 'off');
         break;
