@@ -104,8 +104,9 @@ var donnees = {
 // La trame monitor contient des infos sur le robot
 // en binaire via un buffer, il faut parser cela puis
 // envoyer le résultat dans notre structure JS
-function traiterTrameMonitor(buffer) {
-  console.log('nouvelle trame robot state monitor', buffer);
+var logVerificationBranchementPRGR = [true, true]; // Utilisé pour afficher un log spécifique 1 seule fois
+function traiterTrameMonitor(robot, buffer) {
+  //console.log('nouvelle trame robot state monitor', buffer);
   var offset = 0;
   var HEAP8 = new Int8Array(buffer);
   var HEAP16 = new Int16Array(buffer);
@@ -150,10 +151,19 @@ function traiterTrameMonitor(buffer) {
 
   console.log(trameMonitor);
 
-  // Dans le robot isPR = 1 c'est le petit robot
-  // Dans le monitor 0 c'est le petit robot
-  var robot = trameMonitor.isPR ? 0 : 1;
-
+  // On vérifie que PR est bien branché sur PR.
+  // Si ce n'est pas le cas, simple information
+  if(logVerificationBranchementPRGR[robot]) {
+    logVerificationBranchementPRGR[robot] = false; // Cette vérification n'est à faire qu'une seule fois
+    
+    // Dans le robot isPR = 1 c'est le petit robot
+    // Dans le monitor 0 c'est le petit robot
+    var robotLu = trameMonitor.isPR ? 0 : 1;
+    if(robot != robotLu) {
+      log.monitor('Sans vouloir vous offenser, le robot connecté en tant que ' + (robot == PR ? 'PR':'GR') + ' est en fait ' + (robotLu == PR ? 'PR' : 'GR') + ' (c\'est pas grave, on fait tous des erreurs...)');
+    }
+  }
+  
   // Enregistrement
   donnees.enregistrer(robot, {
     t: trameMonitor.millis,

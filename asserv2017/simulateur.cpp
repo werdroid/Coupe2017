@@ -70,9 +70,10 @@ void com_send_robot_state() {
   EM_ASM_({
     var ptr = $0;
     var size = $1;
+    var robot = $2 ? 0 : 1;
     var buffer = Module.HEAPU8.buffer.slice(ptr, ptr + size);
-    traiterTrameMonitor(buffer);
-  }, &trameMonitor, sizeof(trameMonitor));
+    traiterTrameMonitor(robot, buffer);
+  }, &trameMonitor, sizeof(trameMonitor), robot.IS_PR);
 }
 
 void bouton_start_down() {}

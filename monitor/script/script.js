@@ -388,7 +388,7 @@ setTimeout(function() {
   //genererJeuAleatoire();
   
   // Simulateur
-  changeSerialConnection(GR, 'simu');
+  // changeSerialConnection(GR, 'simu');
 
 
 }, 500);
