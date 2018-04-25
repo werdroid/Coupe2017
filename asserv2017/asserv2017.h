@@ -155,9 +155,10 @@ typedef struct {
 
   // Profiling du CPU
   uint8_t led_state; // Etat de la Led (aussi envoyé vers Monitor)
-  uint32_t time_codeurs; // temps de lecture des codeurs
-  uint32_t time_sick; // temps de lecture du SICK
-  uint32_t time_total; // temps complet de la dernière interruption
+  uint32_t time_codeurs; // temps de lecture des codeurs (us)
+  uint32_t time_sick; // temps de lecture du SICK (us)
+  uint32_t time_total; // temps complet de la dernière interruption (us)
+  uint32_t time_user; // temps passé dans la stratégie (us)
 
   // Configuration, initialisée au tout début
   float ASSERV_COEFF_TICKS_PAR_MM;
@@ -211,7 +212,7 @@ typedef struct {
   uint8_t sickObstacle;
   uint8_t isPR;
   uint8_t led_state;
-  
+
   // compléter pour avoir un total de bytes multiple de 4
   uint8_t empty1;
   uint8_t empty2;
