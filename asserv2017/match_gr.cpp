@@ -1,12 +1,42 @@
 #include "asserv2017.h"
 
-Servo servo_eau_propre; //TBC_RSE
-Servo servo_eau_usee; //TBC_RSE
-Servo servo_tri_eau; //TBC_RSE
+/** Dans ce fichier, plus on descend, plus on va dans le bas niveau **/
+
+/* Glossaire 2018
+  // Parce que Antoine pense à nous
+  
+  Sur la table
+    Depart  : zone de sa couleur proche du milieu de la table
+    REP     : Recuperateur Eau Propre (notre côté du terrain)
+    REM     : Recuperateur Eau Mixte (notre côté du terrain)
+    REP_opp : Recuperateur Eau Propre opp (côté adverse du terrain)
+    REM_opp : Recuperateur Eau Mixte opp (côté adverse du terrain)
+    CHATEAU : CHATEAU d'eau (le notre)
+    STATION : STATION d'epuration (la notre)
+    ABEILLE : ABEILLE qui pique (la notre)
+    PANNEAU : PANNEAU domotique (le notre)
+    CUB1    : groupe de cubes (modules de constructions de batiments HQE) à l'emplacement 1 centré sur [850;540]
+    CUB2    : groupe de cubes à l'emplacement 2 centré sur [300;1190]
+    CUB3    : groupe de cubes à l'emplacement 3 centré sur [1100;1500]
+    CUB1_opp : idem CUB1 par symétrie
+    CUB2_opp : idem CUB2 par symétrie
+    CUB3_opp : idem CUB3 par symétrie
+    ZOC     : Zone de Construction des batiments HQE
+  
+  
+  Dans le robot
+    EEU   : Evacuation des Eaux Usees
+    CM    : Cuillère à Miel
+*/
+
+/** ============================================
+  Déclarations constantes, variables, prototypes
+  ============================================== */
 
 // Vitesses par défaut
 uint32_t const VITESSE_RAPIDE = 100;
 uint32_t const VITESSE_LENTE = 50;
+
 
 // Variables globales de stratégie
 // Initialisées avec des variables par défaut. Mieux vaut les re-initialiser dans match_gr & co
@@ -19,67 +49,90 @@ bool tbl_REM_vide = false;
 bool tbl_REP_opp_vide = false;
 bool tbl_REM_opp_vide = false;
 
-/* Glossaire 2018 //Parce que je pense à vous.
-  Depart : zone de sa couleur proche du milieu de la table
-  REP : Recuperateur Eau Propre (notre côté du terrain)
-  REM : Recuperateur Eau Mixte (notre côté du terrain)
-  REP_opp : Recuperateur Eau Propre opp (côté adverse du terrain)
-  REM_opp : Recuperateur Eau Mixte opp (côté adverse du terrain)
-  CHATEAU : CHATEAU d'eau (le notre)
-  STATION : STATION d'epuration (la notre)
-  ABEILLE : ABEILLE qui pique (la notre)
-  PANNEAU : PANNEAU domotique (le notre)
-  CUB_1 : groupe de cubes (modules de constructions de batiments HQE) à l'emplacement 1 centré sur [850;540]
-  CUB_2 : groupe de cubes à l'emplacement 2 centré sur [300;1190]
-  CUB_3 : groupe de cubes à l'emplacement 3 centré sur [1100;1500]
-  CUB_1_opp : idem CUB_1 par symétrie
-  CUB_2_opp : idem CUB_2 par symétrie
-  CUB_3_opp : idem CUB_3 par symétrie
-  ZOC : ZOne de Construction des batiments HQE
+
+uint8_t activer_panneau();
+uint8_t vider_REP();
+uint8_t activer_abeille();
+uint8_t vider_REM();
+uint8_t constr_CUB1();
+
+
+
+/** ====================
+  Paramétrage des servos
+  ====================== **/
+
+/* Pour chaque servo, on associe :
+    des variables
+      Servo servo_exemple;
+      uint8_t angle_exemple;
+    une abréviation
+      EX
+    des positions prédéfinies (utiliser l'infinitif)
+      const uint8_t EX_INIT = 79; // Au départ
+      const uint8_t EX_OUVRIR = 80;
+      const uint8_t EX_FERMER = 120;
+    une fonction de pilotage générique
+      piloter_exemple(uint8_t angle, bool doucement = false, log = true);
+        angle       angle à donner au Servo (pas forcément une valeur prédéfinie)
+        doucement   true pour y aller doucement
+        log         false pour ne pas spammer le monitor
+
 */
 
+// Evacuation des Eaux Usees (EEU)
+// Angle+ = [Sens?]
+/*** TODO TBD ***/
+const uint8_t EEU_INIT = 79;
+const uint8_t EEU_BLOQUER = 80;
+const uint8_t EEU_OUVRIR = 81;
 
-// Initialisation des variables de configuration
-// Initialisation des actionneurs spécifiques
+// Cuillère à miel (CM)
+// Angle+ = [Sens?]
+/*** TODO TBD ***/
+const uint8_t CM_INIT = 79;
+const uint8_t CM_RANGER = 80;
+const uint8_t CM_LEVER = 81;
+const uint8_t CM_TAPER_ABEILLE = 82;
+const uint8_t CM_RELEVER = 83;
 
-void gr_init() {
-  robot.IS_PR = false; // première instruction dès que possible avant menu, match, etc
-  com_printfln("gr_init()");
+// Tri de l'eau (TRI)
+// Angle + = [Sens ?]
+/*** TODO TBD ***/
+const uint8_t TRI_INIT = 79;
+const uint8_t TRI_NEUTRE = 80;
+const uint8_t TRI_EAU_PROPRE = 81;
+const uint8_t TRI_EAU_USEE = 82;
 
-  /***********
-  ROBOT GR2018
-  ***********/
 
-  // Constantes à init
-  robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
-  robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 2207.0f; // 1rad -> 2207pas
-  robot.ASSERV_DISTANCE_KP = 0.15f; // 30 avril pr
-  robot.ASSERV_DISTANCE_KD = 1.5f; // 30 avril pr
-  robot.ASSERV_ROTATION_KP = 0.09f; // 30 avril pr
-  robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr
+// Variables et prototypes Servo
+Servo servo_evacuation_eaux_usees; // au pluriel
+Servo servo_cuillere_miel;
+Servo servo_tri_eau;
 
-  // Actionneurs à init
+uint8_t angle_evactuation_eaux_usees;
+uint8_t angle_cuillere_miel;
+uint8_t angle_tri_eau;
 
-  servo_bras_gauche.attach(29); //TBD_RSE
-  servo_bras_droit.attach(30); //TBD_RSE
-  servo_fusee.attach(31); //TBD_RSE
+void piloter_evacuation_eaux_usees(uint8_t angle, bool doucement = false, bool log = true);
+void piloter_cuillere_miel(uint8_t angle, bool doucement = false, bool log = true);
+void piloter_tri_eau(uint8_t angle, bool doucement = false, bool log = true);
 
-  positionner_deux_bras(POSITION_RECOLTER, false); //TBD_RSE
-  gr_fusee_fermer(); //TBD_RSE
-}
 
-void match_gr_arret() {
-  com_printfln("On stoppe les moteurs");
-  asserv_consigne_stop();
-
-  // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
+/** =====================================
+  Programmes alternatifs (Homolog, Debug)
+  ======================================= **/
   
-  tone_play_end();
-}
-
-void demo_allers_retours() { //TBD_RSE
+/*  Programme de démonstration :
+    Fait des allers-retours sur une table.
+    Petite feinte au démarrage avec la funny action.
+    
+    Mettre à jour @RSE
+*/
+void demo_allers_retours() {
+  
   ecran_console_reset();
-  ecran_console_log("Deplacer Minerais\n\n");
+  ecran_console_log("Demo\n\n");
   ecran_console_log("1. Positionner\n");
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
@@ -95,12 +148,11 @@ void demo_allers_retours() { //TBD_RSE
   bouton_wait_start_up();
   minuteur_demarrer();
 
-  //uint32_t t0 = millis();
   uint8_t error;
 
   aller_xy(1500, 1000, 30, 1, 10000, 15);
 
-  bras_position_croisiere();
+  // bras_position_croisiere();
   com_printfln("En attente");
   while(!robot.sickObstacle) {
     com_printfln("...");
@@ -108,42 +160,45 @@ void demo_allers_retours() { //TBD_RSE
     robot.match_debut = millis();
   }
   com_printfln("Let's go !");
-  gr_fusee_ouvrir();
+  /* gr_fusee_ouvrir();
   minuteur_attendre(600);
   gr_fusee_fermer();
   minuteur_attendre(400);
   gr_fusee_ouvrir();
-  minuteur_attendre(400);
+  minuteur_attendre(400); */
 
   while(1) {
     robot.match_debut = millis();
 
     aller_xy(2000, 1000, 100, 1, 10000, 20);
-    prendre_minerais();
+    // prendre_minerais();
     aller_xy(1800, 1000, 100, 0, 10000, 20);
     aller_xy(1000, 1000, 100, 1, 10000, 20);
     minuteur_attendre(800);
-    positionner_deux_bras(POSITION_DEPOSER_BAS, false);
+    // positionner_deux_bras(POSITION_DEPOSER_BAS, false);
     minuteur_attendre(800);
     aller_xy(1200, 1000, 100, 0, 10000, 20);
     minuteur_attendre(800);
-    bras_position_croisiere();
+    // bras_position_croisiere();
   }
 }
 
-void homologation_gr() { //TBD_RSE
+
+/* Programme d'homologation
+  Faire au plus simple, éviter les marches arrière
+*/
+void homologation_gr() {
   uint8_t error;
   uint8_t tentatives = 0;
-
 
   ecran_console_reset();
   ecran_console_log("Homolog GR\n");
 
-  if(robot.symetrie) {
-    ecran_console_log("Couleur : JAUNE\n");
+  if(robot.estVert) {
+    ecran_console_log("Couleur : VERT\n");
   }
   else {
-    ecran_console_log("Couleur : BLEU\n");
+    ecran_console_log("Couleur : ORANGE\n");
   }
 
   ecran_console_log("\n\n");
@@ -162,6 +217,7 @@ void homologation_gr() { //TBD_RSE
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
 
+  
   asserv_set_position(900, 200, MATH_PI * -0.75);  // TBC
   asserv_maintenir_position();
 
@@ -193,7 +249,11 @@ void homologation_gr() { //TBD_RSE
   minuteur_attendre_fin_match();
 }
 
-void debug_gr() { //TBD_RSE
+
+/* Programme de Debug, pour tester certaines fonctions.
+  Départ automatique après 3+2 secondes. Penser à relever BAU.
+*/
+void debug_gr() {
   ecran_console_log("Debug GR\n\n");
   ecran_console_log("2 sec\n\n");
 
@@ -241,12 +301,15 @@ void debug_gr() { //TBD_RSE
 // Debut section Edition ATN/DKI
 // ============================================================
 
+/** =============
+  Programme MATCH
+  =============== **/
+  
 void match_gr() {
   int start;
   uint8_t error;
 
   ecran_console_reset();
-
 
   // Variables de stratégie
   int action_en_cours; // Numéro de l'action en cours
@@ -263,9 +326,9 @@ void match_gr() {
 	  n - vider_REM_opp
 	  n - activer_panneau
       n - activer_abeille
-	  n - constr_CUB_1 (jusque ZOC)
-	  n - degager_CUB_2 (non défini TBC_ATN)
-	  n - degager_CUB_3 (hors STATION, chez STATION opp)
+	  n - constr_CUB1 (jusque ZOC)
+	  n - degager_CUB2 (non défini TBC_ATN)
+	  n - degager_CUB3 (hors STATION, chez STATION opp)
 
     Dimension 2 :
       0 - Visite (0 non, 1 oui)
@@ -283,11 +346,11 @@ void match_gr() {
   ecran_console_reset();
   ecran_console_log("Match GR\n");
 
-  if(robot.symetrie) {
-    ecran_console_log("Couleur : ORANGE\n");
+  if(robot.estVert) {
+    ecran_console_log("Couleur : VERT\n");
   }
   else {
-    ecran_console_log("Couleur : VERT\n");
+    ecran_console_log("Couleur : ORANGE\n");
   }
   ecran_console_log("\n\n");
 
@@ -337,7 +400,7 @@ void match_gr() {
 	=========================================
 
 	Visiter dans l'ordre :
-	PANNEAU, REP, CHATEAU, ABEILLE, REM, degager CUB_3, STATION, tout en évitant les cubes sur le chemin.
+	PANNEAU, REP, CHATEAU, ABEILLE, REM, degager CUB3, STATION, tout en évitant les cubes sur le chemin.
 	Si le temps le permet, visiter :
 	CUB 1, ZOC
 
@@ -399,18 +462,18 @@ void match_gr() {
 		  0 - activer_panneau
 		  1 - vider_REP (puis CHATEAU)
 		  2 - activer_abeille
-		  3 - vider_REM (puis degager CUB_3 puis STATION)
-		  4 - constr_CUB_1
+		  3 - vider_REM (puis degager CUB3 puis STATION)
+		  4 - constr_CUB1
       */
 
 	  //Nota : seules les actions primaires sont à instruire ici (prendre un élément), les autres actions (déposer l'élément, dégager un élément qui gêne) en découlent
 
       switch(action_en_cours) {
-	    case 0: error = activer_panneau(); break;
-		case 1: error = vider_REP(); break;
-		case 2: error = activer_abeille(); break;
-		case 3: error = vider_REM(); break;
-		case 4: error = constr_CUB_1(); break;
+        case 0: error = activer_panneau(); break;
+        case 1: error = vider_REP(); break;
+        case 2: error = activer_abeille(); break;
+        case 3: error = vider_REM(); break;
+        case 4: error = constr_CUB1(); break;
 
         default:
           com_printfln("! ######### ERREUR : action_en_cours inconnue");
@@ -540,9 +603,9 @@ uint8_t deposer_station()	=> gr_eau_usee_chargee = false;
 uint8_t activer_panneau()	=> tbl_panneau_allume = true;
 uint8_t activer_abeille()	=> tbl_abeille_activee = true;
 
-uint8_t constr_CUB_1() (jusque ZOC)
-uint8_t degager_CUB_2() (non défini TBC_ATN)
-uint8_t degager_CUB_3() (hors STATION, chez STATION opp)
+uint8_t constr_CUB1() (jusque ZOC)
+uint8_t degager_CUB2() (non défini TBC_ATN)
+uint8_t degager_CUB3() (hors STATION, chez STATION opp)
 
 */
 
@@ -820,17 +883,30 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 }
 */
 
-// ============================================================
-// Fin section Edition ATN/DKI
-// ============================================================
+void match_gr_arret() {
+  com_printfln("On stoppe les moteurs");
+  asserv_consigne_stop();
 
-// Il faudrait prévoir les fonctions suivantes pour les actionneurs : //TBD_RSE
+  // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
+  
+  tone_play_end();
+}
+
+
+
+/** =============
+  Actions de base
+  =============== **/
+
+  // TODO RSE
+  
+// Il faudrait prévoir les fonctions suivantes pour les actionneurs :
 // vider_REP()
 // vider_REM()
 // vider_REP_opp()
 // vider_REM_opp() (attention, séquence des balles opposée)
 
-uint8_t prendre_minerais() {
+/*uint8_t prendre_minerais() {
   positionner_bras_gauche(POSITION_RECOLTER, false);
   positionner_bras_droit(POSITION_RECOLTER, false);
   minuteur_attendre(500);
@@ -839,113 +915,114 @@ uint8_t prendre_minerais() {
 
   return OK;
 }
+*/
 
-void bras_position_croisiere() {
-  positionner_bras_droit(POSITION_CROISIERE, false);
-  positionner_bras_gauche(POSITION_CROISIERE, false);
+
+
+// ============================================================
+// Fin section Edition ATN/DKI
+// ============================================================
+
+
+/** =======================
+  Positionnement des Servos
+  ========================= **/
+  
+/* Voir commentaire général sur les Servos dans la section Définition
+    @2019 : créer une classe ServoWRD
+    [Pas fait 2018, doute sur implémentation d'une liste de constantes pré-définies]
+*/
+
+void match_gr_init_servos() {
+  com_printfln("Initialisation des servos");
+  
+  // Ne jamais utiliser doucement pendant l'init
+  piloter_evacuation_eaux_usees(EEU_INIT);
+  piloter_cuillere_miel(CM_INIT);
+  piloter_tri_eau(TRI_INIT);
 }
-
-void positionner_deux_bras(uint8_t position, bool doucement) {
-  positionner_bras_droit(position, doucement);
-  positionner_bras_gauche(position, doucement);
-}
-
-/**
-== Positions bras gauche ==
-Max sous sik : 95
-Croisière : 80
-Prendre minerais : 45
-Dépose basse : 45
-Dépose haute : 105 puis 90
-
-Angle+ => Vers le haut
-**/
-void positionner_bras_gauche(uint8_t position, bool doucement) {
-  int angle;
-
-  switch(position) {
-    case POSITION_CROISIERE: angle = 77; break;
-    case POSITION_RECOLTER: angle = 42; break;
-    case POSITION_DEPOSER_BAS: angle = 45; break;
-    case POSITION_DEPOSER_HAUT: angle = 95; break;
-    case POSITION_APPROCHE_DEPOT_HAUT: angle = 115; break;
-    case POSITION_MAX_SOUS_SICK: angle = 95; break;
-    case POSITION_KNOCK_JAUNE: angle = 70; break;
-    case POSITION_KNOCK_BLEU: angle = 80; break; // Croisière
-    case POSITION_KNOCK_FACE: angle = 68; break;
-    default:
-      com_printfln("######### ERREUR : POSITION inconnue dans positionner_bras_gauche");
-      angle = 80; // Croisière par défaut
+  
+  
+void piloter_evacuation_eaux_usees(uint8_t angle, bool doucement, bool log) {
+  if(doucement) {
+    servo_slowmotion(servo_evacuation_eaux_usees, angle_evactuation_eaux_usees, angle);
   }
-
-  if (doucement)
-    servo_slowmotion(servo_bras_gauche, robot.angle_bras_gauche, angle);
-  else
-    servo_bras_gauche.write(angle);
-
-  robot.angle_bras_gauche = angle;
-
-  com_printfln("Positionnement bras gauche %d deg", angle);
-}
-
-/**
-== Positions bras droit ==
-Max sous sick : 115
-Croisière : 135
-Prendre minerais : 165
-Dépose basse : 165
-Dépose haute : 110 puis 118
-
-Angle+ => Vers le bas
-**/
-void positionner_bras_droit(uint8_t position, bool doucement) {
-  int angle;
-
-  switch(position) {
-    case POSITION_CROISIERE: angle = 135; break;
-    case POSITION_RECOLTER: angle = 175; break;
-    case POSITION_DEPOSER_BAS: angle = 165; break;
-    case POSITION_DEPOSER_HAUT: angle = 113; break;
-    case POSITION_APPROCHE_DEPOT_HAUT: angle = 100; break;
-    case POSITION_MAX_SOUS_SICK: angle = 115; break;
-    case POSITION_KNOCK_BLEU: angle = 150; break;
-    case POSITION_KNOCK_JAUNE: angle = 135; break; // Croisière
-    case POSITION_KNOCK_FACE: angle = 130; break;
-    default:
-      com_printfln("######### ERREUR : POSITION inconnue dans positionner_bras_droit");
-      angle = 135; // Croisière par défaut
+  else {
+    servo_evacuation_eaux_usees.write(angle);
   }
-
-  if (doucement)
-    servo_slowmotion(servo_bras_droit, robot.angle_bras_droit, angle);
-  else
-    servo_bras_droit.write(angle);
-
-  robot.angle_bras_droit = angle;
-
-  com_printfln("Positionnement bras droit %d deg", angle);
-}
-
-
-void gr_fusee_init() {
-  com_printfln("###### Warning: Fonction fusee_init inutile");
-}
-
-void gr_fusee_fermer() {
-  servo_fusee.write(74);
-}
-
-void gr_fusee_ouvrir() {
-  servo_fusee.write(160);
-}
-
-void gr_coucou() {
-  for(int i = 0; i < 500; i++) {
-    delay(600);
-    servo_bras_gauche.write(45);
-    servo_bras_droit.write(135);
-    delay(600);
-    servo_bras_gauche.write(80);
-    servo_bras_droit.write(165);
+  
+  if(log) {
+    com_print("Evacuation des eaux usées : ");
+    switch(angle) {
+      case EEU_INIT: com_printfln("Init"); break;
+      case EEU_BLOQUER: com_printfln("Bloquee"); break;
+      case EEU_OUVRIR: com_printfln("Ouverte"); break;
+      default: com_printfln("%d", angle); break;
+    }
   }
+}
+
+void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
+  if(doucement) {
+    servo_slowmotion(servo_cuillere_miel, angle_cuillere_miel, angle);
+  }
+  else {
+    servo_cuillere_miel.write(angle);
+  }
+  
+  if(log) {
+    com_print("Cuillere a miel : ");
+    switch(angle) {
+      case CM_INIT: com_printfln("Init"); break;
+      case CM_RANGER: com_printfln("Rangée"); break;
+      case CM_LEVER: com_printfln("Levée"); break;
+      case CM_TAPER_ABEILLE: com_printfln("Bzzz"); break;
+      case CM_RELEVER: com_printfln("Relevée"); break;
+      default: com_printfln("%d", angle); break;
+    }
+  }
+}
+
+
+void piloter_tri_eau(uint8_t angle, bool doucement) {
+  if(doucement) {
+    servo_slowmotion(servo_tri_eau, angle_tri_eau, angle);
+  }
+  else {
+    servo_tri_eau.write(angle);
+  }
+  
+  if(log) {
+    com_print("Tri : ");
+    switch(angle) {
+      case TRI_INIT: com_printfln("Init"); break;
+      case TRI_NEUTRE: com_printfln("Neutre"); break;
+      case TRI_EAU_PROPRE: com_printfln("Eau propre"); break;
+      case TRI_EAU_USEE: com_printfln("Eau usee"); break;
+      default: com_printfln("%d", angle); break;
+    }
+  }
+}
+
+
+/** ==============================
+  Initialisation des données robot
+  ================================ **/
+
+void gr_init() {
+  robot.IS_PR = false; // première instruction dès que possible avant menu, match, etc
+  
+  // Valeurs GR2016 = GR2018
+  robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 3 mai gr
+  robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 3404.0f; // 4 mai gr
+  robot.ASSERV_DISTANCE_KP = 0.1f;
+  robot.ASSERV_DISTANCE_KD = 0.8f;
+  robot.ASSERV_ROTATION_KP = 0.1f;
+  robot.ASSERV_ROTATION_KD = 1.8f;
+
+  // Actionneurs à init
+  servo_evacuation_eaux_usees.attach(29); // TBD_RSE
+  servo_cuillere_miel.attach(30); //TBD_RSE
+  servo_tri_eau.attach(31); //TBD_RSE
+
 }

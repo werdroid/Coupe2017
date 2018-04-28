@@ -5,7 +5,6 @@ Initialement, l'idée était de mettre ici les fonctions spécifiques à un matc
 Ce fichier a tendance à créer quelques alias pour simplifier la création d'actions, à voir s'il faut les déplacer vers d'autres fichiers.
 ***/
 
-
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to) {
   if(deg_from > deg_to) {
     for (; deg_from >= deg_to; deg_from--) {
@@ -311,7 +310,7 @@ uint16_t localiser_zone() {
   return ZONE_INCONNUE;
 }
 
-// Pourrait être mis directement dans aller_pt_etape() ...
+
 Point getPoint(uint8_t idPoint) {
   // Ajout de point à faire aussi dans asserv2017.h
   switch(idPoint) {
@@ -328,9 +327,11 @@ Point getPoint(uint8_t idPoint) {
   }
 }
 
-bool robot_proche_point(uint8_t idPoint) {
+
+// marge = 50 si non renseigné
+bool robot_proche_point(uint8_t idPoint, uint8_t marge) {
   Point point = getPoint(idPoint);
-  return robot_dans_zone(point.x - 50, point.y - 50, point.x + 50, point.y + 50);
+  return robot_dans_zone(point.x - marge, point.y - marge, point.x + marge, point.y + marge);
 }
 
 

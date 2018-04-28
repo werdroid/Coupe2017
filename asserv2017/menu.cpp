@@ -203,6 +203,8 @@ void match_start() {
 void match_changer_couleur() {
   robot.symetrie = !robot.symetrie;
   EEPROM.write(EEPROM_ADDRESS_COULEUR, robot.symetrie);
+  
+  robot.estVert = !robot.symetrie;
 }
 
 void match_activer_rouleaux() {

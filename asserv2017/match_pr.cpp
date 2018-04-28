@@ -1,15 +1,16 @@
 #include "asserv2017.h"
 
-/**************************
-**                       **
-**    HYPER IMPORTANT    **
-**                       */
-//bool rouleaux_actifs = true;
-/**                      **
-**                       **
-**                       **
-**                       **
-**************************/
+
+/************************ TEMPORAIRE ****************************
+Prototypes des fonctions 2017 gardés le temps de faire le ménage.
+************  A SUPPRIMER DES QUE POSSIBLE  ********************/
+void grosse_dune_1();
+void grosse_dune_2();
+void grosse_dune_suite();
+void petite_dune1();
+void liberer_cubes();
+/*******************************************************************/
+
 
 // Initialisation des variables de configuration
 // Initialisation des actionneurs spécifiques
@@ -18,7 +19,7 @@ void pr_init() {
   robot.IS_PR = true; // première instruction dès que possible avant menu, match, etc
   com_printfln("pr_init()");
 
-  // Constantes à init
+  // Valeurs PR2016 = Alien2017 = Alien2018
   robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
   robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 2207.0f; // 1rad -> 2207pas
   robot.ASSERV_DISTANCE_KP = 0.15f; // 30 avril pr
@@ -139,13 +140,6 @@ void match_pr() {
     ecran_console_log("Couleur : VIOLET\n\n");
   }
 
-  if(!robot.rouleaux_actifs) {
-    ecran_console_log("\n!! ROULEAUX\n");
-    ecran_console_log("!! DESACTIVES\n\n");
-  }
-  else {
-    ecran_console_log("\nRouleaux Actifs\n\n");
-  }
 
   ecran_console_log("1. Positionner\n");
   ecran_console_log("2. Jack in\n");
@@ -212,3 +206,15 @@ void match_pr() {
 }
 
 
+void gr_coucou() {
+  // TBC 2018
+  /*
+  for(int i = 0; i < 500; i++) {
+    delay(600);
+    servo_bras_gauche.write(45);
+    servo_bras_droit.write(135);
+    delay(600);
+    servo_bras_gauche.write(80);
+    servo_bras_droit.write(165);
+  }*/
+}

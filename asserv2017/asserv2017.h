@@ -89,13 +89,12 @@ struct quadramp_filter {
 
 typedef struct {
   bool IS_PR;
-  uint8_t symetrie; // 0=bleu 1=jaune
-  bool sans_symetrie; // 1=on fait pas les symmétries
+  uint8_t symetrie;
+  bool estVert; // est égal à l'inverse de symetrie (utilisé en haut niveau)
+  bool sans_symetrie; // 1=on fait pas les symétries
   bool activer_monitor_sick;
   uint8_t programme;
-  bool rouleaux_actifs;
-  int angle_bras_gauche;
-  int angle_bras_droit;
+    
 
   /* asserv states */
   uint8_t activeDistance;
@@ -239,7 +238,7 @@ const uint16_t ZONE_J = 1 << 10;
 // Ajout de zone à faire aussi dans robot_dans_zone();
 
 // Constantes de points
-// Ici, pas de bit mask. On évite les multiples de 2 pour éviter toute confusion avec un idZone
+// Ici, pas de bit mask. On évite les puissances de 2 pour éviter toute confusion avec un idZone
 const uint8_t PT_ETAPE_1 = 41;
 const uint8_t PT_ETAPE_4 = 44;
 const uint8_t PT_ETAPE_7 = 47;
@@ -248,18 +247,6 @@ const uint8_t PT_ETAPE_10 = 50;
 const uint8_t PT_ETAPE_14 = 54;
 const uint8_t PT_ETAPE_15 = 55;
 // Ajout de point à faire aussi dans match.cpp > getPoint();
-
-
-// Positions de bras
-const uint8_t POSITION_CROISIERE = 1;
-const uint8_t POSITION_RECOLTER = 2;
-const uint8_t POSITION_DEPOSER_BAS = 3;
-const uint8_t POSITION_DEPOSER_HAUT = 4;
-const uint8_t POSITION_APPROCHE_DEPOT_HAUT = 5;
-const uint8_t POSITION_MAX_SOUS_SICK = 6;
-const uint8_t POSITION_KNOCK_BLEU = 7;
-const uint8_t POSITION_KNOCK_JAUNE = 8;
-const uint8_t POSITION_KNOCK_FACE = 9;
 
 
 #ifdef __EMSCRIPTEN__
@@ -309,7 +296,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint16_t localiser_zone();
 Point getPoint(uint8_t idPoint);
-bool robot_proche_point(uint8_t idPoint);
+bool robot_proche_point(uint8_t idPoint, uint8_t marge = 50);
 bool robot_dans_zone(uint16_t idZone);
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
@@ -324,27 +311,6 @@ void debug_gr();
 void gr_coucou();
 void match_gr_arret();
 
-uint8_t recuperer_minerais_pcd4();
-uint8_t recuperer_minerais_pcd7();
-uint8_t recuperer_minerais_pcl();
-uint8_t recuperer_minerais_gcc10();
-uint8_t recuperer_minerais_gcc14();
-uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire);
-uint8_t knocker_module2();
-uint8_t knocker_module2_de_face();
-uint8_t recuperer_fusee_depart();
-uint8_t recuperer_module1();
-uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage);
-uint8_t degager_module5();
-uint8_t prendre_minerais();
-void bras_position_croisiere();
-void positionner_deux_bras(uint8_t position, bool doucement);
-void positionner_bras_gauche(uint8_t position, bool doucement);
-void positionner_bras_droit(uint8_t position, bool doucement);
-
-void gr_fusee_init();
-void gr_fusee_fermer();
-void gr_fusee_ouvrir();
 
 
 // PR
@@ -353,11 +319,6 @@ void pr_init();
 void match_pr();
 }
 void match_pr_arret();
-void grosse_dune_1();
-void grosse_dune_2();
-void grosse_dune_suite();
-void petite_dune1();
-void liberer_cubes();
 void debug_pr();
 
 // Menu
