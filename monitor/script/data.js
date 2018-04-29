@@ -80,7 +80,7 @@ var donnees = {
     return donnees.get(robot, -1);
   },
 
-  
+
   // Enregistre un jeu de données, l'affiche sur le Monitor, et retourne son indice
   // trame ne doit contenir que les éléments provenant du robot
   //    Cf. liste tout en haut de ce fichier
@@ -104,8 +104,9 @@ var donnees = {
 // La trame monitor contient des infos sur le robot
 // en binaire via un buffer, il faut parser cela puis
 // envoyer le résultat dans notre structure JS
-function traiterTrameMonitor(buffer) {
-  console.log('nouvelle trame monitor');
+var logVerificationBranchementPRGR = [true, true]; // Utilisé pour afficher un log spécifique 1 seule fois
+function traiterTrameMonitor(robot, buffer) {
+  //console.log('nouvelle trame robot state monitor', buffer);
   var offset = 0;
   var HEAP8 = new Int8Array(buffer);
   var HEAP16 = new Int16Array(buffer);
@@ -114,7 +115,6 @@ function traiterTrameMonitor(buffer) {
   var HEAPU16 = new Uint16Array(buffer);
   var HEAPU32 = new Uint32Array(buffer);
   var HEAPF32 = new Float32Array(buffer);
-  var HEAPF64 = new Float64Array(buffer);
   function nextChar() {    return String.fromCharCode(nextUInt8()); }
   function nextUInt8() {   var value = HEAPU8[offset >> 0]; offset += 1; return value; }
   function nextUInt16() {  var value = HEAPU16[offset >> 1]; offset += 2; return value; }
@@ -123,38 +123,71 @@ function traiterTrameMonitor(buffer) {
   function nextInt16() {   var value = HEAP16[offset >> 1]; offset += 2; return value; }
   function nextInt32() {   var value = HEAP32[offset >> 2]; offset += 4; return value; }
   function nextFloat() {   var value = HEAPF32[offset >> 2]; offset += 4; return value; }
-  function nextDouble() {  var value = HEAPF64[offset >> 3]; offset += 8; return value; }
 
   var trameMonitor = {};
   if (nextChar() !== '@' ||
       nextChar() !== '@' ||
       nextChar() !== '@' ||
       nextChar() !== '@') {
-    throw new Error('Trame monitor ne commence pas par 4 arobases, trash it. Did you forget to sync serializer and deserializer?');
+    throw new Error('Trame monitor ne commence pas par 4 arobases, trash it.');
   }
+
+  // pour la lecture, l'ordre est important
   trameMonitor.millis = nextUInt32();
   trameMonitor.a = nextFloat();
+  trameMonitor.time_total = nextUInt32();
   trameMonitor.xMm = nextInt16();
   trameMonitor.yMm = nextInt16();
   trameMonitor.proche_distance = nextUInt16();
   trameMonitor.sickObstacle = nextUInt8();
   trameMonitor.isPR = nextUInt8();
+  trameMonitor.led_state = nextUInt8();
+  
+  trameMonitor.empty = nextUInt8();
+  trameMonitor.empty = nextUInt8();
+  trameMonitor.empty = nextUInt8();
+
   if (nextChar() !== '@' ||
       nextChar() !== '@' ||
       nextChar() !== '@' ||
       nextChar() !== '@') {
-    throw new Error('Trame monitor ne termine pas par 4 arobases, trash it. Did you forget to sync serializer and deserializer?');
+    throw new Error('Trame monitor ne termine pas par 4 arobases, trash it.');
   }
 
   console.log(trameMonitor);
-  
-  // Dans le robot isPR = 1 c'est le petit robot
-  // Dans le monitor 0 c'est le petit robot
-  var robot = trameMonitor.isPR ? 0 : 1;
 
-  // Enregistrement
+  // On vérifie que PR est bien branché sur PR.
+  // Si ce n'est pas le cas, simple information
+  if(logVerificationBranchementPRGR[robot]) {
+    logVerificationBranchementPRGR[robot] = false; // Cette vérification n'est à faire qu'une seule fois
+    
+    // Dans le robot isPR = 1 c'est le petit robot
+    // Dans le monitor 0 c'est le petit robot
+    var robotLu = trameMonitor.isPR ? 0 : 1;
+    if(robot != robotLu) {
+      log.monitor('Sans vouloir vous offenser, le robot connecté en tant que ' + (robot == PR ? 'PR':'GR') + ' est en fait ' + (robotLu == PR ? 'PR' : 'GR') + ' (c\'est pas grave, on fait tous des erreurs...)');
+    }
+  }
+  
+  // === Calculs ===
+  // % CPU (l'affichage se fera plus tard)
+  var cpuPourcent = trameMonitor.time_total / 100; // On divise par (1/100)*1000000 *100 [= DT_US * 100 pour affichage en %]
+  if(cpuPourcent > 75) {
+    elem.cpu[robot].style.backgroundColor = 'red'; // restera rouge jusqu'au redémarrage
+    evenements.enregistrer(robot, 'CPU ' + cpuPourcent + '%');
+  }
+  
+  // === Enregistrement ===
   donnees.enregistrer(robot, {
     t: trameMonitor.millis,
+    stats: { // signes vitaux du robot (cpu)
+      time_total: trameMonitor.time_total,
+      cpu_pourcent:  cpuPourcent
+    },
+    sick: {
+      sickObstacle: trameMonitor.sickObstacle,
+      proche_distance: trameMonitor.proche_distance
+    },
     position: {
       mmX: trameMonitor.xMm,
       mmY: trameMonitor.yMm,
@@ -166,16 +199,17 @@ function traiterTrameMonitor(buffer) {
       mmY: 0
     }
   });
-  
-  // Affichage d'un obstacle
+
+  // === Affichages ===
   elem.obstacle[robot].className = (trameMonitor.sickObstacle == 1 ? 'oui' : 'non');
-  
+  elem.cpu[robot].style.height = cpuPourcent + '%'; 
+  elem.led[robot].className = (trameMonitor.led_state ? 'on' : 'off');
 }
 
 // Traitement d'un message reçu depuis le port Série
 // r = robot émetteur (0 ou 1)
 var traiterMessage = function(r, msg) {
-  
+
   // Réception de données sous forme Str.
   // Normalement obsolète pour la Position, conservé pour rester Compatible ou pour la transmission de données particulières
   if (msg[0] == '@') {
@@ -200,7 +234,7 @@ var traiterMessage = function(r, msg) {
       case "#DebutDuMatch\n\n":
         match.demarrer(r);
         break;
-      case "#LedChange\n":
+      case "#LedChange\n": // Ne devrait plus être utilisé
         etatLed[r] = !etatLed[r];
         elem.led[r].className = (etatLed[r] ? 'on' : 'off');
         break;
@@ -215,7 +249,7 @@ var traiterMessage = function(r, msg) {
         log.robot(r, msg + ' [[Non interprété]]');
     }
   }
-  
+
   // Tout autre message non vide
   else if(msg != "\n") {
     log.robot(r, msg);

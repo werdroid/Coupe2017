@@ -275,7 +275,7 @@ void sick_traiter_donnees() {
       robot.sickObstacle = true;
     }
   }
-  
+
   // Démonstration fonctionnement Sick (utilisable avec MonitorSick)
   if(robot.activer_monitor_sick) {
     for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {

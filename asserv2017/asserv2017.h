@@ -161,8 +161,10 @@ typedef struct {
   uint16_t proche_distance; // distance du point le plus proche
 
   // Profiling du CPU
-  uint32_t time_codeurs;
-  uint32_t time_sick;
+  uint8_t led_state; // Etat de la Led (aussi envoyé vers Monitor)
+  uint32_t time_codeurs; // temps de lecture des codeurs
+  uint32_t time_sick; // temps de lecture du SICK
+  uint32_t time_total; // temps complet de la dernière interruption
 
   // Configuration, initialisée au tout début
   float ASSERV_COEFF_TICKS_PAR_MM;
@@ -205,6 +207,7 @@ typedef struct {
   // propriétés sur 4 bytes
   uint32_t millis;
   float   a; // float 32bits
+  uint32_t time_total;
 
   // propriétés sur 2 bytes
   int16_t xMm; // mm
@@ -214,6 +217,12 @@ typedef struct {
   // propriétés sur 1 byte
   uint8_t sickObstacle;
   uint8_t isPR;
+  uint8_t led_state;
+  
+  // compléter pour avoir un total de bytes multiple de 4
+  uint8_t empty1;
+  uint8_t empty2;
+  uint8_t empty3;
 
   // Fin de trame sur 4 bytes
   char footer1 = '@';
@@ -258,21 +267,20 @@ const uint8_t PT_ETAPE_15 = 55;
 
 
 /*-----------------------------------------------------------------------------
- * Redéfinitions pour Simulation
+ * Simulator only (not robot)
  *----------------------------------------------------------------------------*/
 
 #ifdef __EMSCRIPTEN__
+
 class Servo {
 public:
   void write(int angle);
   void attach(int pin);
 };
 
-void com_printfln(const char* format, ...);
-void com_print(float msg);
-
 unsigned long millis();
 void delay(long time);
+
 #endif
 
 /*-----------------------------------------------------------------------------
@@ -393,6 +401,7 @@ void com_send_robot_state();
 void com_send_robot_infos();
 void com_printfln(const char* format, ...);
 void com_print(const char* str);
+void com_serial1_print(const char* str);
 
 // Monitor Panel
 void monitorCodeurs();

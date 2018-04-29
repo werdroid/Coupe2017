@@ -94,6 +94,13 @@ void moteur_gauche(int16_t pwm);
 void moteur_droite(int16_t pwm);
 ```
 
+**com.cpp** bas-niveau
+```c++
+void com_print(const char* str);
+void com_printfln(const char* format, ...);
+void com_serial1_print(const char* str);
+```
+
 ### Aide git
 1. `git pull origin master` met à jour les données de .git
 1. `git merge origin/master` met les éventuelles nouveautés de .git dans le projet
@@ -105,4 +112,14 @@ void moteur_droite(int16_t pwm);
 - `git checkout fichier123` reset le fichier par celui qui est dans .git
 - `git diff fichier123` fait un différentiel du fichier par rapport à celui dans .git
 
+- `git stash` met tout de côté
+- `git stash pop` récupère ce qui a été mis de côté
 
+### Guide d'ajout d'un champ aux trame "robot state"
+
+Robot state c'est une trame binaire contenant des infos à envoyer du robot ou simulateur au moniteur pour regarder son contenu graphiquement.
+
+- ajouter le champs dans la structure `TrameMonitor` dans `asserv2017.h`, en groupant les tailles (1, 2, 4 octets)
+- remplir trameMonitor dans `simulateur.cpp` si le simulateur génère cette info
+- remplir trameMonitor dans `com.cpp`
+- c'est bon ! l'info sera envoyée automatiquement

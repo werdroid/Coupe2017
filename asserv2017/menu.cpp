@@ -144,7 +144,11 @@ void menu_start() {
           break;
           
         case 7:
+          // Active l'envoi de données pour le Monitor Sick
+          // Objectif purement démonstratif. Aucun programme ne doit être lancé avec le MonitorSick actif
           robot.activer_monitor_sick = !robot.activer_monitor_sick;
+          ecran_console_reset();
+          ecran_console_log("Monitor Sick ACTIF");
           if(robot.activer_monitor_sick) {
             asserv_set_position(1500, 1000, MATH_PI2);
             asserv_maintenir_position();
