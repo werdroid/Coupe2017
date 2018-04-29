@@ -1,26 +1,19 @@
 #include "asserv2017.h"
 
-/***
-Initialement, l'idée était de mettre ici les fonctions spécifiques à un match mais pouvant servir aux 2 robots.
-Ce fichier a tendance à créer quelques alias pour simplifier la création d'actions, à voir s'il faut les déplacer vers d'autres fichiers.
-***/
+/** =========================
+  Actions 2018 communes PR/GR
+  =========================== **/
 
-
-void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to) {
-  if(deg_from > deg_to) {
-    for (; deg_from >= deg_to; deg_from--) {
-      servo.write(deg_from);
-      minuteur_attendre(20);
-    }
-  }
-  else {
-    for (; deg_from <= deg_to; deg_from++) {
-      servo.write(deg_from);
-      minuteur_attendre(20);
-    }
-  }
+  
+void maj_score() {
+  // TODO RSE
 }
-
+  
+  
+/** ====================
+  Déplacements sur table
+  ====================== **/
+  
 // Attention, inversion de uniquement_avant et timeout par rapport à asserv_go_xy
 // (La logique est : on définit les paramètres de notre consigne avant de définir les conditions d'échec)
 // aller_xy = "Va là intelligement"
@@ -48,26 +41,27 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   } while (error == ERROR_OBSTACLE && tentatives < max_tentatives);
 
   if (error != OK) {
-    com_printfln("! Déplacement vers %f, %f abandonné", x, y);
+    com_printfln("! Déplacement vers %d, %d abandonné", x, y);
     switch(error) {
       case ERROR_TIMEOUT:
-        com_printfln("! Déplacement vers %f, %f abandonné (timeout %d atteint)", x, y, timeout);
+        com_printfln("! Déplacement vers %d, %d abandonné (timeout %d atteint)", x, y, timeout);
         break;
       case ERROR_OBSTACLE:
-        com_printfln("! Déplacement vers %f, %f abandonné (OBSTACLE)", x, y);
+        com_printfln("! Déplacement vers %d, %d abandonné (OBSTACLE)", x, y);
         break;
       case ERROR_FIN_MATCH:
-        com_printfln("! Déplacement vers %f, %f abandonné (FIN MATCH)", x, y);
+        com_printfln("! Déplacement vers %d, %d abandonné (FIN MATCH)", x, y);
         break;
-      case ERROR_STRATEGIE:
-        com_printfln("! Déplacement vers %f, %f abandonné (Stratégie)", x, y);
+      case ERROR_CAS_NON_GERE:
+        com_printfln("! Déplacement vers %d, %d abandonné (CAS NON GERE)", x, y);
         break;
       case AUTRE:
         // TODO: ça n'a pas de sens, à préciser ce que c'est 'AUTRE'
+        // --> asserv.cpp
         com_printfln("! Déplacement vers %f, %f abandonné (AUTRE ERREUR)", x, y);
         break;
       default:
-        com_printfln("! Déplacement vers %f, %f abandonné ( erreur inconnue a corriger )", x, y);
+        com_printfln("! ### Déplacement vers %d, %d abandonné (Erreur inconnue a corriger)", x, y);
     }
 
     if (tentatives >= max_tentatives) {
@@ -247,7 +241,7 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
 
   if (je_suis_perdu) {
     com_printfln("! ######### ERREUR : Point '%d' sans stratégie", idPoint);
-    return ERROR_STRATEGIE;
+    return ERROR_CAS_NON_GERE;
   }
   else {
     point = getPoint(idPoint);
@@ -311,7 +305,7 @@ uint16_t localiser_zone() {
   return ZONE_INCONNUE;
 }
 
-// Pourrait être mis directement dans aller_pt_etape() ...
+
 Point getPoint(uint8_t idPoint) {
   // Ajout de point à faire aussi dans asserv2017.h
   switch(idPoint) {
@@ -328,9 +322,11 @@ Point getPoint(uint8_t idPoint) {
   }
 }
 
-bool robot_proche_point(uint8_t idPoint) {
+
+// marge = 50 si non renseigné
+bool robot_proche_point(uint8_t idPoint, uint8_t marge) {
   Point point = getPoint(idPoint);
-  return robot_dans_zone(point.x - 50, point.y - 50, point.x + 50, point.y + 50);
+  return robot_dans_zone(point.x - marge, point.y - marge, point.x + marge, point.y + marge);
 }
 
 
@@ -389,3 +385,24 @@ bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
   // ? (trop tard pour tester maintenant)
 
 }
+
+
+/** ================
+  Gestion des servos
+  ================== **/
+
+void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to) {
+  if(deg_from > deg_to) {
+    for (; deg_from >= deg_to; deg_from--) {
+      servo.write(deg_from);
+      minuteur_attendre(20);
+    }
+  }
+  else {
+    for (; deg_from <= deg_to; deg_from++) {
+      servo.write(deg_from);
+      minuteur_attendre(20);
+    }
+  }
+}
+

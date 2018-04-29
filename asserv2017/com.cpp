@@ -67,9 +67,45 @@ void com_send_robot_infos() {
   Serial.println();
 }
 
+
+// Renvoie la constante d'erreur sous forme de log
+// Nota : pas forcément pertinent avec TIMEOUT et OBSTACLE qui sont déjà bien décrits dans match.cpp
+uint8_t com_err2str(uint8_t error) {
+  switch(error) {
+    case OK:
+      com_printfln("OK");
+      break;
+    case ERROR_TIMEOUT:
+      com_printfln("! ERROR_TIMEOUT");
+      break;
+    case ERROR_OBSTACLE:
+      com_printfln("! ERROR_OBSTACLE");
+      break;
+    case ERROR_FIN_MATCH:
+      com_printfln("! ERROR_FIN_MATCH");
+      break;
+    case ERROR_CAS_NON_GERE:
+      com_printfln("! ERROR_CAS_NON_GERE");
+      break;
+    case ERROR_PARAMETRE:
+      com_printfln("! ##### ERROR_PARAMETRE #####");
+      break;
+    case ERROR_PAS_CODE:
+      com_printfln("! ERROR_PAS_CODE");
+      break;
+    case AUTRE:
+      com_printfln("! # AUTRE");
+      break;
+    default:
+      com_printfln("! ##### ERROR_??? : %d", error);
+  }
+  return error;
+}
+
 // ####################################
 // Communication
 // ####################################
+
 
 void com_setup() {
   Serial.begin(115200); // serial par l'USB

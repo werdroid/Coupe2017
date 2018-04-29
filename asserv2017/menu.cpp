@@ -3,7 +3,6 @@
 const uint EEPROM_ADDRESS_SELECT = 0;
 const uint EEPROM_ADDRESS_COULEUR = 1;
 const uint EEPROM_ADDRESS_PROGRAMME = 2;
-const uint EEPROM_ADDRESS_ROULEAUX = 3;
 
 int menu_input_up();
 void match_start();
@@ -17,7 +16,6 @@ void menu_start() {
   // Récupération depuis la mémoire permanente
   robot.symetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
   robot.programme = EEPROM.read(EEPROM_ADDRESS_PROGRAMME);
-  robot.rouleaux_actifs = EEPROM.read(EEPROM_ADDRESS_ROULEAUX);
   int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
 
   ecran_print_menu(selectPosition);
@@ -66,15 +64,7 @@ void menu_start() {
           break;
           
         case 3:
-          gr_fusee_init();
-          static bool open = 0;
-          if (open) {
-            gr_fusee_fermer();
-            open = 0;
-          } else {
-            gr_fusee_ouvrir();
-            open = 1;
-          }
+          // Menu libre
           break;
           
         case 4:
@@ -207,11 +197,8 @@ void match_start() {
 void match_changer_couleur() {
   robot.symetrie = !robot.symetrie;
   EEPROM.write(EEPROM_ADDRESS_COULEUR, robot.symetrie);
-}
-
-void match_activer_rouleaux() {
-  robot.rouleaux_actifs = !robot.rouleaux_actifs;
-  EEPROM.write(EEPROM_ADDRESS_ROULEAUX, robot.rouleaux_actifs);
+  
+  robot.estVert = !robot.symetrie;
 }
 
 void menu_changer_programme() {

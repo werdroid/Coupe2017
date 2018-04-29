@@ -392,6 +392,7 @@ setTimeout(function() {
   // changeSerialConnection(GR, 'simu');
 
 
+
 }, 500);
 
 

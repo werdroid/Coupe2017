@@ -41,7 +41,7 @@ void ecran_print_menu(int selector) {
     "\n\n   Demarrer match __",
     "\n\n   Couleur:    _____",
     "\n\n   (Libre 2)        ",
-    "\n\n   Servo Fusee      ",
+    "\n\n   (Libre 3)      ",
     "\n\n   (Libre 4)        ",
     "\n\n   Prg: ____________",
     "\n\n   Demarrer Program.",
@@ -59,12 +59,13 @@ void ecran_print_menu(int selector) {
   }
 
   // Menu 1 : Couleur
-  if(robot.symetrie) {
-    optionsMenu[1] = "\n\n   Couleur:    JAUNE";
-    couleur_robot = ST7735_YELLOW;
+  // BLACK BLUE RED MAGENTA GREEN CYAN YELLOW WHITE
+  if(robot.estVert) {
+    optionsMenu[1] = "\n\n   Couleur:     VERT";
+    couleur_robot = ST7735_GREEN;
   } else {
-    optionsMenu[1] = "\n\n   Couleur:     BLEU";
-    couleur_robot = ST7735_BLUE;
+    optionsMenu[1] = "\n\n   Couleur:    ORANGE";
+    couleur_robot = ST7735_YELLOW;
   }
 
   // Menu 5 : Affichage du programme sélectionné
