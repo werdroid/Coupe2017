@@ -56,6 +56,8 @@ uint8_t activer_abeille();
 uint8_t vider_REM();
 uint8_t constr_CUB1();
 
+void match_gr_init_servos();
+
 
 
 /** ====================
@@ -208,6 +210,8 @@ void homologation_gr() {
 
   ecran_console_log("1. Positionner\n");
   minuteur_attendre(1500);
+  match_gr_init_servos();
+  
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
   ecran_console_log("4. Jack out\n\n");
@@ -227,8 +231,6 @@ void homologation_gr() {
 
   minuteur_attendre(1000);
 
-
-  bras_position_croisiere();
   asserv_go_toutdroit(-350, 3000);
   aller_xy(1150, 450, 100, 1, 20000, 10);
 
@@ -240,11 +242,11 @@ void homologation_gr() {
 
   asserv_go_toutdroit(-400, 3000);*/
 
-  recuperer_module1();
+  // recuperer_module1();
 
   minuteur_attendre(2000);
 
-  recuperer_module5(false);
+  // recuperer_module5(false);
 
   minuteur_attendre_fin_match();
 }
@@ -258,7 +260,6 @@ void debug_gr() {
   ecran_console_log("2 sec\n\n");
 
   minuteur_attendre(200);
-  //asserv_set_position({x: 900, y: 200, a: MATH_PI * 0.25});
   asserv_set_position(737, 1578, MATH_PI * -0.5);
   asserv_maintenir_position();
   minuteur_attendre(1800);
@@ -268,7 +269,7 @@ void debug_gr() {
   minuteur_attendre(500);
 
   //asserv_rotation_vers_point(1500, 0, 3000);
-  bras_position_croisiere();
+  //bras_position_croisiere();
 
   com_printfln("Orientation 1 dans 3 sec");
   minuteur_attendre(3000);
@@ -277,12 +278,12 @@ void debug_gr() {
 
   com_printfln("Baisser le bras dans 3 sec");
   minuteur_attendre(3000);
-  if(robot.symetrie) {
+  /*if(robot.symetrie) {
     positionner_bras_gauche(POSITION_KNOCK_JAUNE, false);
   }
   else {
     positionner_bras_droit(POSITION_KNOCK_BLEU, false);
-  }
+  }*/
 
   com_printfln("Orientation 2 dans 3 sec");
   minuteur_attendre(3000);
@@ -292,7 +293,7 @@ void debug_gr() {
   com_printfln("Croisiere dans 3 sec");
   minuteur_attendre(3000);
 
-  bras_position_croisiere();
+  //bras_position_croisiere();
 
   tone_play_end();
 }
@@ -883,6 +884,28 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 }
 */
 
+
+uint8_t activer_panneau() {
+  return OK;
+}
+uint8_t vider_REP() {
+  return OK;
+}
+uint8_t activer_abeille() {
+  return OK;
+}
+uint8_t vider_REM() {
+  return OK;
+}
+uint8_t constr_CUB1() {
+  return OK;
+}
+
+
+/** =============
+  Actions de base
+  =============== **/
+
 void match_gr_arret() {
   com_printfln("On stoppe les moteurs");
   asserv_consigne_stop();
@@ -891,13 +914,8 @@ void match_gr_arret() {
   
   tone_play_end();
 }
-
-
-
-/** =============
-  Actions de base
-  =============== **/
-
+  
+  
   // TODO RSE
   
 // Il faudrait prévoir les fonctions suivantes pour les actionneurs :
@@ -984,7 +1002,7 @@ void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
 }
 
 
-void piloter_tri_eau(uint8_t angle, bool doucement) {
+void piloter_tri_eau(uint8_t angle, bool doucement, bool log) {
   if(doucement) {
     servo_slowmotion(servo_tri_eau, angle_tri_eau, angle);
   }
