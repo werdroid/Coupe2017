@@ -15,12 +15,12 @@
     STATION : STATION d'epuration (la notre)
     ABEILLE : ABEILLE qui pique (la notre)
     PANNEAU : PANNEAU domotique (le notre)
-    CUB1    : groupe de cubes (modules de constructions de batiments HQE) à l'emplacement 1 centré sur [850;540]
-    CUB2    : groupe de cubes à l'emplacement 2 centré sur [300;1190]
-    CUB3    : groupe de cubes à l'emplacement 3 centré sur [1100;1500]
+    CUB0    : groupe de cubes (modules de constructions de batiments HQE) à l'emplacement 1 centré sur [850;540]
+    CUB1    : groupe de cubes à l'emplacement 2 centré sur [300;1190]
+    CUB2    : groupe de cubes à l'emplacement 3 centré sur [1100;1500]
+    CUB0_opp : idem CUB0 par symétrie
     CUB1_opp : idem CUB1 par symétrie
     CUB2_opp : idem CUB2 par symétrie
-    CUB3_opp : idem CUB3 par symétrie
     ZOC     : Zone de Construction des batiments HQE
   
   
@@ -50,13 +50,15 @@ bool tbl_REP_opp_vide = false;
 bool tbl_REM_opp_vide = false;
 
 
-uint8_t activer_panneau();
-uint8_t vider_REP();
-uint8_t activer_abeille();
-uint8_t vider_REM();
-uint8_t constr_CUB1();
+int gr_activer_panneau(int depart);
+int vider_REP(int depart);
+int vider_REM(int depart);
+int vider_REP_opp(int depart);
+int vider_REM_opp(int depart);
+int activer_abeille(int depart);
+int gr_rapporter_CUB(int cub, int depart);
 
-void match_gr_init_servos();
+void gr_init_servos();
 
 
 
@@ -71,6 +73,7 @@ void match_gr_init_servos();
     une abréviation
       EX
     des positions prédéfinies (utiliser l'infinitif)
+      ! Toutes les valeurs doivent être différentes
       const uint8_t EX_INIT = 79; // Au départ
       const uint8_t EX_OUVRIR = 80;
       const uint8_t EX_FERMER = 120;
@@ -210,7 +213,7 @@ void homologation_gr() {
 
   ecran_console_log("1. Positionner\n");
   minuteur_attendre(1500);
-  match_gr_init_servos();
+  gr_init_servos();
   
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
@@ -312,31 +315,34 @@ void match_gr() {
 
   ecran_console_reset();
 
-  // Variables de stratégie
-  int action_en_cours; // Numéro de l'action en cours
-  int const nombre_actions = 9;
-  int const nombre_attributs = 2;
-  int etat_actions[nombre_actions][nombre_attributs] = { 0 };
 
   /*
-    etat_actions :
-    Dimension 1 :
+    Liste des actions :
+    
 	  n - vider_REP
 	  n - vider_REM
 	  n - vider_REP_opp
 	  n - vider_REM_opp
 	  n - activer_panneau
       n - activer_abeille
-	  n - constr_CUB1 (jusque ZOC)
-	  n - degager_CUB2 (non défini TBC_ATN)
-	  n - degager_CUB3 (hors STATION, chez STATION opp)
-
-    Dimension 2 :
-      0 - Visite (0 non, 1 oui)
-      1 - Erreur  (1 oui)
+	  n - gr_rapporter_CUB0 (jusque ZOC)
+	  n - degager_CUB1 (non défini TBC_ATN)
+	  n - degager_CUB2 (hors STATION, chez STATION opp)
+    
+    Pour chaque action :
+      action_nb_tentatives (nom peut encore être modifié) : Nb de fois que cette action a été appelée
+      action_avancement (nom peut encore être modifié) : Statut d'avancement de l'action.
+      
   */
 
+  // Variables de stratégie
+  int action;
+  int const NOMBRE_ACTIONS = 9;
+  int action_nb_tentatives[NOMBRE_ACTIONS] = { 0 };
+  int action_avancement[NOMBRE_ACTIONS] = { 0 };
+  
   // Variables internes
+  bool continuer_boucle;
   int nb_iterations;
 
 
@@ -347,12 +353,10 @@ void match_gr() {
   ecran_console_reset();
   ecran_console_log("Match GR\n");
 
-  if(robot.estVert) {
+  if(robot.estVert)
     ecran_console_log("Couleur : VERT\n");
-  }
-  else {
+  else
     ecran_console_log("Couleur : ORANGE\n");
-  }
   ecran_console_log("\n\n");
 
   ecran_console_log("1. Positionner\n");
@@ -362,9 +366,8 @@ void match_gr() {
 
   ecran_console_log("Initialisation...");
 
-
   // Initialisation des variables de stratégie
-  action_en_cours = 0; ////// ATTENTION, != 0 pour TESTS UNIQUEMENT
+  action = 0; ////// ATTENTION, != 0 pour TESTS UNIQUEMENT
   bool gr_eau_propre_chargee = false; // Etat chargé/à vide
   bool gr_eau_usee_chargee = false; // Etat chargé/à vide
   bool tbl_panneau_allume = false;
@@ -374,6 +377,8 @@ void match_gr() {
   bool tbl_REP_opp_vide = false;
   bool tbl_REM_opp_vide = false;
 
+  robot.score = 0;
+  maj_score();
 
   minuteur_attendre(500);
   ecran_console_log(" Ok\n");
@@ -387,9 +392,9 @@ void match_gr() {
   bouton_wait_start_up();
 
 
-  /** ============
-    Début du match
-    ============== **/
+  /** ------------
+    Début du Match
+    ------------- **/
 
   minuteur_demarrer();
   minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
@@ -450,109 +455,85 @@ void match_gr() {
 
   **/
 
+  /** ----------------------------------
+    Bouclage sur les actions principales
+    ------------------------------------ **/
+    
+  // Cette boucle s'effectue tant qu'il reste du temps
   do {
+    continuer_boucle = true;
 
-    // [Prévision pour Stratégie Niveau 2 2017]
-    //  Une fois les actions de base terminées, on passe à une autre boucle.
+    /*Proposition stratégie 2018 v1 Antoine
+    0 - activer_panneau
+    1 - vider_REP (puis CHATEAU)
+    2 - activer_abeille
+    3 - vider_REM (puis degager CUB3 puis STATION)
+    4 - constr_CUB1
+    */
 
-      /** =======================
-		  Réalisation des actions
-          ======================= **/
+    /** On effectue l'action **/
+    
+    action_nb_tentatives[action]++;
+    
+    switch(action) {
+      case 0:
+        action_avancement[action] = gr_activer_panneau(action_avancement[action]);
+        break;
+        
+      case 1:
+        action_avancement[action] = vider_REP(action_avancement[action]);
+        break;
+        
+      case 2:
+        action_avancement[action] = activer_abeille(action_avancement[action]);
+        break;
+        
+      case 3:
+        action_avancement[action] = vider_REM(action_avancement[action]);
+        break;
+        
+      case 4:
+        action_avancement[action] = gr_rapporter_CUB(0, action_avancement[action]);
+        break;
 
-      /*Proposition stratégie 2018 v1 Antoine
-		  0 - activer_panneau
-		  1 - vider_REP (puis CHATEAU)
-		  2 - activer_abeille
-		  3 - vider_REM (puis degager CUB3 puis STATION)
-		  4 - constr_CUB1
-      */
+      default:
+        com_printfln("! ######### ERREUR : action inconnue");
+    }
+    
+    com_printfln("::: Action %d [%d] :::", action, action_avancement[action]);
 
-	  //Nota : seules les actions primaires sont à instruire ici (prendre un élément), les autres actions (déposer l'élément, dégager un élément qui gêne) en découlent
-
-      switch(action_en_cours) {
-        case 0: error = activer_panneau(); break;
-        case 1: error = vider_REP(); break;
-        case 2: error = activer_abeille(); break;
-        case 3: error = vider_REM(); break;
-        case 4: error = constr_CUB1(); break;
-
-        default:
-          com_printfln("! ######### ERREUR : action_en_cours inconnue");
-          error = ERROR_STRATEGIE;
+    
+    /** Recherche de la prochaine action à effectuer **/
+    // (celle qui n'a pas encore un statut OK)
+    
+    nb_iterations = 0;      
+    do {
+      action++;
+      if(action >= NOMBRE_ACTIONS) {
+        action = 0;
       }
-
-      if (error) {
-        etat_actions[action_en_cours][1] = 1; // Enregistrement de l'erreur
-        com_printfln(":: Echec sur action %d ::", action_en_cours);
-      }
-      else {
-        etat_actions[action_en_cours][0] = 1; // Enregistrement de la visite
-        com_printfln(":: Action %d terminee ::", action_en_cours);
-      }
-
-      /** =============================
-          Dépose des éléments collectés
-          ============================= **/
-
-	  //while(gr_eau_propre_chargee) {}  //TBD_ATN
-	  //while(gr_eau_usee_chargee) {} //TBD_ATN
-
-	   /*2017 pour mémoire 
-      while(gr_minerais_charges) {
-		  
-        error = deposer_minerais_zone_depot(false);
-
-        if (error) {
-          // Minerais pas déposés : on se déplace à un point de secours pour revenir à la boucle while suivante
-          com_printfln("Echec de la dépose. En route vers point de secours.");
-
-          if (robot.xMm > 600 && robot.yMm < 1400) {
-            //Pas de sous-gestion de l'erreur : Si erreur on retente d'aller au dépôt à la boucle while suivante
-            //Marche arrière autorisée
-            error = aller_pt_etape(PT_ETAPE_1, 100, 0, 12000, 5);
-          }
-          else {
-            //Pas de sous-gestion de l'erreur : Si erreur on retente d'aller au dépôt à la boucle while suivante
-            //Marche arrière autorisée
-            error = aller_pt_etape(PT_ETAPE_14, 100, 0, 12000, 5);
-          }
-
-        }
-        else {
-          gr_minerais_charges = false; // Minerais déposés
-          com_printfln("Minerais déposés.");
-        }
-
-      }
-	  */
-
-      /** ========
-        Et après ?
-        ========== **/
-      // Recherche de l'action suivante parmi les points de collecte non visités (etat_actions[id][0] == 0)
-
-      nb_iterations = 0; // Pour éviter la boucle infinie
-      do {
-        action_en_cours++;
-        if (action_en_cours >= nombre_actions) {
-          action_en_cours = 0;
-        }
-        nb_iterations++;
-      } while(etat_actions[action_en_cours][0] == 1 && nb_iterations <= nombre_actions);
-
-        // tant qu'on n'a pas trouvé un point de collecte non visité, ET qu'on n'a pas parcouru toutes les actions possibles 1 fois
-        // En stratégie Niveau 1 2017, le <= plutôt que < est volontaire :
-        //    Si toutes les actions sont visitées (etat_actions[][0] à 1),
-        //    la boucle finira avec action_en_cours = action_en_cours + 1
-        //    On recommencera donc des actions déjà accomplies (sait-on jamais, on en a peut-être oublié ?)
-        // En stratégie Niveau 2 2017, mettre <
-
-
-    // [Prévision pour stratégie Niveau 2 2017]
-    // } // Fin du while() niveau 1
-
-  } while (minuteur_temps_restant() > 500 && nb_iterations <= nombre_actions); // pas assez de temps pour commencer autre chose
-  // --- 2ème condition ajoutée déc 2017 pour éviter boucle infinie sur le simulateur
+      nb_iterations++;
+      
+    } while(action_avancement[action] == 100 && nb_iterations <= NOMBRE_ACTIONS);
+    // tant qu'on n'a pas réussi toutes les actions (on ne parcourt cette liste qu'une fois, sinon boucle infinie)
+    
+    if(action_avancement[action] == 100) {
+      // On a déjà tout réussi, on pourra s'arrêter ici
+      continuer_boucle = false;
+    }
+    
+    
+    
+    /** Ok pour continuer ? **/
+    
+    continuer_boucle &= minuteur_temps_restant() > 500; // Inutile de continuer s'il reste moins de 1 seconde
+    
+  } while(continuer_boucle);
+  
+  
+  /******************
+  // Si on arrive ici, on peut commencer à aller chez l'adversaire.
+  *******************/
 
   minuteur_attendre_fin_match(); // les actions de fin (funny action, buzzer, afficheur) démarrent à la fin du minuteur
 }
@@ -587,7 +568,46 @@ Fdep_finish   1328  132    0        132        0        132 action Fdep: x4 (4 m
 
 /** ==============
     Actions de jeu
-    ============== **/
+    ============== 
+  
+  Les actions de jeu renvoient un état d'avancement/d'accomplissement entre 0 (pas commencé) et 100 (complètement terminé)
+  Elles prennent en entrée un int depart correspondant à ce même état d'avancement
+  
+  Exemple fictif :
+  faire_un_trou_securise(int depart) {
+    switch(depart) {
+      case 0:
+        aller_chercher_une_pelle();
+        if(error) return 0;
+        
+      case 20:
+        creuser_le_trou();
+        if(error) return 0;
+        
+      case 60:
+        mettre_une_barriere();
+        if(error) return 60;
+        
+      case 80:
+        mettre_un_panneau_de_signalisation();
+        if(error) return 80;
+        break;
+       
+      default:
+        com_err2str(ERROR_PARAMETRE);
+    }
+    return 100;
+  }
+  
+  Ainsi, on pourra appeler plusieurs fois de suite
+    depart = faire_un_trou_securise(depart)
+  pour reprendre l'action de jeu où on l'a laissée.
+    
+  Noter l'absence de break entre les case.
+  Noter aussi que si on échoue à creuser_le_trou(), on retourne 0, puisqu'il faudra de toute façon retourner aller_chercher_une_pelle();
+  (Mais si on sait qu'on a déjà une pelle, on peut s'autoriser à creuser_le_trou() directement)
+**/
+
 
 /* Actions 2018
 
@@ -609,6 +629,58 @@ uint8_t degager_CUB2() (non défini TBC_ATN)
 uint8_t degager_CUB3() (hors STATION, chez STATION opp)
 
 */
+
+
+
+int gr_activer_panneau(int depart) {
+  com_printfln("--- Activer panneau ---");
+  com_printfln("! ### Non codé");
+  return 100;
+}
+
+int vider_REP(int depart) {
+  com_printfln("--- Vider REP ---");  
+  com_printfln("! ### Non codé");
+  return 100;
+}
+
+int vider_REM(int depart) {
+  com_printfln("--- Vider REM ---");
+  com_printfln("! ### Non codé");
+  return 100;
+}
+
+int vider_REP_opp(int depart) {
+  com_printfln("--- Vider REP Opp ---");
+  com_printfln("! ### Non codé");
+  return 100;
+}
+
+// vider_REM_opp() (attention, séquence des balles opposée)
+int vider_REM_opp(int depart) {
+  com_printfln("--- Vider REM Opp ---");
+  com_printfln("! ### Non codé");
+  return 100;
+}
+
+int activer_abeille(int depart) {
+  com_printfln("--- Activer Abeille ---");
+  com_printfln("! ### Non codé");
+  return 100;
+}
+
+int gr_rapporter_CUB(int cub, int depart) {
+  com_printfln("--- Rapporter CUB%d ---", cub);  
+  com_printfln("! ### Non codé");
+  // S'inspire de PR (voire mettre en commun)
+  return 100;
+}
+
+int degager_CUB2(int depart) {
+  com_printfln("--- Dégager CUB2 ---");
+  com_printfln("! ### Non codé");
+  return 100;
+}
 
 
 /* Actions 2017 pour mémoire
@@ -641,218 +713,6 @@ uint8_t recuperer_minerais_gcc10() {
   return OK;
 }
 
-uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire) {
-  uint8_t error;
-
-  com_printfln("----- Deposer vers depot -----");
-
-
-  // En route vers dépôt
-  com_printfln("En route vers Depot.");
-  error = aller_pt_etape(PT_ETAPE_7, VITESSE_CHARGE, 1, 9000, 3);
-  if(error) return error;
-
-  com_printfln("Depot atteint.");
-
-
-
-  // Début du dépôt dans la zone de départ
-  // Vitesse ralentie (80) pour éviter de cogner partout
-  if(avec_robot_secondaire) {
-    // Approche
-    positionner_deux_bras(POSITION_APPROCHE_DEPOT_HAUT, false);
-    error = aller_xy(240, 550, 80, 1, 2000, 2);
-
-    if(error) {
-      com_printfln("! Recalage impossible");
-    }
-    else {
-      com_printfln("Recalage");
-      aller_xy(240, 0, VITESSE_LENTE, 1, 2000, 3); // Recalage bordure
-      asserv_set_position(240, 480, MATH_PI * -0.5);
-    }
-
-    // On baisse
-    positionner_deux_bras(POSITION_DEPOSER_HAUT, false);
-
-    // On dégage
-    error = aller_xy(240, 670, 80, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
-  }
-  else {
-    // Approche
-    error = aller_xy(210, 520, 80, 1, 3000, 2);
-    // if(error) return error; // Robot têtu : même si problème, il continuera son action de dépose. On est assez proche pour espérer qu'il en dépose au moins 1.
-
-    //error = asserv_rotation_vers_point(210, 0, 2000);
-    error = aller_xy(210, 495, 80, 1, 2500, 2);
-    // if(error) return error;
-
-    // On baisse
-    positionner_deux_bras(POSITION_DEPOSER_BAS, false);
-
-    // On dégage
-    error = aller_xy(260, 670, 80, 0, 5000, 3); // Pas de sous-gestion de l'erreur. Les minerais sont déchargés.
-  }
-
-
-
-  bras_position_croisiere();
-
-
-  // Dégagement
-  // Rien à faire : la position de fin a une marge autour permettant une rotation vers une nouvelle destination.
-
-
-  return OK;
-}
-
-uint8_t knocker_module2() {
-  // Réclamation sur le nom de la fonction --> Antoine
-  uint8_t error;
-
-  com_printfln("----- Knocker Module 2 -----");
-
-
-  // Déplacement vers base lunaire
-  com_printfln("En route vers la base lunaire, module 2.");
-
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_14, VITESSE_A_VIDE, 1, 8000, 3);
-  if(error) return error;
-
-  com_printfln("Base lunaire, module 2 atteint.");
-
-
-  if(robot.symetrie) {
-    // Approche
-    error = aller_xy(737, 1578, VITESSE_A_VIDE, 1, 8000, 3);
-    if(error) return error;
-
-    error = asserv_rotation_vers_point(737, 0, 3000);
-    //if(error) return error;
-    positionner_bras_gauche(POSITION_KNOCK_JAUNE, false);
-
-    error = asserv_rotation_vers_point(1500, 573, 2000); // Rotation (= "Knocker")
-    // Pas de retour d'erreur (sinon nécessite de connaître l'angle du robot lors de l'erreur)
-  }
-  else {
-    error = aller_xy(760, 1556, VITESSE_A_VIDE, 1, 8000, 3);
-    if(error) return error;
-
-    error = asserv_rotation_vers_point(760, 0, 3000);
-    positionner_bras_droit(POSITION_KNOCK_BLEU, false);
-
-    error = asserv_rotation_vers_point(1500, 573, 2000); // Rotation (= "Knocker")
-  }
-
-  bras_position_croisiere();
-
-  // Dégagement
-  // La position de fin a une marge autour permettant une rotation vers une nouvelle destination.
-
-  return OK;
-}
-
-uint8_t recuperer_module1() {
-  // Gestion des erreurs :
-  // si l'action échoue et que l'on part sur une autre action, on ne sait pas où sera le module sur la table
-  // => Inutile de la refaire.
-  // On renvoie donc OK même s'il y a une erreur
-
-  uint8_t error;
-
-  com_printfln("----- Recuperer Module 1 -----");
-
-  // Initialisation de l'action
-  com_printfln("Je vais récupérer le module 1. Taiaut !");
-
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_15, VITESSE_A_VIDE, 1, 8000, 3);
-  if(error) return OK;
-
-
-  // Réalisation de l'action
-  error = aller_xy(1070, 854, VITESSE_A_VIDE, 1, 8000, 3);
-  if(error) return OK;
-
-  // error = asserv_rotation_vers_point(1000, 600, 1000);
-  // if(error) return OK;
-
-  error = aller_xy(920, 320, VITESSE_LENTE, 1, 8000, 3);
-  if(error) return OK;
-
-
-  com_printfln("Module 1 dans la zone de départ !");
-
-  // Dégagement
-  asserv_go_toutdroit(-400, 2000);
-
-  return OK;
-}
-
-// Action à réaliser avant toute extraction de minerais.
-// Une visite de P8 (où se trouve aussi Module 5) rendrait inutile cette action.
-uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage) {
-  uint8_t error;
-  // Retrait de la gestion des erreurs : si l'action échoue et que l'on part sur une autre action, on ne sait pas où sera le module sur la table => Inutile à refaire.
-
-  com_printfln("----- Recuperer Module 5 -----");
-  if(prendre_minerais_gcc_au_passage) {
-    com_printfln("en prenant qq minerais au passage !");
-  }
-
-  // Initialisation de l'action
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_4, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return OK;
-
-  error = aller_xy(903, 1008, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return OK;
-
-
-  // Réalisation de l'action
-  error = aller_xy(490, 1455, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return OK;
-
-  if(prendre_minerais_gcc_au_passage) {
-    // Approche
-    error = aller_xy(442, 1507, VITESSE_A_VIDE, 1, 3000, 3);
-
-    prendre_minerais();
-    gr_minerais_charges = true;
-    com_printfln("Minerais charges");
-
-    error = aller_xy(490, 1455, VITESSE_CHARGE, 0, 3000, 3);
-  }
-
-  error = aller_xy(320, 1200, VITESSE_A_VIDE, 1, 10000, 3);
-  if(error) return OK;
-
-  // error = asserv_rotation_vers_point(500, 1100, 3000);
-  // if(error) return OK;
-
-  error = aller_xy(920, 856, VITESSE_LENTE, 1, 10000, 3);
-  if(error) return OK;
-
-  // error = asserv_rotation_vers_point(920, 0, 3000);
-  // if(error) return OK;
-
-  // TBD Faire une rotation lente si possible
-  error = aller_xy(920, 320, VITESSE_LENTE, 1, 10000, 3);
-  if(error) return OK;
-
-  asserv_go_toutdroit(-400, 2000);
-
-  com_printfln("Fin du déplacement pour Module 5 dans la zone de départ.");
-
-  // Dégagement
-  // La position de fin a une marge autour permettant une rotation vers une nouvelle destination.
-
-  return OK;
-}
 
 uint8_t degager_module5() { //Action de préparation du terrain : évacuation des modules lunaires de la piste de déplacement
   // A lancer après recuperer_module1(). Une visite de (800;950) avant pousserait le module 1 qui deviendrait irrécupérable.
@@ -885,26 +745,13 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 */
 
 
-uint8_t activer_panneau() {
-  return OK;
-}
-uint8_t vider_REP() {
-  return OK;
-}
-uint8_t activer_abeille() {
-  return OK;
-}
-uint8_t vider_REM() {
-  return OK;
-}
-uint8_t constr_CUB1() {
-  return OK;
-}
-
-
 /** =============
   Actions de base
-  =============== **/
+  ===============   
+  
+  Il s'agit d'actions effectuées par le robot, appelées surtout par les actions de jeu.
+**/
+
 
 void match_gr_arret() {
   com_printfln("On stoppe les moteurs");
@@ -914,26 +761,6 @@ void match_gr_arret() {
   
   tone_play_end();
 }
-  
-  
-  // TODO RSE
-  
-// Il faudrait prévoir les fonctions suivantes pour les actionneurs :
-// vider_REP()
-// vider_REM()
-// vider_REP_opp()
-// vider_REM_opp() (attention, séquence des balles opposée)
-
-/*uint8_t prendre_minerais() {
-  positionner_bras_gauche(POSITION_RECOLTER, false);
-  positionner_bras_droit(POSITION_RECOLTER, false);
-  minuteur_attendre(500);
-  positionner_bras_droit(POSITION_CROISIERE, true);
-  positionner_bras_gauche(POSITION_CROISIERE, true);
-
-  return OK;
-}
-*/
 
 
 
@@ -944,14 +771,14 @@ void match_gr_arret() {
 
 /** =======================
   Positionnement des Servos
-  ========================= **/
+  =========================
   
-/* Voir commentaire général sur les Servos dans la section Définition
+  Voir commentaire général sur les Servos dans la section Définition
     @2019 : créer une classe ServoWRD
     [Pas fait 2018, doute sur implémentation d'une liste de constantes pré-définies]
-*/
+**/
 
-void match_gr_init_servos() {
+void gr_init_servos() {
   com_printfln("Initialisation des servos");
   
   // Ne jamais utiliser doucement pendant l'init
