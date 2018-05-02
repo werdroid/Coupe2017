@@ -34,6 +34,7 @@ var log = {
 }
 
 vision.init();
+localisation.init();
 
 window.addEventListener('resize', vision.conteneur.majPosition);
 
@@ -75,6 +76,9 @@ traiterMessage = function(r, msgStr) {
         robot.aDeg = param.angleDeg;
         robot.aRad = param.angleRad;
         vision.modifier.positionRobot(robot.mmX, robot.mmY);
+        break;
+      case 'Localisation':
+        localisation.majScore(param.i, param.score);
         break;
       default:
         break;
