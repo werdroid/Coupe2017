@@ -377,8 +377,7 @@ void match_gr() {
   bool tbl_REP_opp_vide = false;
   bool tbl_REM_opp_vide = false;
 
-  robot.score = 0;
-  maj_score();
+  score_definir(0);
 
   minuteur_attendre(500);
   ecran_console_log(" Ok\n");
