@@ -23,6 +23,8 @@ int score = 0;
 
 void setup() {
   
+  Serial.setTimeout(300);
+  
   // init the display
   lmd.setEnabled(true);
   lmd.setIntensity(1);   // 0 = low, 10 = high
@@ -31,54 +33,60 @@ void setup() {
   
   delay(1000);
   
-  afficherWRD();
-  
-  delay(5000);
-  
-  lmd.clear();
-  
-  defilerTexte("WeR'Droid", ANIM_DELAY_MIN);
-  
-  score_definir(24);
-  
+  afficherWRD();  
 }
 
 
 
 
 void loop() {
+  char c;
   
-  
-  delay(2000);
-
-  score_incrementer(30);
-  
-  delay(2000);
-  
-  score_incrementer(-20);
-  
-  delay(2000);
-  
-  score_incrementer(40);
-  
-  delay(2000);
-  score_incrementer(25);
-
-/*
-  lmd.clear();
-  
-  afficherNombre(score, LEDMATRIX_WIDTH, 0);
-  
-  
-  delay(ANIM_DELAY);
-  score++;
-  
-  if(score > 99999) {
-    score = 0;
+  if(Serial.available() > 0) {
+    c = Serial.read();
+    switch(c) {
+      case '@': // On efface
+        lmd.clear();
+        lmd.display();
+        break;
+      case '=': // Affichage du score précis
+        lmd.clear();
+        score_definir(Serial.parseInt());
+        break;
+      case '+': // Affichage du score par incrément
+        score_incrementer(Serial.parseInt());
+        break;
+      case '-': // Affichage du score par incrément
+        score_incrementer(- Serial.parseInt());
+        break;
+      case ':': // Affichage d'un texte. 2 textes différents doivent être séparés de 300 ms (voir SetTimeout)
+        lmd.clear();
+        defilerTexte((Serial.readString()).c_str());
+        break;
+      case ';':
+        afficherWRD();
+        break;
+      case '$':
+        lmd.clear();
+        afficherNombre(score, LEDMATRIX_WIDTH, 0);
+        break;
+      default:
+        Serial.print("Caractère inconnu : ");
+        Serial.println(c);
+        
+    }
   }
-*/
 }
 
+void demo() {
+  score_incrementer(30);
+  delay(2000);
+  score_incrementer(-20);
+  delay(2000);
+  score_incrementer(40);
+  delay(2000);
+  score_incrementer(25);
+}
 
 void score_definir(int nombre) {
   score = nombre;
@@ -208,9 +216,15 @@ void afficherNombre(int nombre, byte xFin, byte y) {
 
 // Fortement inspiré de https://github.com/bartoszbielawski/LEDMatrixDriver/blob/master/examples/MarqueeText/MarqueeText.ino
 // ATTENTION, affiche le texte 1 fois en entier, ne peut être interrompu
-void defilerTexte(char *text, int delai) {
+void defilerTexte(const char *text) {
   int len = strlen(text);
   int x = LEDMATRIX_WIDTH;
+  int delai;
+  
+  if(len > 10)
+    delai = 12;
+  else
+    delai = 25;
 
   while(x >= len * -8) {
     drawString(text, len, x, 0);
@@ -252,7 +266,7 @@ void drawSprite64(uint64_t sprite, int x, int y, int width, int height) {
 
 // Ecris un texte à l'endroit demandé
 // Fortement inspiré de https://github.com/bartoszbielawski/LEDMatrixDriver/blob/master/examples/MarqueeText/MarqueeText.ino
-void drawString(char* text, int len, int x, int y ) {
+void drawString(const char* text, int len, int x, int y ) {
   
   for( int idx = 0; idx < len; idx ++ ) {
     int c = text[idx] - 32;
