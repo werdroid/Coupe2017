@@ -3,7 +3,7 @@
 
 
 // Define the ChipSelect pin for the led matrix (Dont use the SS or MISO pin of your Arduino!)
-const uint8_t LEDMATRIX_CS_PIN = 8;
+const uint8_t LEDMATRIX_CS_PIN = 6;
 
 // LED Matrix dimensions (0-n) - eg: 32x8 = 31x7
 const int LEDMATRIX_WIDTH = 31;
@@ -221,9 +221,9 @@ void defilerTexte(const char *text) {
   int x = LEDMATRIX_WIDTH;
   int delai;
   
-  if(len > 10)
+  /*if(len > 10)
     delai = 12;
-  else
+  else*/
     delai = 25;
 
   while(x >= len * -8) {
