@@ -301,6 +301,31 @@ void debug_gr() {
   tone_play_end();
 }
 
+void test1_gr() {
+  while(1) {
+    delay(500);
+    score_definir(225);
+    
+    delay(2000);
+    score_incrementer(25);
+    
+    delay(2000);
+    score_incrementer(-50);
+    
+    delay(2000);
+    ledMatrix_defiler_texte("Bonne nuit !");
+    
+    delay(2000);
+    ledMatrix_afficher_score();
+    
+    delay(2000);
+    ledMatrix_afficher_WRD();
+    
+    delay(2000);
+    ledMatrix_effacer();
+  }
+}
+
 // ============================================================
 // Debut section Edition ATN/DKI
 // ============================================================
@@ -377,8 +402,7 @@ void match_gr() {
   bool tbl_REP_opp_vide = false;
   bool tbl_REM_opp_vide = false;
 
-  robot.score = 0;
-  maj_score();
+  score_definir(0);
 
   minuteur_attendre(500);
   ecran_console_log(" Ok\n");
