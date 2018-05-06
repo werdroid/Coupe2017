@@ -4,10 +4,22 @@
   Actions 2018 communes PR/GR
   =========================== **/
 
-  
-void maj_score() {
-  // TODO RSE
+
+void score_definir(int valeur) {
+  robot.score = valeur;
+  ledMatrix_definir_score(valeur);
 }
+  
+void score_incrementer(int increment) {
+  robot.score += increment;
+  
+  if(robot.score < 0)
+    robot.score = 0;
+  
+  ledMatrix_incrementer_score(increment);
+}
+
+
   
   
 /** ====================

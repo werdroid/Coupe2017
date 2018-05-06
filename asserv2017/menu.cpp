@@ -120,7 +120,7 @@ void menu_start() {
             
             case 5:
               ecran_console_log("Coucou");
-              gr_coucou();
+              test1_gr();
               break;
               
             case 6:

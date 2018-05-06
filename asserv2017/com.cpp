@@ -141,10 +141,24 @@ void com_print(const char* str) {
   Serial.print(str);
 }
 
+
 // Sortie sur le pin 1
+
+// Termine par \0 (pas de \n). Max = 50 caractères
+constexpr uint8_t MAX_SERIAL1_LEN = 50 + 1;
+char dest_serial1[MAX_SERIAL1_LEN];
+void com_serial1_printf(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  vsnprintf(dest_serial1, MAX_SERIAL1_LEN, format, args);
+  va_end(args);
+  com_serial1_print(dest_serial1);
+}
+
 void com_serial1_print(const char* str) {
   if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
   }
   Serial1.print(str);
 }
+

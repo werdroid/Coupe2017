@@ -319,7 +319,8 @@ void minuteur_arreter_tout_si_fin_match();
 void synchronisation();
 
 // Match
-void maj_score();
+void score_incrementer(int increment);
+void score_definir(int valeur);
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to);
 uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
@@ -337,6 +338,7 @@ void match_gr();
 void demo_allers_retours();
 void homologation_gr();
 void debug_gr();
+void test1_gr();
 void gr_coucou();
 void match_gr_arret();
 
@@ -409,6 +411,7 @@ void com_send_robot_state();
 void com_send_robot_infos();
 void com_printfln(const char* format, ...);
 void com_print(const char* str);
+void com_serial1_printf(const char* format, ...);
 void com_serial1_print(const char* str);
 
 // Monitor Panel
@@ -433,6 +436,14 @@ void ecran_console_error(const char* message);
 void ecran_print_menu(int);
 void ecran_print_menu_status();
 void ecran_print_debug();
+
+// ledMatrix
+void ledMatrix_effacer();
+void ledMatrix_definir_score(int valeur);
+void ledMatrix_afficher_score();
+void ledMatrix_incrementer_score(int increment);
+void ledMatrix_defiler_texte(const char* str);
+void ledMatrix_afficher_WRD();
 
 // SICK
 uint8_t sick_setup();
