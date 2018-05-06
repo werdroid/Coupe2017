@@ -246,23 +246,31 @@ const uint16_t ZONE_A = 1 << 1;
 const uint16_t ZONE_B = 1 << 2;
 const uint16_t ZONE_C = 1 << 3;
 const uint16_t ZONE_D = 1 << 4;
-const uint16_t ZONE_E = 1 << 5;
-const uint16_t ZONE_F = 1 << 6;
-const uint16_t ZONE_G = 1 << 7;
-const uint16_t ZONE_H = 1 << 8;
-const uint16_t ZONE_I = 1 << 9;
-const uint16_t ZONE_J = 1 << 10;
+  // S pour Symétrie
+const uint16_t ZONE_AS = 1 << 5;
+const uint16_t ZONE_BS = 1 << 6;
+const uint16_t ZONE_CS = 1 << 7;
+const uint16_t ZONE_DS = 1 << 8;
+// Info: jusqu'à 10 en 2017
 // Ajout de zone à faire aussi dans robot_dans_zone();
 
 // Constantes de points
 // Ici, pas de bit mask. On évite les puissances de 2 pour éviter toute confusion avec un idZone
 const uint8_t PT_ETAPE_1 = 41;
+const uint8_t PT_ETAPE_2 = 42;
+const uint8_t PT_ETAPE_3 = 43;
 const uint8_t PT_ETAPE_4 = 44;
-const uint8_t PT_ETAPE_7 = 47;
+const uint8_t PT_ETAPE_5 = 45;
+const uint8_t PT_ETAPE_6 = 46;
+const uint8_t PT_ETAPE_6S = 86;
 const uint8_t PT_ETAPE_8 = 48;
+const uint8_t PT_ETAPE_9 = 49;
 const uint8_t PT_ETAPE_10 = 50;
+const uint8_t PT_ETAPE_11 = 51;
+const uint8_t PT_ETAPE_12 = 52;
+const uint8_t PT_ETAPE_12S = 92;
+const uint8_t PT_ETAPE_13 = 53;
 const uint8_t PT_ETAPE_14 = 54;
-const uint8_t PT_ETAPE_15 = 55;
 // Ajout de point à faire aussi dans match.cpp > getPoint();
 
 

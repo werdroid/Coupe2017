@@ -392,6 +392,25 @@ void match_gr() {
   bouton_wait_start_up();
 
 
+
+minuteur_demarrer();
+  aller_pt_etape(PT_ETAPE_3, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_5, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_1, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_4, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_8, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_12S, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_11, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_6S, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_9, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_14, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_10, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_2, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_6, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_12, 100, 1, 5000, 3); localiser_zone();
+  aller_pt_etape(PT_ETAPE_3, 100, 1, 5000, 3); localiser_zone();
+  return;
+  
   /** ------------
     Début du Match
     ------------- **/
