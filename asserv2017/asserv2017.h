@@ -330,6 +330,7 @@ void match_gr();
 void demo_allers_retours();
 void homologation_gr();
 void debug_gr();
+void test1_gr();
 void gr_coucou();
 void match_gr_arret();
 

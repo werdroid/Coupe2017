@@ -23,7 +23,8 @@ int score = 0;
 
 void setup() {
   
-  Serial.setTimeout(300);
+  Serial1.begin(115200);
+  Serial1.setTimeout(300);
   
   // init the display
   lmd.setEnabled(true);
@@ -42,8 +43,8 @@ void setup() {
 void loop() {
   char c;
   
-  if(Serial.available() > 0) {
-    c = Serial.read();
+  if(Serial1.available() > 0) {
+    c = Serial1.read();
     switch(c) {
       case '@': // On efface
         lmd.clear();
@@ -51,17 +52,17 @@ void loop() {
         break;
       case '=': // Affichage du score précis
         lmd.clear();
-        score_definir(Serial.parseInt());
+        score_definir(Serial1.parseInt());
         break;
       case '+': // Affichage du score par incrément
-        score_incrementer(Serial.parseInt());
+        score_incrementer(Serial1.parseInt());
         break;
       case '-': // Affichage du score par incrément
-        score_incrementer(- Serial.parseInt());
+        score_incrementer(- Serial1.parseInt());
         break;
       case ':': // Affichage d'un texte. 2 textes différents doivent être séparés de 300 ms (voir SetTimeout)
         lmd.clear();
-        defilerTexte((Serial.readString()).c_str());
+        defilerTexte((Serial1.readString()).c_str());
         break;
       case ';':
         afficherWRD();
@@ -71,8 +72,8 @@ void loop() {
         afficherNombre(score, LEDMATRIX_WIDTH, 0);
         break;
       default:
-        Serial.print("Caractère inconnu : ");
-        Serial.println(c);
+        Serial1.print("Caractère inconnu : ");
+        Serial1.println(c);
         
     }
   }
