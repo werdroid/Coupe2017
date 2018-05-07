@@ -369,7 +369,7 @@ void match_gr() {
   int nb_iterations = 0;
   int strategie = 1;
   
-  int strategie1[] = {
+  int phase1[] = {
     ACTION_ALLUMER_PANNEAU,
     ACTION_VIDER_REP,
     ACTION_DEPOSER_CHATEAU,
@@ -384,16 +384,17 @@ void match_gr() {
     ACTION_RAPPORTER_CUB0
     // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
-  int len_strategie1 = sizeof(strategie1) / sizeof(action);
+  int len_phase1 = sizeof(phase1) / sizeof(action);
   
-  int strategie2[] {
+  int phase2[] {
     ACTION_VIDER_REP_OPP,
     ACTION_DEPOSER_STATION,
     ACTION_VIDER_REM_OPP,
     ACTION_DEPOSER_STATION,
     ACTION_DEPOSER_CHATEAU
+    // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
-  int len_strategie2 = sizeof(strategie2) / sizeof(action);
+  int len_phase2 = sizeof(phase2) / sizeof(action);
   
   
   score_definir(0);
@@ -478,9 +479,9 @@ void match_gr() {
     Bouclage sur les actions principales
     ------------------------------------ **/
     
-  com_printfln("=== Stratégie 1 ===");
+  com_printfln("=== Phase 1 ===");
     
-  action = len_strategie1;
+  action = len_phase1;
   while(1) {
     
     #ifdef __EMSCRIPTEN__
@@ -493,12 +494,12 @@ void match_gr() {
   
   
     action++;
-    if(action >= len_strategie1) {
+    if(action >= len_phase1) {
       action = 0;
       com_printfln("=== (1) On boucle ===");
     }
 
-    gr_jouer_action(strategie1[action]);
+    gr_jouer_action(phase1[action]);
 
     
     // Est-ce qu'on doit continuer à faire des trucs ?
@@ -540,10 +541,10 @@ void match_gr() {
   
   
   // Allons chez l'adversaire...
-  com_printfln("=== Stratégie 2 ===");
+  com_printfln("=== Phase 2 ===");
   
   nb_iterations = 0;
-  action = len_strategie2;
+  action = len_phase2;
   while(1) {
     
     #ifdef __EMSCRIPTEN__
@@ -556,13 +557,13 @@ void match_gr() {
     
     
     action++;
-    if(action >= len_strategie1) {
+    if(action >= len_phase2) {
       action = 0;
       
       com_printfln("=== (2) On boucle ===");
     }
 
-    gr_jouer_action(strategie1[action]);
+    gr_jouer_action(phase2[action]);
     
     
     if(REM_opp_vide
