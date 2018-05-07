@@ -33,33 +33,34 @@
   Déclarations constantes, variables, prototypes
   ============================================== */
 
-// Vitesses par défaut
-uint32_t const VITESSE_RAPIDE = 100;
-uint32_t const VITESSE_LENTE = 50;
-
-
-// Variables globales de stratégie
-// Initialisées avec des variables par défaut. Mieux vaut les re-initialiser dans match_gr & co
-bool gr_eau_propre_chargee = false; // Etat chargé/à vide
-bool gr_eau_usee_chargee = false; // Etat chargé/à vide
-bool tbl_panneau_allume = false;
-bool tbl_abeille_activee = false;
-bool tbl_REP_vide = false;
-bool tbl_REM_vide = false;
-bool tbl_REP_opp_vide = false;
-bool tbl_REM_opp_vide = false;
-
-
-int gr_activer_panneau(int depart);
-int vider_REP(int depart);
-int vider_REM(int depart);
-int vider_REP_opp(int depart);
-int vider_REM_opp(int depart);
-int activer_abeille(int depart);
-int gr_rapporter_CUB(int cub, int depart);
 
 void gr_init_servos();
+uint8_t gr_jouer_action(int action);
+uint8_t gr_allumer_panneau();
+uint8_t gr_vider_REP();
+uint8_t gr_vider_REM();
+uint8_t gr_vider_REP_opp();
+uint8_t gr_vider_REM_opp();
+uint8_t gr_activer_abeille();
+uint8_t gr_deposer_chateau();
+uint8_t gr_deposer_station();
+uint8_t gr_rapporter_CUB(int cub);
 
+int gr_nb_tentatives[NB_ACTIONS] = { 0 };
+
+// Variables d'état de jeu
+int nb_balles_eau_propre_dans_gr = 0;
+int nb_balles_eau_usee_dans_gr = 0;
+bool gr_panneau_allume = false;
+bool abeille_activee = false;
+bool REP_vide = false;
+bool REM_vide = false;
+bool REP_opp_vide = false;
+bool REM_opp_vide = false;
+bool gr_a_bouge_CUB[3] = { false };
+bool gr_CUB_dans_ZOC[3] = { false };
+
+Point gr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
 
 
 /** ====================
@@ -342,36 +343,6 @@ void match_gr() {
   ecran_console_reset();
 
 
-  /*
-    Liste des actions :
-    
-	  n - vider_REP
-	  n - vider_REM
-	  n - vider_REP_opp
-	  n - vider_REM_opp
-	  n - activer_panneau
-      n - activer_abeille
-	  n - gr_rapporter_CUB0 (jusque ZOC)
-	  n - degager_CUB1 (non défini TBC_ATN)
-	  n - degager_CUB2 (hors STATION, chez STATION opp)
-    
-    Pour chaque action :
-      action_nb_tentatives (nom peut encore être modifié) : Nb de fois que cette action a été appelée
-      action_avancement (nom peut encore être modifié) : Statut d'avancement de l'action.
-      
-  */
-
-  // Variables de stratégie
-  int action;
-  int const NOMBRE_ACTIONS = 9;
-  int action_nb_tentatives[NOMBRE_ACTIONS] = { 0 };
-  int action_avancement[NOMBRE_ACTIONS] = { 0 };
-  
-  // Variables internes
-  bool continuer_boucle;
-  int nb_iterations;
-
-
   /** ==========================
     Préparation & Initialisation
     ============================ **/
@@ -392,18 +363,39 @@ void match_gr() {
 
   ecran_console_log("Initialisation...");
 
-  // Initialisation des variables de stratégie
-  action = 0; ////// ATTENTION, != 0 pour TESTS UNIQUEMENT
-  bool gr_eau_propre_chargee = false; // Etat chargé/à vide
-  bool gr_eau_usee_chargee = false; // Etat chargé/à vide
-  bool tbl_panneau_allume = false;
-  bool tbl_abeille_activee = false;
-  bool tbl_REP_vide = false;
-  bool tbl_REM_vide = false;
-  bool tbl_REP_opp_vide = false;
-  bool tbl_REM_opp_vide = false;
 
-
+  // Variables de stratégie
+  int action;
+  int nb_iterations = 0;
+  int strategie = 1;
+  
+  int strategie1[] = {
+    ACTION_ALLUMER_PANNEAU,
+    ACTION_VIDER_REP,
+    ACTION_DEPOSER_CHATEAU,
+    ACTION_ACTIVER_ABEILLE,
+    ACTION_VIDER_REM,
+    ACTION_DEPOSER_STATION,
+    ACTION_RAPPORTER_CUB2,
+    ACTION_DEPOSER_CHATEAU,
+    ACTION_DEPOSER_STATION,
+    ACTION_RAPPORTER_CUB1,
+    ACTION_DEPOSER_CHATEAU,
+    ACTION_RAPPORTER_CUB0
+    // AS-tu bien retiré la virgule sur la dernière ligne ?
+  };
+  int len_strategie1 = sizeof(strategie1) / sizeof(action);
+  
+  int strategie2[] {
+    ACTION_VIDER_REP_OPP,
+    ACTION_DEPOSER_STATION,
+    ACTION_VIDER_REM_OPP,
+    ACTION_DEPOSER_STATION,
+    ACTION_DEPOSER_CHATEAU
+  };
+  int len_strategie2 = sizeof(strategie2) / sizeof(action);
+  
+  
   score_definir(0);
 
 
@@ -417,27 +409,6 @@ void match_gr() {
   asserv_set_position(886, 196, MATH_PI * -0.75); //TBC_ATN
   asserv_maintenir_position();
   bouton_wait_start_up();
-
-
-
-
-minuteur_demarrer();
-  aller_pt_etape(PT_ETAPE_3, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_5, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_1, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_4, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_8, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_12S, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_11, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_6S, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_9, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_14, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_10, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_2, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_6, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_12, 100, 1, 5000, 3); localiser_zone();
-  aller_pt_etape(PT_ETAPE_3, 100, 1, 5000, 3); localiser_zone();
-  return;
   
 
   /** ------------
@@ -507,228 +478,295 @@ minuteur_demarrer();
     Bouclage sur les actions principales
     ------------------------------------ **/
     
-  // Cette boucle s'effectue tant qu'il reste du temps
-  do {
-    continuer_boucle = true;
-
-    /*Proposition stratégie 2018 v1 Antoine
-    0 - activer_panneau
-    1 - vider_REP (puis CHATEAU)
-    2 - activer_abeille
-    3 - vider_REM (puis degager CUB3 puis STATION)
-    4 - constr_CUB1
-    */
-
-    /** On effectue l'action **/
+  com_printfln("=== Stratégie 1 ===");
     
-    action_nb_tentatives[action]++;
+  action = len_strategie1;
+  while(1) {
     
-    switch(action) {
-      case 0:
-        action_avancement[action] = gr_activer_panneau(action_avancement[action]);
-        break;
-        
-      case 1:
-        action_avancement[action] = vider_REP(action_avancement[action]);
-        break;
-        
-      case 2:
-        action_avancement[action] = activer_abeille(action_avancement[action]);
-        break;
-        
-      case 3:
-        action_avancement[action] = vider_REM(action_avancement[action]);
-        break;
-        
-      case 4:
-        action_avancement[action] = gr_rapporter_CUB(0, action_avancement[action]);
-        break;
-
-      default:
-        com_printfln("! ######### ERREUR : action inconnue");
+    #ifdef __EMSCRIPTEN__
+    nb_iterations++;
+    if(nb_iterations > 50) {
+      com_printfln("#### BOUCLE INFINIE ? ###");
+      break;
     }
-    
-    com_printfln("::: Action %d [%d] :::", action, action_avancement[action]);
+    #endif
+  
+  
+    action++;
+    if(action >= len_strategie1) {
+      action = 0;
+      com_printfln("=== (1) On boucle ===");
+    }
+
+    gr_jouer_action(strategie1[action]);
 
     
-    /** Recherche de la prochaine action à effectuer **/
-    // (celle qui n'a pas encore un statut OK)
-    
-    nb_iterations = 0;      
-    do {
-      action++;
-      if(action >= NOMBRE_ACTIONS) {
-        action = 0;
-      }
-      nb_iterations++;
+    // Est-ce qu'on doit continuer à faire des trucs ?
+    if(gr_panneau_allume
+    && abeille_activee
+    && REP_vide
+    && REM_vide
+    && gr_CUB_dans_ZOC[0]
+    && gr_CUB_dans_ZOC[1]
+    && gr_CUB_dans_ZOC[2]) {
       
-    } while(action_avancement[action] == 100 && nb_iterations <= NOMBRE_ACTIONS);
-    // tant qu'on n'a pas réussi toutes les actions (on ne parcourt cette liste qu'une fois, sinon boucle infinie)
-    
-    if(action_avancement[action] == 100) {
-      // On a déjà tout réussi, on pourra s'arrêter ici
-      continuer_boucle = false;
+      nb_iterations = 0;
+      while(1) {
+        #ifdef __EMSCRIPTEN__
+        nb_iterations++;
+        if(nb_iterations > 50) {
+          com_printfln("#### BOUCLE INFINIE ? ###");
+          break;
+        }
+        #endif
+        
+        // Plus rien à évacuer ?
+        gr_jouer_action(ACTION_DEPOSER_CHATEAU);
+        gr_jouer_action(ACTION_DEPOSER_STATION);
+        
+        if(nb_balles_eau_propre_dans_gr == 0
+        && nb_balles_eau_usee_dans_gr == 0) {
+          break;
+        }
+        
+      }
+      
+      break;
+        
     }
     
     
-    
-    /** Ok pour continuer ? **/
-    
-    continuer_boucle &= minuteur_temps_restant() > 500; // Inutile de continuer s'il reste moins de 1 seconde
-    
-  } while(continuer_boucle);
+  } // Fin de la première partie !
   
   
-  /******************
-  // Si on arrive ici, on peut commencer à aller chez l'adversaire.
-  *******************/
+  // Allons chez l'adversaire...
+  com_printfln("=== Stratégie 2 ===");
+  
+  nb_iterations = 0;
+  action = len_strategie2;
+  while(1) {
+    
+    #ifdef __EMSCRIPTEN__
+    nb_iterations++;
+    if(nb_iterations > 50) {
+      com_printfln("#### BOUCLE INFINIE ? ###");
+      break;
+    }
+    #endif
+    
+    
+    action++;
+    if(action >= len_strategie1) {
+      action = 0;
+      
+      com_printfln("=== (2) On boucle ===");
+    }
 
-  minuteur_attendre_fin_match(); // les actions de fin (funny action, buzzer, afficheur) démarrent à la fin du minuteur
+    gr_jouer_action(strategie1[action]);
+    
+    
+    if(REM_opp_vide
+    && REP_opp_vide) {
+      
+      if(nb_balles_eau_propre_dans_gr == 0
+      && nb_balles_eau_usee_dans_gr == 0) {
+        break;
+      }
+      break;
+    }
+    
+    
+  }
+  
+
+  minuteur_attendre_fin_match();
 }
-
-
-/* Points étapes et orientations à viser pour initialiser les actions // MAJ TBD_ATN
-PCD1  : pt4;  viser x = 650;  y = 540;
-PCD2  : pt7;  viser x = 650;  y = 540;
-PCL   : pt14; viser x = 1070; y = 1870;
-GCC1  : pt10; viser x = 0;    y = 2000;
-GCC2  : pt14; viser x = 0;    y = 2000;
-Depot : pt7;  viser x = 80;   y = 0;
-M2knk : pt14; viser x = 737;  y = 0;
-Fdep  : pt15; /
-*/
-
-/* Déplacements pour les actions // MAJ TBD_ATN
-Déplacement   x    y    theta_start_x  theta_start_y  theta_finish_x  theta_finish_y
-Depot_start   245  520    80        0        80        0
-Depot_finish 290  665    80        0        80        0
-PCD4_s_f   855  642    Centre PCD
-PCD7_s_f   428  576    Centre PCD
-PCL14_s_f   866  1766  Centre PCL
-GCC10_s_f   350  1440  Centre GCC
-GCC14_s_f   618  1855  Centre GCC
-M2knk_s_f   737  1578  737        0        1500      573
-Fdep_start   1452  132    0        132        0        132 /!\ Vérifier interférence possible avec la table TBD
-Fdep_finish   1328  132    0        132        0        132 action Fdep: x4 (4 modules à extraire)
-
-*/
 
 
 /** ==============
     Actions de jeu
-    ============== 
-  
-  Les actions de jeu renvoient un état d'avancement/d'accomplissement entre 0 (pas commencé) et 100 (complètement terminé)
-  Elles prennent en entrée un int depart correspondant à ce même état d'avancement
-  
-  Exemple fictif :
-  faire_un_trou_securise(int depart) {
-    switch(depart) {
-      case 0:
-        aller_chercher_une_pelle();
-        if(error) return 0;
-        
-      case 20:
-        creuser_le_trou();
-        if(error) return 0;
-        
-      case 60:
-        mettre_une_barriere();
-        if(error) return 60;
-        
-      case 80:
-        mettre_un_panneau_de_signalisation();
-        if(error) return 80;
-        break;
-       
-      default:
-        com_err2str(ERROR_PARAMETRE);
-    }
-    return 100;
-  }
-  
-  Ainsi, on pourra appeler plusieurs fois de suite
-    depart = faire_un_trou_securise(depart)
-  pour reprendre l'action de jeu où on l'a laissée.
-    
-  Noter l'absence de break entre les case.
-  Noter aussi que si on échoue à creuser_le_trou(), on retourne 0, puisqu'il faudra de toute façon retourner aller_chercher_une_pelle();
-  (Mais si on sait qu'on a déjà une pelle, on peut s'autoriser à creuser_le_trou() directement)
-**/
-
+    ============== **/
 
 /* Actions 2018
 
 Fonction					=> note si succès
 -------------------------------------------------------------
-uint8_t vider_REP()			=> tbl_REP_vide = true;
-uint8_t vider_REM()			=> tbl_REM_vide = true;
-uint8_t vider_REP_opp()		=> tbl_REP_opp_vide = true;
-uint8_t vider_REM_opp()		=> tbl_REM_opp_vide = true;
+uint8_t vider_REP()			=> REP_vide = true;
+uint8_t vider_REM()			=> REM_vide = true;
+uint8_t vider_REP_opp()		=> REP_opp_vide = true;
+uint8_t vider_REM_opp()		=> REM_opp_vide = true;
+    => Et aussi nb_balles_eau_(propre|usee)_dans_robot > 0
 
-uint8_t deposer_chateau()	=> gr_eau_propre_chargee = false;
-uint8_t deposer_station()	=> gr_eau_usee_chargee = false;
+uint8_t deposer_chateau()	=> nb_balles_eau_propre_dans_gr = 0;
+uint8_t deposer_station()	=> nb_balles_eau_usee_dans_gr = 0;
 
-uint8_t activer_panneau()	=> tbl_panneau_allume = true;
-uint8_t activer_abeille()	=> tbl_abeille_activee = true;
+uint8_t allumer_panneau()	=> gr_panneau_allume = true;
+uint8_t activer_abeille()	=> abeille_activee = true;
 
 uint8_t constr_CUB1() (jusque ZOC)
 uint8_t degager_CUB2() (non défini TBC_ATN)
 uint8_t degager_CUB3() (hors STATION, chez STATION opp)
 
-*/
+*/    
 
 
+uint8_t gr_jouer_action(int action) {
+  
+  uint8_t error;
 
-int gr_activer_panneau(int depart) {
-  com_printfln("--- Activer panneau ---");
-  com_printfln("! ### Non codé");
-  return 100;
+  switch(action) {
+    case ACTION_ALLUMER_PANNEAU:    error = gr_allumer_panneau();      break;
+    case ACTION_VIDER_REP:          error = gr_vider_REP();         break;
+    case ACTION_ACTIVER_ABEILLE:    error = gr_activer_abeille();   break;
+    case ACTION_VIDER_REM:          error = gr_vider_REM();         break;
+    case ACTION_RAPPORTER_CUB0:     error = gr_rapporter_CUB(0);       break;
+    case ACTION_RAPPORTER_CUB1:     error = gr_rapporter_CUB(1);       break;
+    case ACTION_RAPPORTER_CUB2:     error = gr_rapporter_CUB(2);       break;
+    case ACTION_VIDER_REM_OPP:      error = gr_vider_REM_opp();     break;
+    case ACTION_VIDER_REP_OPP:      error = gr_vider_REP_opp();     break;
+    case ACTION_DEPOSER_CHATEAU:    error = gr_deposer_chateau();   break;
+    case ACTION_DEPOSER_STATION:    error = gr_deposer_station();   break;
+    default:
+      com_printfln("GR ne peut pas faire l'action %d", action);
+      error = ERROR_PARAMETRE;
+  }
+  
+  com_err2str(error);
+  if(error) {
+    if(error == ERROR_PLUS_RIEN_A_FAIRE) return OK;
+  }
+  
+  return error;
 }
 
-int vider_REP(int depart) {
+uint8_t gr_allumer_panneau() {
+  com_printfln("--- Activer panneau ---");  
+  if(gr_panneau_allume) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  gr_nb_tentatives[ACTION_ALLUMER_PANNEAU]++;
+  
+  
+  com_printfln("! ### Non codé");
+  
+  gr_panneau_allume = true;
+  
+  return OK;
+}
+
+uint8_t gr_vider_REP() {
   com_printfln("--- Vider REP ---");  
+  if(REP_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  gr_nb_tentatives[ACTION_VIDER_REP]++;
+  
+  
   com_printfln("! ### Non codé");
-  return 100;
+  
+  nb_balles_eau_propre_dans_gr++;
+  REP_vide = true;
+  
+  return OK;
 }
 
-int vider_REM(int depart) {
+uint8_t gr_vider_REM() {
   com_printfln("--- Vider REM ---");
+  if(REM_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  
+  gr_nb_tentatives[ACTION_VIDER_REM]++;
+  
   com_printfln("! ### Non codé");
-  return 100;
+  
+  nb_balles_eau_propre_dans_gr++;
+  nb_balles_eau_usee_dans_gr++;
+  REM_vide = true;
+  
+  return OK;
 }
 
-int vider_REP_opp(int depart) {
+// Rappel : REP_opp ne contient que des balles usées
+uint8_t gr_vider_REP_opp() {
   com_printfln("--- Vider REP Opp ---");
+  if(REP_opp_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  gr_nb_tentatives[ACTION_VIDER_REP_OPP]++;
+  
   com_printfln("! ### Non codé");
-  return 100;
+  
+  nb_balles_eau_usee_dans_gr++;
+  REP_opp_vide = true;
+  
+  return OK;
 }
 
 // vider_REM_opp() (attention, séquence des balles opposée)
-int vider_REM_opp(int depart) {
+uint8_t gr_vider_REM_opp() {
   com_printfln("--- Vider REM Opp ---");
+  if(REM_opp_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  gr_nb_tentatives[ACTION_VIDER_REM_OPP]++;
+  
   com_printfln("! ### Non codé");
-  return 100;
+
+  nb_balles_eau_propre_dans_gr++;
+  nb_balles_eau_usee_dans_gr++;
+  REM_opp_vide = true;
+  
+  return OK;
 }
 
-int activer_abeille(int depart) {
+uint8_t gr_activer_abeille() {
   com_printfln("--- Activer Abeille ---");
+  if(abeille_activee) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  gr_nb_tentatives[ACTION_ACTIVER_ABEILLE]++;
+  
   com_printfln("! ### Non codé");
-  return 100;
+  
+  abeille_activee = true;
+  
+  return OK;
 }
 
-int gr_rapporter_CUB(int cub, int depart) {
-  com_printfln("--- Rapporter CUB%d ---", cub);  
+
+uint8_t gr_deposer_station() {
+  com_printfln("--- Evacuer Eaux Usées ---");
+  if(nb_balles_eau_usee_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  return OK;
+}
+
+uint8_t gr_deposer_chateau() {
+  com_printfln("--- Evacuer Eau Propre ---");
+  if(nb_balles_eau_propre_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  return OK;
+}
+
+
+
+
+uint8_t gr_rapporter_CUB(int cub) {
+  com_printfln("--- Rapporter CUB%d ---", cub);
+  
+  switch(cub) {
+    case 0: gr_nb_tentatives[ACTION_RAPPORTER_CUB0]++; break;
+    case 1: gr_nb_tentatives[ACTION_RAPPORTER_CUB1]++; break;
+    case 2: gr_nb_tentatives[ACTION_RAPPORTER_CUB2]++; break;
+    default: return ERROR_PARAMETRE;
+  }
+  
   com_printfln("! ### Non codé");
   // S'inspire de PR (voire mettre en commun)
-  return 100;
+  return OK;
 }
 
-int degager_CUB2(int depart) {
+uint8_t gr_degager_CUB2() {
   com_printfln("--- Dégager CUB2 ---");
   com_printfln("! ### Non codé");
-  return 100;
+  return OK;
 }
+
 
 
 /* Actions 2017 pour mémoire

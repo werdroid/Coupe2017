@@ -5,12 +5,19 @@
   Déclarations constantes, variables, prototypes
   ============================================== */
 
-uint32_t const VITESSE_RAPIDE = 100;
-uint32_t const VITESSE_POUSSER_CUBES = 100;
-int pr_activer_panneau(int depart);
 int pr_rapporter_CUB(int cub, int depart);
+int pr_activer_panneau(int depart);
+uint8_t pr_jouer_action(int action);
 
-Point pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
+int pr_nb_tentatives[NB_ACTIONS] = { 0 };
+
+int nb_balles_eau_propre_dans_pr = 0;
+int nb_balles_eau_usee_dans_pr = 0;
+bool pr_panneau_allume = false;
+bool pr_a_bouge_CUB[3] = { false };
+bool pr_CUB_dans_ZOC[3] = { false };
+
+Point pr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
 
 
 /** ====================
@@ -88,6 +95,7 @@ void match_pr() {
 
   
   ecran_console_log("Initialisation...");
+ 
   
   minuteur_attendre(500);
   ecran_console_log(" Ok\n");
@@ -113,7 +121,7 @@ void match_pr() {
   
   int action;
   int const NOMBRE_ACTIONS = 2;
-  int action_nb_tentatives[NOMBRE_ACTIONS] = { 0 };
+  int action_pr_nb_tentatives[NOMBRE_ACTIONS] = { 0 };
   int action_avancement[NOMBRE_ACTIONS] = { 0 };
 
   
@@ -136,7 +144,7 @@ void match_pr() {
     
     /** On effectue l'action **/
     
-    action_nb_tentatives[action]++;
+    action_pr_nb_tentatives[action]++;
     
     switch(action) {
       case 0:
@@ -182,7 +190,28 @@ void match_pr() {
 /** ============
   Actions de jeu
   ============== **/
+/*
+uint8_t pr_jouer_action(int action) {  
+  uint8_t error;
 
+  switch(action) {
+    case ACTION_ALLUMER_PANNEAU:    error = pr_allumer_panneau(); break;
+    case ACTION_RAPPORTER_CUB0:   error = rapporter_CUB(0); break;
+    case ACTION_RAPPORTER_CUB1:   error = rapporter_CUB(1); break;
+    case ACTION_RAPPORTER_CUB2:   error = rapporter_CUB(2); break;
+    default:
+      com_printfln("PR ne peut pas faire l'action %d", action);
+      error = ERROR_PARAMETRE;
+  }
+  
+  if(error) {
+    com_err2str(error);
+    if(error == ERROR_PLUS_RIEN_A_FAIRE) return OK
+  }
+  
+  return error;
+}*/  
+  
 int pr_activer_panneau(int depart) {
   uint8_t error;
   com_printfln("==== Activation du panneau ====");
@@ -256,15 +285,15 @@ int pr_rapporter_CUB(int cub, int depart) {
       // On a abandonné les cubes lors d'une précédente tentative.
       // Essayons de se replacer près d'eux
       
-      if(pt_CUB[cub].x < 200    // Trop proche du bord gauche
-        || pt_CUB[cub].x > 1300 // Trop proche de l'adversaire
-        || pt_CUB[cub].y > 1100 // Trop proche du bord bas
-        || pt_CUB[cub].y < 900) { // Trop proche de la zone de construction, l'échec était sans doute dû à un timeout...
+      if(pr_pt_CUB[cub].x < 200    // Trop proche du bord gauche
+        || pr_pt_CUB[cub].x > 1300 // Trop proche de l'adversaire
+        || pr_pt_CUB[cub].y > 1100 // Trop proche du bord bas
+        || pr_pt_CUB[cub].y < 900) { // Trop proche de la zone de construction, l'échec était sans doute dû à un timeout...
         com_err2str(ERROR_CAS_NON_GERE);
         return 100;
       }
       
-      error = aller_xy(pt_CUB[cub].x, pt_CUB[cub].y, VITESSE_RAPIDE, 1, 5000, 3);
+      error = aller_xy(pr_pt_CUB[cub].x, pr_pt_CUB[cub].y, VITESSE_RAPIDE, 1, 5000, 3);
       if(error) return 60;
       
       break;
@@ -293,8 +322,8 @@ int pr_rapporter_CUB(int cub, int depart) {
   // Abandon mais sauvegarde de l'emplacement des cubes
   if(error) {
     // En réalité, on sauvegarde la position du robot, mais c'est pas si mal
-    pt_CUB[cub].x = robot.xMm;
-    pt_CUB[cub].y = robot.yMm;
+    pr_pt_CUB[cub].x = robot.xMm;
+    pr_pt_CUB[cub].y = robot.yMm;
   
     com_printfln("CUB%d placé en {%d, %d}", cub, robot.xMm, robot.yMm);
     return 60;
@@ -304,6 +333,7 @@ int pr_rapporter_CUB(int cub, int depart) {
   return 100;
 }
   
+
   
 /** =============
   Actions de base

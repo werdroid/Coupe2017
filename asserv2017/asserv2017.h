@@ -45,7 +45,8 @@ const uint8_t AUTRE = 127; // ? (utilisé dans asserv.cpp)
 // Erreurs de stratégie
 const uint8_t ERROR_CAS_NON_GERE = 10; // Cas non géré (trop complexe)
 const uint8_t ERROR_PARAMETRE = 11; // Paramètre envoyé incorrect
-const uint8_t ERROR_PAS_CODE = 12; // Pas encore codé
+const uint8_t ERROR_PLUS_RIEN_A_FAIRE = 14; // Action déjà terminée
+const uint8_t ERROR_PAS_CODE = 15; // Pas encore codé
 
 
 
@@ -193,6 +194,7 @@ typedef struct {
   float a;
 } Position; // 12 octets
 
+
 // Structure à envoyer en tant que bloc binaire
 // On désiarialise via javascript avec un DataViewer
 // qui permet de lire/écrire selon chaque type:
@@ -274,6 +276,29 @@ const uint8_t PT_ETAPE_14 = 54;
 // Ajout de point à faire aussi dans match.cpp > getPoint();
 
 
+// Vitesses par défaut
+uint32_t const VITESSE_RAPIDE = 100;
+uint32_t const VITESSE_LENTE = 50;
+uint32_t const VITESSE_POUSSER_CUBES = 100;
+
+// Actions
+// Les numéros doivent être uniques et continus de 0 à NB_ACTIONS
+// L'ordre n'a pas d'importance
+const int ACTION_ALLUMER_PANNEAU    = 0;
+const int ACTION_VIDER_REP          = 1;
+const int ACTION_ACTIVER_ABEILLE    = 2;
+const int ACTION_VIDER_REM          = 3;
+const int ACTION_RAPPORTER_CUB0     = 4;
+const int ACTION_RAPPORTER_CUB1     = 5;
+const int ACTION_RAPPORTER_CUB2     = 6;
+const int ACTION_VIDER_REM_OPP      = 7;
+const int ACTION_VIDER_REP_OPP      = 8;
+const int ACTION_DEPOSER_CHATEAU = 9;
+const int ACTION_DEPOSER_STATION = 10;
+
+const int NB_ACTIONS = 11; // Dernière action + 1
+
+
 /*-----------------------------------------------------------------------------
  * Simulator only (not robot)
  *----------------------------------------------------------------------------*/
@@ -322,6 +347,7 @@ void synchronisation();
 void score_incrementer(int increment);
 void score_definir(int valeur);
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to);
+void servo_jouer(Servo servo, uint8_t deg_from, uint8_t jeu = 5, uint8_t nb = 1);
 uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint16_t localiser_zone();

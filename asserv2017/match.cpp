@@ -1,10 +1,16 @@
 #include "asserv2017.h"
 
-/** =========================
-  Actions 2018 communes PR/GR
-  =========================== **/
+/** ============
+  Actions de jeu
+  ============== **/
+  
 
 
+
+/** ================
+    Gestion du score
+    ================ **/
+  
 void score_definir(int valeur) {
   robot.score = valeur;
   ledMatrix_definir_score(valeur);
@@ -18,8 +24,9 @@ void score_incrementer(int increment) {
   
   ledMatrix_incrementer_score(increment);
 }
+  
 
-
+  
   
   
 /** ====================
@@ -557,6 +564,7 @@ bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
 }
 
 
+
 /** ================
   Gestion des servos
   ================== **/
@@ -573,6 +581,16 @@ void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to) {
       servo.write(deg_from);
       minuteur_attendre(20);
     }
+  }
+}
+
+// Fait jouer le servo autour de sa position
+// Par défaut : jeu = 5, nb = 1
+void servo_jouer(Servo servo, uint8_t deg_from, uint8_t jeu, uint8_t nb) {
+  for(; nb > 0; nb--) {
+    servo_slowmotion(servo, deg_from, deg_from + jeu);
+    servo_slowmotion(servo, deg_from + jeu, deg_from - jeu);
+    servo_slowmotion(servo, deg_from - jeu, deg_from);
   }
 }
 

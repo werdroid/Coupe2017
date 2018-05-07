@@ -69,6 +69,9 @@ uint8_t com_err2str(uint8_t error) {
     case ERROR_PAS_CODE:
       com_printfln("! ERROR_PAS_CODE");
       break;
+    case ERROR_PLUS_RIEN_A_FAIRE:
+      com_printfln("! ERROR_PLUS_RIEN_A_FAIRE");
+      break;      
     case AUTRE:
       com_printfln("! # AUTRE");
       break;
