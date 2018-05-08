@@ -329,7 +329,6 @@ void match_gr() {
   int start;
   uint8_t error;
 
-  homologation_gr();
   ecran_console_reset();
 
 
@@ -353,7 +352,6 @@ void match_gr() {
   ecran_console_log("4. Jack out\n\n");
 
   ecran_console_log("Initialisation...");
-
 
   // Variables de stratégie
   int action;
@@ -387,7 +385,7 @@ void match_gr() {
   };
   int len_phase2 = sizeof(phase2) / sizeof(action);
   
-  
+  gr_init_servos();
   score_definir(0);
 
 

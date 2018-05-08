@@ -40,6 +40,47 @@ void piloter_bras(uint8_t angle, bool doucement = false, bool log = true);
   Programmes alternatifs (Homolog, Debug)
   ======================================= **/
 
+void homologation_pr() {
+  ecran_console_reset();
+  ecran_console_log("Match PR\n\n");
+
+  if(robot.estVert)
+    ecran_console_log("Couleur : VERT\n");
+  else
+    ecran_console_log("Couleur : ORANGE\n");
+  ecran_console_log("\n\n");
+
+  ecran_console_log("1. Positionner\n");
+  ecran_console_log("2. Jack in\n");
+  ecran_console_log("3. BAU off\n");
+  ecran_console_log("4. Jack out\n\n");
+
+  
+  ecran_console_log("Initialisation...");
+ 
+  minuteur_attendre(500);
+  
+  ecran_console_log(" Ok\n");
+
+  bouton_start_down();
+
+  ecran_console_log("Pret\n");
+  
+  minuteur_attendre(200);
+  
+  asserv_set_position(200, 150, MATH_PI2); // TBC
+  asserv_maintenir_position();
+  bouton_wait_start_up();
+  
+  
+  pr_activer_panneau();
+  
+  
+  
+  minuteur_demarrer();
+  minuteur_attendre(500);
+}
+  
 void debug_pr() {
   ecran_console_log("2 sec\n\n");
 
@@ -217,8 +258,9 @@ int pr_activer_panneau(int depart) {
 
   /*** TODO Ensemble des points à confirmer ***/
   
+  
   // Se positionne face à l'interrupteur
-  error = aller_xy(1130, 300, VITESSE_RAPIDE, 1, 5000, 5); // TBC
+  error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 5000, 5);
   if(error) return 0;
   
   error = asserv_rotation_vers_point(1130, 0);
@@ -235,7 +277,7 @@ int pr_activer_panneau(int depart) {
   }
   
   // Reculer
-  aller_xy(1130, 300, VITESSE_RAPIDE, 0, 2000, 3);
+  error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 0, 5000, 3);
   piloter_bras(BRAS_BAISSER);
   
   return 100;

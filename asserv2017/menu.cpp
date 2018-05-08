@@ -112,15 +112,21 @@ void menu_start() {
               
             case 4:
               ecran_console_log("Homologation");
-              /*if(robot.IS_PR)
+              if(robot.IS_PR)
                 homologation_pr();
-              else*/
+              else
                 homologation_gr();
               break;
             
             case 5:
-              ecran_console_log("Coucou");
-              test1_gr();
+              if(robot.IS_PR) {
+                ecran_console_log("Coucou");
+                coucou();
+              }
+              else {
+                ecran_console_log("Test 1");
+                test1_gr();
+              }
               break;
               
             case 6:
