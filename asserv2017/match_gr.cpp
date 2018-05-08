@@ -213,10 +213,13 @@ void homologation_gr() {
   ecran_console_log("Les arbitres sont\n");
   ecran_console_log("hyper sympa cette\n");
   ecran_console_log("annee.\n\n");
+  
+  ledMatrix_defiler_texte("Les arbitres sont tres sympa cette annee");
 
   ecran_console_log("1. Positionner\n");
   minuteur_attendre(1500);
   gr_init_servos();
+  score_definir(0);
   
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
@@ -228,31 +231,19 @@ void homologation_gr() {
   minuteur_attendre(200);
 
   
-  asserv_set_position(900, 200, MATH_PI * -0.75);  // TBC
+  asserv_set_position(150, 500, 0);
   asserv_maintenir_position();
 
   bouton_wait_start_up();
 
   minuteur_demarrer();
-
-  minuteur_attendre(1000);
-
-  asserv_go_toutdroit(-350, 3000);
-  aller_xy(1150, 450, 100, 1, 20000, 10);
-
-
-  aller_xy(1600, 450, 100, 1, 20000, 10);
-  /*aller_pt_etape(PT_ETAPE_15, 100, 1, 20000, 10);
-  aller_xy(1000, 1000, 100, 1, 20000, 10);
-  aller_xy(1000, 250, 100, 1, 20000, 10);
-
-  asserv_go_toutdroit(-400, 3000);*/
-
-  // recuperer_module1();
-
-  minuteur_attendre(2000);
-
-  // recuperer_module5(false);
+  
+  minuteur_attendre(900);
+  
+  ledMatrix_defiler_texte("Les arbitres sont tres sympa cette annee");
+  asserv_go_toutdroit(100, 30000);
+  
+  gr_activer_abeille();
 
   minuteur_attendre_fin_match();
 }
@@ -338,6 +329,7 @@ void match_gr() {
   int start;
   uint8_t error;
 
+  homologation_gr();
   ecran_console_reset();
 
 
