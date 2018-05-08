@@ -124,7 +124,7 @@ void menu_start() {
               break;
               
             case 6:
-              ecran_console_log("30cm en avant");
+              ecran_console_log("Demo A/R");
               demo_allers_retours();
               break;
              

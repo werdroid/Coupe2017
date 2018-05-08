@@ -160,11 +160,13 @@ void demo_allers_retours() {
 
   // bras_position_croisiere();
   com_printfln("En attente");
+  
   while(!robot.sickObstacle) {
     com_printfln("...");
     minuteur_attendre(100);
     robot.match_debut = millis();
   }
+  
   com_printfln("Let's go !");
   /* gr_fusee_ouvrir();
   minuteur_attendre(600);
@@ -357,6 +359,7 @@ void match_gr() {
   ecran_console_log("\n\n");
 
   ecran_console_log("1. Positionner\n");
+  ecran_console_log(" . Retirer tasseaux\n");
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
   ecran_console_log("4. Jack out\n\n");
@@ -953,8 +956,8 @@ void gr_init() {
   robot.ASSERV_ROTATION_KD = 1.8f;
 
   // Actionneurs à init
-  servo_evacuation_eaux_usees.attach(29); // TBD_RSE
+  servo_evacuation_eaux_usees.attach(10);
   servo_cuillere_miel.attach(30); //TBD_RSE
-  servo_tri_eau.attach(31); //TBD_RSE
+  servo_tri_eau.attach(9);
 
 }

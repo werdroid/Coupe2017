@@ -52,10 +52,11 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   do {
     error = asserv_go_xy(x, y, timeout, uniquement_avant);
     tentatives++;
-
+    
     // En cas d'obstacle on fait une pause avant de tenter à nouveau
-    if (error == ERROR_OBSTACLE) {
+    if(error == ERROR_OBSTACLE) {
       minuteur_attendre(1000);
+        asserv_go_toutdroit(-80, 1000);
     }
   } while (error == ERROR_OBSTACLE && tentatives < max_tentatives);
 

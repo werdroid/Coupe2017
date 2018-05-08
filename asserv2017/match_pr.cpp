@@ -25,10 +25,9 @@ Point pr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
   ====================== **/
   
 // Bras gauche (BRAS)
-// Angle + => Vers le haut (TBC)
-/*** TODO TBC ***/
+// Angle + => Vers le haut
 const uint8_t BRAS_INIT = 44;
-const uint8_t BRAS_LEVER = 95;
+const uint8_t BRAS_LEVER = 81;
 const uint8_t BRAS_POSITION_INTERRUPTEUR = 80;
 const uint8_t BRAS_BAISSER = 45;
 
