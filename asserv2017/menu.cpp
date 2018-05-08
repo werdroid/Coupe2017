@@ -121,7 +121,7 @@ void menu_start() {
             case 5:
               if(robot.IS_PR) {
                 ecran_console_log("Coucou");
-                coucou();
+                gr_coucou();
               }
               else {
                 ecran_console_log("Test 1");

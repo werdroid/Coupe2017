@@ -73,7 +73,7 @@ void homologation_pr() {
   bouton_wait_start_up();
   
   
-  pr_activer_panneau();
+  pr_activer_panneau(0);
   
   
   

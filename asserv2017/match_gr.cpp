@@ -708,32 +708,34 @@ uint8_t gr_vider_REM_opp() {
 uint8_t gr_activer_abeille() {
   com_printfln("--- Activer Abeille ---");
   if(abeille_activee) return ERROR_PLUS_RIEN_A_FAIRE;
-  
+
   gr_nb_tentatives[ACTION_ACTIVER_ABEILLE]++;
+  
+  uint8_t error;
   
   // Initialisation de l'action
 
-  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 1, 8000, 3); // Approche de l'abeille 1/4
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 1, 8000, 3); // Approche de l'abeille 1/4
   if (error) return error;
-  error = aller_xy(200, 1800, VITESSE_A_VIDE, 1, 3000, 3); // Approche de l'abeille 2/4
+  error = aller_xy(200, 1800, VITESSE_RAPIDE, 1, 3000, 3); // Approche de l'abeille 2/4
   if (error) return error;
   error = asserv_rotation_vers_point(0, 100, 2000); // Approche de l'abeille 3/4
   if (error) return error;
-  error = aller_xy(170, 1830, VITESSE_A_VIDE, 1, 3000, 3); // Approche de l'abeille 4/4
+  error = aller_xy(170, 1830, VITESSE_RAPIDE, 1, 3000, 3); // Approche de l'abeille 4/4
   if (error) return error;
   com_printfln("ABEILLE atteinte.");
 
   // Réalisation de l'action
-  piloter_cuillere_miel(CM_BAISSER, false, true) //baisser rapidement
-  piloter_cuillere_miel(CM_TAPER_ABEILLE, true, true) //contact doux
+  piloter_cuillere_miel(CM_BAISSER); //baisser rapidement
+  piloter_cuillere_miel(CM_TAPER_ABEILLE, true); //contact doux
   minuteur_attendre(2000); //tempo pour assurer l'enclenchement du mécanisme de l'abeille
   abeille_activee = true;
   com_printfln("Abeille activée");
-  piloter_cuillere_miel(CM_RELEVER, false, true) //relever rapidement
-  piloter_cuillere_miel(CM_RANGER, true, true) //rangement doux
+  piloter_cuillere_miel(CM_RELEVER); //relever rapidement
+  piloter_cuillere_miel(CM_RANGER, true); //rangement doux
   
   // Dégagement
-  error = aller_xy(200, 1800, VITESSE_A_VIDE, 0, 3000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
+  error = aller_xy(200, 1800, VITESSE_RAPIDE, 0, 3000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
   // Pas de sous-gestion de l'erreur. L'abeille est activée. 
   
   return OK;
@@ -791,12 +793,12 @@ uint8_t recuperer_minerais_gcc10() {
 
   bras_position_croisiere();
 
-  error = aller_pt_etape(PT_ETAPE_10, VITESSE_A_VIDE, 1, 8000, 3);
+  error = aller_pt_etape(PT_ETAPE_10, VITESSE_RAPIDE, 1, 8000, 3);
   if(error) return error;
   com_printfln("GCC10 atteint.");
 
   // Réalisation de l'action
-  error = aller_xy(350, 1440, VITESSE_A_VIDE, 1, 3000, 3); // S'approche du cratère
+  error = aller_xy(350, 1440, VITESSE_RAPIDE, 1, 3000, 3); // S'approche du cratère
   error = asserv_rotation_vers_point(0, 2000, 2000); // S'oriente correctement
 
   error = prendre_minerais();
@@ -819,20 +821,20 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 
   bras_position_croisiere();
 
-  error = aller_pt_etape(PT_ETAPE_4, VITESSE_A_VIDE, 1, 10000, 3);
+  error = aller_pt_etape(PT_ETAPE_4, VITESSE_RAPIDE, 1, 10000, 3);
   if(error) return OK;
 
   // Dégagement de Module 5 (500;1100) vers (300-;1200+) depuis (800;950) puis dégagement par l'arrière vers P8
-  error = aller_xy(800, 950, VITESSE_A_VIDE, 1, 10000, 3);
+  error = aller_xy(800, 950, VITESSE_RAPIDE, 1, 10000, 3);
   if(error) return OK;
 
   error = aller_xy(500, 1100, VITESSE_LENTE, 1, 10000, 3);
   if(error) return OK;
 
-  error = aller_xy(300, 1200, VITESSE_A_VIDE, 1, 10000, 3);
+  error = aller_xy(300, 1200, VITESSE_RAPIDE, 1, 10000, 3);
   if(error) return OK;
 
-  error = aller_pt_etape(PT_ETAPE_8, VITESSE_A_VIDE, 0, 10000, 3);
+  error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 10000, 3);
   if(error) return OK;
 
   // Pas de gestion des erreurs : Une erreur sur cette séquence suivi d'un mouvement aléatoire invalide toute reprise de l'action.
@@ -911,7 +913,7 @@ void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
     switch(angle) {
       case CM_INIT: com_printfln("Init"); break;
       case CM_RANGER: com_printfln("Rangée"); break;
-      case CM_LEVER: com_printfln("Levée"); break;
+      case CM_BAISSER: com_printfln("Baissée"); break;
       case CM_TAPER_ABEILLE: com_printfln("Bzzz"); break;
       case CM_RELEVER: com_printfln("Relevée"); break;
       default: com_printfln("%d", angle); break;
