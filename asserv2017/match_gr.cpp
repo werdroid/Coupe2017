@@ -243,7 +243,8 @@ void homologation_gr() {
   ledMatrix_defiler_texte("Les arbitres sont tres sympa cette annee");
   asserv_go_toutdroit(100, 30000);
   
-  gr_activer_abeille();
+  //gr_activer_abeille();
+  gr_rapporter_CUB(0);
 
   minuteur_attendre_fin_match();
 }
@@ -607,16 +608,16 @@ uint8_t gr_jouer_action(int action) {
   uint8_t error;
 
   switch(action) {
-    case ACTION_ALLUMER_PANNEAU:    error = gr_allumer_panneau();      break;
-    case ACTION_VIDER_REP:          error = gr_vider_REP();         break;
+    case ACTION_ALLUMER_PANNEAU:    error = gr_allumer_panneau();      break; //pas codé
+    case ACTION_VIDER_REP:          error = gr_vider_REP();         break; //pas codé
     case ACTION_ACTIVER_ABEILLE:    error = gr_activer_abeille();   break;
-    case ACTION_VIDER_REM:          error = gr_vider_REM();         break;
-    case ACTION_RAPPORTER_CUB0:     error = gr_rapporter_CUB(0);       break;
-    case ACTION_RAPPORTER_CUB1:     error = gr_rapporter_CUB(1);       break;
-    case ACTION_RAPPORTER_CUB2:     error = gr_rapporter_CUB(2);       break;
-    case ACTION_VIDER_REM_OPP:      error = gr_vider_REM_opp();     break;
-    case ACTION_VIDER_REP_OPP:      error = gr_vider_REP_opp();     break;
-    case ACTION_DEPOSER_CHATEAU:    error = gr_deposer_chateau();   break;
+    case ACTION_VIDER_REM:          error = gr_vider_REM();         break; //pas codé
+    case ACTION_RAPPORTER_CUB0:     error = gr_rapporter_CUB(0);       break; 
+    case ACTION_RAPPORTER_CUB1:     error = gr_rapporter_CUB(1);       break; //pas codé
+    case ACTION_RAPPORTER_CUB2:     error = gr_rapporter_CUB(2);       break; //pas codé
+    case ACTION_VIDER_REM_OPP:      error = gr_vider_REM_opp();     break; //pas codé
+    case ACTION_VIDER_REP_OPP:      error = gr_vider_REP_opp();     break; //pas codé
+    case ACTION_DEPOSER_CHATEAU:    error = gr_deposer_chateau();   break; //pas codé
     case ACTION_DEPOSER_STATION:    error = gr_deposer_station();   break;
     default:
       com_printfln("GR ne peut pas faire l'action %d", action);
@@ -714,7 +715,6 @@ uint8_t gr_activer_abeille() {
   gr_nb_tentatives[ACTION_ACTIVER_ABEILLE]++;
   
   // Initialisation de l'action
-
   error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 1, 8000, 3); // Approche de l'abeille 1/4
   if (error) return error;
   error = aller_xy(200, 1800, VITESSE_A_VIDE, 1, 3000, 3); // Approche de l'abeille 2/4
@@ -746,6 +746,24 @@ uint8_t gr_deposer_station() {
   com_printfln("--- Evacuer Eaux Usées ---");
   if(nb_balles_eau_usee_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
   
+  // Initialisation de l'action
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 1, 8000, 3);
+  if (error) return error;
+
+  // Réalisation de l'action
+  error = asserv_rotation_vers_point(0, 3000, 1580);
+  error = aller_pt_etape(PT_ETAPE_7, VITESSE_LENTE, 1, 4000, 3);
+  piloter_evacuation_eaux_usees(EEU_OUVRIR, true, true) //ouvrir lentement pour soigner le contact avec la station.
+  minuteur_attendre(5000); //tempo pour attendre l'écoulement des balles
+
+  // Largage et dégagement
+  error = aller_xy(1000, 1580, VITESSE_A_VIDE, 0, 3000, 3); // Dégagement par l'arrière et vidage des balles
+  piloter_evacuation_eaux_usees(EEU_OUVRIR, false, true) //fermer rapidement
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 0, 3000, 3); // Dégagement par l'arrière
+  // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
+
+  nb_balles_eau_usee_dans_gr = 0; //hypothèse de bon déroulement de l'action
+  com_printfln("Eaux usées larguées");
   return OK;
 }
 
@@ -757,22 +775,48 @@ uint8_t gr_deposer_chateau() {
 }
 
 
-
-
-uint8_t gr_rapporter_CUB(int cub) {
+uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun avec code pr
   com_printfln("--- Rapporter CUB%d ---", cub);
   
   switch(cub) {
     case 0: gr_nb_tentatives[ACTION_RAPPORTER_CUB0]++; break;
+      error = aller_pt_etape(PT_ETAPE_13, VITESSE_A_VIDE, 1, 8000, 3);
+      if (error) return error;
+      error = aller_xy(1130, 600, VITESSE_RAPIDE, 1, 5000, 3);
+      if (error) return 0;
+      error = aller_xy(880, 750, VITESSE_RAPIDE, 1, 3000, 3);
+      if (error) return 0;
+      break;
+
     case 1: gr_nb_tentatives[ACTION_RAPPORTER_CUB1]++; break;
-    case 2: gr_nb_tentatives[ACTION_RAPPORTER_CUB2]++; break;
+      com_err2str(ERROR_PAS_CODE);
+      return 100;
+      break;
+
+    case 2: gr_nb_tentatives[ACTION_RAPPORTER_CUB2]++; 
+      com_err2str(ERROR_PAS_CODE);
+      return 100;
+      break;
+
     default: return ERROR_PARAMETRE;
   }
   
-  com_printfln("! ### Non codé");
-  // S'inspire de PR (voire mettre en commun)
+  // Déplacement vers la zone de construction
+  switch (cub) {
+  case 0:
+    error = aller_xy(820, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    break;
+  case 1:
+    error = aller_xy(550, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    break;
+  case 2:
+    error = aller_xy(700, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    break;
+  }
+  
   return OK;
 }
+
 
 uint8_t gr_degager_CUB2() {
   com_printfln("--- Dégager CUB2 ---");
