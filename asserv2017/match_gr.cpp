@@ -96,11 +96,11 @@ const uint8_t EEU_OUVRIR = 81;
 // Cuillère à miel (CM)
 // Angle+ = [Sens?]
 /*** TODO TBD ***/
-const uint8_t CM_INIT = 79;
-const uint8_t CM_RANGER = 80;
-const uint8_t CM_LEVER = 81;
+const uint8_t CM_INIT = 79; //ATN: = position ranger ?
+const uint8_t CM_BAISSER = 81; //ATN: modifié LEVER à BAISSER.
 const uint8_t CM_TAPER_ABEILLE = 82;
 const uint8_t CM_RELEVER = 83;
+const uint8_t CM_RANGER = 80;
 
 // Tri de l'eau (TRI)
 // Angle + = [Sens ?]
@@ -329,10 +329,6 @@ void test1_gr() {
     ledMatrix_effacer();
   }
 }
-
-// ============================================================
-// Debut section Edition ATN/DKI
-// ============================================================
 
 /** =============
   Programme MATCH
@@ -607,9 +603,9 @@ uint8_t deposer_station()	=> nb_balles_eau_usee_dans_gr = 0;
 uint8_t allumer_panneau()	=> gr_panneau_allume = true;
 uint8_t activer_abeille()	=> abeille_activee = true;
 
-uint8_t constr_CUB1() (jusque ZOC)
-uint8_t degager_CUB2() (non défini TBC_ATN)
-uint8_t degager_CUB3() (hors STATION, chez STATION opp)
+uint8_t constr_CUB0() (jusque ZOC)
+uint8_t degager_CUB1() (non défini TBC_ATN)
+uint8_t degager_CUB2() (hors STATION, chez STATION opp)
 
 */    
 
@@ -725,9 +721,30 @@ uint8_t gr_activer_abeille() {
   
   gr_nb_tentatives[ACTION_ACTIVER_ABEILLE]++;
   
-  com_printfln("! ### Non codé");
-  
+  // Initialisation de l'action
+
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 1, 8000, 3); // Approche de l'abeille 1/4
+  if (error) return error;
+  error = aller_xy(200, 1800, VITESSE_A_VIDE, 1, 3000, 3); // Approche de l'abeille 2/4
+  if (error) return error;
+  error = asserv_rotation_vers_point(0, 100, 2000); // Approche de l'abeille 3/4
+  if (error) return error;
+  error = aller_xy(170, 1830, VITESSE_A_VIDE, 1, 3000, 3); // Approche de l'abeille 4/4
+  if (error) return error;
+  com_printfln("ABEILLE atteinte.");
+
+  // Réalisation de l'action
+  piloter_cuillere_miel(CM_BAISSER, false, true) //baisser rapidement
+  piloter_cuillere_miel(CM_TAPER_ABEILLE, true, true) //contact doux
+  minuteur_attendre(2000); //tempo pour assurer l'enclenchement du mécanisme de l'abeille
   abeille_activee = true;
+  com_printfln("Abeille activée");
+  piloter_cuillere_miel(CM_RELEVER, false, true) //relever rapidement
+  piloter_cuillere_miel(CM_RANGER, true, true) //rangement doux
+  
+  // Dégagement
+  error = aller_xy(200, 1800, VITESSE_A_VIDE, 0, 3000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
+  // Pas de sous-gestion de l'erreur. L'abeille est activée. 
   
   return OK;
 }
@@ -851,12 +868,6 @@ void match_gr_arret() {
   
   tone_play_end();
 }
-
-
-
-// ============================================================
-// Fin section Edition ATN/DKI
-// ============================================================
 
 
 /** =======================
