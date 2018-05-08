@@ -76,7 +76,12 @@ void ecran_print_menu(int selector) {
     case 2: optionsMenu[5] = "\n\n   Prg:  Tourner x10"; break;
     case 3: optionsMenu[5] = "\n\n   Prg: Part/Revient"; break;
     case 4: optionsMenu[5] = "\n\n   Prg: Homologation"; break;
-    case 5: optionsMenu[5] = "\n\n   Prg:       Coucou"; break;
+    case 5:
+      if(robot.IS_PR)
+        optionsMenu[5] = "\n\n   Prg:       Coucou";
+      else
+        optionsMenu[5] = "\n\n   Prg:        Test1";
+      break;
     case 6: optionsMenu[5] = "\n\n   Prg:     Demo A/R"; break;
     case 7: optionsMenu[5] = "\n\n   Prg:   DO NOT USE"; break;
   }

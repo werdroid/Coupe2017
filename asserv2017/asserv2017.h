@@ -375,6 +375,7 @@ void match_pr();
 }
 void match_pr_arret();
 void debug_pr();
+void homologation_pr();
 
 // Menu
 void menu_start();

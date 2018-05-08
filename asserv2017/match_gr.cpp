@@ -330,7 +330,6 @@ void match_gr() {
   int start;
   uint8_t error;
 
-  homologation_gr();
   ecran_console_reset();
 
 
@@ -354,7 +353,6 @@ void match_gr() {
   ecran_console_log("4. Jack out\n\n");
 
   ecran_console_log("Initialisation...");
-
 
   // Variables de stratégie
   int action;
@@ -388,7 +386,7 @@ void match_gr() {
   };
   int len_phase2 = sizeof(phase2) / sizeof(action);
   
-  
+  gr_init_servos();
   score_definir(0);
 
 
@@ -678,11 +676,11 @@ uint8_t gr_vider_REM() {
   gr_nb_tentatives[ACTION_VIDER_REM]++;
   
   // Initialisation
-  error = aller_pt_etape(PT_ETAPE_3, VITESSE_A_VIDE, 1, 8000, 3);
+  error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 8000, 3);
   if (error) return error;
 
   // Positionnement
-  error = aller_xy(610, 1825, VITESSE_A_VIDE, 1, 3000, 3); //positionner le centre du collecteur à 75mm du bord
+  error = aller_xy(610, 1825, VITESSE_RAPIDE, 1, 3000, 3); //positionner le centre du collecteur à 75mm du bord
   if (error) return error;
 
   //Récupération des eaux
@@ -731,7 +729,7 @@ uint8_t gr_vider_REM() {
   com_printfln("REM vidé");
 
   // Dégagement
-  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 0, 8000, 3) // Dégagement par l'arrière pour la rotation vers l'action suivante
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 0, 8000, 3) // Dégagement par l'arrière pour la rotation vers l'action suivante
   // Pas de sous-gestion de l'erreur.
   
   return OK;
@@ -771,31 +769,38 @@ uint8_t gr_vider_REM_opp() {
 uint8_t gr_activer_abeille() {
   com_printfln("--- Activer Abeille ---");
   if(abeille_activee) return ERROR_PLUS_RIEN_A_FAIRE;
-  
+
   gr_nb_tentatives[ACTION_ACTIVER_ABEILLE]++;
   
+  uint8_t error;
+  
   // Initialisation de l'action
-  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 1, 8000, 3); // Approche de l'abeille 1/4
+<<<<<<< HEAD
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE 1, 8000, 3); // Approche de l'abeille 1/4
+=======
+
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 1, 8000, 3); // Approche de l'abeille 1/4
+>>>>>>> 8ffed7c5d0004608871a57ca9b43835b135d9cf0
   if (error) return error;
-  error = aller_xy(200, 1800, VITESSE_A_VIDE, 1, 3000, 3); // Approche de l'abeille 2/4
+  error = aller_xy(200, 1800, VITESSE_RAPIDE, 1, 3000, 3); // Approche de l'abeille 2/4
   if (error) return error;
   error = asserv_rotation_vers_point(0, 100, 2000); // Approche de l'abeille 3/4
   if (error) return error;
-  error = aller_xy(170, 1830, VITESSE_A_VIDE, 1, 3000, 3); // Approche de l'abeille 4/4
+  error = aller_xy(170, 1830, VITESSE_RAPIDE, 1, 3000, 3); // Approche de l'abeille 4/4
   if (error) return error;
   com_printfln("ABEILLE atteinte.");
 
   // Réalisation de l'action
-  piloter_cuillere_miel(CM_BAISSER, false, true) //baisser rapidement
-  piloter_cuillere_miel(CM_TAPER_ABEILLE, true, true) //contact doux
+  piloter_cuillere_miel(CM_BAISSER); //baisser rapidement
+  piloter_cuillere_miel(CM_TAPER_ABEILLE, true); //contact doux
   minuteur_attendre(2000); //tempo pour assurer l'enclenchement du mécanisme de l'abeille
   abeille_activee = true;
   com_printfln("Abeille activée");
-  piloter_cuillere_miel(CM_RELEVER, false, true) //relever rapidement
-  piloter_cuillere_miel(CM_RANGER, true, true) //rangement doux
+  piloter_cuillere_miel(CM_RELEVER); //relever rapidement
+  piloter_cuillere_miel(CM_RANGER, true); //rangement doux
   
   // Dégagement
-  error = aller_xy(200, 1800, VITESSE_A_VIDE, 0, 3000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
+  error = aller_xy(200, 1800, VITESSE_RAPIDE, 0, 3000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
   // Pas de sous-gestion de l'erreur. L'abeille est activée. 
   
   return OK;
@@ -807,7 +812,7 @@ uint8_t gr_deposer_station() {
   if(nb_balles_eau_usee_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
   
   // Initialisation de l'action
-  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 1, 8000, 3);
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 1, 8000, 3);
   if (error) return error;
 
   // Réalisation de l'action
@@ -817,9 +822,9 @@ uint8_t gr_deposer_station() {
   minuteur_attendre(5000); //tempo pour attendre l'écoulement des balles
 
   // Largage et dégagement
-  error = aller_xy(1000, 1580, VITESSE_A_VIDE, 0, 3000, 3); // Dégagement par l'arrière et vidage des balles
+  error = aller_xy(1000, 1580, VITESSE_RAPIDE, 0, 3000, 3); // Dégagement par l'arrière et vidage des balles
   piloter_evacuation_eaux_usees(EEU_OUVRIR, false, true) //fermer rapidement
-  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 0, 3000, 3); // Dégagement par l'arrière
+    error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 0, 3000, 3); // Dégagement par l'arrière
   // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
 
   nb_balles_eau_usee_dans_gr = 0; //hypothèse de bon déroulement de l'action
@@ -832,12 +837,12 @@ uint8_t gr_deposer_chateau() {
   if(nb_balles_eau_propre_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
 
   // Initialisation de l'action
-  error = aller_pt_etape(PT_ETAPE_1, VITESSE_A_VIDE, 1, 8000, 3);
+  error = aller_pt_etape(PT_ETAPE_1, VITESSE_RAPIDE, 1, 8000, 3);
   if (error) return error;
 
   // Réalisation de l'action
   error = asserv_rotation_vers_point(270, 2000, 3000);
-  error = aller_xy(270, 150, VITESSE_A_VIDE, 0, 3000, 3);
+  error = aller_xy(270, 150, VITESSE_RAPIDE, 0, 3000, 3);
 
   //TODO projection des balles
   //minuteur_attendre(5000); //tempo pour attendre l'écoulement des balles
@@ -845,7 +850,7 @@ uint8_t gr_deposer_chateau() {
 
 
   // Largage et dégagement
-  error = aller_pt_etape(PT_ETAPE_1, VITESSE_A_VIDE, 1, 3000, 3); // Dégagement par l'avant
+  error = aller_pt_etape(PT_ETAPE_1, VITESSE_RAPIDE, 1, 3000, 3); // Dégagement par l'avant
   // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
 
   nb_balles_eau_propre_dans_gr = 0; //hypothèse de bon déroulement de l'action
@@ -859,7 +864,7 @@ uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun ave
   
   switch(cub) {
     case 0: gr_nb_tentatives[ACTION_RAPPORTER_CUB0]++; break;
-      error = aller_pt_etape(PT_ETAPE_13, VITESSE_A_VIDE, 1, 8000, 3);
+      error = aller_pt_etape(PT_ETAPE_13, VITESSE_RAPIDE, 1, 8000, 3);
       if (error) return error;
       error = aller_xy(1130, 600, VITESSE_RAPIDE, 1, 5000, 3);
       if (error) return 0;
@@ -916,12 +921,12 @@ uint8_t recuperer_minerais_gcc10() {
 
   bras_position_croisiere();
 
-  error = aller_pt_etape(PT_ETAPE_10, VITESSE_A_VIDE, 1, 8000, 3);
+  error = aller_pt_etape(PT_ETAPE_10, VITESSE_RAPIDE, 1, 8000, 3);
   if(error) return error;
   com_printfln("GCC10 atteint.");
 
   // Réalisation de l'action
-  error = aller_xy(350, 1440, VITESSE_A_VIDE, 1, 3000, 3); // S'approche du cratère
+  error = aller_xy(350, 1440, VITESSE_RAPIDE, 1, 3000, 3); // S'approche du cratère
   error = asserv_rotation_vers_point(0, 2000, 2000); // S'oriente correctement
 
   error = prendre_minerais();
@@ -944,20 +949,20 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
 
   bras_position_croisiere();
 
-  error = aller_pt_etape(PT_ETAPE_4, VITESSE_A_VIDE, 1, 10000, 3);
+  error = aller_pt_etape(PT_ETAPE_4, VITESSE_RAPIDE, 1, 10000, 3);
   if(error) return OK;
 
   // Dégagement de Module 5 (500;1100) vers (300-;1200+) depuis (800;950) puis dégagement par l'arrière vers P8
-  error = aller_xy(800, 950, VITESSE_A_VIDE, 1, 10000, 3);
+  error = aller_xy(800, 950, VITESSE_RAPIDE, 1, 10000, 3);
   if(error) return OK;
 
   error = aller_xy(500, 1100, VITESSE_LENTE, 1, 10000, 3);
   if(error) return OK;
 
-  error = aller_xy(300, 1200, VITESSE_A_VIDE, 1, 10000, 3);
+  error = aller_xy(300, 1200, VITESSE_RAPIDE, 1, 10000, 3);
   if(error) return OK;
 
-  error = aller_pt_etape(PT_ETAPE_8, VITESSE_A_VIDE, 0, 10000, 3);
+  error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 10000, 3);
   if(error) return OK;
 
   // Pas de gestion des erreurs : Une erreur sur cette séquence suivi d'un mouvement aléatoire invalide toute reprise de l'action.
@@ -1036,7 +1041,7 @@ void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
     switch(angle) {
       case CM_INIT: com_printfln("Init"); break;
       case CM_RANGER: com_printfln("Rangée"); break;
-      case CM_LEVER: com_printfln("Levée"); break;
+      case CM_BAISSER: com_printfln("Baissée"); break;
       case CM_TAPER_ABEILLE: com_printfln("Bzzz"); break;
       case CM_RELEVER: com_printfln("Relevée"); break;
       default: com_printfln("%d", angle); break;
