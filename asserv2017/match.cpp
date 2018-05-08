@@ -56,7 +56,9 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     // En cas d'obstacle on fait une pause avant de tenter à nouveau
     if(error == ERROR_OBSTACLE) {
       minuteur_attendre(1000);
+      /*if(tentatives == 3 || tentatives == 5) {
         asserv_go_toutdroit(-80, 1000);
+      }*/
     }
   } while (error == ERROR_OBSTACLE && tentatives < max_tentatives);
 
