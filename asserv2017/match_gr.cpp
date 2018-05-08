@@ -608,16 +608,16 @@ uint8_t gr_jouer_action(int action) {
   uint8_t error;
 
   switch(action) {
-    case ACTION_ALLUMER_PANNEAU:    error = gr_allumer_panneau();      break; //pas codé
+    case ACTION_ALLUMER_PANNEAU:    error = gr_allumer_panneau();      break;
     case ACTION_VIDER_REP:          error = gr_vider_REP();         break; //pas codé
     case ACTION_ACTIVER_ABEILLE:    error = gr_activer_abeille();   break;
-    case ACTION_VIDER_REM:          error = gr_vider_REM();         break; //pas codé
+    case ACTION_VIDER_REM:          error = gr_vider_REM();         break; //pas codé (manque commande ouverture loquet récupérateurs)
     case ACTION_RAPPORTER_CUB0:     error = gr_rapporter_CUB(0);       break; 
     case ACTION_RAPPORTER_CUB1:     error = gr_rapporter_CUB(1);       break; //pas codé
     case ACTION_RAPPORTER_CUB2:     error = gr_rapporter_CUB(2);       break; //pas codé
     case ACTION_VIDER_REM_OPP:      error = gr_vider_REM_opp();     break; //pas codé
     case ACTION_VIDER_REP_OPP:      error = gr_vider_REP_opp();     break; //pas codé
-    case ACTION_DEPOSER_CHATEAU:    error = gr_deposer_chateau();   break; //pas codé
+    case ACTION_DEPOSER_CHATEAU:    error = gr_deposer_chateau();   break; //pas codé (manque fonction projection balles)
     case ACTION_DEPOSER_STATION:    error = gr_deposer_station();   break;
     default:
       com_printfln("GR ne peut pas faire l'action %d", action);
@@ -637,14 +637,24 @@ uint8_t gr_allumer_panneau() {
   if(gr_panneau_allume) return ERROR_PLUS_RIEN_A_FAIRE;
   
   gr_nb_tentatives[ACTION_ALLUMER_PANNEAU]++;
-  
-  
-  com_printfln("! ### Non codé");
-  
+
+  // Se positionne face à l'interrupteur
+  error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 8000, 3);
+  if (error) return error;
+  error = asserv_rotation_vers_point(1130, 0);
+  if (error) return 0;
+
+  // Enclencher l'interrupteur
+  error = aller_xy(1130, 150, VITESSE_LENTE, 1, 2000, 5);
+  com_printfln("Panneau activé");
   gr_panneau_allume = true;
+
+  // Reculer
+  error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 0, 8000, 3);
   
   return OK;
 }
+
 
 uint8_t gr_vider_REP() {
   com_printfln("--- Vider REP ---");  
@@ -665,14 +675,64 @@ uint8_t gr_vider_REM() {
   com_printfln("--- Vider REM ---");
   if(REM_vide) return ERROR_PLUS_RIEN_A_FAIRE;
   
-  
   gr_nb_tentatives[ACTION_VIDER_REM]++;
   
-  com_printfln("! ### Non codé");
-  
+  // Initialisation
+  error = aller_pt_etape(PT_ETAPE_3, VITESSE_A_VIDE, 1, 8000, 3);
+  if (error) return error;
+
+  // Positionnement
+  error = aller_xy(610, 1825, VITESSE_A_VIDE, 1, 3000, 3); //positionner le centre du collecteur à 75mm du bord
+  if (error) return error;
+
+  //Récupération des eaux
+
+  //TODO : ajouter commande ouverture loquet récupérateurs
+  com_printfln("! ### Fonction incomplète");
+
+  // REM: La couleur de ce récupérateur et de la balle inférieure est celle la zone de départ la plus éloignée. (C2018_Rules_final_FR.pdf)
+  piloter_tri_eau(TRI_NEUTRE, false, true) //init
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_EAU_USEE, false, true) //balle 1
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_NEUTRE, false, true) 
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_EAU_PROPRE, false, true) //balle 2
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_NEUTRE, false, true)
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_EAU_USEE, false, true) //balle 3
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_NEUTRE, false, true)
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_EAU_PROPRE, false, true) //balle 4
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_NEUTRE, false, true)
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_EAU_USEE, false, true) //balle 5
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_NEUTRE, false, true)
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_EAU_PROPRE, false, true) //balle 6
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_NEUTRE, false, true)
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_EAU_USEE, false, true) //balle 7
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_NEUTRE, false, true)
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_EAU_PROPRE, false, true) //balle 8
+  minuteur_attendre(1000);
+  piloter_tri_eau(TRI_NEUTRE, false, true)
+    
   nb_balles_eau_propre_dans_gr++;
   nb_balles_eau_usee_dans_gr++;
   REM_vide = true;
+  com_printfln("REM vidé");
+
+  // Dégagement
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_A_VIDE, 0, 8000, 3) // Dégagement par l'arrière pour la rotation vers l'action suivante
+  // Pas de sous-gestion de l'erreur.
   
   return OK;
 }
@@ -751,7 +811,7 @@ uint8_t gr_deposer_station() {
   if (error) return error;
 
   // Réalisation de l'action
-  error = asserv_rotation_vers_point(0, 3000, 1580);
+  error = asserv_rotation_vers_point(3000, 1580, 3000);
   error = aller_pt_etape(PT_ETAPE_7, VITESSE_LENTE, 1, 4000, 3);
   piloter_evacuation_eaux_usees(EEU_OUVRIR, true, true) //ouvrir lentement pour soigner le contact avec la station.
   minuteur_attendre(5000); //tempo pour attendre l'écoulement des balles
@@ -770,7 +830,26 @@ uint8_t gr_deposer_station() {
 uint8_t gr_deposer_chateau() {
   com_printfln("--- Evacuer Eau Propre ---");
   if(nb_balles_eau_propre_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
-  
+
+  // Initialisation de l'action
+  error = aller_pt_etape(PT_ETAPE_1, VITESSE_A_VIDE, 1, 8000, 3);
+  if (error) return error;
+
+  // Réalisation de l'action
+  error = asserv_rotation_vers_point(270, 2000, 3000);
+  error = aller_xy(270, 150, VITESSE_A_VIDE, 0, 3000, 3);
+
+  //TODO projection des balles
+  //minuteur_attendre(5000); //tempo pour attendre l'écoulement des balles
+  com_printfln("! ### Fonction incomplète");
+
+
+  // Largage et dégagement
+  error = aller_pt_etape(PT_ETAPE_1, VITESSE_A_VIDE, 1, 3000, 3); // Dégagement par l'avant
+  // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
+
+  nb_balles_eau_propre_dans_gr = 0; //hypothèse de bon déroulement de l'action
+  com_printfln("Eaux propres larguées"); 
   return OK;
 }
 
