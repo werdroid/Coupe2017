@@ -241,7 +241,7 @@ void homologation_gr() {
   minuteur_attendre(900);
   
   ledMatrix_defiler_texte("Les arbitres sont tres sympa cette annee");
-  asserv_go_toutdroit(100, 30000);
+  aller_xy(500, 500, VITESSE_RAPIDE, 1, 10000, 50);
   
   //gr_activer_abeille();
   gr_rapporter_CUB(1);
@@ -327,9 +327,11 @@ void test1_gr() {
   =============== **/
   
 void match_gr() {
+  homologation_gr(); return;
+  
   int start;
   uint8_t error;
-
+  
   ecran_console_reset();
 
 
@@ -397,7 +399,7 @@ void match_gr() {
 
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
-  asserv_set_position(886, 196, MATH_PI * -0.75); //TBC_ATN
+  asserv_set_position(150, 500, 0);
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -408,7 +410,7 @@ void match_gr() {
 
   minuteur_demarrer();
   minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
-  asserv_go_toutdroit(-450, 5000); //TBC_ATN
+  aller_xy(500, 500, VITESSE_RAPIDE, 1, 5000, 30);
 
 
   /**
@@ -726,8 +728,8 @@ uint8_t gr_vider_REM() {
   minuteur_attendre(1000);
   piloter_tri_eau(TRI_NEUTRE, false, true);
     
-  nb_balles_eau_propre_dans_gr++;
-  nb_balles_eau_usee_dans_gr++;
+  nb_balles_eau_propre_dans_gr += 4;
+  nb_balles_eau_usee_dans_gr += 4;
   REM_vide = true;
   com_printfln("REM vidé");
 
@@ -748,7 +750,7 @@ uint8_t gr_vider_REP_opp() {
   
   com_printfln("! ### Non codé");
   
-  nb_balles_eau_usee_dans_gr++;
+  // nb_balles_eau_usee_dans_gr++;
   REP_opp_vide = true;
   
   return OK;
@@ -764,8 +766,8 @@ uint8_t gr_vider_REM_opp() {
   
   com_printfln("! ### Non codé");
 
-  nb_balles_eau_propre_dans_gr++;
-  nb_balles_eau_usee_dans_gr++;
+  // nb_balles_eau_propre_dans_gr++;
+  // nb_balles_eau_usee_dans_gr++;
   REM_opp_vide = true;
   
   return OK;
@@ -811,6 +813,8 @@ uint8_t gr_deposer_station() {
   com_printfln("--- Evacuer Eaux Usées ---");
   if(nb_balles_eau_usee_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
   
+  gr_nb_tentatives[ACTION_DEPOSER_STATION]++;
+  
   // Initialisation de l'action
   error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 1, 8000, 3);
   if (error) return error;
@@ -837,6 +841,8 @@ uint8_t gr_deposer_chateau() {
   com_printfln("--- Evacuer Eau Propre ---");
   if(nb_balles_eau_propre_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
 
+  gr_nb_tentatives[ACTION_DEPOSER_CHATEAU]++;
+  
   // Initialisation de l'action
   error = aller_pt_etape(PT_ETAPE_1, VITESSE_RAPIDE, 1, 8000, 3);
   if (error) return error;
@@ -863,7 +869,25 @@ uint8_t gr_deposer_chateau() {
 uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun avec code pr
   uint8_t error;
   com_printfln("--- Rapporter CUB%d ---", cub);
+  if(gr_CUB_dans_ZOC[cub]) return ERROR_PLUS_RIEN_A_FAIRE;
   
+  switch(cub) {
+    case 0:
+      gr_nb_tentatives[ACTION_RAPPORTER_CUB0]++;
+      break;
+    case 1:
+      gr_nb_tentatives[ACTION_RAPPORTER_CUB1]++;
+      break;
+    case 2:
+      gr_nb_tentatives[ACTION_RAPPORTER_CUB2]++;
+      break;
+    default:
+      return ERROR_PARAMETRE;
+  }
+  
+  
+  // Positionnement proche des cubes
+  // [TODO] Ajuster dans le cas où ça a déjà été déplacé
   switch(cub) {
     case 0: gr_nb_tentatives[ACTION_RAPPORTER_CUB0]++;
       error = aller_pt_etape(PT_ETAPE_13, VITESSE_RAPIDE, 1, 8000, 3);
@@ -879,21 +903,31 @@ uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun ave
       com_err2str(ERROR_PAS_CODE);
       return OK;
       break;
-
-    default: return ERROR_PARAMETRE;
   }
   
   // Déplacement vers la zone de construction
   switch (cub) {
   case 0:
-    error = aller_xy(850, 200, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    error = aller_xy(850, 350, VITESSE_POUSSER_CUBES, 1, 8000, 6);
     break;
   case 1:
-    error = aller_xy(617, 200, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    error = aller_xy(612, 350, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    //Variante homologation
+    //error = aller_xy(500, 350, VITESSE_POUSSER_CUBES, 1, 8000, 6);
     break;
   case 2:
     //error = aller_xy(700, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6); //copié de PR
     break;
+  }
+  
+  gr_a_bouge_CUB[cub] = true;
+  
+  if(error) {
+    // Stocker la position du cube... [TODO]
+    return error;
+  }
+  else {
+    gr_CUB_dans_ZOC[cub] = true;
   }
   
   return OK;
@@ -977,6 +1011,13 @@ uint8_t degager_module5() { //Action de préparation du terrain : évacuation de
   Il s'agit d'actions effectuées par le robot, appelées surtout par les actions de jeu.
 **/
 
+void activer_propulseur(bool activer) {
+  
+  
+  com_printfln("! ### Non codé");
+  
+  
+}
 
 void match_gr_arret() {
   com_printfln("On stoppe les moteurs");
@@ -1085,8 +1126,7 @@ void gr_init() {
   robot.ASSERV_ROTATION_KD = 1.8f;
 
   // Actionneurs à init
-  servo_evacuation_eaux_usees.attach(10);
-  servo_cuillere_miel.attach(30); //TBD_RSE
+  servo_evacuation_eaux_usees.attach(10); // Plante...
+  servo_cuillere_miel.attach(33);
   servo_tri_eau.attach(9);
-
 }

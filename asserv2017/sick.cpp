@@ -9,7 +9,7 @@
 const uint16_t SICK_LIMIT_MIN = 90; // 50 = valeurs hors de portée ou signal trop faible, 90 = USB mm
 const uint16_t SICK_LIMIT_MAX = 3600; // diagonale de la table mm
 const uint16_t TABLE_MARGE_BORDURE = 200; // mm
-const uint16_t DISTANCE_DETECTION = 500; // mm (30 c'est juste)
+const uint16_t DISTANCE_DETECTION = 800; // mm (30 c'est juste) 50 aussi pour PR
 
 /*------------------------------------------------------------------------------
  * Protocol du sick

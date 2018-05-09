@@ -66,14 +66,19 @@ void homologation_pr() {
 
   ecran_console_log("Pret\n");
   
-  minuteur_attendre(200);
+  minuteur_attendre(1000);
   
-  asserv_set_position(200, 150, MATH_PI2); // TBC
+  asserv_set_position(101, 199, 0);
   asserv_maintenir_position();
   bouton_wait_start_up();
   
+  minuteur_attendre(8000);
+  aller_xy(200, 199, VITESSE_RAPIDE, 1, 10000, 20);
   
-  pr_activer_panneau(0);
+  //pr_activer_panneau(0);
+  
+  aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 10000, 10);
+  pr_rapporter_CUB(0, 0);
   
   
   
@@ -119,6 +124,8 @@ void gr_coucou() {
   =============== **/
 
 void match_pr() {
+  homologation_pr(); return;
+  
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
 
@@ -144,7 +151,7 @@ void match_pr() {
 
   ecran_console_log("Pret\n");
   minuteur_attendre(200);
-  asserv_set_position(200, 150, MATH_PI2); // TBC
+  asserv_set_position(101, 199, 0);
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -165,11 +172,11 @@ void match_pr() {
   int action_avancement[NOMBRE_ACTIONS] = { 0 };
 
   
-  delay(2000);
+  delay(3000);
 
   
   com_printfln("Sort de la zone de départ");
-  error = aller_xy(200, 300, VITESSE_RAPIDE, 1, 3000, 10);
+  error = aller_xy(200, 199, VITESSE_RAPIDE, 1, 10000, 20);
 
   
   action = 0;
@@ -300,10 +307,10 @@ int pr_rapporter_CUB(int cub, int depart) {
       // On se positionne devant les cubes à des endroits savamment étudiés
       switch(cub) {
         case 0:
-          error = aller_xy(1130, 600, VITESSE_RAPIDE, 1, 5000, 3);
+          error = aller_xy(1130, 680, VITESSE_RAPIDE, 1, 5000, 3);
           if(error) return 0;
           
-          error = aller_xy(880, 750, VITESSE_RAPIDE, 1, 3000, 3);
+          error = aller_xy(850, 800, VITESSE_RAPIDE, 1, 3000, 3);
           if(error) return 0;
           break;
           
@@ -349,7 +356,7 @@ int pr_rapporter_CUB(int cub, int depart) {
   // Déplacement vers la zone de construction
   switch(cub) {
     case 0:    
-      error = aller_xy(820, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+      error = aller_xy(850, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
       break;
     case 1:
       error = aller_xy(550, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);

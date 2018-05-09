@@ -134,7 +134,7 @@ void menu_start() {
               demo_allers_retours();
               break;
              
-            case 7:
+            case 7:              
               // Libre
               
               ecran_console_log("On avait pourtant\n");

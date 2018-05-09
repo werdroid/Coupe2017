@@ -138,8 +138,8 @@ var table = {
     // Points clés ("Points coordonnées")
     table.obj.grpPtsEtape = table.svg.set();
     for(var i = 0; i < ptsEtape.length; i++) {
-      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0], ptsEtape[i][1], ptsEtape[i][2], 'lightgreen'));
-      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0], 3000 - ptsEtape[i][1], ptsEtape[i][2], 'orangered'));
+      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', ptsEtape[i][1], ptsEtape[i][2], 'lightgreen'));
+      table.obj.grpPtsEtape.add(table.creer.ptEtape('Adverse ' + ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', 3000 - ptsEtape[i][1], ptsEtape[i][2], 'orangered'));
     }
 
     table.obj.grpPositions[0].front();
