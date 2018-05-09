@@ -45,7 +45,8 @@ const uint8_t AUTRE = 127; // ? (utilisé dans asserv.cpp)
 // Erreurs de stratégie
 const uint8_t ERROR_CAS_NON_GERE = 10; // Cas non géré (trop complexe)
 const uint8_t ERROR_PARAMETRE = 11; // Paramètre envoyé incorrect
-const uint8_t ERROR_PLUS_RIEN_A_FAIRE = 14; // Action déjà terminée
+const uint8_t ERROR_PLUS_RIEN_A_FAIRE = 12; // Action déjà terminée
+const uint8_t ERROR_PAS_POSSIBLE = 14; // Pas le meilleur moment pour
 const uint8_t ERROR_PAS_CODE = 15; // Pas encore codé
 
 
@@ -150,7 +151,7 @@ typedef struct {
   int32_t consigneX; // tick
   int32_t consigneY; // tick
 
-
+  uint16_t DISTANCE_DETECTION;
   bool sickConnected;
   bool sickObstacle;
   uint32_t sickTramesVides;

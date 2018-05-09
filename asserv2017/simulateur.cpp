@@ -71,7 +71,10 @@ uint8_t com_err2str(uint8_t error) {
       break;
     case ERROR_PLUS_RIEN_A_FAIRE:
       com_printfln("! ERROR_PLUS_RIEN_A_FAIRE");
-      break;      
+      break;
+    case ERROR_PAS_POSSIBLE:
+      com_printfln("! ERROR_PAS_POSSIBLE");
+      break;
     case AUTRE:
       com_printfln("! # AUTRE");
       break;

@@ -1,3 +1,11 @@
+[Suite Coupe 2018]
+Option "Homologation" : tous les déplacements sont faits nb_tentatives*10
+
+
+
+
+-----------------
+
 - Fonction init_match()
 
 [Avec Vladimir]

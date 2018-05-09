@@ -64,7 +64,7 @@ void ecran_print_menu(int selector) {
     optionsMenu[1] = "\n\n   Couleur:     VERT";
     couleur_robot = ST7735_GREEN;
   } else {
-    optionsMenu[1] = "\n\n   Couleur:    ORANGE";
+    optionsMenu[1] = "\n\n   Couleur:   ORANGE";
     couleur_robot = ST7735_YELLOW;
   }
 

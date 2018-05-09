@@ -71,6 +71,7 @@ void com_send_robot_infos() {
 // Renvoie la constante d'erreur sous forme de log
 // Nota : pas forcément pertinent avec TIMEOUT et OBSTACLE qui sont déjà bien décrits dans match.cpp
 uint8_t com_err2str(uint8_t error) {
+  // Mettre également à jour simulateur.cpp
   switch(error) {
     case OK:
       com_printfln("OK");
@@ -95,6 +96,9 @@ uint8_t com_err2str(uint8_t error) {
       break;
     case ERROR_PLUS_RIEN_A_FAIRE:
       com_printfln("! ERROR_PLUS_RIEN_A_FAIRE");
+      break;
+    case ERROR_PAS_POSSIBLE:
+      com_printfln("! ERROR_PAS_POSSIBLE");
       break;
     case AUTRE:
       com_printfln("! # AUTRE");

@@ -68,12 +68,12 @@ void homologation_pr() {
   
   minuteur_attendre(1000);
   
-  asserv_set_position(101, 199, 0);
+  asserv_set_position(101, 179, 0);
   asserv_maintenir_position();
   bouton_wait_start_up();
   
   minuteur_attendre(8000);
-  aller_xy(200, 199, VITESSE_RAPIDE, 1, 10000, 20);
+  aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
   
   //pr_activer_panneau(0);
   
@@ -124,8 +124,6 @@ void gr_coucou() {
   =============== **/
 
 void match_pr() {
-  homologation_pr(); return;
-  
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
 
@@ -151,7 +149,7 @@ void match_pr() {
 
   ecran_console_log("Pret\n");
   minuteur_attendre(200);
-  asserv_set_position(101, 199, 0);
+  asserv_set_position(101, 179, 0);
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -176,7 +174,7 @@ void match_pr() {
 
   
   com_printfln("Sort de la zone de départ");
-  error = aller_xy(200, 199, VITESSE_RAPIDE, 1, 10000, 20);
+  error = aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
 
   
   action = 0;
@@ -442,4 +440,6 @@ void pr_init() {
   robot.ASSERV_DISTANCE_KD = 1.5f; // 30 avril pr
   robot.ASSERV_ROTATION_KP = 0.09f; // 30 avril pr
   robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr
+  
+  robot.DISTANCE_DETECTION = 750; // mm 9/05/2018
 }

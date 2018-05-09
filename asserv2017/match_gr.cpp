@@ -109,6 +109,8 @@ const uint8_t TRI_INIT = 79;
 const uint8_t TRI_NEUTRE = 80;
 const uint8_t TRI_EAU_PROPRE = 81;
 const uint8_t TRI_EAU_USEE = 82;
+const uint8_t TRI_EXTREME_GAUCHE = 83;
+const uint8_t TRI_EXTREME_DROITE = 84;
 
 
 // Variables et prototypes Servo
@@ -327,8 +329,6 @@ void test1_gr() {
   =============== **/
   
 void match_gr() {
-  homologation_gr(); return;
-  
   int start;
   uint8_t error;
   
@@ -362,18 +362,17 @@ void match_gr() {
   int strategie = 1;
   
   int phase1[] = {
-    ACTION_ALLUMER_PANNEAU,
+    //ACTION_ALLUMER_PANNEAU,
     ACTION_VIDER_REP,
     ACTION_DEPOSER_CHATEAU,
     ACTION_ACTIVER_ABEILLE,
     ACTION_VIDER_REM,
     ACTION_DEPOSER_STATION,
-    ACTION_RAPPORTER_CUB2,
+    //ACTION_RAPPORTER_CUB2,
     ACTION_DEPOSER_CHATEAU,
     ACTION_DEPOSER_STATION,
     ACTION_RAPPORTER_CUB1,
-    ACTION_DEPOSER_CHATEAU,
-    ACTION_RAPPORTER_CUB0
+    ACTION_DEPOSER_CHATEAU
     // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase1 = sizeof(phase1) / sizeof(action);
@@ -479,7 +478,7 @@ void match_gr() {
     #ifdef __EMSCRIPTEN__
     nb_iterations++;
     if(nb_iterations > 50) {
-      com_printfln("#### BOUCLE INFINIE ? ###");
+      com_printfln("! #### BOUCLE INFINIE ? ###");
       break;
     }
     #endif
@@ -495,20 +494,17 @@ void match_gr() {
 
     
     // Est-ce qu'on doit continuer à faire des trucs ?
-    if(gr_panneau_allume
-    && abeille_activee
+    if(abeille_activee
     && REP_vide
     && REM_vide
-    && gr_CUB_dans_ZOC[0]
-    && gr_CUB_dans_ZOC[1]
-    && gr_CUB_dans_ZOC[2]) {
+    && gr_CUB_dans_ZOC[1]) {
       
       nb_iterations = 0;
       while(1) {
         #ifdef __EMSCRIPTEN__
         nb_iterations++;
         if(nb_iterations > 50) {
-          com_printfln("#### BOUCLE INFINIE ? ###");
+          com_printfln("! #### BOUCLE INFINIE ? ###");
           break;
         }
         #endif
@@ -542,7 +538,7 @@ void match_gr() {
     #ifdef __EMSCRIPTEN__
     nb_iterations++;
     if(nb_iterations > 50) {
-      com_printfln("#### BOUCLE INFINIE ? ###");
+      com_printfln("! #### BOUCLE INFINIE ? ###");
       break;
     }
     #endif
@@ -661,13 +657,15 @@ uint8_t gr_vider_REP() {
   uint8_t error;
   com_printfln("--- Vider REP ---");  
   if(REP_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+  if(nb_balles_eau_propre_dans_gr > 0) return ERROR_PAS_POSSIBLE;
+  
   
   gr_nb_tentatives[ACTION_VIDER_REP]++;
   
   
   com_printfln("! ### Non codé");
   
-  nb_balles_eau_propre_dans_gr++;
+  nb_balles_eau_propre_dans_gr += 8;
   REP_vide = true;
   
   return OK;
@@ -677,6 +675,8 @@ uint8_t gr_vider_REM() {
   uint8_t error;
   com_printfln("--- Vider REM ---");
   if(REM_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+  if(nb_balles_eau_propre_dans_gr > 4) return ERROR_PAS_POSSIBLE;
+  if(nb_balles_eau_usee_dans_gr > 4) return ERROR_PAS_POSSIBLE;
   
   gr_nb_tentatives[ACTION_VIDER_REM]++;
   
@@ -745,12 +745,14 @@ uint8_t gr_vider_REP_opp() {
   uint8_t error;
   com_printfln("--- Vider REP Opp ---");
   if(REP_opp_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+  if(nb_balles_eau_usee_dans_gr > 0) return ERROR_PAS_POSSIBLE;
   
   gr_nb_tentatives[ACTION_VIDER_REP_OPP]++;
   
   com_printfln("! ### Non codé");
   
-  // nb_balles_eau_usee_dans_gr++;
+  nb_balles_eau_usee_dans_gr += 8;
+  
   REP_opp_vide = true;
   
   return OK;
@@ -761,13 +763,15 @@ uint8_t gr_vider_REM_opp() {
   uint8_t error;
   com_printfln("--- Vider REM Opp ---");
   if(REM_opp_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+  if(nb_balles_eau_propre_dans_gr > 4) return ERROR_PAS_POSSIBLE;
+  if(nb_balles_eau_usee_dans_gr > 4) return ERROR_PAS_POSSIBLE;
   
   gr_nb_tentatives[ACTION_VIDER_REM_OPP]++;
   
   com_printfln("! ### Non codé");
 
-  // nb_balles_eau_propre_dans_gr++;
-  // nb_balles_eau_usee_dans_gr++;
+  nb_balles_eau_propre_dans_gr += 4;
+  nb_balles_eau_usee_dans_gr += 4;
   REM_opp_vide = true;
   
   return OK;
@@ -912,8 +916,6 @@ uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun ave
     break;
   case 1:
     error = aller_xy(612, 350, VITESSE_POUSSER_CUBES, 1, 8000, 6);
-    //Variante homologation
-    //error = aller_xy(500, 350, VITESSE_POUSSER_CUBES, 1, 8000, 6);
     break;
   case 2:
     //error = aller_xy(700, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6); //copié de PR
@@ -1104,6 +1106,8 @@ void piloter_tri_eau(uint8_t angle, bool doucement, bool log) {
       case TRI_NEUTRE: com_printfln("Neutre"); break;
       case TRI_EAU_PROPRE: com_printfln("Eau propre"); break;
       case TRI_EAU_USEE: com_printfln("Eau usee"); break;
+      case TRI_EXTREME_GAUCHE: com_printfln("Extreme Gauche"); break;
+      case TRI_EXTREME_DROITE: com_printfln("Extreme Droite"); break;
       default: com_printfln("%d", angle); break;
     }
   }
@@ -1129,4 +1133,6 @@ void gr_init() {
   servo_evacuation_eaux_usees.attach(10); // Plante...
   servo_cuillere_miel.attach(33);
   servo_tri_eau.attach(9);
+  
+  robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
 }
