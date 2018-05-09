@@ -244,7 +244,7 @@ void homologation_gr() {
   asserv_go_toutdroit(100, 30000);
   
   //gr_activer_abeille();
-  gr_rapporter_CUB(0);
+  gr_rapporter_CUB(1);
 
   minuteur_attendre_fin_match();
 }
@@ -611,7 +611,7 @@ uint8_t gr_jouer_action(int action) {
     case ACTION_ACTIVER_ABEILLE:    error = gr_activer_abeille();   break;
     case ACTION_VIDER_REM:          error = gr_vider_REM();         break; //pas codé (manque commande ouverture loquet récupérateurs)
     case ACTION_RAPPORTER_CUB0:     error = gr_rapporter_CUB(0);       break; 
-    case ACTION_RAPPORTER_CUB1:     error = gr_rapporter_CUB(1);       break; //pas codé
+    case ACTION_RAPPORTER_CUB1:     error = gr_rapporter_CUB(1);       break;
     case ACTION_RAPPORTER_CUB2:     error = gr_rapporter_CUB(2);       break; //pas codé
     case ACTION_VIDER_REM_OPP:      error = gr_vider_REM_opp();     break; //pas codé
     case ACTION_VIDER_REP_OPP:      error = gr_vider_REP_opp();     break; //pas codé
@@ -631,6 +631,7 @@ uint8_t gr_jouer_action(int action) {
 }
 
 uint8_t gr_allumer_panneau() {
+  uint8_t error;
   com_printfln("--- Activer panneau ---");  
   if(gr_panneau_allume) return ERROR_PLUS_RIEN_A_FAIRE;
   
@@ -655,6 +656,7 @@ uint8_t gr_allumer_panneau() {
 
 
 uint8_t gr_vider_REP() {
+  uint8_t error;
   com_printfln("--- Vider REP ---");  
   if(REP_vide) return ERROR_PLUS_RIEN_A_FAIRE;
   
@@ -670,6 +672,7 @@ uint8_t gr_vider_REP() {
 }
 
 uint8_t gr_vider_REM() {
+  uint8_t error;
   com_printfln("--- Vider REM ---");
   if(REM_vide) return ERROR_PLUS_RIEN_A_FAIRE;
   
@@ -689,39 +692,39 @@ uint8_t gr_vider_REM() {
   com_printfln("! ### Fonction incomplète");
 
   // REM: La couleur de ce récupérateur et de la balle inférieure est celle la zone de départ la plus éloignée. (C2018_Rules_final_FR.pdf)
-  piloter_tri_eau(TRI_NEUTRE, false, true) //init
+  piloter_tri_eau(TRI_NEUTRE, false, true); //init
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_EAU_USEE, false, true) //balle 1
+  piloter_tri_eau(TRI_EAU_USEE, false, true); //balle 1
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_NEUTRE, false, true) 
+  piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_EAU_PROPRE, false, true) //balle 2
+  piloter_tri_eau(TRI_EAU_PROPRE, false, true); //balle 2
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_NEUTRE, false, true)
+  piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_EAU_USEE, false, true) //balle 3
+  piloter_tri_eau(TRI_EAU_USEE, false, true); //balle 3
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_NEUTRE, false, true)
+  piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_EAU_PROPRE, false, true) //balle 4
+  piloter_tri_eau(TRI_EAU_PROPRE, false, true); //balle 4
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_NEUTRE, false, true)
+  piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_EAU_USEE, false, true) //balle 5
+  piloter_tri_eau(TRI_EAU_USEE, false, true); //balle 5
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_NEUTRE, false, true)
+  piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_EAU_PROPRE, false, true) //balle 6
+  piloter_tri_eau(TRI_EAU_PROPRE, false, true); //balle 6
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_NEUTRE, false, true)
+  piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_EAU_USEE, false, true) //balle 7
+  piloter_tri_eau(TRI_EAU_USEE, false, true); //balle 7
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_NEUTRE, false, true)
+  piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_EAU_PROPRE, false, true) //balle 8
+  piloter_tri_eau(TRI_EAU_PROPRE, false, true); //balle 8
   minuteur_attendre(1000);
-  piloter_tri_eau(TRI_NEUTRE, false, true)
+  piloter_tri_eau(TRI_NEUTRE, false, true);
     
   nb_balles_eau_propre_dans_gr++;
   nb_balles_eau_usee_dans_gr++;
@@ -729,7 +732,7 @@ uint8_t gr_vider_REM() {
   com_printfln("REM vidé");
 
   // Dégagement
-  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 0, 8000, 3) // Dégagement par l'arrière pour la rotation vers l'action suivante
+  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 0, 8000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
   // Pas de sous-gestion de l'erreur.
   
   return OK;
@@ -737,6 +740,7 @@ uint8_t gr_vider_REM() {
 
 // Rappel : REP_opp ne contient que des balles usées
 uint8_t gr_vider_REP_opp() {
+  uint8_t error;
   com_printfln("--- Vider REP Opp ---");
   if(REP_opp_vide) return ERROR_PLUS_RIEN_A_FAIRE;
   
@@ -752,6 +756,7 @@ uint8_t gr_vider_REP_opp() {
 
 // vider_REM_opp() (attention, séquence des balles opposée)
 uint8_t gr_vider_REM_opp() {
+  uint8_t error;
   com_printfln("--- Vider REM Opp ---");
   if(REM_opp_vide) return ERROR_PLUS_RIEN_A_FAIRE;
   
@@ -767,20 +772,14 @@ uint8_t gr_vider_REM_opp() {
 }
 
 uint8_t gr_activer_abeille() {
+  uint8_t error;
   com_printfln("--- Activer Abeille ---");
   if(abeille_activee) return ERROR_PLUS_RIEN_A_FAIRE;
 
   gr_nb_tentatives[ACTION_ACTIVER_ABEILLE]++;
-  
-  uint8_t error;
-  
+   
   // Initialisation de l'action
-<<<<<<< HEAD
-  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE 1, 8000, 3); // Approche de l'abeille 1/4
-=======
-
   error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 1, 8000, 3); // Approche de l'abeille 1/4
->>>>>>> 8ffed7c5d0004608871a57ca9b43835b135d9cf0
   if (error) return error;
   error = aller_xy(200, 1800, VITESSE_RAPIDE, 1, 3000, 3); // Approche de l'abeille 2/4
   if (error) return error;
@@ -808,6 +807,7 @@ uint8_t gr_activer_abeille() {
 
 
 uint8_t gr_deposer_station() {
+  uint8_t error;
   com_printfln("--- Evacuer Eaux Usées ---");
   if(nb_balles_eau_usee_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
   
@@ -817,13 +817,13 @@ uint8_t gr_deposer_station() {
 
   // Réalisation de l'action
   error = asserv_rotation_vers_point(3000, 1580, 3000);
-  error = aller_pt_etape(PT_ETAPE_7, VITESSE_LENTE, 1, 4000, 3);
-  piloter_evacuation_eaux_usees(EEU_OUVRIR, true, true) //ouvrir lentement pour soigner le contact avec la station.
+  error = aller_xy(1190, 1580, VITESSE_LENTE, 1, 4000, 3);
+  piloter_evacuation_eaux_usees(EEU_OUVRIR, true, true); //ouvrir lentement pour soigner le contact avec la station.
   minuteur_attendre(5000); //tempo pour attendre l'écoulement des balles
 
   // Largage et dégagement
   error = aller_xy(1000, 1580, VITESSE_RAPIDE, 0, 3000, 3); // Dégagement par l'arrière et vidage des balles
-  piloter_evacuation_eaux_usees(EEU_OUVRIR, false, true) //fermer rapidement
+  piloter_evacuation_eaux_usees(EEU_OUVRIR, false, true); //fermer rapidement
     error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 0, 3000, 3); // Dégagement par l'arrière
   // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
 
@@ -833,6 +833,7 @@ uint8_t gr_deposer_station() {
 }
 
 uint8_t gr_deposer_chateau() {
+  uint8_t error;
   com_printfln("--- Evacuer Eau Propre ---");
   if(nb_balles_eau_propre_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
 
@@ -860,26 +861,23 @@ uint8_t gr_deposer_chateau() {
 
 
 uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun avec code pr
+  uint8_t error;
   com_printfln("--- Rapporter CUB%d ---", cub);
   
   switch(cub) {
-    case 0: gr_nb_tentatives[ACTION_RAPPORTER_CUB0]++; break;
+    case 0: gr_nb_tentatives[ACTION_RAPPORTER_CUB0]++;
       error = aller_pt_etape(PT_ETAPE_13, VITESSE_RAPIDE, 1, 8000, 3);
       if (error) return error;
-      error = aller_xy(1130, 600, VITESSE_RAPIDE, 1, 5000, 3);
-      if (error) return 0;
-      error = aller_xy(880, 750, VITESSE_RAPIDE, 1, 3000, 3);
-      if (error) return 0;
       break;
 
-    case 1: gr_nb_tentatives[ACTION_RAPPORTER_CUB1]++; break;
-      com_err2str(ERROR_PAS_CODE);
-      return 100;
+    case 1: gr_nb_tentatives[ACTION_RAPPORTER_CUB1]++;
+      error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 8000, 3);
+      if (error) return error;
       break;
 
     case 2: gr_nb_tentatives[ACTION_RAPPORTER_CUB2]++; 
       com_err2str(ERROR_PAS_CODE);
-      return 100;
+      return OK;
       break;
 
     default: return ERROR_PARAMETRE;
@@ -888,13 +886,13 @@ uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun ave
   // Déplacement vers la zone de construction
   switch (cub) {
   case 0:
-    error = aller_xy(820, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    error = aller_xy(850, 200, VITESSE_POUSSER_CUBES, 1, 8000, 6);
     break;
   case 1:
-    error = aller_xy(550, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    error = aller_xy(617, 200, VITESSE_POUSSER_CUBES, 1, 8000, 6);
     break;
   case 2:
-    error = aller_xy(700, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
+    //error = aller_xy(700, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6); //copié de PR
     break;
   }
   
