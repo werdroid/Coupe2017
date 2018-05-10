@@ -263,35 +263,12 @@ void debug_gr() {
 
   
   minuteur_attendre(200);
-  asserv_set_position(737, 1578, MATH_PI * -0.5);
+  asserv_set_position(1500, 1000, MATH_PI * -0.5);
   asserv_maintenir_position();
   minuteur_attendre(1800);
 
   minuteur_demarrer();
-  minuteur_attendre(10000);
-  com_printfln("10");
-  minuteur_attendre(10000);
-  com_printfln("20");
-  minuteur_attendre(10000);
-  com_printfln("30");
-  minuteur_attendre(10000);
-  com_printfln("40");
-  minuteur_attendre(10000);
-  com_printfln("50");
-  minuteur_attendre(10000);
-  com_printfln("60");
-  minuteur_attendre(10000);
-  com_printfln("70");
-  minuteur_attendre(10000);
-  com_printfln("80");
-  minuteur_attendre(10000);
-  com_printfln("90");
-  minuteur_attendre(5000);
-  com_printfln("95");
-  minuteur_attendre(3000);
-  asserv_go_toutdroit(300, 20000);
 
-  com_printfln("Ce message ne saffichera jamais");
   
   
 
@@ -301,27 +278,23 @@ void debug_gr() {
   com_printfln("Orientation 1 dans 3 sec");
   minuteur_attendre(3000);
 
-  asserv_rotation_vers_point(737, 0, 3000);
+  asserv_rotation_vers_point(0, 1000, 3000);
 
-  com_printfln("Baisser le bras dans 3 sec");
-  minuteur_attendre(3000);
-  /*if(robot.symetrie) {
-    positionner_bras_gauche(POSITION_KNOCK_JAUNE, false);
-  }
-  else {
-    positionner_bras_droit(POSITION_KNOCK_BLEU, false);
-  }*/
 
   com_printfln("Orientation 2 dans 3 sec");
   minuteur_attendre(3000);
 
-  asserv_rotation_vers_point(1500, 573, 2000); // Rotation (= "Knocker")
+  asserv_rotation_vers_point(1500, 0, 2000);
 
-  com_printfln("Croisiere dans 3 sec");
+  com_printfln("En bas dans 3 sec");
   minuteur_attendre(3000);
 
-  //bras_position_croisiere();
+  asserv_rotation_vers_point(1500, 2000, 2000);
 
+  com_printfln("Droite dans 3 sec");
+
+  minuteur_attendre(3000);
+  asserv_rotation_vers_point(3000, 1000, 3000);
   tone_play_end();
 }
 
@@ -884,7 +857,7 @@ uint8_t gr_vider_REM_opp() {
   
   gr_nb_tentatives[ACTION_VIDER_REM_OPP]++;
   
-  // Initialisation
+  /*// Initialisation
   error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 1, 8000, 3);
   if (error) return error;
 
@@ -934,9 +907,20 @@ uint8_t gr_vider_REM_opp() {
   piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(ATTENTE_ENTRE_BALLES);
   gr_trier_vers_eau_usee(); //balle 8
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
+  minuteur_attendre(ATTENTE_ENTRE_BALLES);*/
   
-  piloter_tri_eau(TRI_NEUTRE, false, true);
+  // /!\ Initialisation sans tri
+  error = aller_xy(2290, 1750, VITESSE_RAPIDE, 1, 3000, 3); 
+  if (error) return error;
+  
+  // /!\ Réalisation sans tri (uniquement pour station)
+  piloter_tri_eau(TRI_EXTREME_GAUCHE, false, true); //Ouverture loquet récupérateur 1/2
+  error = aller_xy(2290, 1850, VITESSE_LENTE, 1, 3000, 3); //Positionnement sans tri
+  piloter_tri_eau(TRI_EXTREME_DROITE, false, true); //Ouverture loquet récupérateur 2/2
+  score_incrementer(10); //10 pts pour REP ouvert + vidé d'au moins une balle
+  
+  // /!\  --Ecoulement des balles pour cas sans tri
+  minuteur_attendre(5000);  
    
   nb_balles_eau_propre_dans_gr += 4;
   nb_balles_eau_usee_dans_gr += 4;
@@ -944,8 +928,10 @@ uint8_t gr_vider_REM_opp() {
   com_printfln("REM_opp vidé");
   
   // Dégagement
-  error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 0, 8000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
+  error = aller_xy(2290, 1750, VITESSE_RAPIDE, 0, 3000, 3); //dégagement pour cas sans tri
+  //error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 0, 8000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
   // Pas de sous-gestion de l'erreur.
+  piloter_tri_eau(TRI_NEUTRE, false, true);
     
   return OK;
 }
@@ -1157,70 +1143,6 @@ uint8_t gr_degager_CUB2() {
   com_printfln("! ### Non codé");
   return OK;
 }
-
-
-
-/* Actions 2017 pour mémoire
-
-uint8_t recuperer_minerais_gcc10() {
-  uint8_t error;
-
-  com_printfln("----- Minerais GCC10 -----");
-
-  // Initialisation de l'action
-
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_10, VITESSE_RAPIDE, 1, 8000, 3);
-  if(error) return error;
-  com_printfln("GCC10 atteint.");
-
-  // Réalisation de l'action
-  error = aller_xy(350, 1440, VITESSE_RAPIDE, 1, 3000, 3); // S'approche du cratère
-  error = asserv_rotation_vers_point(0, 2000, 2000); // S'oriente correctement
-
-  error = prendre_minerais();
-  gr_minerais_charges = true;
-  com_printfln("Minerais charges");
-
-  // Dégagement
-  error = aller_pt_etape(PT_ETAPE_10, VITESSE_CHARGE, 0, 3000, 3); // Dégagement par l'arrière du cratère pour la rotation vers le dépôt
-  // Pas de sous-gestion de l'erreur. Les minerais sont chargés.
-
-  return OK;
-}
-
-
-uint8_t degager_module5() { //Action de préparation du terrain : évacuation des modules lunaires de la piste de déplacement
-  // A lancer après recuperer_module1(). Une visite de (800;950) avant pousserait le module 1 qui deviendrait irrécupérable.
-  uint8_t error;
-
-  com_printfln("----- Degager Module 5 -----");
-
-  bras_position_croisiere();
-
-  error = aller_pt_etape(PT_ETAPE_4, VITESSE_RAPIDE, 1, 10000, 3);
-  if(error) return OK;
-
-  // Dégagement de Module 5 (500;1100) vers (300-;1200+) depuis (800;950) puis dégagement par l'arrière vers P8
-  error = aller_xy(800, 950, VITESSE_RAPIDE, 1, 10000, 3);
-  if(error) return OK;
-
-  error = aller_xy(500, 1100, VITESSE_LENTE, 1, 10000, 3);
-  if(error) return OK;
-
-  error = aller_xy(300, 1200, VITESSE_RAPIDE, 1, 10000, 3);
-  if(error) return OK;
-
-  error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 10000, 3);
-  if(error) return OK;
-
-  // Pas de gestion des erreurs : Une erreur sur cette séquence suivi d'un mouvement aléatoire invalide toute reprise de l'action.
-
-  return OK;
-}
-*/
-
 
 /** =============
   Actions de base
