@@ -72,7 +72,7 @@ const uint8_t ASSERV_MODE_POLAIRE = 2; // asservissement
 
 #define TABLE_LARGEUR_X 3000 /* mm */
 #define TABLE_LARGEUR_Y 2000 /* mm */
-#define TEMPS_JEU_MS 100000 /* ms */
+#define TEMPS_JEU_MS 95000 /* ms */
 
 #define SPD_MAX_MM 200 // mm/s
 #define ACC_MAX_MM 300 // mm/s2
@@ -104,6 +104,8 @@ typedef struct {
   bool activer_monitor_sick;
   uint8_t programme;
   int score;
+  bool propulseur_actif = false;
+  bool trappe_ouverte = false;
     
 
   /* asserv states */
@@ -368,6 +370,7 @@ void debug_gr();
 void test1_gr();
 void gr_coucou();
 void match_gr_arret();
+void gr_activer_propulseur(bool activer);
 
 // PR
 extern "C" {

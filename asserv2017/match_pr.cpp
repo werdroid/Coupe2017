@@ -67,7 +67,7 @@ void homologation_pr() {
   
   minuteur_attendre(1000);
   
-  asserv_set_position(101, 179, 0);
+  asserv_set_position(101, 159, 0);
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -151,7 +151,7 @@ void match_pr() {
 
   ecran_console_log("Pret\n");
   minuteur_attendre(200);
-  asserv_set_position(101, 179, 0);
+  asserv_set_position(101, 159, 0);
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -172,12 +172,13 @@ void match_pr() {
   int action_avancement[NOMBRE_ACTIONS] = { 0 };
 
   
-  delay(8000);
+  delay(10000);
 
   piloter_bras(BRAS_LEVER);
   
   com_printfln("Sort de la zone de départ");
-  error = aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
+  asserv_go_toutdroit(99, 10000);
+  //error = aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
 
   
   action = 0;
@@ -280,19 +281,20 @@ int pr_activer_panneau(int depart) {
   piloter_bras(BRAS_POSITION_INTERRUPTEUR);
   
   /** Tentative 1 **/
-  error = aller_xy(1130, 80, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
-  error = aller_xy(1130, 210, VITESSE_RAPIDE, 0, 2000, 5); // Reculer
+  error = aller_xy(1130, 150, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
+  error = aller_xy(1130, 420, VITESSE_RAPIDE, 0, 2000, 5); // Reculer
   
   /** Tentative 2 **/
   // Un peu plus à gauche
-  error = aller_xy(1100, 80, VITESSE_RAPIDE, 1, 2000, 5);
-  error = aller_xy(1100, 210, VITESSE_RAPIDE, 0, 2000, 5);
+  error = aller_xy(1080, 150, VITESSE_RAPIDE, 1, 2000, 5);
+  error = aller_xy(1080, 420, VITESSE_RAPIDE, 0, 2000, 5);
   
   /** Tentative 3 **/
   // Un peu plus à droite
-  error = aller_xy(1160, 210, VITESSE_RAPIDE, 1, 2000, 5);
-  error = aller_xy(1160, 80, VITESSE_RAPIDE, 1, 2000, 5);
-  error = aller_xy(1160, 210, VITESSE_RAPIDE, 0, 2000, 5);
+  error = aller_xy(1180, 420, VITESSE_RAPIDE, 1, 2000, 5); // On se met en face
+  
+  error = aller_xy(1180, 150, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
+  error = aller_xy(1180, 420, VITESSE_RAPIDE, 0, 2000, 5); // Reculer
   
   // Espérons que c'est ok
   

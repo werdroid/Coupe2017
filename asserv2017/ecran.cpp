@@ -41,7 +41,7 @@ void ecran_print_menu(int selector) {
     "\n\n   Demarrer match __",
     "\n\n   Couleur:    _____",
     "\n\n   (Libre 2)        ",
-    "\n\n   (Libre 3)      ",
+    "\n\n   Ejecter       ___",
     "\n\n   (Libre 4)        ",
     "\n\n   Prg: ____________",
     "\n\n   Demarrer Program.",
@@ -66,6 +66,14 @@ void ecran_print_menu(int selector) {
   } else {
     optionsMenu[1] = "\n\n   Couleur:   ORANGE";
     couleur_robot = ST7735_YELLOW;
+  }
+  
+  // Menu 3 : Ejection
+  if(robot.propulseur_actif) {
+    optionsMenu[3] = "\n\n   Ejecter        ON";
+  }
+  else {
+    optionsMenu[3] = "\n\n   Ejecter       OFF";
   }
 
   // Menu 5 : Affichage du programme sélectionné
