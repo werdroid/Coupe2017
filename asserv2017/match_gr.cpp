@@ -261,14 +261,39 @@ void debug_gr() {
   ecran_console_log("Debug GR\n\n");
   ecran_console_log("2 sec\n\n");
 
+  
   minuteur_attendre(200);
   asserv_set_position(737, 1578, MATH_PI * -0.5);
   asserv_maintenir_position();
   minuteur_attendre(1800);
 
   minuteur_demarrer();
+  minuteur_attendre(10000);
+  com_printfln("10");
+  minuteur_attendre(10000);
+  com_printfln("20");
+  minuteur_attendre(10000);
+  com_printfln("30");
+  minuteur_attendre(10000);
+  com_printfln("40");
+  minuteur_attendre(10000);
+  com_printfln("50");
+  minuteur_attendre(10000);
+  com_printfln("60");
+  minuteur_attendre(10000);
+  com_printfln("70");
+  minuteur_attendre(10000);
+  com_printfln("80");
+  minuteur_attendre(10000);
+  com_printfln("90");
+  minuteur_attendre(5000);
+  com_printfln("95");
+  minuteur_attendre(3000);
+  asserv_go_toutdroit(300, 20000);
 
-  minuteur_attendre(500);
+  com_printfln("Ce message ne saffichera jamais");
+  
+  
 
   //asserv_rotation_vers_point(1500, 0, 3000);
   //bras_position_croisiere();
@@ -302,15 +327,35 @@ void debug_gr() {
 
 
 void test1_gr() {
+  
+   const uint32_t ATTENTE_ENTRE_BALLES = 800; 
+  
   while(1) {
+    piloter_tri_eau(TRI_NEUTRE, false, true);
+    minuteur_attendre(ATTENTE_ENTRE_BALLES);
+    
+    gr_trier_vers_eau_usee();
+    minuteur_attendre(ATTENTE_ENTRE_BALLES);
+    
+    piloter_tri_eau(TRI_NEUTRE, false, true);
+    minuteur_attendre(ATTENTE_ENTRE_BALLES);
+    
+    gr_trier_vers_eau_propre();
+    minuteur_attendre(ATTENTE_ENTRE_BALLES);
+
+  }
+  return;
+  
+  
+  /*while(1) {
     piloter_evacuation_eaux_usees(EEU_BLOQUER);
     delay(3000);
     piloter_evacuation_eaux_usees(EEU_OUVRIR);
     delay(3000);
   }
-  return;
+  return;*/
   
-  while(1) {
+  /*while(1) {
     delay(500);
     score_definir(225);
     
@@ -331,7 +376,7 @@ void test1_gr() {
     
     delay(2000);
     ledMatrix_effacer();
-  }
+  }*/
 }
 
 /** =============
@@ -1207,7 +1252,7 @@ void gr_trier_vers_eau_propre() {
 
 void match_gr_arret() {
   asserv_consigne_stop();
-  com_printfln("On stoppe les moteurs");
+  com_printfln("! On stoppe les moteurs");
 
   // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
   
@@ -1310,6 +1355,8 @@ void gr_init() {
   robot.ASSERV_ROTATION_KP = 0.1f;
   robot.ASSERV_ROTATION_KD = 1.8f;
 
+  robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
+  
   // Actionneurs à init
   servo_evacuation_eaux_usees.attach(17);
   servo_cuillere_miel.attach(33);
@@ -1320,5 +1367,6 @@ void gr_init() {
   //pinMode(PIN_DOUT_PROPULSEUR, OUTPUT);
   //analogWrite(PIN_DOUT_PROPULSEUR, 0);
   
-  robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
+  
+  gr_init_servos();
 }

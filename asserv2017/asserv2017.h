@@ -340,7 +340,7 @@ float angle_relatif_robot_point(int32_t x, int32_t y , float a, int32_t xx, int3
 // Minuteur de match
 void minuteur_attendre(uint32_t timeout_ms);
 void minuteur_demarrer();
-uint32_t minuteur_temps_restant();
+int32_t minuteur_temps_restant();
 void minuteur_attendre_fin_match();
 void minuteur_arreter_tout_si_fin_match();
 
