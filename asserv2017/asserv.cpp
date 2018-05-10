@@ -190,7 +190,7 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
 
 uint8_t asserv_distance(int32_t distance_mm, uint16_t timeout) {
   elapsedMillis timer;
-  asserv_consigne_polaire_delta(mm2tick(distance_mm), 0);
+  asserv_consigne_polaire_delta(distance_mm, 0);
 
   // On active seulement la distance sans la rotation
   // pour pouvoir se plaquer contre la bordure
