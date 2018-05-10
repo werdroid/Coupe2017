@@ -156,7 +156,7 @@ uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
 }
 
 /**
- * Regarde vers le point indiqué X,Y en mm.
+ * Le robot va regarder vers le point (x_mm,y_mm)
  * Retour bloquant jusqu'à:
  * - OK
  * - ERROR_TIMEOUT
@@ -167,14 +167,10 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
   int32_t x = mm2tick(symetrie_x(x_mm));
   int32_t y = mm2tick(y_mm);
 
-  // le vecteur à faire
-  int32_t vx = x - robot.x;
-  int32_t vy = y - robot.y;
-
-  float angleVersPoint = atan2(vy, vx); // [-pi, +pi] radians
+  float angleAfaire = angle_relatif_robot_point(robot.x, robot.y, robot.a, x, y);
 
   robot.sans_symetrie = 1; // on fait déjà une symétrie sur x au dessus.
-  uint8_t ret = asserv_rotation_relative(angleVersPoint, timeout);
+  uint8_t ret = asserv_rotation_relative(angleAfaire, timeout);
   robot.sans_symetrie = 0;
   return ret;
 }

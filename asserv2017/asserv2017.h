@@ -106,7 +106,7 @@ typedef struct {
   int score;
   bool propulseur_actif = false;
   bool trappe_ouverte = false;
-    
+
 
   /* asserv states */
   uint8_t activeDistance;
@@ -223,7 +223,7 @@ typedef struct {
   uint8_t sickObstacle;
   uint8_t isPR;
   uint8_t led_state;
-  
+
   // compléter pour avoir un total de bytes multiple de 4
   uint8_t empty1;
   uint8_t empty2;
@@ -335,6 +335,7 @@ float deg2rad(int32_t degre);
 int32_t symetrie_x(int32_t x);
 float symetrie_a_centrale(float a);
 float symetrie_a_axiale_y(float a);
+float angle_relatif_robot_point(int32_t x, int32_t y , float a, int32_t xx, int32_t yy);
 
 // Minuteur de match
 void minuteur_attendre(uint32_t timeout_ms);
