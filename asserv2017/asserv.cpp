@@ -109,6 +109,7 @@ uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t time
   robot.consigneYmm = consigne_y_mm;
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     result = asserv_consigne_xy(consigne_x_mm, consigne_y_mm, uniquement_avant);
 
@@ -195,6 +196,7 @@ uint8_t asserv_distance(int32_t distance_mm, uint16_t timeout) {
   robot.activeRotation = 0;
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     int32_t erreur = abs(robot.distance - robot.consigneDistance);
     int32_t marge_distance = mm2tick(20);
@@ -226,6 +228,7 @@ uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout) {
   int32_t marge_erreur_rotation = radian_vers_orientation(0.3);
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     int32_t erreur = abs(robot.rotation - robot.consigneRotation);
 
