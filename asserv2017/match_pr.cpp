@@ -172,7 +172,7 @@ void match_pr() {
   int action_avancement[NOMBRE_ACTIONS] = { 0 };
 
   
-  delay(3000);
+  delay(8000);
 
   piloter_bras(BRAS_LEVER);
   
@@ -279,20 +279,22 @@ int pr_activer_panneau(int depart) {
   // Lever le bras
   piloter_bras(BRAS_POSITION_INTERRUPTEUR);
   
-  // Enclencher l'interrupteur
+  /** Tentative 1 **/
+  error = aller_xy(1130, 80, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
+  error = aller_xy(1130, 210, VITESSE_RAPIDE, 0, 2000, 5); // Reculer
   
-  error = aller_xy(1130, 80, VITESSE_RAPIDE, 1, 2000, 5);
-  if(error) return 20;
+  /** Tentative 2 **/
+  // Un peu plus à gauche
+  error = aller_xy(1100, 80, VITESSE_RAPIDE, 1, 2000, 5);
+  error = aller_xy(1100, 210, VITESSE_RAPIDE, 0, 2000, 5);
   
-  // Reculer
-  error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 0, 5000, 3);
+  /** Tentative 3 **/
+  // Un peu plus à droite
+  error = aller_xy(1160, 210, VITESSE_RAPIDE, 1, 2000, 5);
+  error = aller_xy(1160, 80, VITESSE_RAPIDE, 1, 2000, 5);
+  error = aller_xy(1160, 210, VITESSE_RAPIDE, 0, 2000, 5);
   
-  // Et on y retourne
-  error = aller_xy(1130, 50, VITESSE_RAPIDE, 1, 2000, 5);
-  if(error) return 20;
-  
-  // On re-recule
-  error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 0, 5000, 3);
+  // Espérons que c'est ok
   
   return 100;
 }
@@ -387,13 +389,13 @@ int pr_rapporter_CUB(int cub, int depart) {
     // reculer
     switch(cub) {
       case 0:    
-        error = aller_xy(850, 300, VITESSE_POUSSER_CUBES, 0, 8000, 4);
+        error = aller_xy(850, 400, VITESSE_POUSSER_CUBES, 0, 8000, 4);
         break;
       case 1:
-        error = aller_xy(550, 300, VITESSE_POUSSER_CUBES, 0, 8000, 4);
+        error = aller_xy(550, 400, VITESSE_POUSSER_CUBES, 0, 8000, 4);
         break;
       case 2:
-        error = aller_xy(700, 300, VITESSE_POUSSER_CUBES, 0, 8000, 4);
+        error = aller_xy(700, 400, VITESSE_POUSSER_CUBES, 0, 8000, 4);
         break;
     }
   }
@@ -409,8 +411,8 @@ int pr_rapporter_CUB(int cub, int depart) {
   =============== **/
 
 void match_pr_arret() {
-  com_printfln("On stop les moteurs");
   asserv_consigne_stop();
+  com_printfln("On stop les moteurs");
 }
 
 /** =======================

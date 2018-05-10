@@ -365,6 +365,7 @@ void match_gr() {
     //ACTION_VIDER_REP,
     //ACTION_DEPOSER_CHATEAU,
     ACTION_ACTIVER_ABEILLE,
+    ACTION_VIDER_REP,
     ACTION_VIDER_REM,
     ACTION_DEPOSER_STATION,
     //ACTION_RAPPORTER_CUB2, (j'y crois pas)
@@ -387,7 +388,6 @@ void match_gr() {
   int len_phase2 = sizeof(phase2) / sizeof(action);
   
   gr_init_servos();
-  score_definir(0);
 
 
   minuteur_attendre(500);
@@ -408,12 +408,15 @@ void match_gr() {
 
   minuteur_demarrer();
   minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
+  score_definir(0);
+  
   aller_xy(500, 500, VITESSE_RAPIDE, 1, 5000, 30);
+  
   
   // Init scores
   score_incrementer(5); //Dépose Abeille
   score_incrementer(5); //Dépose Panneau
-  score_incrementer(25+5*1); //Score attendu PR (hyp: panneau+5 cubes)
+  score_incrementer(29); // Score attendu PR = 25 (Panneau) + 1*4 (Cubes)
     
     
 
@@ -705,7 +708,7 @@ uint8_t gr_vider_REM() {
   minuteur_attendre(ATTENTE_ENTRE_BALLES);
   gr_trier_vers_eau_usee(); //balle 1
   minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  score_incrementer(10); //10 pts pour récupérateur de son équipe vidé d'au moins une balle
+  // 10 pts pour l'adversaire
   
   piloter_tri_eau(TRI_NEUTRE, false, true);
   minuteur_attendre(ATTENTE_ENTRE_BALLES);
@@ -776,7 +779,7 @@ uint8_t gr_vider_REP_opp() {
   piloter_tri_eau(TRI_EXTREME_DROITE, false, true); //Ouverture loquet récupérateur 2/2 - gauche vers droite pour rep opp
  
   //CONTINUE HERE ATN
-  
+  score_incrementer(10);
   
   nb_balles_eau_usee_dans_gr += 8;
   REP_opp_vide = true;
@@ -1021,11 +1024,11 @@ uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun ave
   switch (cub) {
   case 0:
     error = aller_xy(850, 350, VITESSE_POUSSER_CUBES, 1, 8000, 6);
-    score_incrementer(5); //5 cubes dans ZOC
+    score_incrementer(4); //5 cubes dans ZOC
     break;
   case 1:
     error = aller_xy(612, 350, VITESSE_POUSSER_CUBES, 1, 8000, 6);
-    score_incrementer(5); //5 cubes dans ZOC
+    score_incrementer(3); //5 cubes dans ZOC
     break;
   case 2:
     //error = aller_xy(700, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6); //copié de PR
@@ -1140,8 +1143,8 @@ void gr_trier_vers_eau_propre() {
 }
 
 void match_gr_arret() {
-  com_printfln("On stoppe les moteurs");
   asserv_consigne_stop();
+  com_printfln("On stoppe les moteurs");
 
   // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
   

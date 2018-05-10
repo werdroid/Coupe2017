@@ -489,7 +489,7 @@ Point getPoint(uint8_t idPoint) {
     case PT_ETAPE_13: return {.x = 850, .y = 940}; break;
     case PT_ETAPE_14: return {.x = 300, .y = 540}; break;
     case PT_ETAPE_6S: return {.x = 2390, .y = 1580}; break;
-    case PT_ETAPE_12S: return {.x = 1870, .y = 940}; break;
+    case PT_ETAPE_12S: return {.x = 1870, .y = 1040}; break;
     default:
       com_printfln("! ########## ERREUR: idPoint '%d' incorrect dans getPoint", idPoint);
       return {.x = 500, .y = 1100}; // P8

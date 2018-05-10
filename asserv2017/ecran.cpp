@@ -83,7 +83,7 @@ void ecran_print_menu(int selector) {
         optionsMenu[5] = "\n\n   Prg:        Test1";
       break;
     case 6: optionsMenu[5] = "\n\n   Prg:     Demo A/R"; break;
-    case 7: optionsMenu[5] = "\n\n   Prg:   DO NOT USE"; break;
+    case 7: optionsMenu[5] = "\n\n   Prg: Mainten. Pos"; break;
   }
   
   // Menu 7 : Activer/Désactiver MonitorSick (usage de démonstration uniquement)

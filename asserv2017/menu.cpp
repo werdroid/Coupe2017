@@ -136,15 +136,21 @@ void menu_start() {
               demo_allers_retours();
               break;
              
-            case 7:              
+            case 7:  
+              ecran_console_log("Maintenir Position");
+              asserv_maintenir_position();
+              robot.activeDistance = 0; // Pour ne maintenir que la rotation
+              // robot.activeDistance = 0; // Pour ne maintenir que la distance
+              while(1) delay(DT_MS);
+
               // Libre
-              
+              /*
               ecran_console_log("On avait pourtant\n");
               ecran_console_log("dit de ne pas\n");
               ecran_console_log("cliquer...\n\n");
               ecran_console_log("Il ne se passera\n");
               ecran_console_log("rien, vous pouvez\n");
-              ecran_console_log("redemarrer.\n");
+              ecran_console_log("redemarrer.\n");*/
               break;
           
           }
