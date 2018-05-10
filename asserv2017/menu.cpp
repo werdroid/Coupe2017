@@ -98,6 +98,7 @@ void menu_start() {
             case 1:
               ecran_console_log("30cm en avant");
               robot.activeRotation = 0;
+              asserv_set_position(1000, 1000, 0);
               quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
               asserv_consigne_polaire_delta(300, 0);
               for(;;);

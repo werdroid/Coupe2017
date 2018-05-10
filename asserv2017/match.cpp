@@ -480,8 +480,8 @@ Point getPoint(uint8_t idPoint) {
     case PT_ETAPE_3: return {.x = 610, .y = 1712}; break;
     case PT_ETAPE_4: return {.x = 2700, .y = 940}; break;
     case PT_ETAPE_5: return {.x = 2390, .y = 1712}; break;
-    case PT_ETAPE_6: return {.x = 610, .y = 1580}; break;
-    case PT_ETAPE_8: return {.x = 210, .y = 1500}; break;
+    case PT_ETAPE_6: return {.x = 610, .y = 1500}; break;
+    case PT_ETAPE_8: return {.x = 230, .y = 1500}; break;
     case PT_ETAPE_9: return {.x = 589, .y = 1080}; break;
     case PT_ETAPE_10: return {.x = 1450, .y = 940}; break;
     case PT_ETAPE_11: return {.x = 1130, .y = 210}; break;

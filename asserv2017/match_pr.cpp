@@ -26,15 +26,14 @@ Point pr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
   
 // Bras gauche (BRAS)
 // Angle + => Vers le haut
-const uint8_t BRAS_INIT = 44;
-const uint8_t BRAS_LEVER = 81;
-const uint8_t BRAS_POSITION_INTERRUPTEUR = 80;
-const uint8_t BRAS_BAISSER = 45;
+const uint8_t BRAS_INIT = 29;
+const uint8_t BRAS_LEVER = 60;
+const uint8_t BRAS_POSITION_INTERRUPTEUR = 55;
 
 Servo servo_bras;
 uint8_t angle_bras;
 void piloter_bras(uint8_t angle, bool doucement = false, bool log = true);
-
+void pr_init_servos();
 
 /** =====================================
   Programmes alternatifs (Homolog, Debug)
@@ -143,6 +142,9 @@ void match_pr() {
  
   
   minuteur_attendre(500);
+  
+  pr_init_servos();
+  
   ecran_console_log(" Ok\n");
 
   bouton_start_down();
@@ -172,6 +174,7 @@ void match_pr() {
   
   delay(3000);
 
+  piloter_bras(BRAS_LEVER);
   
   com_printfln("Sort de la zone de départ");
   error = aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
@@ -228,6 +231,8 @@ void match_pr() {
     
   } while(continuer_boucle);
   
+  aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 10000, 10);
+  
   minuteur_attendre_fin_match();
 }
 
@@ -275,15 +280,19 @@ int pr_activer_panneau(int depart) {
   piloter_bras(BRAS_POSITION_INTERRUPTEUR);
   
   // Enclencher l'interrupteur
-  error = aller_xy(1130, 100, VITESSE_RAPIDE, 1, 2000, 5);
-  if(error) {
-    piloter_bras(BRAS_BAISSER);
-    return 20;
-  }
+  
+  error = aller_xy(1130, 80, VITESSE_RAPIDE, 1, 2000, 5);
+  if(error) return 20;
   
   // Reculer
   error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 0, 5000, 3);
-  piloter_bras(BRAS_BAISSER);
+  
+  // Et on y retourne
+  error = aller_xy(1130, 50, VITESSE_RAPIDE, 1, 2000, 5);
+  if(error) return 20;
+  
+  // On re-recule
+  error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 0, 5000, 3);
   
   return 100;
 }
@@ -374,6 +383,20 @@ int pr_rapporter_CUB(int cub, int depart) {
     com_printfln("CUB%d placé en {%d, %d}", cub, robot.xMm, robot.yMm);
     return 60;
   }
+  else {
+    // reculer
+    switch(cub) {
+      case 0:    
+        error = aller_xy(850, 300, VITESSE_POUSSER_CUBES, 0, 8000, 4);
+        break;
+      case 1:
+        error = aller_xy(550, 300, VITESSE_POUSSER_CUBES, 0, 8000, 4);
+        break;
+      case 2:
+        error = aller_xy(700, 300, VITESSE_POUSSER_CUBES, 0, 8000, 4);
+        break;
+    }
+  }
   
   
   return 100;
@@ -416,7 +439,6 @@ void piloter_bras(uint8_t angle, bool doucement, bool log) {
       case BRAS_INIT: com_printfln("Init"); break;
       case BRAS_LEVER: com_printfln("Levé"); break;
       case BRAS_POSITION_INTERRUPTEUR: com_printfln("Interrupteur"); break;
-      case BRAS_BAISSER: com_printfln("Baissé"); break;
       default: com_printfln("%d", angle); break;
     }
   }
@@ -442,4 +464,6 @@ void pr_init() {
   robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr
   
   robot.DISTANCE_DETECTION = 750; // mm 9/05/2018
+  
+  servo_bras.attach(29);
 }

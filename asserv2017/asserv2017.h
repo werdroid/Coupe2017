@@ -280,7 +280,7 @@ const uint8_t PT_ETAPE_14 = 54;
 // Vitesses par défaut
 uint32_t const VITESSE_RAPIDE = 100;
 uint32_t const VITESSE_LENTE = 50;
-uint32_t const VITESSE_POUSSER_CUBES = 100;
+uint32_t const VITESSE_POUSSER_CUBES = 80;
 
 // Actions
 // Les numéros doivent être uniques et continus de 0 à NB_ACTIONS
