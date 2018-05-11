@@ -72,7 +72,7 @@ const uint8_t ASSERV_MODE_POLAIRE = 2; // asservissement
 
 #define TABLE_LARGEUR_X 3000 /* mm */
 #define TABLE_LARGEUR_Y 2000 /* mm */
-#define TEMPS_JEU_MS 100000 /* ms */
+#define TEMPS_JEU_MS 98000 /* ms */ // On se garde 2 secondes pour l'évacuation des eaux usées
 
 #define SPD_MAX_MM 200 // mm/s
 #define ACC_MAX_MM 300 // mm/s2

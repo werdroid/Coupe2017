@@ -145,9 +145,10 @@ void menu_start() {
              
             case 7:  
               ecran_console_log("Maintenir Position");
+              asserv_set_position(1500, 1000, 0);
               asserv_maintenir_position();
               robot.activeDistance = 0; // Pour ne maintenir que la rotation
-              // robot.activeDistance = 0; // Pour ne maintenir que la distance
+              // robot.activeRotation = 0; // Pour ne maintenir que la distance
               while(1) delay(DT_MS);
 
               // Libre

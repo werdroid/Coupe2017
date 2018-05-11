@@ -44,7 +44,7 @@ uint8_t gr_vider_REP_opp();
 uint8_t gr_vider_REM_opp();
 uint8_t gr_activer_abeille();
 uint8_t gr_deposer_chateau();
-uint8_t gr_deposer_station();
+uint8_t gr_deposer_station(bool y_aller_meme_si_rien_a_faire = false);
 uint8_t gr_rapporter_CUB(int cub);
 void gr_trier_vers_eau_propre();
 void gr_trier_vers_eau_usee();
@@ -301,33 +301,37 @@ void debug_gr() {
 
 void test1_gr() {
   
-   const uint32_t ATTENTE_ENTRE_BALLES = 800; 
-  
-  while(1) {
-    piloter_tri_eau(TRI_NEUTRE, false, true);
-    minuteur_attendre(ATTENTE_ENTRE_BALLES);
-    
-    gr_trier_vers_eau_usee();
-    minuteur_attendre(ATTENTE_ENTRE_BALLES);
-    
-    piloter_tri_eau(TRI_NEUTRE, false, true);
-    minuteur_attendre(ATTENTE_ENTRE_BALLES);
-    
-    gr_trier_vers_eau_propre();
-    minuteur_attendre(ATTENTE_ENTRE_BALLES);
+  const uint32_t ATTENTE_ENTRE_BALLES = 800; 
 
-  }
-  return;
   
   
-  /*while(1) {
-    piloter_evacuation_eaux_usees(EEU_BLOQUER);
-    delay(3000);
-    piloter_evacuation_eaux_usees(EEU_OUVRIR);
-    delay(3000);
-  }
-  return;*/
   
+  
+    com_printfln("---- En attente ----");
+    bouton_wait_start_up();
+    asserv_set_position(150, 500, 0);
+    asserv_maintenir_position();
+    
+    asserv_go_toutdroit(300, 2000);
+    
+    //gr_jouer_action(ACTION_VIDER_REP);
+    gr_jouer_action(ACTION_VIDER_REM_OPP);
+    gr_jouer_action(ACTION_DEPOSER_STATION);
+    
+    /*
+    REP
+    REM_OPP
+    DEPOSE_STATION
+    ABEILLE
+    */
+    
+  
+  
+  
+   
+   
+   
+ 
   /*while(1) {
     delay(500);
     score_definir(225);
@@ -537,7 +541,7 @@ void match_gr() {
     // Est-ce qu'on doit continuer à faire des trucs ?
     if(abeille_activee
     && REP_vide
-    && REM_vide
+    && REM_opp_vide
     && gr_CUB_dans_ZOC[1]) {
       
       nb_iterations = 0;
@@ -554,8 +558,8 @@ void match_gr() {
         gr_jouer_action(ACTION_DEPOSER_CHATEAU);
         gr_jouer_action(ACTION_DEPOSER_STATION);
         
-        if(nb_balles_eau_propre_dans_gr == 0
-        && nb_balles_eau_usee_dans_gr == 0) {
+        if(/*nb_balles_eau_propre_dans_gr == 0
+        &&*/ nb_balles_eau_usee_dans_gr == 0) {
           break;
         }
         
@@ -595,18 +599,20 @@ void match_gr() {
     gr_jouer_action(phase2[action]);
     
     
-    if(REM_opp_vide
+    /*if(REM_opp_vide
     && REP_opp_vide) {
-      
-      if(nb_balles_eau_propre_dans_gr == 0
-      && nb_balles_eau_usee_dans_gr == 0) {
+      */
+      if(nb_balles_eau_usee_dans_gr == 0) {
         break;
       }
-      break;
-    }
+      /*break;
+    }*/
     
     
   }
+  
+  gr_deposer_station(true);
+  piloter_evacuation_eaux_usees(EEU_OUVRIR);
   
 
   minuteur_attendre_fin_match();
@@ -708,10 +714,17 @@ uint8_t gr_vider_REP() {
   // Initialisation
   error = aller_pt_etape(PT_ETAPE_2, VITESSE_RAPIDE, 1, 8000, 3);
   if (error) return error;
-  
+    
   //Réalisation
   piloter_tri_eau(TRI_EXTREME_DROITE, false, true); //Ouverture loquet récupérateur 1/2 - droite vers gauche pour rep
-  error = aller_xy(150, 940, VITESSE_LENTE, 1, 3000, 3); //Positionnement
+  
+  if(robot.estVert) {
+    error = aller_xy(150, 940, VITESSE_LENTE, 1, 3000, 3); //Positionnement
+  }
+  else {
+    error = aller_xy(150, 740, VITESSE_LENTE, 1, 3000, 3); //Positionnement    
+  }
+  
   piloter_tri_eau(TRI_EXTREME_GAUCHE, false, true); //Ouverture loquet récupérateur 2/2 - droite vers gauche pour rep
   score_incrementer(10); //10 pts pour REP ouvert + vidé d'au moins une balle
   
@@ -909,15 +922,22 @@ uint8_t gr_vider_REM_opp() {
   gr_trier_vers_eau_usee(); //balle 8
   minuteur_attendre(ATTENTE_ENTRE_BALLES);*/
   
+  int16_t positionnementX = (robot.estVert ? 2290 : 2490);
+  
   // /!\ Initialisation sans tri
-  error = aller_xy(2290, 1750, VITESSE_RAPIDE, 1, 3000, 3); 
-  if (error) return error;
+  error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 1, 8000, 3);
+  if(error) return error;
+  
+  error = aller_xy(positionnementX, 1750, VITESSE_RAPIDE, 1, 3000, 3); 
+  if(error) return error;
   
   // /!\ Réalisation sans tri (uniquement pour station)
   piloter_tri_eau(TRI_EXTREME_GAUCHE, false, true); //Ouverture loquet récupérateur 1/2
-  error = aller_xy(2290, 1850, VITESSE_LENTE, 1, 3000, 3); //Positionnement sans tri
+  error = aller_xy(positionnementX, 1850, VITESSE_LENTE, 1, 3000, 3); //Positionnement sans tri
   piloter_tri_eau(TRI_EXTREME_DROITE, false, true); //Ouverture loquet récupérateur 2/2
   score_incrementer(10); //10 pts pour REP ouvert + vidé d'au moins une balle
+  
+  // TODO : Trembler ?
   
   // /!\  --Ecoulement des balles pour cas sans tri
   minuteur_attendre(5000);  
@@ -928,7 +948,7 @@ uint8_t gr_vider_REM_opp() {
   com_printfln("REM_opp vidé");
   
   // Dégagement
-  error = aller_xy(2290, 1750, VITESSE_RAPIDE, 0, 3000, 3); //dégagement pour cas sans tri
+  error = aller_xy(positionnementX, 1750, VITESSE_RAPIDE, 0, 3000, 3); //dégagement pour cas sans tri
   //error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 0, 8000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
   // Pas de sous-gestion de l'erreur.
   piloter_tri_eau(TRI_NEUTRE, false, true);
@@ -947,24 +967,24 @@ uint8_t gr_activer_abeille() {
   error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 1, 8000, 3); // Approche de l'abeille 1/4
   if (error) return error;
   error = aller_xy(230, 1770, VITESSE_RAPIDE, 1, 3000, 3); // Approche de l'abeille 2/4
-  if (error) return error;
+  //if (error) return error;
   piloter_cuillere_miel(CM_LEVER); //lever avant approche
 
   // Recalage ...
+  com_print("Recalage en Y...");
+  error = asserv_rotation_vers_point(230, 0, 2000);
+  error = aller_xy(230, 2000, VITESSE_RAPIDE, 0, 1500, 5);
+  if(error == ERROR_TIMEOUT) {
+    robot.y = mm2tick(1850);
+    com_printfln("OK");
+  }
+  error = aller_xy(230, 1770,  VITESSE_RAPIDE, 1, 3000, 3);
+  
   com_print("Recalage en X...");
   error = asserv_rotation_vers_point(3000, 1770, 2000);
   error = aller_xy(0, 1770, VITESSE_LENTE, 0, 1500, 5);
   if(error == ERROR_TIMEOUT) {
     robot.x = mm2tick(150);
-    com_printfln("OK");
-  }
-  error = aller_xy(230, 1770,  VITESSE_RAPIDE, 1, 3000, 3);
-  
-  com_print("Recalage en Y...");
-  error = asserv_rotation_vers_point(230, 0, 2000);
-  error = aller_xy(230, 2000, VITESSE_LENTE, 0, 1500, 5);
-  if(error == ERROR_TIMEOUT) {
-    robot.y = mm2tick(1850);
     com_printfln("OK");
   }
   error = aller_xy(230, 1770,  VITESSE_RAPIDE, 1, 3000, 3);
@@ -1004,10 +1024,10 @@ uint8_t gr_activer_abeille() {
 }
 
 
-uint8_t gr_deposer_station() {
+uint8_t gr_deposer_station(bool y_aller_meme_si_rien_a_faire) {
   uint8_t error;
   com_printfln("--- Evacuer Eaux Usées ---");
-  if(nb_balles_eau_usee_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
+  if(!y_aller_meme_si_rien_a_faire && nb_balles_eau_usee_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
   
   gr_nb_tentatives[ACTION_DEPOSER_STATION]++;
   
@@ -1044,6 +1064,8 @@ uint8_t gr_deposer_chateau() {
   com_printfln("--- Evacuer Eau Propre ---");
   if(nb_balles_eau_propre_dans_gr == 0) return ERROR_PLUS_RIEN_A_FAIRE;
 
+  return ERROR_PAS_POSSIBLE;
+  
   gr_nb_tentatives[ACTION_DEPOSER_CHATEAU]++;
   
   // Initialisation de l'action
@@ -1175,6 +1197,8 @@ void gr_trier_vers_eau_propre() {
 void match_gr_arret() {
   asserv_consigne_stop();
   com_printfln("! On stoppe les moteurs");
+  
+  piloter_evacuation_eaux_usees(EEU_OUVRIR);
 
   // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
   
