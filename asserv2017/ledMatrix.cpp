@@ -51,3 +51,8 @@ void ledMatrix_afficher_WRD() {
   
   com_printfln("ledMatrix: WRD");
 }
+
+// Indique un obstacle en éclairant les points en haut à gauche
+void ledMatrix_indiquer_obstacle() {
+  com_serial1_print("!");
+}

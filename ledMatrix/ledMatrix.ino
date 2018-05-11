@@ -71,9 +71,20 @@ void loop() {
         lmd.clear();
         afficherNombre(score, LEDMATRIX_WIDTH, 0);
         break;
-      default:
-        Serial1.print("Caractère inconnu : ");
-        Serial1.println(c);
+      case '!':
+        afficherObstacle();
+        break;
+      //default:
+        /*for(byte i = 0; i < 5; i++) {
+          lmd.setPixel(0, 0, true);
+          lmd.display();
+          delay(300);
+          lmd.setPixel(0, 0, false);
+          lmd.display();
+          delay(300);
+        }*/
+        /*Serial1.print("#"); Ce caractère ne doit pas être interprétable par un case ci-dessus
+        Serial1.println(c);*/
         
     }
   }
@@ -143,6 +154,12 @@ void score_incrementer(int nombre) {
   
 }
 
+void afficherObstacle() {
+  afficherRectangle(3, 3, 1, 4, true);
+  delay(800);
+  afficherRectangle(3, 3, 1, 4, false);
+}
+
 void afficherWRD() {
   int x = 0;
 
@@ -191,6 +208,15 @@ void afficherIncrement(int nombre, byte x, byte y) {
     
   } while(nombre > 0);
   
+  lmd.display();
+}
+
+void afficherRectangle(int largeur, int hauteur, int posX, int posY, bool allumer) {
+  for(int x = 0; x < largeur; x++) {
+    for(int y = 0; y < hauteur; y++) {
+      lmd.setPixel(posX + x, posY + y, allumer);
+    }
+  }
   lmd.display();
 }
 

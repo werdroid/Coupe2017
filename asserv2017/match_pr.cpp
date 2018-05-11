@@ -281,19 +281,19 @@ int pr_activer_panneau(int depart) {
   piloter_bras(BRAS_POSITION_INTERRUPTEUR);
   
   /** Tentative 1 **/
-  error = aller_xy(1130, 150, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
+  error = aller_xy(1130, 80, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
   error = aller_xy(1130, 420, VITESSE_RAPIDE, 0, 2000, 5); // Reculer
   
   /** Tentative 2 **/
   // Un peu plus à gauche
-  error = aller_xy(1080, 150, VITESSE_RAPIDE, 1, 2000, 5);
+  error = aller_xy(1080, 80, VITESSE_RAPIDE, 1, 2000, 5);
   error = aller_xy(1080, 420, VITESSE_RAPIDE, 0, 2000, 5);
   
   /** Tentative 3 **/
   // Un peu plus à droite
   error = aller_xy(1180, 420, VITESSE_RAPIDE, 1, 2000, 5); // On se met en face
   
-  error = aller_xy(1180, 150, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
+  error = aller_xy(1180, 80, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
   error = aller_xy(1180, 420, VITESSE_RAPIDE, 0, 2000, 5); // Reculer
   
   // Espérons que c'est ok

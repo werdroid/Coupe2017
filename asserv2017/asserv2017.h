@@ -476,6 +476,7 @@ void ledMatrix_afficher_score();
 void ledMatrix_incrementer_score(int increment);
 void ledMatrix_defiler_texte(const char* str);
 void ledMatrix_afficher_WRD();
+void ledMatrix_indiquer_obstacle();
 
 // SICK
 uint8_t sick_setup();

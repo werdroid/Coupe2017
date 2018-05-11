@@ -305,7 +305,7 @@ void test1_gr() {
 
   
   
-  
+  /*
   
     com_printfln("---- En attente ----");
     bouton_wait_start_up();
@@ -332,7 +332,7 @@ void test1_gr() {
    
    
  
-  /*while(1) {
+  while(1) {
     delay(500);
     score_definir(225);
     
@@ -340,6 +340,7 @@ void test1_gr() {
     score_incrementer(25);
     
     delay(2000);
+    ledMatrix_indiquer_obstacle();
     score_incrementer(-50);
     
     delay(2000);
@@ -347,13 +348,14 @@ void test1_gr() {
     
     delay(2000);
     ledMatrix_afficher_score();
+    ledMatrix_indiquer_obstacle();
     
     delay(2000);
     ledMatrix_afficher_WRD();
     
     delay(2000);
     ledMatrix_effacer();
-  }*/
+  }
 }
 
 /** =============
@@ -991,11 +993,17 @@ uint8_t gr_activer_abeille() {
   // ... On est bon
   
   error = asserv_rotation_vers_point(614, 0, 2000); // Approche de l'abeille 3/4  
-  if (error) return error;
+  if(error) {
+    piloter_cuillere_miel(CM_RANGER);
+    return error;
+  }
   
   
   error = aller_xy(220, 1788, VITESSE_RAPIDE, 0, 3000, 3); // Approche de l'abeille 4/4
-  if (error) return error;
+  if(error) {
+    piloter_cuillere_miel(CM_RANGER);
+    return error;
+  }
   com_printfln("ABEILLE atteinte.");
 
   // Réalisation de l'action
@@ -1018,7 +1026,7 @@ uint8_t gr_activer_abeille() {
   // Dégagement
   error = aller_xy(230, 1770, VITESSE_RAPIDE, 1, 3000, 3); // Dégagement par l'avant
   // Pas de sous-gestion de l'erreur. L'abeille est activée. 
-  piloter_cuillere_miel(CM_RANGER, true); //rangement
+  piloter_cuillere_miel(CM_RANGER); //rangement
     
   return OK;
 }
