@@ -58,7 +58,7 @@ float angle_relatif_robot_point(int32_t x, int32_t y , float a, int32_t xx, int3
 }
 
 /* Prend a en radians
- * Retourne a en radians sous ]-pi; pi[
+ * Retourne a en radians sous [-pi; pi]
  */
 
 float normalize_radian(float a) {

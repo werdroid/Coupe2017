@@ -272,11 +272,15 @@ void debug_gr() {
 
   
   minuteur_attendre(200);
-  asserv_set_position(1500, 1000, MATH_PI * -0.5);
+  asserv_set_position(1500, 1000, MATH_PI);
   asserv_maintenir_position();
-  minuteur_attendre(1800);
+  delay(2000);
+  
 
   minuteur_demarrer();
+  asserv_go_toutdroit(100, 2000);
+
+  //asserv_go_xy(1500, 800, 2000, 1);
 
   
   

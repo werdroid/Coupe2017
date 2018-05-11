@@ -88,17 +88,20 @@ void homologation_pr() {
 void debug_pr() {
   ecran_console_log("2 sec\n\n");
 
-  asserv_set_position(1500, 750, 0);
+  asserv_set_position(1500, 1000, 0);
+  asserv_maintenir_position();
   delay(2000);
 
   minuteur_demarrer();
 
-  asserv_distance(-5000, 5000);
+  asserv_go_xy(1500, 800, 2000, 1);
+  
+  /*asserv_distance(-5000, 5000);
   tone_play_end();
   asserv_distance(2000, 2000);
   tone_play_end();
   asserv_distance(-5000, 5000);
-
+*/
 
   tone_play_end();
 }
@@ -172,7 +175,7 @@ void match_pr() {
   int action_avancement[NOMBRE_ACTIONS] = { 0 };
 
   
-  delay(10000);
+  delay(8000);
 
   piloter_bras(BRAS_LEVER);
   
