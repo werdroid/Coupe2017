@@ -31,11 +31,11 @@ const uint16_t BALISE_FORCE_TARGET = 239; //[RSSI Force]
 const uint16_t BALISE_FORCE_TOLERANCE = 5; //[RSSI Force]
 const uint16_t FORCE_CHOICE_COEFF = 2;
 const uint16_t BALISE_DIAMETER = 80; //[mm]
-const uint16_t SIZE_CHOICE_COEFF = 1;
+const uint16_t SIZE_CHOICE_COEFF = 1; //aussi pour rep tours
 const uint16_t NB_BALISES = 3;
 const uint16_t TOL_VALIDATION = 5;  //[%]
 const uint16_t RESOLUTION_PRECISION = 0.5; //[°]
-const uint16_t TABLE_MARGE_BORDURE_BALISES = -250; // mm //les balises 2018 sont entre 44 mm et 144 mm des bords de table
+const uint16_t TABLE_MARGE_BORDURE_BALISES = -250; // mm //les balises 2018 sont entre 44 mm et 144 mm des bords de table //aussi pour rep tours
 
 // Positions balises terrain 2018
 Point Balise_A = { .x = 0,    .y = 0    };
@@ -70,6 +70,12 @@ int choicescore[SICK_VALUES_LENGTH];
 bool positionValide = true;
 int objectcenterdistance[SICK_VALUES_LENGTH];
 
+// Repérage tours
+const uint16_t TOUR_DIAMETER_TYP = 56; //[mm]
+const uint16_t TOUR_DIAMETER_MIN = 50; //[mm]
+const uint16_t TOUR_DIAMETER_MAX = 62; //[mm]
+Point tour;
+
 /*------------------------------------------------------------------------------
  * Localisation autres robots (relative à soi)
  *--------------------------------------------------------------------------- */
@@ -91,13 +97,13 @@ inline bool point_exterieur_table(const Point point) { // /!\ marges exprimées 
 		point.y < TABLE_LARGEUR_Y - TABLE_MARGE_BORDURE_BALISES;
 }
 
-void localiser_robots() {
+void localiser_robots() { //commentaires à venir
 
 	positionValide = true; //reste à true sauf si une invalidation est détectée
 
 	if(!robot.detection_enabled) {
-		// la détection est désactivée, inutile de traiter les données du sick
-		// A supprimer si on souhaite localiser les robots sans la fonction de detection d'obstacle
+		// la détection est désactivée, inutile de traiter les données du sick (flag réutilisé ailleurs dans asserv2017)
+		// A supprimer si on souhaite localiser les robots indépendamment de la fonction de detection d'obstacle
 		return;
 	}
 	
@@ -105,6 +111,7 @@ void localiser_robots() {
   /*** [RSE] Nota: Toutes ces variables ont-elles besoin d'être conservées pour tous les points ?
        Par exemple, si variation n'est utilisé que dans sa propre itération (ce qui semble être actuellement le cas), on peut déclarer un simple bool variation;
        En revanche, objecttotalangle semble nécessiter un tableau vu qu'on utilise des objecttotalangle[i] et des objecttotalangle[i-1]
+       [ATN] Déclaration de multiples variables pour expliciter les étapes de calcul.
   ***/ 
 	variation[0] = false;
 	objectsize[0] = 0;
@@ -121,6 +128,7 @@ void localiser_robots() {
 	distancescore[0] = 0;
 	choicescore[0] = 0;
 
+  sick.rssi_values[0] = 1; // Pour ignorer la première valeur (rssi 1 -> 250)
 	
 	for(uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
 
@@ -131,20 +139,8 @@ void localiser_robots() {
 		*/
 
 		// Repérage robots
-    sick.rssi_values[0] = 1; // [RSE] A placer en dehors du for
-    
-		if (point_interieur_table(sick.points[i]) && distance_valide(sick.distances_values[i])) {
-
-			i++; //on saute la première valeur : à index = 0 on ne calcule rien, à index = 1 on compare entre les valeurs des index 1 et 0
-      /** [RSE] Il est très vivement déconseillé de modifier la variable d'itération (ici i) dans sa boucle
-          Ici, i sera incrémenté 2 fois à chaque itération. i vaudra donc 1 puis 3 puis 5 puis 7.
-          Est-ce bien le fonctionnement attendu ?
-          Si oui, faire plutôt
-            for(i = 1; i < LENGTH; i+=2) { }
-          Sinon, faire plutôt
-            for(i = 1; i < LENGTH; i++) { }
-      **/
-          
+       
+		if (point_interieur_table(sick.points[i]) && distance_valide(sick.distances_values[i])) {        
       
 			if (abs(sick.distances_values[i] - sick.distances_values[i - 1]) < OBJECT_CHANGE_DISTANCE) {
 				variation[i] = false; //same obj
@@ -153,17 +149,9 @@ void localiser_robots() {
 				variation[i] = true; //change obj
 			}
 
-			maxindexsizeatdistance = 2 * sick.distances_values[i] * tan((index_vers_angle(i - 1) - index_vers_angle(i) / 180.0 * MATH_PI) / 2);
-             //                                         [RSE] Ne devrait-il pas y avoir une parenthèse ici...   ^   ... ald ...   ^    ?
-             // [RSE] Nota: rad2deg() et deg2rad(); sont disponibles dans utils.cpp pour les conversions d'angle.
-      
+      maxindexsizeatdistance = 2 * sick.distances_values[i] * tan(deg2rad(index_vers_angle(i - 1) - index_vers_angle(i)) / 2);     
       
 			if(!variation[i]) {
-        /*** [RSE] Nota: Si variation[i] ne sert qu'ici, on peut intégrer directement la condition ici : if(!(abs(...) < ...))
-            Dans ce cas, préciser en commentaire qu'on cherche à 'détecter une variation' (?)
-            Ok pour laisser tel quel si plus lisible actuellement
-            ***/
-        // [RSE] Nota: quand le script sera au point, des commentaires seront le bienvenu :)
 				objectsize[i] = objectsize[i - 1] + maxindexsizeatdistance;
 				objectindexes++;
 				objecttotalangle[i] = objecttotalangle[i - 1] + index_vers_angle(i);
@@ -173,7 +161,7 @@ void localiser_robots() {
 				objectsizeatmeandistance[i] = 2 * objectmeandistance[i] * tan((index_vers_angle(i - 1) - index_vers_angle(i) / 180.0 * MATH_PI) / 2);
 				objectminsize[i] = objectsize[i] - objectsizeatmeandistance[i];
 				objectminsize[i] = objectsize[i] + 2 * objectsizeatmeandistance[i];
-				objecttotalforce[i] = objecttotalforce[i - 1] + sick.rssi_values[i];
+				objecttotalforce[i] = objecttotalforce[i - 1] + sick.rss2i_values[i];
 				objectmeanforce[i] = objecttotalforce[i] / objectindexes;
       }
 			else {
@@ -182,8 +170,8 @@ void localiser_robots() {
 				objecttotalangle[i] = index_vers_angle(i);
 				objecttotaldistances[i] = sick.distances_values[i];
 				objecttotalforce[i] = sick.rssi_values[i];
-				forcescore[i] = INT_MAX; // 9999 * FORCE_CHOICE_COEFF; // [RSE] Je viens de découvrir INT_MAX : https://stackoverflow.com/a/2273953 . A confirmer que cela correspond bien au besoin.
-				distancescore[i] = 9999 * SIZE_CHOICE_COEFF; // [RSE] Et si oui, appliquer la même modif ici :)
+				forcescore[i] = INT_MAX; // INT_MAX : https://stackoverflow.com/a/2273953 //Si pas de variation, on ignore le piont en mettant ses valeurs à INT_MAX.
+        distancescore[i] = INT_MAX;
 			}
 
 			// Repérage balises
@@ -191,25 +179,25 @@ void localiser_robots() {
 			if (objectmeanforce[i] > (BALISE_FORCE_TARGET - BALISE_FORCE_TOLERANCE) && objectmeanforce[i] < (BALISE_FORCE_TARGET + BALISE_FORCE_TOLERANCE) {
 			forcescore[i] = abs(objectmeanforce[i] - BALISE_FORCE_TARGET) * FORCE_CHOICE_COEFF;
 			else
-			forcescore[i] = 9999 * FORCE_CHOICE_COEFF;
+			forcescore[i] = INT_MAX;
 			}
 
 			if (objectminsize[i] < BALISE_DIAMETER && BALISE_DIAMETER < objectmaxsize[i]) {
 			distancescore[i] = abs(objectsize[i] - BALISE_DIAMETER) * SIZE_CHOICE_COEFF;
 			else
-			distancescore[i] = 9999 * SIZE_CHOICE_COEFF;
+			distancescore[i] = INT_MAX;
 			}
 			*/
 
 			// Repérage robots
 
-			forcescore[i] = 0; // [RSE] Cela vient mettre en doute l'intérêt de forcescore[i]. Pour une prochaine évolution ?
+			forcescore[i] = 0; // Forcescore = 0 pour le réparage des robots car la texture de leur mat est imprévisible.
 
 			if (MAT_ROBOT_DIAMETER_MIN < objectminsize[i] && objectmaxsize[i] < MAT_ROBOT_DIAMETER_MAX) {
 				distancescore[i] = abs(objectsize[i] - MAT_ROBOT_DIAMETER_TYP) * SIZE_CHOICE_COEFF;
       }
 			else {
-				distancescore[i] = 9999 * SIZE_CHOICE_COEFF; // [RSE] INT_MAX ?
+        distancescore[i] = INT_MAX;
 			}
 
 			choicescore[i] = forcescore[i] + distancescore[i];
@@ -221,8 +209,7 @@ void localiser_robots() {
 		else {
 			positionValide = false;
       com_printfln("! Echec de localisation");
-      return; // [RSE] Cela interrompt toute la fonction (pas uniquement l'itération du for). Est-ce bien le comportement voulu ?
-			//log : échec localisation
+      return; // En cas d'un point invalide, on interrompt la fonction (abandon car un point pourrait donner une mesure fausse)
 		}
 	}
 
@@ -314,3 +301,112 @@ se_localiser() {
 }
 
 */
+
+
+/*------------------------------------------------------------------------------
+* Localisation tour (relative à soi)
+*--------------------------------------------------------------------------- */
+
+void localiser_tour() {
+
+  positionValide = true; //reste à true sauf si une invalidation est détectée
+
+  if (!robot.detection_enabled) {
+    // la détection est désactivée, inutile de traiter les données du sick (flag réutilisé ailleurs dans asserv2017)
+    // A supprimer si on souhaite localiser les robots indépendamment de la fonction de detection d'obstacle
+    return;
+  }
+
+ // Initialisation des valeurs pour l'index 0 (ne seront pas réécrites)
+  variation[0] = false;
+  objectsize[0] = 0;
+  objecttotalangle[0] = 0;
+  objecttotaldistances[0] = 0;
+  objectmeanangle[0] = 0;
+  objectmeandistance[0] = 0;
+  objectsizeatmeandistance[0] = 0;
+  objectminsize[0] = 0;
+  objectmaxsize[0] = 0;
+  objecttotalforce[0] = 0;
+  objectmeanforce[0] = 0;
+  forcescore[0] = 0;
+  distancescore[0] = 0;
+  choicescore[0] = 0;
+
+  sick.rssi_values[0] = 1; // Pour ignorer la première valeur (rssi 1 -> 250)
+
+  for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) { //Analyse d'un scan
+
+    // Poursuite uniquement si points valides
+    if (point_interieur_table(sick.points[i]) && distance_valide(sick.distances_values[i])) {
+
+      //Analyse des points vus pour les grouper en objets avec une propriété de distance et force relative de signal
+      if (abs(sick.distances_values[i] - sick.distances_values[i - 1]) < OBJECT_CHANGE_DISTANCE) { 
+        variation[i] = false; //same obj
+      }
+      else {
+        variation[i] = true; //change obj
+      }
+
+      maxindexsizeatdistance = 2 * sick.distances_values[i] * tan(deg2rad(index_vers_angle(i - 1) - index_vers_angle(i)) / 2); //taille relative maxi de l'objet recherché, varie en fonction de la distance
+
+      if (!variation[i]) { //if the new point is the same object as the previous point, update the object mean force and distance property values
+        objectsize[i] = objectsize[i - 1] + maxindexsizeatdistance;
+        objectindexes++;
+        objecttotalangle[i] = objecttotalangle[i - 1] + index_vers_angle(i);
+        //objectmeanangle = objecttotalangle(i] / objectindexes; //non used in current version
+        objecttotaldistances[i] = objecttotaldistances[i - 1] + sick.distances_values[i];
+        objectmeandistance[i] = objecttotaldistances[i] / objectindexes;
+        objectsizeatmeandistance[i] = 2 * objectmeandistance[i] * tan((index_vers_angle(i - 1) - index_vers_angle(i) / 180.0 * MATH_PI) / 2);
+        objectminsize[i] = objectsize[i] - objectsizeatmeandistance[i];
+        objectminsize[i] = objectsize[i] + 2 * objectsizeatmeandistance[i];
+        objecttotalforce[i] = objecttotalforce[i - 1] + sick.rss2i_values[i];
+        objectmeanforce[i] = objecttotalforce[i] / objectindexes;
+      }
+      else { //if the new point is in a new object, reset counters
+        objectsize[i] = maxindexsizeatdistance;
+        objectindexes = 1;
+        objecttotalangle[i] = index_vers_angle(i);
+        objecttotaldistances[i] = sick.distances_values[i];
+        objecttotalforce[i] = sick.rssi_values[i];
+        objectmeanforce[i] = objecttotalforce[i] / objectindexes; //inutile car objectindexes = 1
+      }
+
+      forcescore[i] = 0; // Forcescore à déterminer en fonction de la texture des tours. Valeur à 0 pour premier essai.
+
+      if (MAT_ROBOT_DIAMETER_MIN < objectminsize[i] && objectmaxsize[i] < MAT_ROBOT_DIAMETER_MAX) {
+        distancescore[i] = abs(objectsize[i] - MAT_ROBOT_DIAMETER_TYP) * SIZE_CHOICE_COEFF;
+      }
+      else {
+        distancescore[i] = INT_MAX;
+      }
+
+      choicescore[i] = forcescore[i] + distancescore[i];
+
+      // [RSE] Exemple d'envoi d'infos vers le Monitor pour test
+      com_printfln("@|Localisation|i:%d,score:%d", i, choicescore[i]);
+
+    }
+    else {
+      positionValide = false;
+      com_printfln("! Echec de localisation");
+      return; // En cas d'un point invalide, on interrompt la fonction (abandon car un point pourrait donner une mesure fausse)
+    }
+  }
+
+  for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
+    // Repérage du centre des tours
+    objectcenterdistance[i] = objectmeandistance[i] + 0.87 * MAT_ROBOT_DIAMETER_TYP / 2; //0.87 : constante d'estimation du centre
+  }
+
+  /*
+  Fonction actuelle: donne les centres des objets vus (objectcenterdistance[i]) avec un score de cohérence avec une tour (choicescore[i]). Plus ce score est faible, meilleure est la cohérence.
+  
+  A faire
+  -------
+  1/ Choisir l'objet ayant le score mini. En tirer son angle (fonction de i), et sa distance (objectcenterdistance[i]).
+  2/ Changer les paramètres entrées/sorties de la fonction pour correspondre au besoin.  
+  
+  */
+ 
+}
