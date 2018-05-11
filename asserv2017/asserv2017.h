@@ -298,8 +298,9 @@ const int ACTION_VIDER_REM_OPP      = 7;
 const int ACTION_VIDER_REP_OPP      = 8;
 const int ACTION_DEPOSER_CHATEAU = 9;
 const int ACTION_DEPOSER_STATION = 10;
+const int ACTION_OUVRIR_REP      = 11;
 
-const int NB_ACTIONS = 11; // Dernière action + 1
+const int NB_ACTIONS = 12; // Dernière action + 1
 
 
 /*-----------------------------------------------------------------------------

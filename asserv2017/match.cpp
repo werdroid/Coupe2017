@@ -43,6 +43,8 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   uint8_t error2;
   uint8_t tentatives = 0;
 
+  max_tentatives *= 10;
+  
   asserv_vitesse_distance(vitesse);
 
   if (uniquement_avant) {
@@ -55,7 +57,7 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
     
     // En cas d'obstacle on fait une pause avant de tenter à nouveau
     if(error == ERROR_OBSTACLE) {
-      ledMatrix_indiquer_obstacle();
+      //ledMatrix_indiquer_obstacle();
       minuteur_attendre(1000);
       /*if(tentatives == 3 || tentatives == 5) {
         asserv_go_toutdroit(-80, 1000);

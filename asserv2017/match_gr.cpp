@@ -39,6 +39,7 @@ void gr_init_servos();
 uint8_t gr_jouer_action(int action);
 uint8_t gr_allumer_panneau();
 uint8_t gr_vider_REP();
+uint8_t gr_ouvrir_REP();
 uint8_t gr_vider_REM();
 uint8_t gr_vider_REP_opp();
 uint8_t gr_vider_REM_opp();
@@ -94,12 +95,20 @@ Point gr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
 const uint8_t EEU_BLOQUER = 90;
 const uint8_t EEU_OUVRIR = 25;
 
-// Cuillère à miel (CM)
+// Cuillère à miel
+// v1 : Verticale
 // Angle+ = Monter
-const uint8_t CM_INIT = 38;
+/*const uint8_t CM_INIT = 38;
 const uint8_t CM_LEVER = 135;
 const uint8_t CM_TAPER_ABEILLE = 40; // Abeille à peu près à 110
-const uint8_t CM_RANGER = 39;
+const uint8_t CM_RANGER = 39;*/
+
+// Horizontale
+// Angle+ = Vers la gauche
+const uint8_t CM_INIT = 37;
+const uint8_t CM_GAUCHE = 160;
+const uint8_t CM_90 = 104;
+const uint8_t CM_DROITE = 40;
 
 // Tri de l'eau (TRI)
 // Angle + = Vers la droite
@@ -317,12 +326,6 @@ void test1_gr() {
     //gr_jouer_action(ACTION_VIDER_REP);
     gr_jouer_action(ACTION_VIDER_REM_OPP);
     gr_jouer_action(ACTION_DEPOSER_STATION);
-    
-    /*
-    REP
-    REM_OPP
-    DEPOSE_STATION
-    ABEILLE
     */
     
   
@@ -405,10 +408,10 @@ void match_gr() {
     //ACTION_DEPOSER_CHATEAU,
     //ACTION_DEPOSER_STATION,
     ACTION_RAPPORTER_CUB1,
-    ACTION_VIDER_REP,
-    ACTION_VIDER_REM_OPP,
-    ACTION_DEPOSER_STATION,
-    ACTION_ACTIVER_ABEILLE
+    ACTION_OUVRIR_REP,
+    ACTION_ACTIVER_ABEILLE,
+    //ACTION_VIDER_REM_OPP,
+    ACTION_DEPOSER_STATION
     //ACTION_DEPOSER_CHATEAU
     // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
@@ -434,7 +437,7 @@ void match_gr() {
 
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
-  asserv_set_position(150, 500, 0);
+  asserv_set_position(250, 500, 0);
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -655,6 +658,7 @@ uint8_t gr_jouer_action(int action) {
   switch(action) {
     case ACTION_ALLUMER_PANNEAU:    error = gr_allumer_panneau();      break;
     case ACTION_VIDER_REP:          error = gr_vider_REP();         break;
+    case ACTION_OUVRIR_REP:         error = gr_ouvrir_REP();         break;
     case ACTION_ACTIVER_ABEILLE:    error = gr_activer_abeille();   break;
     case ACTION_VIDER_REM:          error = gr_vider_REM();         break;
     case ACTION_RAPPORTER_CUB0:     error = gr_rapporter_CUB(0);       break; 
@@ -702,6 +706,41 @@ uint8_t gr_allumer_panneau() {
   return OK;
 }
 
+// Ouvrir = Ouvrir sans récupérer les balles
+// Vider = Ouvrir en récupérant les balles
+uint8_t gr_ouvrir_REP() {
+  
+  uint8_t error;
+  
+  com_printfln("--- Ouvrir REP ---");  
+  if(REP_vide) return ERROR_PLUS_RIEN_A_FAIRE;
+    
+  gr_nb_tentatives[ACTION_OUVRIR_REP]++;
+  
+  // Initialisation
+  error = aller_pt_etape(PT_ETAPE_2, VITESSE_RAPIDE, 1, 8000, 3);
+  if (error) return error;
+  error = aller_xy(300, 840, VITESSE_RAPIDE, 1, 5000, 3);
+  if (error) return error;
+  asserv_rotation_vers_point(3000, 840, 2000);
+  error = aller_xy(240, 840, VITESSE_RAPIDE, 0, 2000, 3);
+  if (error) return error;
+    
+  //Réalisation
+  piloter_cuillere_miel(CM_GAUCHE); //Ouverture loquet récupérateur 1/2
+  minuteur_attendre(400);
+  piloter_cuillere_miel(CM_DROITE); //Ouverture loquet récupérateur 2/2
+  
+  score_incrementer(10); //10 pts pour REP ouvert + vidé d'au moins une balle
+  
+  REP_vide = true;
+  com_printfln("REP ouvert");
+    
+  // Dégagement
+  error = aller_xy(300, 840, VITESSE_RAPIDE, 1, 5000, 3); // Dégagement par l'avant pour la rotation vers l'action suivante
+
+  return OK;
+}
 
 uint8_t gr_vider_REP() {
   
@@ -970,8 +1009,14 @@ uint8_t gr_activer_abeille() {
   if (error) return error;
   error = aller_xy(230, 1770, VITESSE_RAPIDE, 1, 3000, 3); // Approche de l'abeille 2/4
   //if (error) return error;
-  piloter_cuillere_miel(CM_LEVER); //lever avant approche
-
+  
+  if(robot.estVert) {
+    piloter_cuillere_miel(CM_GAUCHE); //armer avant approche, en vert, cuillère à gauche vu du servo
+  }
+  else {
+    piloter_cuillere_miel(CM_DROITE); //armer avant approche
+  }
+  
   // Recalage ...
   com_print("Recalage en Y...");
   error = asserv_rotation_vers_point(230, 0, 2000);
@@ -992,42 +1037,53 @@ uint8_t gr_activer_abeille() {
   error = aller_xy(230, 1770,  VITESSE_RAPIDE, 1, 3000, 3);
   // ... On est bon
   
-  error = asserv_rotation_vers_point(614, 0, 2000); // Approche de l'abeille 3/4  
-  if(error) {
-    piloter_cuillere_miel(CM_RANGER);
-    return error;
-  }
+  //Approche de l'abeille
+  error = aller_xy(273, 1600, VITESSE_RAPIDE, 1, 3000, 3);
+  if (error) return error;
+  error = asserv_rotation_vers_point(346, 1400, 2000);  
+  if (error) return error; 
   
-  
-  error = aller_xy(220, 1788, VITESSE_RAPIDE, 0, 3000, 3); // Approche de l'abeille 4/4
-  if(error) {
-    piloter_cuillere_miel(CM_RANGER);
-    return error;
-  }
-  com_printfln("ABEILLE atteinte.");
+  for(int i = 1; i < 3; i++) {
+    
+    if(robot.estVert) {
+      piloter_cuillere_miel(CM_GAUCHE);
+    }
+    else {
+      piloter_cuillere_miel(CM_DROITE);
+    }
+    
+    error = aller_xy(200, 1800, VITESSE_RAPIDE, 0, 3000, 3);
+    if (error) return error;
+     error = asserv_rotation_vers_point(200, 0, 2000);
+    if (error) return error;
+    error = aller_xy(200, 2000, VITESSE_RAPIDE, 0, 2000, 5);
+    if(error == ERROR_TIMEOUT) {
+      robot.y = mm2tick(1850);
+      com_printfln("OK");
+    }
+    
+    com_printfln("ABEILLE atteinte.");
 
-  // Réalisation de l'action
-  piloter_cuillere_miel(CM_TAPER_ABEILLE);
-  minuteur_attendre(500); //tempo pour assurer l'enclenchement du mécanisme de l'abeille
-  piloter_cuillere_miel(CM_LEVER);
-  minuteur_attendre(100);
-  
-  for(int i = 1; i < 10; i++) {
-    piloter_cuillere_miel(CM_TAPER_ABEILLE);
-    minuteur_attendre(100);
-    piloter_cuillere_miel(CM_LEVER);
-    minuteur_attendre(100);
+    // Réalisation de l'action
+    if(robot.estVert) {
+      piloter_cuillere_miel(CM_DROITE);
+    }
+    else {
+      piloter_cuillere_miel(CM_GAUCHE);
+    }
+    minuteur_attendre(400);
+
   }
-  
+
   abeille_activee = true; //espérance
   com_printfln("Abeille activée");
   score_incrementer(50);
  
   // Dégagement
-  error = aller_xy(230, 1770, VITESSE_RAPIDE, 1, 3000, 3); // Dégagement par l'avant
+  error = aller_xy(200, 1800, VITESSE_RAPIDE, 1, 5000, 10);
+  error = aller_xy(273, 1600, VITESSE_RAPIDE, 1, 5000, 10);
   // Pas de sous-gestion de l'erreur. L'abeille est activée. 
-  piloter_cuillere_miel(CM_RANGER); //rangement
-    
+ 
   return OK;
 }
 
@@ -1263,9 +1319,10 @@ void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
     com_print("Cuillere a miel : ");
     switch(angle) {
       case CM_INIT: com_printfln("Init"); break;
-      case CM_RANGER: com_printfln("Rangée"); break;
-      case CM_LEVER: com_printfln("Levée"); break;
-      case CM_TAPER_ABEILLE: com_printfln("Bzzz"); break;
+      case CM_GAUCHE: com_printfln("Gauche"); break;
+      case CM_90: com_printfln("A 90"); break;
+      case CM_DROITE: com_printfln("Droite"); break;
+      
       default: com_printfln("%d", angle); break;
     }
   }
