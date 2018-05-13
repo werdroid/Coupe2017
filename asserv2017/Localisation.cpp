@@ -404,8 +404,9 @@ void localiser_tour() {
   
   A faire
   -------
-  1/ Choisir l'objet ayant le score mini. En tirer son angle (fonction de i), et sa distance (objectcenterdistance[i]).
-  2/ Changer les paramètres entrées/sorties de la fonction pour correspondre au besoin.  
+  1/ Choisir l'objet = tour ayant le score mini dans la zone où la tour visée se situe (pour ne pas repérer toutes les tours sur le terrain).
+  2/ En tirer son angle (fonction de i), et sa distance (objectcenterdistance[i]).
+  3/ Changer les paramètres entrées/sorties de la fonction pour correspondre au besoin.  
   
   */
  
