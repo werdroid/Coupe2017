@@ -128,7 +128,8 @@ void gr_coucou() {
 void match_pr() {
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
-
+  
+  
   if(robot.estVert)
     ecran_console_log("Couleur : VERT\n");
   else
@@ -154,7 +155,12 @@ void match_pr() {
 
   ecran_console_log("Pret\n");
   minuteur_attendre(200);
-  asserv_set_position(101, 159, 0);
+  
+  if(robot.estVert)
+    asserv_set_position(101, 159, 0);
+  else
+    asserv_set_position(299, 159, MATH_PI);
+    
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -177,10 +183,17 @@ void match_pr() {
   
   delay(8000);
 
-  piloter_bras(BRAS_LEVER);
   
   com_printfln("Sort de la zone de départ");
-  asserv_go_toutdroit(99, 10000);
+  
+  if(robot.estVert)
+    asserv_go_toutdroit(99, 10000);
+  // else : pas de mouvement
+  
+
+  //piloter_bras(BRAS_LEVER);
+
+  
   //error = aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
 
   
@@ -275,6 +288,7 @@ int pr_activer_panneau(int depart) {
   
   // Se positionne face à l'interrupteur
   error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 5000, 5);
+  piloter_bras(BRAS_LEVER);
   if(error) return 0;
   
   error = asserv_rotation_vers_point(1130, 0);
@@ -314,6 +328,10 @@ int pr_rapporter_CUB(int cub, int depart) {
     com_err2str(ERROR_PARAMETRE);
     return 100;
   }
+  
+  
+  
+  piloter_bras(BRAS_LEVER);
   
   switch(depart) {
     case 0:

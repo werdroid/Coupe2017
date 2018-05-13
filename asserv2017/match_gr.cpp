@@ -243,7 +243,6 @@ void homologation_gr() {
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
 
-  
   asserv_set_position(150, 500, 0);
   asserv_maintenir_position();
 
@@ -272,14 +271,16 @@ void debug_gr() {
 
   
   minuteur_attendre(200);
-  asserv_set_position(1500, 1000, MATH_PI);
+  asserv_set_position(1500, 1000, 0);
   asserv_maintenir_position();
   delay(2000);
   
 
   minuteur_demarrer();
-  asserv_go_toutdroit(100, 2000);
+  asserv_go_toutdroit(200, 3000);
 
+  return;
+  
   //asserv_go_xy(1500, 800, 2000, 1);
 
   
@@ -372,6 +373,7 @@ void test1_gr() {
 void match_gr() {
   int start;
   uint8_t error;
+
   
   ecran_console_reset();
 
@@ -413,9 +415,9 @@ void match_gr() {
     //ACTION_DEPOSER_STATION,
     ACTION_RAPPORTER_CUB1,
     ACTION_OUVRIR_REP,
-    ACTION_ACTIVER_ABEILLE,
+    ACTION_ACTIVER_ABEILLE
     //ACTION_VIDER_REM_OPP,
-    ACTION_DEPOSER_STATION
+    //ACTION_DEPOSER_STATION
     //ACTION_DEPOSER_CHATEAU
     // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
@@ -423,8 +425,8 @@ void match_gr() {
   
   int phase2[] {
     //ACTION_VIDER_REP_OPP,
+    ACTION_VIDER_REM_OPP,
     ACTION_DEPOSER_STATION
-    //ACTION_VIDER_REM_OPP,
     //ACTION_DEPOSER_STATION,
     //ACTION_DEPOSER_CHATEAU
     // AS-tu bien retiré la virgule sur la dernière ligne ?
@@ -441,7 +443,13 @@ void match_gr() {
 
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
-  asserv_set_position(250, 500, 0);
+  
+  // Démarrage en pi = Problème !
+  if(robot.estVert)
+    asserv_set_position(250, 500, 0);
+  else
+    asserv_set_position(150, 500, MATH_PI); // Pi => 0 après application de la symétrie
+    
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -454,7 +462,11 @@ void match_gr() {
   minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
   score_definir(0);
   
-  asserv_go_toutdroit(350, 10000);
+  if(robot.estVert)
+    asserv_go_toutdroit(350, 10000);
+  else
+    asserv_go_toutdroit(-450, 10000);
+    
   //aller_xy(500, 500, VITESSE_RAPIDE, 1, 5000, 30);
   
   
@@ -550,7 +562,6 @@ void match_gr() {
     // Est-ce qu'on doit continuer à faire des trucs ?
     if(abeille_activee
     && REP_vide
-    && REM_opp_vide
     && gr_CUB_dans_ZOC[1]) {
       
       nb_iterations = 0;
@@ -608,14 +619,14 @@ void match_gr() {
     gr_jouer_action(phase2[action]);
     
     
-    /*if(REM_opp_vide
-    && REP_opp_vide) {
-      */
+    if(REM_opp_vide
+    && nb_balles_eau_usee_dans_gr == 0) {
+      /*
       if(nb_balles_eau_usee_dans_gr == 0) {
         break;
-      }
-      /*break;
-    }*/
+      }*/
+      break;
+    }
     
     
   }
@@ -1370,6 +1381,13 @@ void gr_init() {
   robot.ASSERV_ROTATION_KP = 0.1f;
   robot.ASSERV_ROTATION_KD = 1.8f;
 
+  /* GR2018 : Essais de réglage au 11/05/2018
+  robot.ASSERV_DISTANCE_KP = 0.1f;
+  robot.ASSERV_DISTANCE_KD = 0.8f;
+  robot.ASSERV_ROTATION_KP = 0.2f;
+  robot.ASSERV_ROTATION_KD = 2.2f;
+  */
+  
   robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
   
   // Actionneurs à init
