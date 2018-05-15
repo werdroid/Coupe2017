@@ -1312,6 +1312,8 @@ void piloter_evacuation_eaux_usees(uint8_t angle, bool doucement, bool log) {
     servo_evacuation_eaux_usees.write(angle);
   }
   
+  angle_evactuation_eaux_usees = angle;
+  
   if(log) {
     com_print("Evacuation des eaux usées : ");
     switch(angle) {
@@ -1329,6 +1331,8 @@ void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
   else {
     servo_cuillere_miel.write(angle);
   }
+  
+  angle_cuillere_miel = angle;
   
   if(log) {
     com_print("Cuillere a miel : ");
@@ -1351,6 +1355,8 @@ void piloter_tri_eau(uint8_t angle, bool doucement, bool log) {
   else {
     servo_tri_eau.write(angle);
   }
+  
+  angle_tri_eau = angle;
   
   if(log) {
     com_print("Tri : ");
