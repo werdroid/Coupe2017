@@ -1,27 +1,25 @@
 [Suite Coupe 2018]
-Option "Homologation" : tous les déplacements sont faits nb_tentatives*10
-
-
+- Option "Homologation" : tous les déplacements sont faits nb_tentatives*10
+- Réfléchir réorganisation match_* :
+    . deplacements.cpp : aller_xy, aller_pt_etape, reperage...
+    ? servos.cpp : servo_slowmotion, servo_jouer, piloter_* ...
+    ? actions.cpp : codage des actions
+    . match.cpp : Programmes communs GR/PR
+    . match_gr.cpp : Programmes spécifiques GR
+    . match_pr.cpp : Programmes spécifiques PR
+- Renommer Coupe2017 en Coupe
+- Date et Heure de compilation https://stackoverflow.com/a/10455223
 
 
 -----------------
 
 - Fonction init_match()
 
-[Avec Vladimir]
-Corriger com.cpp
-
-
-[Mai]
-- état du match: prêt, en cours, funny action, terminé
-    + mettre au clair ce que renvoie asserv_go_xy une fois les 90 secondes écoulées
-
 [Plus ancien]
 - sortie com sur br ou usb (en fonction de l'état de usb)
 - multiplexage de la com entre les deux process RT et MAIN
 - clean de asserv_vitesse_distance() et asserv_vitesse_rotation()
 - prefixer les fichiers bas niveau de haut niveau de Rémi pour simuler des dossiers
-- documenter les fonctions utilitaires usuelles: elapsedMillis(), la fonction temps, et autres fonctions pour Rémi
 - dendinement du robot
 - moniteur exporter/importer un match, contrôler play/record/position
 
@@ -38,10 +36,6 @@ trame RT:
 - destination (mm)
 - sick infos, obstacle
 - capteurs, actions
-
-
-
-
 
 
 
