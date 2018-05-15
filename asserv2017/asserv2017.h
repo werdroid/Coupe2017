@@ -45,7 +45,9 @@ const uint8_t AUTRE = 127; // ? (utilisé dans asserv.cpp)
 // Erreurs de stratégie
 const uint8_t ERROR_CAS_NON_GERE = 10; // Cas non géré (trop complexe)
 const uint8_t ERROR_PARAMETRE = 11; // Paramètre envoyé incorrect
-const uint8_t ERROR_PAS_CODE = 12; // Pas encore codé
+const uint8_t ERROR_PLUS_RIEN_A_FAIRE = 12; // Action déjà terminée
+const uint8_t ERROR_PAS_POSSIBLE = 14; // Pas le meilleur moment pour
+const uint8_t ERROR_PAS_CODE = 15; // Pas encore codé
 
 
 
@@ -70,7 +72,7 @@ const uint8_t ASSERV_MODE_POLAIRE = 2; // asservissement
 
 #define TABLE_LARGEUR_X 3000 /* mm */
 #define TABLE_LARGEUR_Y 2000 /* mm */
-#define TEMPS_JEU_MS 100000 /* ms */
+#define TEMPS_JEU_MS 98000 /* ms */ // On se garde 2 secondes pour l'évacuation des eaux usées
 
 #define SPD_MAX_MM 200 // mm/s
 #define ACC_MAX_MM 300 // mm/s2
@@ -102,7 +104,9 @@ typedef struct {
   bool activer_monitor_sick;
   uint8_t programme;
   int score;
-    
+  bool propulseur_actif = false;
+  bool trappe_ouverte = false;
+
 
   /* asserv states */
   uint8_t activeDistance;
@@ -149,7 +153,7 @@ typedef struct {
   int32_t consigneX; // tick
   int32_t consigneY; // tick
 
-
+  uint16_t DISTANCE_DETECTION;
   bool sickConnected;
   bool sickObstacle;
   uint32_t sickTramesVides;
@@ -193,6 +197,7 @@ typedef struct {
   float a;
 } Position; // 12 octets
 
+
 // Structure à envoyer en tant que bloc binaire
 // On désiarialise via javascript avec un DataViewer
 // qui permet de lire/écrire selon chaque type:
@@ -218,7 +223,7 @@ typedef struct {
   uint8_t sickObstacle;
   uint8_t isPR;
   uint8_t led_state;
-  
+
   // compléter pour avoir un total de bytes multiple de 4
   uint8_t empty1;
   uint8_t empty2;
@@ -246,24 +251,56 @@ const uint16_t ZONE_A = 1 << 1;
 const uint16_t ZONE_B = 1 << 2;
 const uint16_t ZONE_C = 1 << 3;
 const uint16_t ZONE_D = 1 << 4;
-const uint16_t ZONE_E = 1 << 5;
-const uint16_t ZONE_F = 1 << 6;
-const uint16_t ZONE_G = 1 << 7;
-const uint16_t ZONE_H = 1 << 8;
-const uint16_t ZONE_I = 1 << 9;
-const uint16_t ZONE_J = 1 << 10;
+  // S pour Symétrie
+const uint16_t ZONE_AS = 1 << 5;
+const uint16_t ZONE_BS = 1 << 6;
+const uint16_t ZONE_CS = 1 << 7;
+const uint16_t ZONE_DS = 1 << 8;
+// Info: jusqu'à 10 en 2017
 // Ajout de zone à faire aussi dans robot_dans_zone();
 
 // Constantes de points
 // Ici, pas de bit mask. On évite les puissances de 2 pour éviter toute confusion avec un idZone
 const uint8_t PT_ETAPE_1 = 41;
+const uint8_t PT_ETAPE_2 = 42;
+const uint8_t PT_ETAPE_3 = 43;
 const uint8_t PT_ETAPE_4 = 44;
-const uint8_t PT_ETAPE_7 = 47;
+const uint8_t PT_ETAPE_5 = 45;
+const uint8_t PT_ETAPE_6 = 46;
+const uint8_t PT_ETAPE_6S = 86;
 const uint8_t PT_ETAPE_8 = 48;
+const uint8_t PT_ETAPE_9 = 49;
 const uint8_t PT_ETAPE_10 = 50;
+const uint8_t PT_ETAPE_11 = 51;
+const uint8_t PT_ETAPE_12 = 52;
+const uint8_t PT_ETAPE_12S = 92;
+const uint8_t PT_ETAPE_13 = 53;
 const uint8_t PT_ETAPE_14 = 54;
-const uint8_t PT_ETAPE_15 = 55;
 // Ajout de point à faire aussi dans match.cpp > getPoint();
+
+
+// Vitesses par défaut
+uint32_t const VITESSE_RAPIDE = 100;
+uint32_t const VITESSE_LENTE = 50;
+uint32_t const VITESSE_POUSSER_CUBES = 80;
+
+// Actions
+// Les numéros doivent être uniques et continus de 0 à NB_ACTIONS
+// L'ordre n'a pas d'importance
+const int ACTION_ALLUMER_PANNEAU    = 0;
+const int ACTION_VIDER_REP          = 1;
+const int ACTION_ACTIVER_ABEILLE    = 2;
+const int ACTION_VIDER_REM          = 3;
+const int ACTION_RAPPORTER_CUB0     = 4;
+const int ACTION_RAPPORTER_CUB1     = 5;
+const int ACTION_RAPPORTER_CUB2     = 6;
+const int ACTION_VIDER_REM_OPP      = 7;
+const int ACTION_VIDER_REP_OPP      = 8;
+const int ACTION_DEPOSER_CHATEAU = 9;
+const int ACTION_DEPOSER_STATION = 10;
+const int ACTION_OUVRIR_REP      = 11;
+
+const int NB_ACTIONS = 12; // Dernière action + 1
 
 
 /*-----------------------------------------------------------------------------
@@ -299,11 +336,12 @@ float deg2rad(int32_t degre);
 int32_t symetrie_x(int32_t x);
 float symetrie_a_centrale(float a);
 float symetrie_a_axiale_y(float a);
+float angle_relatif_robot_point(int32_t x, int32_t y , float a, int32_t xx, int32_t yy);
 
 // Minuteur de match
 void minuteur_attendre(uint32_t timeout_ms);
 void minuteur_demarrer();
-uint32_t minuteur_temps_restant();
+int32_t minuteur_temps_restant();
 void minuteur_attendre_fin_match();
 void minuteur_arreter_tout_si_fin_match();
 
@@ -314,6 +352,7 @@ void synchronisation();
 void score_incrementer(int increment);
 void score_definir(int valeur);
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to);
+void servo_jouer(Servo servo, uint8_t deg_from, uint8_t jeu = 5, uint8_t nb = 1);
 uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint16_t localiser_zone();
@@ -333,6 +372,7 @@ void debug_gr();
 void test1_gr();
 void gr_coucou();
 void match_gr_arret();
+void gr_activer_propulseur(bool activer);
 
 // PR
 extern "C" {
@@ -341,6 +381,7 @@ void match_pr();
 }
 void match_pr_arret();
 void debug_pr();
+void homologation_pr();
 
 // Menu
 void menu_start();
@@ -436,6 +477,7 @@ void ledMatrix_afficher_score();
 void ledMatrix_incrementer_score(int increment);
 void ledMatrix_defiler_texte(const char* str);
 void ledMatrix_afficher_WRD();
+void ledMatrix_indiquer_obstacle();
 
 // SICK
 uint8_t sick_setup();

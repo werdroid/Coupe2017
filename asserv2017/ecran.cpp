@@ -41,7 +41,7 @@ void ecran_print_menu(int selector) {
     "\n\n   Demarrer match __",
     "\n\n   Couleur:    _____",
     "\n\n   (Libre 2)        ",
-    "\n\n   (Libre 3)      ",
+    "\n\n   Ejecter       ___",
     "\n\n   (Libre 4)        ",
     "\n\n   Prg: ____________",
     "\n\n   Demarrer Program.",
@@ -64,8 +64,16 @@ void ecran_print_menu(int selector) {
     optionsMenu[1] = "\n\n   Couleur:     VERT";
     couleur_robot = ST7735_GREEN;
   } else {
-    optionsMenu[1] = "\n\n   Couleur:    ORANGE";
+    optionsMenu[1] = "\n\n   Couleur:   ORANGE";
     couleur_robot = ST7735_YELLOW;
+  }
+  
+  // Menu 3 : Ejection
+  if(robot.propulseur_actif) {
+    optionsMenu[3] = "\n\n   Ejecter        ON";
+  }
+  else {
+    optionsMenu[3] = "\n\n   Ejecter       OFF";
   }
 
   // Menu 5 : Affichage du programme sélectionné
@@ -76,9 +84,14 @@ void ecran_print_menu(int selector) {
     case 2: optionsMenu[5] = "\n\n   Prg:  Tourner x10"; break;
     case 3: optionsMenu[5] = "\n\n   Prg: Part/Revient"; break;
     case 4: optionsMenu[5] = "\n\n   Prg: Homologation"; break;
-    case 5: optionsMenu[5] = "\n\n   Prg:       Coucou"; break;
+    case 5:
+      if(robot.IS_PR)
+        optionsMenu[5] = "\n\n   Prg:       Coucou";
+      else
+        optionsMenu[5] = "\n\n   Prg:        Test1";
+      break;
     case 6: optionsMenu[5] = "\n\n   Prg:     Demo A/R"; break;
-    case 7: optionsMenu[5] = "\n\n   Prg:   DO NOT USE"; break;
+    case 7: optionsMenu[5] = "\n\n   Prg: Mainten. Pos"; break;
   }
   
   // Menu 7 : Activer/Désactiver MonitorSick (usage de démonstration uniquement)

@@ -15,6 +15,7 @@ void menu_start() {
 
   // Récupération depuis la mémoire permanente
   robot.symetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
+  robot.estVert = !robot.symetrie;
   robot.programme = EEPROM.read(EEPROM_ADDRESS_PROGRAMME);
   int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
 
@@ -65,6 +66,13 @@ void menu_start() {
           
         case 3:
           // Menu libre
+          if(robot.propulseur_actif) {
+            gr_activer_propulseur(false);
+          }
+          else {
+            gr_activer_propulseur(true);
+          }
+          ecran_print_menu(selectPosition);
           break;
           
         case 4:
@@ -97,6 +105,7 @@ void menu_start() {
             case 1:
               ecran_console_log("30cm en avant");
               robot.activeRotation = 0;
+              asserv_set_position(1000, 1000, 0);
               quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
               asserv_consigne_polaire_delta(300, 0);
               for(;;);
@@ -112,31 +121,46 @@ void menu_start() {
               
             case 4:
               ecran_console_log("Homologation");
-              /*if(robot.IS_PR)
+              if(robot.IS_PR)
                 homologation_pr();
-              else*/
+              else
                 homologation_gr();
               break;
             
             case 5:
-              ecran_console_log("Coucou");
-              test1_gr();
+              if(robot.IS_PR) {
+                ecran_console_log("Coucou");
+                gr_coucou();
+              }
+              else {
+                ecran_console_log("Test 1");
+                test1_gr();
+              }
               break;
               
             case 6:
-              ecran_console_log("30cm en avant");
+              ecran_console_log("Demo A/R");
               demo_allers_retours();
               break;
              
-            case 7:
+            case 7:  
+              ecran_console_log("Maintenir Position");
+              asserv_set_position(1500, 1000, 0);
+              minuteur_demarrer();
+              asserv_go_toutdroit(10, 2000);
+              asserv_maintenir_position();
+              robot.activeDistance = 0; // Pour ne maintenir que la rotation
+              // robot.activeRotation = 0; // Pour ne maintenir que la distance
+              while(1) delay(DT_MS);
+
               // Libre
-              
+              /*
               ecran_console_log("On avait pourtant\n");
               ecran_console_log("dit de ne pas\n");
               ecran_console_log("cliquer...\n\n");
               ecran_console_log("Il ne se passera\n");
               ecran_console_log("rien, vous pouvez\n");
-              ecran_console_log("redemarrer.\n");
+              ecran_console_log("redemarrer.\n");*/
               break;
           
           }

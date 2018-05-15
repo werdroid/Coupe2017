@@ -74,7 +74,7 @@ uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_
     // fin
     result = OK;
     asserv_consigne_polaire_delta(erreurDistance, 0);
-  } else if (D1 < erreurNorme && erreurNorme < D2) {
+  } else if (D2 < erreurNorme && erreurNorme < D1) {
     // distance seule car on est trop proche du point
     asserv_consigne_polaire_delta(erreurDistance, 0);
   } else if (abs(erreurAngleRad) > 0.5) {// 30/180*pi=0.5rad   10/180*pi=0.17rad
@@ -109,6 +109,7 @@ uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t time
   robot.consigneYmm = consigne_y_mm;
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     result = asserv_consigne_xy(consigne_x_mm, consigne_y_mm, uniquement_avant);
 
@@ -124,8 +125,8 @@ uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t time
     }
 
     if (robot.sickObstacle) {
-      com_printfln("#-----OBSTACLE");
       asserv_maintenir_position();
+      com_printfln("#-----OBSTACLE");
       tone_play_alert();
       return ERROR_OBSTACLE;
     }
@@ -156,7 +157,7 @@ uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
 }
 
 /**
- * Regarde vers le point indiqué X,Y en mm.
+ * Le robot va regarder vers le point (x_mm,y_mm)
  * Retour bloquant jusqu'à:
  * - OK
  * - ERROR_TIMEOUT
@@ -167,14 +168,10 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
   int32_t x = mm2tick(symetrie_x(x_mm));
   int32_t y = mm2tick(y_mm);
 
-  // le vecteur à faire
-  int32_t vx = x - robot.x;
-  int32_t vy = y - robot.y;
-
-  float angleVersPoint = atan2(vy, vx); // [-pi, +pi] radians
+  float angleAfaire = angle_relatif_robot_point(robot.x, robot.y, robot.a, x, y);
 
   robot.sans_symetrie = 1; // on fait déjà une symétrie sur x au dessus.
-  uint8_t ret = asserv_rotation_relative(angleVersPoint, timeout);
+  uint8_t ret = asserv_rotation_relative(angleAfaire, timeout);
   robot.sans_symetrie = 0;
   return ret;
 }
@@ -190,7 +187,7 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
 
 uint8_t asserv_distance(int32_t distance_mm, uint16_t timeout) {
   elapsedMillis timer;
-  asserv_consigne_polaire_delta(mm2tick(distance_mm), 0);
+  asserv_consigne_polaire_delta(distance_mm, 0);
 
   // On active seulement la distance sans la rotation
   // pour pouvoir se plaquer contre la bordure
@@ -199,6 +196,7 @@ uint8_t asserv_distance(int32_t distance_mm, uint16_t timeout) {
   robot.activeRotation = 0;
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     int32_t erreur = abs(robot.distance - robot.consigneDistance);
     int32_t marge_distance = mm2tick(20);
@@ -230,6 +228,7 @@ uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout) {
   int32_t marge_erreur_rotation = radian_vers_orientation(0.3);
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     int32_t erreur = abs(robot.rotation - robot.consigneRotation);
 

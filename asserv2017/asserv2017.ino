@@ -181,7 +181,6 @@ void interruption_sample() {
  */
 
 void synchronisation() {
-  minuteur_arreter_tout_si_fin_match();
   lock_loop = RT_STATE_WAITING;
   while(lock_loop != RT_STATE_SLEEP);
 }
