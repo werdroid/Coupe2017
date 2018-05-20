@@ -45,6 +45,9 @@ uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_
 
   // on garde les angles dans le cercle trigo de -pi à +pi
   erreurAngleRad = normalize_radian(erreurAngleRad);
+  
+  
+  com_printfln("eNorme: %d\neDist: %d\neA: %d\n", erreurNorme, erreurDistance, rad2deg(erreurAngleRad));
 
   if (!uniquement_avant && erreurAngleRad > HALF_PI) {
     // le point est derrière à droite, marche arrière
@@ -71,17 +74,21 @@ uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_
   uint8_t result = AUTRE;
 
   if (erreurNorme < D2) {
+    com_printfln("::: erreurNorme < D2 :::");
     // fin
     result = OK;
     asserv_consigne_polaire_delta(erreurDistance, 0);
   } else if (D2 < erreurNorme && erreurNorme < D1) {
+    com_printfln("::: erreurNorme entre D2 et D1 :::");
     // distance seule car on est trop proche du point
     asserv_consigne_polaire_delta(erreurDistance, 0);
   } else if (abs(erreurAngleRad) > 0.5) {// 30/180*pi=0.5rad   10/180*pi=0.17rad
+    com_printfln("::: erreurAngleRad > 0.5 :::");
     // rotation seule car on n'est pas dans l'axe
     asserv_consigne_polaire_delta(0, erreurAngleRad);
   } else {
     // déplacement normal
+    com_printfln("::: Deplacement normal :::");
     asserv_consigne_polaire_delta(erreurDistance, erreurAngleRad);
   }
 
@@ -300,13 +307,22 @@ static float rotation_precedente = 0; // tick
 static float rotation_initiale = 0; // rad
 
 void asserv_set_position(int32_t x, int32_t y, float a) { // mm en entrée
+  com_printfln("=== asserv_set_position x: %d, y: %d, aDeg: %d", x, y, rad2deg(a));
+  
   asserv_maj_position(); // N-1
 
+  com_printfln("=== Position mise a jour ===");
+  
   robot.x = mm2tick(symetrie_x(x));
   robot.y = mm2tick(y);
   rotation_initiale = symetrie_a_axiale_y(a) - robot.a; // On fait un tare en donnant l'angle
 
+  
+  com_printfln("=== Log intermediaire 1 ===");
+  
   asserv_maj_position(); // N, delta est à 0 car on a pas bougé
+  
+  com_printfln("=== Fin de asserv_set_position ===");
 }
 
 void asserv_maj_position() {
@@ -332,6 +348,14 @@ void asserv_maj_position() {
   // Sauve pour la prochaine fois
   distance_precedente = robot.distance;
   rotation_precedente = robot.rotation;
+  
+  /*
+  if(robot.logAsserv) {
+    com_printfln("\n\nr.distance: %d\nr.rotation: %d\nr.delta_d: %d\nr.x: %d\nr.y: %d",
+                robot.distance, robot.rotation, robot.delta_d, robot.x, robot.y);
+    com_printfln("r.a: %d\ndist_prec: %d\nrot_prec: %d\n\n",
+                rad2deg(robot.a), distance_precedente, rotation_precedente);
+  }*/
 }
 
 /*******************************************************************************

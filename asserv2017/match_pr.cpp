@@ -88,13 +88,28 @@ void homologation_pr() {
 void debug_pr() {
   ecran_console_log("2 sec\n\n");
 
-  asserv_set_position(1500, 1000, 0);
+  robot.logAsserv = true;
+  com_printfln("--- Appel a asserv_set_position ---");
+  asserv_set_position(1500, 1000, MATH_PI2);
+  com_printfln("--- Appel a maintenir_position ---");
   asserv_maintenir_position();
-  delay(2000);
+  com_printfln("--- Attente de 500 ---");
+  minuteur_attendre(500);
 
+  com_printfln("--- Demarrage minuteur ---");
   minuteur_demarrer();
-
-  asserv_go_xy(1500, 800, 2000, 1);
+  com_printfln("--- Attente de 1000 ---");
+  minuteur_attendre(1000);
+  
+  com_printfln("--- go tout droit 1 ---");
+  asserv_go_toutdroit(100, 2000);
+  com_printfln("--- Attente de 1000 ---");
+  minuteur_attendre(1000);
+  com_printfln("--- go tout droit 2 ---");
+  asserv_go_toutdroit(100, 2000);
+  com_printfln("--- Fin ---");
+  robot.logAsserv = false;
+  //asserv_go_xy(1500, 800, 200, 1);
   
   /*asserv_distance(-5000, 5000);
   tone_play_end();

@@ -122,6 +122,7 @@ typedef struct {
 
   // Asserv
   uint8_t asserv_mode;
+  bool logAsserv = false;
 
   int16_t consigne_pwm_gauche;
   int16_t consigne_pwm_droite;
@@ -238,7 +239,6 @@ typedef struct {
 
 extern Robot robot;
 volatile extern uint8_t lock_loop;
-
 
 /*-----------------------------------------------------------------------------
  * Constantes et variables stratégie (communes PR/GR)
