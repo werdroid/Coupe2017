@@ -2,7 +2,10 @@
 Analyse du bug au démarrage
 **/
 
-/** Programme de test **/
+/** Programme de test 
+Vidéo associée : https://www.dropbox.com/sh/n7onqh2otfins52/AAA0bYWwhNy5mLe11BmCiBhla?dl=0
+20180520_133810.mp4
+**/
 void debug_pr() {
   ecran_console_log("2 sec\n\n");
 
@@ -209,6 +212,43 @@ void debug_pr() {
 
 /* Ce que je n'explique pas :
 En match (match_gr, match_pr), le robot fait son petit gauche-droite APRES avoir enlevé le jack.
+
+
+Par exemple en match 2 :
+https://www.dropbox.com/sh/n7onqh2otfins52/AAA0bYWwhNy5mLe11BmCiBhla?dl=0
+GOPR1419Trim.mp4
+/!\ Match 2 comportait encore le bug du "je regarde n'importe où avant d'aller qq part"
+
+Programme complet sur 
+https://github.com/werdroid/Coupe2017/blob/7d06a12559b38024626b6cfd51aa842f7dbdd497/asserv2017/match_gr.cpp#L409
+
+Mais voilà la partie intéressante :
+*/
+
+(...)
+
+  bouton_start_down();
+
+  ecran_console_log("Pret\n\n");
+  minuteur_attendre(200);
+  asserv_set_position(150, 500, 0);
+  asserv_maintenir_position();
+  bouton_wait_start_up();
+  
+
+  /** ------------
+    Début du Match
+    ------------- **/
+
+  minuteur_demarrer();
+  minuteur_attendre(500);
+  score_definir(0);
+  
+  asserv_go_toutdroit(350, 10000);
+
+(...)
+  
+/*
 Est-ce que bouton_wait_start_up() bloque un mouvement demandé par asserv_maintenir_position ?
 
 Je dois faire des tests supplémentaires pour déterminer le moment précis où le robot fait sa rotation, mais je n'ai plus de batterie...
