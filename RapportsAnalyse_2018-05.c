@@ -1,5 +1,6 @@
 /**
 Analyse du bug au démarrage
+(Juste un test nouvelle version GitHub Desktop)
 **/
 
 /** Programme de test 
