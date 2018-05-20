@@ -253,8 +253,7 @@ uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout) {
 void asserv_maintenir_position() {
   robot.activeDistance = 1;
   robot.activeRotation = 1;
-  robot.consigneDistance = robot.distance;
-  robot.consigneRotation = robot.rotation;
+  asserv_consigne_polaire_delta(0, 0);
 }
 
 // Vitesse en tick par delta t
@@ -315,7 +314,7 @@ void asserv_maj_position() {
   robot.rotation = radian_vers_orientation(rotation_initiale) + robot.codeurGauche - robot.codeurDroite;
 
   robot.delta_d = robot.distance - distance_precedente;
-  robot.delta_r = robot.rotation - rotation_precedente;
+  robot.delta_r = robot.rotation - rotation_precedente; // Rmq RSE 20/05/2018 : Cette variable n'est jamais utilisée
 
   int32_t rotation_moyenne = (robot.rotation + rotation_precedente) / 2;
   float rotation_moyenne_radian = orientation_vers_radian(rotation_moyenne);

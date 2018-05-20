@@ -147,7 +147,6 @@ void menu_start() {
               ecran_console_log("Maintenir Position");
               asserv_set_position(1500, 1000, 0);
               minuteur_demarrer();
-              asserv_go_toutdroit(10, 2000);
               asserv_maintenir_position();
               robot.activeDistance = 0; // Pour ne maintenir que la rotation
               // robot.activeRotation = 0; // Pour ne maintenir que la distance
