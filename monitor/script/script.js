@@ -255,7 +255,13 @@ document.getElementById('bEffacerSection').addEventListener('click', function() 
   }
 });
 document.getElementById('bGenererJeuAleatoire').addEventListener('click', function() {
-	genererJeuAleatoire()
+	genererJeuAleatoire();
+});
+document.getElementById('bExtrairePR').addEventListener('click', function() {
+  donnees.extraireVersCSV(PR);
+});
+document.getElementById('bExtraireGR').addEventListener('click', function() {
+  donnees.extraireVersCSV(GR);
 });
 
 /*

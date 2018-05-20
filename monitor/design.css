@@ -101,6 +101,15 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 
 
 /********************/
+.bExport {
+  border: 0;
+  background: none;
+  padding: 3px 3px;
+  margin: 1px 4px;
+  color: #bbbbbb;
+  height: 20px;
+  vertical-align: text-top;
+}
 
 #led0, #led1 {
     position: absolute;
@@ -130,7 +139,9 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 #led0.off, #led1.off { background-color: #dddddd; }
 #led0.on, #cpu0 { background-color: blue; }
 #led1.on, #cpu1 { background-color: orange; }
-
+#bExtrairePR:hover { color: blue; }
+#bExtraireGR:hover { color: orange; }
+.bExport:hover { cursor: pointer; }
 
 #logRobot0, #logRobot1 {
   flex-grow: 1;
