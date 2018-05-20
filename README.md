@@ -123,3 +123,11 @@ Robot state c'est une trame binaire contenant des infos à envoyer du robot ou s
 - remplir trameMonitor dans `simulateur.cpp` si le simulateur génère cette info
 - remplir trameMonitor dans `com.cpp`
 - c'est bon ! l'info sera envoyée automatiquement
+
+
+### Installation du Monitor (Chrome App)
+
+- Aller sur chrome://extensions/
+- Charger l'extension Non Empaquetée
+- Aller sur chrome://apps
+- Cliquer sur l'application. Conseil : l'épingler à ce moment à la barre des tâches.
