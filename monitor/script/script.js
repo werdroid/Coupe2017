@@ -51,7 +51,7 @@ var match = {
     if(match.termine[r] || match.enCours[r])
       return Math.trunc(((new Date().getTime()) - match.debut[r])/1000);
     else
-      return '-1';
+      return -1;
   }
 };
 
