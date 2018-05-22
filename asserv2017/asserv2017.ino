@@ -43,17 +43,41 @@ void setup() {
   // SPI.setMISO(miso);
   SPI.begin();
 
+  
+  Serial.println("Demarrage dans 5s");
+  delay(2000);
+  Serial.println("Demarrage dans 3s");
+  delay(1000);
+  Serial.println("Demarrage dans 2s");
+  delay(1000);
+  Serial.println("Demarrage dans 1s");
+  delay(1000);
+  Serial.println("Initialisation ecran");
+  
   ecran_setup();
+  Serial.println("C'est fait ! Attente 1s");
+  delay(1000);
+  
+  Serial.println("Initialisation boutons");
   boutons_init();
+  
+  Serial.println("Oh yeah");
+  delay(1000);
 
+  Serial.println("Configuration robot...");
   // Configuration des constantes et actionneurs
   if (analogRead(A12) < 512) { // 0V=PR et 5V=GR (sur 1024)
     pr_init();
   } else {
     gr_init();
   }
+  Serial.println("OK !");
+  delay(1000);
 
+  Serial.println("Deplacement CLK...");
   SPI.setSCK(sclk); // après l'écran car il le remet sur le 13
+  Serial.println("Done");
+  delay(1000);
 
   // // Affectation de SCLK sur pin 14 au lieu de 13, après le init de l'écran
   // // Pin 13 as normal digital
@@ -61,6 +85,7 @@ void setup() {
   // // And then reassign pin 14 to SCK
   // CORE_PIN14_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); // Alt2=SPIO_SCK.  chip pin PTD1
 
+  Serial.println("Reset ??");
   ecran_console_reset();
   
   // Date et heure de **compilation**
