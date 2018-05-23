@@ -149,6 +149,12 @@ void ecran_print_menu(int selector) {
   int x = -25, y = selector*16 + 14;
   int offsetY = 0; // 35
   tft.fillTriangle(30 + x, offsetY + y, 30 + x, offsetY + y + 10, 35 + x, offsetY + y + 5, ST7735_BLACK);
+
+  
+  
+  // Envoi du menu visé par le sélecteur sur le com pour contourner problème d'écran chez Antoine.
+  com_printfln("%s <<<< [%d] <<<< Menu", (optionsMenu[selector]).c_str(), selector);
+  
 }
 
 void ecran_print_menu_status() {
