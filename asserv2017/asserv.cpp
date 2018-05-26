@@ -362,9 +362,20 @@ void asserv_loop() {
   // robot.asserv_mode == ASSERV_MODE_POLAIRE
 
   // l'erreur correspond aussi au patinage, plus il augmente plus l'accélération devrait être baissée
-  robot.erreurDistance = quadramp_do_filter(&robot.ramp_distance, robot.consigneDistance) - robot.distance;
-  // robot.erreurDistance = robot.consigneDistance - robot.distance;
-  robot.erreurRotation = quadramp_do_filter(&robot.ramp_rotation, robot.consigneRotation) - robot.rotation;
+  //robot.erreurDistance = quadramp_do_filter(&robot.ramp_distance, robot.consigneDistance) - robot.distance;
+  //robot.erreurRotation = quadramp_do_filter(&robot.ramp_rotation, robot.consigneRotation) - robot.rotation;
+  
+  /* Pas de rampe :
+    Avantages:
+    - PID plus facile à config et plus stable, c'est lui la priorité
+    - le bug de début de match
+    Inconvénient:
+    - patinage, négligeable mais à tester
+    - mouvements plus brusques, mais on peut réduire la PWM
+  A valider par tests complémentaires
+  */
+  robot.erreurDistance = robot.consigneDistance - robot.distance;
+  robot.erreurRotation = robot.consigneRotation - robot.rotation;
 
   int32_t pwmDistance = 0;
   int32_t pwmRotation = 0;
