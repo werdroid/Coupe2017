@@ -80,6 +80,11 @@ traiterMessage = function(r, msgStr) {
       case 'Localisation':
         localisation.majScore(param.i, param.score);
         break;
+      case 'Sick':
+        /*obstacle.detecte = param.obstacle;
+        obstacle.id = param.id;
+        obstacle.distance = param.dist;*/
+        break;
       default:
         break;
     }

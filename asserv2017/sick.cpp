@@ -276,6 +276,7 @@ void sick_traiter_donnees() {
   
   // Démonstration fonctionnement Sick (utilisable avec MonitorSick)
   if(robot.activer_monitor_sick) {
+    //com_printfln("@|Sick|obstacle:%d,id:%d,dist:%d", (robot.sickObstacle ? 1:0), robot.proche_index, robot.proche_distance);
     for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
       // Envoi des points pour MonitorSick
       // (Destiné uniquement aux présentations au public)
