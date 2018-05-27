@@ -25,7 +25,7 @@ void asserv_setup() {
 
 void asserv_reglage_constantes() {
   ecran_console_reset();
-  ecran_console_log("Maintenir Position\n");
+  ecran_console_log("Regler Asserv\n");
   ecran_console_log("\n");
   ecran_console_log("X Ne maintenir que\n");
   ecran_console_log("   la rotation\n");

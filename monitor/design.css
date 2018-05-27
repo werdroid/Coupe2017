@@ -118,6 +118,8 @@ https://css-tricks.com/snippets/css/a-guide-to-flexbox/
   /* flex-conteneur */
   display: flex;
   margin: 5px 0px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #dddddd;
 }
 .optionsRobotA * {
   font-size: 0.9em;
