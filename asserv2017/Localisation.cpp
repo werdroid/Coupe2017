@@ -130,7 +130,7 @@ void localiser_robots() { //commentaires à venir
 
   sick.rssi_values[0] = 1; // Pour ignorer la première valeur (rssi 1 -> 250)
 	
-	for(uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
+	for(uint16_t i = 1; i < SICK_VALUES_LENGTH; i++) {
 
 		// Poursuite uniquement si points valides
 		// Repérage balises
@@ -161,7 +161,7 @@ void localiser_robots() { //commentaires à venir
 				objectsizeatmeandistance[i] = 2 * objectmeandistance[i] * tan((index_vers_angle(i - 1) - index_vers_angle(i) / 180.0 * MATH_PI) / 2);
 				objectminsize[i] = objectsize[i] - objectsizeatmeandistance[i];
 				objectminsize[i] = objectsize[i] + 2 * objectsizeatmeandistance[i];
-				objecttotalforce[i] = objecttotalforce[i - 1] + sick.rss2i_values[i];
+				objecttotalforce[i] = objecttotalforce[i - 1] + sick.rssi_values[i];
 				objectmeanforce[i] = objecttotalforce[i] / objectindexes;
       }
 			else {
@@ -360,7 +360,7 @@ void localiser_tour() {
         objectsizeatmeandistance[i] = 2 * objectmeandistance[i] * tan((index_vers_angle(i - 1) - index_vers_angle(i) / 180.0 * MATH_PI) / 2);
         objectminsize[i] = objectsize[i] - objectsizeatmeandistance[i];
         objectminsize[i] = objectsize[i] + 2 * objectsizeatmeandistance[i];
-        objecttotalforce[i] = objecttotalforce[i - 1] + sick.rss2i_values[i];
+        objecttotalforce[i] = objecttotalforce[i - 1] + sick.rssi_values[i];
         objectmeanforce[i] = objecttotalforce[i] / objectindexes;
       }
       else { //if the new point is in a new object, reset counters
