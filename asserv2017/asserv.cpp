@@ -53,7 +53,6 @@ void asserv_reglage_constantes() {
     // <lettre><valeur>
     // La lettre permet de savoir à quel paramètre correspond la valeur envoyée
     
-    
     if(Serial.available() > 0) {
       etape = toupper(Serial.read());
       
@@ -63,7 +62,7 @@ void asserv_reglage_constantes() {
           robot.ASSERV_ROTATION_KP = valeur;
           
           // Arduino ne peut afficher %f directement
-          // Voir https://stackoverflow.com/questions/27651012/arduino-sprintf-float-not-formatting
+          // Voir https://stackoverflow.com/a/27652012
           dtostrf(robot.ASSERV_ROTATION_KP, 4, 3, str_valeur);
           com_printfln("Kp_r = %s", str_valeur);
           break;
@@ -93,8 +92,6 @@ void asserv_reglage_constantes() {
           break;
         
         case 'G': // Afficher tout
-          // (Dans l'ordre inverse pour les avoir dans l'ordre sur le Monitor)
-          
           dtostrf(robot.ASSERV_ROTATION_KP, 4, 3, str_valeur);
           com_printfln("A.  Kp_r = %s", str_valeur);
           dtostrf(robot.ASSERV_ROTATION_KD, 4, 3, str_valeur);

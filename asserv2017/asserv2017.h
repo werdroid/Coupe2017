@@ -102,7 +102,6 @@ typedef struct {
   bool estVert; // est égal à l'inverse de symetrie (utilisé en haut niveau)
   bool sans_symetrie; // 1=on fait pas les symétries
   bool activer_monitor_sick;
-  bool ecouter_serial = false;
   uint8_t programme;
   int score;
   bool propulseur_actif = false;
