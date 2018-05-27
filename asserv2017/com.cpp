@@ -10,6 +10,7 @@ static Metro metro = Metro(100);
 
 TrameMonitor trameMonitor;
 
+
 void com_send_robot_state() {
   if (lock_loop == RT_STATE_SLEEP) {
     synchronisation();
@@ -117,13 +118,13 @@ uint8_t com_err2str(uint8_t error) {
 void com_setup() {
   Serial.begin(115200); // serial par l'USB
   Serial1.begin(115200); // serial hardware pin 0 et 1
+  Serial.setTimeout(300);
   metro.reset();
 }
 
 void com_loop() {
   if (metro.check()) {
     com_send_robot_state(); // envoie binaire
-    // com_send_robot_infos(); // envoie textuel, deprecated
   }
 }
 
@@ -168,4 +169,3 @@ void com_serial1_print(const char* str) {
   }
   Serial1.print(str);
 }
-

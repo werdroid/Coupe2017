@@ -46,7 +46,7 @@ void ecran_print_menu(int selector) {
     "\n\n   Prg: ____________",
     "\n\n   Demarrer Program.",
     "\n\n   Monitor Sick  ___",
-    "\n\n   (Libre 8)        "
+    "\n\n   Regler Asserv    "
   };
 
 
@@ -91,7 +91,7 @@ void ecran_print_menu(int selector) {
         optionsMenu[5] = "\n\n   Prg:        Test1";
       break;
     case 6: optionsMenu[5] = "\n\n   Prg:     Demo A/R"; break;
-    case 7: optionsMenu[5] = "\n\n   Prg: Mainten. Pos"; break;
+    case 7: optionsMenu[5] = "\n\n   Prg:   DO NOT USE"; break;
   }
   
   // Menu 7 : Activer/Désactiver MonitorSick (usage de démonstration uniquement)

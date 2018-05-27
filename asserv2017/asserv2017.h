@@ -102,6 +102,7 @@ typedef struct {
   bool estVert; // est égal à l'inverse de symetrie (utilisé en haut niveau)
   bool sans_symetrie; // 1=on fait pas les symétries
   bool activer_monitor_sick;
+  bool ecouter_serial = false;
   uint8_t programme;
   int score;
   bool propulseur_actif = false;
@@ -417,6 +418,7 @@ void bouton_wait_select_up();
 
 // Asserv
 void asserv_setup();
+void asserv_reglage_constantes();
 void asserv_loop();
 void asserv_maj_position();
 void asserv_set_position(int32_t x, int32_t y, float a);

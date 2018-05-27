@@ -37,6 +37,8 @@ IntervalTimer timer;
 
 void setup() {
   Serial.begin(9600);
+  Serial.setTimeout(300);
+  
   // https://www.pjrc.com/teensy/td_libs_SPI.html
   SPI.setSCK(sclk);
   // SPI.setMOSI(mosi);
