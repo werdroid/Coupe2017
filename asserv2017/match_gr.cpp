@@ -1382,10 +1382,10 @@ void gr_init() {
   // Valeurs GR2016 = GR2018
   robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 3 mai gr
   robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 3404.0f; // 4 mai gr
-  robot.ASSERV_DISTANCE_KP = 0.1f;
+  /*robot.ASSERV_DISTANCE_KP = 0.1f;
   robot.ASSERV_DISTANCE_KD = 0.8f;
   robot.ASSERV_ROTATION_KP = 0.1f;
-  robot.ASSERV_ROTATION_KD = 1.8f;
+  robot.ASSERV_ROTATION_KD = 1.8f;*/
 
   /* GR2018 : Essais de réglage au 11/05/2018
   robot.ASSERV_DISTANCE_KP = 0.1f;
@@ -1393,6 +1393,13 @@ void gr_init() {
   robot.ASSERV_ROTATION_KP = 0.2f;
   robot.ASSERV_ROTATION_KD = 2.2f;
   */
+
+  // GR2018 : Màj paramètres asserv du 29/05/2018
+  robot.ASSERV_DISTANCE_KP = 0.06f;
+  robot.ASSERV_DISTANCE_KD = 0.3f;
+  robot.ASSERV_ROTATION_KP = 0.06f;
+  robot.ASSERV_ROTATION_KD = 0.4f;
+  
   
   robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
   
