@@ -1,17 +1,9 @@
-Adafruit GFX Library Built-in 1.1.5
-Adafruit_St7735 Built-in  Version inconnue
-FlexiTimer2 Built-in  Version inconnue
-Metro Built-in  Version inconnue
-SPI Built-in (by Arduino) 1.0.0
-
-Ethernet Built-in 1.1.1
-EEPROM Built-in 2.0.0
-
-
-
 Arduino > Paramètres > Afficher les résultats détaillés pendant : Compilation
 
+
 A la fin des logs de compilation :
+
+Arduino 1.6.8
 >>>>>
 Utilisation de la bibliothèque Adafruit_GFX version 1.1.5 dans le dossier: C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\Adafruit_GFX 
 Utilisation de la bibliothèque Adafruit_ST7735 prise dans le dossier : C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\Adafruit_ST7735 (legacy)
@@ -23,3 +15,19 @@ Utilisation de la bibliothèque EEPROM version 2.0 dans le dossier: C:\Program F
 Utilisation de la bibliothèque Servo version 1.1.2 dans le dossier: C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\Servo 
 Utilisation de la bibliothèque Bounce prise dans le dossier : C:\Program Files (x86)\Arduino\hardware\teensy\avr\libraries\Bounce (legacy)
 <<<<<
+
+
+
+Arduino 1.8.5 / Teensy 1.41
+* = différent de ci-dessus
+>>>>>
+*Utilisation de la bibliothèque Adafruit_GFX version 1.2.3 dans le dossier: C:\arduino-1.8.5\hardware\teensy\avr\libraries\Adafruit_GFX 
+Utilisation de la bibliothèque Adafruit_ST7735 prise dans le dossier : C:\arduino-1.8.5\hardware\teensy\avr\libraries\Adafruit_ST7735 (legacy)
+*Utilisation de la bibliothèque FlexiTimer2 version 1.1.0 dans le dossier: C:\arduino-1.8.5\hardware\teensy\avr\libraries\FlexiTimer2 
+Utilisation de la bibliothèque Metro prise dans le dossier : C:\arduino-1.8.5\hardware\teensy\avr\libraries\Metro (legacy)
+Utilisation de la bibliothèque SPI version 1.0 dans le dossier: C:\arduino-1.8.5\hardware\teensy\avr\libraries\SPI 
+*Utilisation de la bibliothèque Ethernet version 1.1.2 dans le dossier: C:\arduino-1.8.5\hardware\teensy\avr\libraries\Ethernet 
+Utilisation de la bibliothèque EEPROM version 2.0 dans le dossier: C:\arduino-1.8.5\hardware\teensy\avr\libraries\EEPROM 
+Utilisation de la bibliothèque Servo version 1.1.2 dans le dossier: C:\arduino-1.8.5\hardware\teensy\avr\libraries\Servo 
+Utilisation de la bibliothèque Bounce prise dans le dossier : C:\arduino-1.8.5\hardware\teensy\avr\libraries\Bounce (legacy)
+<<<<<<

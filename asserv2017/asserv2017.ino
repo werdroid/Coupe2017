@@ -52,14 +52,14 @@ void setup() {
   delay(1000);
   Serial.println("Demarrage dans 1s");
   delay(1000);
-  
+  /*
   if(SPI.pinIsSCK(12))
     Serial.println("Pin 12 is SCK");
   if(SPI.pinIsSCK(13))
     Serial.println("Pin 13 is SCK");
   if(SPI.pinIsSCK(14))
     Serial.println("Pin 14 is SCK");
-  
+  */
   
   Serial.println("Initialisation ecran");
   ecran_setup();
@@ -81,23 +81,23 @@ void setup() {
   }
   Serial.println("OK !");
   delay(1000);
-
+/*
   if(SPI.pinIsSCK(13))
     Serial.println("Pin 13 is SCK");
   if(SPI.pinIsSCK(14))
-    Serial.println("Pin 14 is SCK");
+    Serial.println("Pin 14 is SCK");*/
   
   Serial.println("Deplacement CLK...");
   SPI.setSCK(sclk); // après l'écran car il le remet sur le 13
   Serial.println("Done");
   delay(1000);
-  
+  /*
   if(SPI.pinIsSCK(12))
     Serial.println("Pin 12 is SCK");
   if(SPI.pinIsSCK(13))
     Serial.println("Pin 13 is SCK");
   if(SPI.pinIsSCK(14))
-    Serial.println("Pin 14 is SCK");
+    Serial.println("Pin 14 is SCK");*/
   
 
   // // Affectation de SCLK sur pin 14 au lieu de 13, après le init de l'écran
