@@ -51,7 +51,7 @@ var match = {
     if(match.termine[r] || match.enCours[r])
       return Math.trunc(((new Date().getTime()) - match.debut[r])/1000);
     else
-      return '-1';
+      return -1;
   }
 };
 
@@ -255,7 +255,13 @@ document.getElementById('bEffacerSection').addEventListener('click', function() 
   }
 });
 document.getElementById('bGenererJeuAleatoire').addEventListener('click', function() {
-	genererJeuAleatoire()
+	genererJeuAleatoire();
+});
+document.getElementById('bExtrairePR').addEventListener('click', function() {
+  donnees.extraireVersCSV(PR);
+});
+document.getElementById('bExtraireGR').addEventListener('click', function() {
+  donnees.extraireVersCSV(GR);
 });
 
 /*
@@ -390,6 +396,7 @@ setTimeout(function() {
   
   // Simulateur
   // changeSerialConnection(GR, 'simu');
+
 
 
 }, 500);

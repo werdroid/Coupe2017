@@ -46,6 +46,46 @@ void com_serial1_print(const char* str) {
 
 void com_print(const char* msg) { EM_ASM_({ traiterMessage($0 ? 0 : 1, Pointer_stringify($1));}, robot.IS_PR, msg); }
 
+uint8_t com_err2str(uint8_t error) {
+  switch(error) {
+    case OK:
+      com_printfln("OK");
+      break;
+    case ERROR_TIMEOUT:
+      com_printfln("! ERROR_TIMEOUT");
+      break;
+    case ERROR_OBSTACLE:
+      com_printfln("! ERROR_OBSTACLE");
+      break;
+    case ERROR_FIN_MATCH:
+      com_printfln("! ERROR_FIN_MATCH");
+      break;
+    case ERROR_CAS_NON_GERE:
+      com_printfln("! ERROR_CAS_NON_GERE");
+      break;
+    case ERROR_PARAMETRE:
+      com_printfln("! ##### ERROR_PARAMETRE #####");
+      break;
+    case ERROR_PAS_CODE:
+      com_printfln("! ERROR_PAS_CODE");
+      break;
+    case ERROR_PLUS_RIEN_A_FAIRE:
+      com_printfln("! ERROR_PLUS_RIEN_A_FAIRE");
+      break;
+    case ERROR_PAS_POSSIBLE:
+      com_printfln("! ERROR_PAS_POSSIBLE");
+      break;
+    case AUTRE:
+      com_printfln("! # AUTRE");
+      break;
+    default:
+      com_printfln("! ##### ERROR_??? : %d", error);
+  }
+  return error;
+}
+
+
+
 // Taille max d'un log, doit être le plus court possible, la communication prend du temps
 // Ls deux derniers caractères sont \n et \0
 constexpr uint8_t MAX_LOG_LEN = 80 + 2;
@@ -57,6 +97,17 @@ void com_printfln(const char* format, ...) {
   va_end(args);
   strcat(dest, "\n");
   com_print(dest);
+}
+
+// Termine par \0 (pas de \n). Max = 50 caractères
+constexpr uint8_t MAX_SERIAL1_LEN = 50 + 1;
+char dest_serial1[MAX_SERIAL1_LEN];
+void com_serial1_printf(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  vsnprintf(dest_serial1, MAX_SERIAL1_LEN, format, args);
+  va_end(args);
+  com_serial1_print(dest_serial1);
 }
 
 TrameMonitor trameMonitor;

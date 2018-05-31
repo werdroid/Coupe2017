@@ -63,6 +63,13 @@ void setup() {
   // CORE_PIN14_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); // Alt2=SPIO_SCK.  chip pin PTD1
 
   ecran_console_reset();
+  
+  // Date et heure de **compilation**
+  ecran_console_log(__DATE__);
+  ecran_console_log(" ");
+  ecran_console_log(__TIME__);
+  ecran_console_log("\n\n");
+  
   ecran_console_log("Ecran OK\n");
 
   ecran_console_log("Init W5200 mac/ip\n");

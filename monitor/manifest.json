@@ -11,7 +11,8 @@
     }
   },
   "permissions": [
-	  "serial"
+	  "serial",
+    {"fileSystem": ["write"]}
 	],
 
   "icons": { "128": "img/Logo.png" }

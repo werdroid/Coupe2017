@@ -8,6 +8,11 @@ const PR = 0;
 const GR = 1;
 */
 
+
+/** ========================
+   Structure et méthodes get
+   ========================= **/
+
 /**
 Ensemble des positions et destinations de chaque robot, à chaque instant
 
@@ -97,9 +102,62 @@ var donnees = {
     table.match.positions.ajouter(robot, id);
     table.match.destinations.ajouter(robot, id);
     curseur.definirMax(robot, id);
-  }
+  },
 
+
+  extraireVersCSV: function(robot) {
+    
+    if(donnees.d[robot].length == 0) {
+      log.monitor("Rien à exporter pour ce robot");
+      return;
+    }
+
+    exporterFichier("Monitor_" + (robot == PR ? 'PR' : 'GR') + "_", function() {
+      var param = ['t', 'tMatch', 'position', 'destination', 'stats', 'sick'];
+      var EOL = "\r\n";
+
+      // Données d'export
+      var file = (robot == PR ? 'PR' : 'GR') + EOL;
+      file += getDateStr() + EOL;
+
+      // En-têtes
+      file += EOL;
+      for(var p = 0; p < param.length; p++) {
+        if(typeof donnees.d[robot][0][param[p]] === "object") {
+          for(var key in donnees.d[robot][0][param[p]]) {
+            file += param[p] + '.' + key + ';';
+          }
+        }
+        else {
+          file += param[p] + ';';
+        }
+      }
+      file += EOL;
+
+      // Données
+      for(var i = 0; i < donnees.d[robot].length; i++) {
+        for(var p = 0; p < param.length; p++) {
+          if(typeof donnees.d[robot][i][param[p]] === 'object') {
+            for(var key in donnees.d[robot][i][param[p]]) {
+              file += donnees.d[robot][i][param[p]][key] + ';';
+            }
+          }
+          else {
+            file += donnees.d[robot][i][param[p]] + ';';
+          }
+        }
+        file += EOL;
+      }
+
+      return file;
+   });
+  }
 }
+
+
+/** ==============
+   Enregistrements
+   =============== **/
 
 // La trame monitor contient des infos sur le robot
 // en binaire via un buffer, il faut parser cela puis
@@ -303,3 +361,53 @@ var traiterData = function(robot, trame) {
       log.monitor(action[1] + ' inconnue (en provenance de ' + r + '.');
   }
 }
+
+
+/** =====
+   Export
+   ====== **/
+
+//document.getElementById('bExporterPoints').addEventListener('click', function() {
+var getDateStr = function() {
+  var twoDigits = function(nb) {
+    return (nb < 10 ? '0' + nb : nb);
+  }
+
+  var date = new Date();
+  return date.getFullYear() + '-' + twoDigits(date.getMonth()+1) + '-' + twoDigits(date.getDate()) + '_' + twoDigits(date.getHours()) + twoDigits(date.getMinutes()) + twoDigits(date.getSeconds());
+}
+
+var exporterFichier = function(prefixe, fonctionEcriture) {
+  chrome.fileSystem.chooseEntry({
+      type: 'saveFile',
+      suggestedName: prefixe + getDateStr() + '.csv',
+      accepts: [ { description: 'Fichier csv (*.csv)',
+                   extensions: ['csv']} ],
+      acceptsAllTypes: true
+    },
+
+    function(fileEntry) {
+      //savedFileEntry = fileEntry;
+
+      // Use this to get a file path appropriate for displaying
+      var pathFichier;
+      chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
+        pathFichier = path;
+        log.monitor('Export vers ' + path);
+      });
+      
+      fileEntry.createWriter(function(fileWriter) {
+        fileWriter.onwriteend = function(e) {
+          log.monitor('Terminé');
+        };
+
+        fileWriter.onerror = function(e) {
+          log.monitor('Echec : '+e.toString());
+        };
+
+        fileWriter.write(new Blob([fonctionEcriture()]));
+      });
+    });
+
+}
+
