@@ -994,6 +994,11 @@ uint8_t gr_vider_REM_opp() {
   score_incrementer(10); //10 pts pour REP ouvert + vidé d'au moins une balle
   
   // TODO : Trembler ?
+  // Proposition ATN pour faire trembler : trembler sur axe Y
+  for(int i = 1; i < 3; i++) {
+    aller_xy(positionnementX, 1845, VITESSE_RAPIDE, 0, 3000, 3); //reculer de 5 mm
+    aller_xy(positionnementX, 1850, VITESSE_RAPIDE, 1, 3000, 3); //avancer de 5 mm, choc butée table
+  }
   
   // /!\  --Ecoulement des balles pour cas sans tri
   minuteur_attendre(5000);  
@@ -1005,10 +1010,10 @@ uint8_t gr_vider_REM_opp() {
   
   // Dégagement
   error = aller_xy(positionnementX, 1750, VITESSE_RAPIDE, 0, 3000, 3); //dégagement pour cas sans tri
-  //error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 0, 8000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
-  // Pas de sous-gestion de l'erreur.
   piloter_tri_eau(TRI_NEUTRE, false, true);
-    
+  error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 0, 8000, 3); // Dégagement par l'arrière pour la rotation vers l'action suivante
+  // Pas de sous-gestion de l'erreur.
+      
   return OK;
 }
 
@@ -1111,16 +1116,16 @@ uint8_t gr_deposer_station(bool y_aller_meme_si_rien_a_faire) {
   gr_nb_tentatives[ACTION_DEPOSER_STATION]++;
   
   // Initialisation de l'action
-  error = aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 1, 8000, 10);
+  error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 1, 8000, 10); //notre station est dans le côté opposé
   if (error) return error;
 
   // Réalisation de l'action
-  error = aller_xy(1300, 1500, VITESSE_LENTE, 1, 4000, 3); //se déplacer davantage pour dégager les cubes
-  error = aller_xy(1190, 1500, VITESSE_RAPIDE, 0, 4000, 3); //=aller à P7
+  error = aller_xy(1700, 1500, VITESSE_LENTE, 1, 4000, 3); //se déplacer davantage pour dégager les cubes
+  error = aller_xy(1810, 1500, VITESSE_RAPIDE, 0, 4000, 3);
   if (error) return error;
-  error = asserv_rotation_vers_point(1190, 0);
+  error = asserv_rotation_vers_point(1810, 0);
   if (error) return error;
-  error = aller_xy(1190, 1595, VITESSE_LENTE, 0, 4000, 3); //on recule vers la station
+  error = aller_xy(1810, 1700, VITESSE_LENTE, 0, 4000, 3); //on recule vers la station
   
   // --Largage 
   piloter_evacuation_eaux_usees(EEU_OUVRIR, true, true); //ouvrir trappe
@@ -1128,7 +1133,7 @@ uint8_t gr_deposer_station(bool y_aller_meme_si_rien_a_faire) {
   piloter_evacuation_eaux_usees(EEU_BLOQUER, false, true); //fermer trappe
 
   // Dégagement
-  error = aller_xy(1190, 1500, VITESSE_RAPIDE, 1, 3000, 3); // Dégagement par l'avant
+  error = aller_xy(1810, 1500, VITESSE_RAPIDE, 1, 3000, 3); // Dégagement par l'avant
   // Pas de sous-gestion de l'erreur. Eau déposée.
 
   score_incrementer(10*nb_balles_eau_usee_dans_gr);
