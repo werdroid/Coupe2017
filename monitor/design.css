@@ -45,7 +45,14 @@ section {
 
 /**** Flex Box ****/
 /**
-Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/Utilisation_des_flexbox_en_CSS **/
+Rappels :
+https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/Utilisation_des_flexbox_en_CSS 
+https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+**/
+.flexRow {
+  display: flex;
+}
+
 #main {
   display: flex;
   flex-direction: column;
@@ -64,9 +71,12 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 	overflow: hidden;
 }
 #sRobot0, #sRobot1 {
+	/* Réglages flex-item */
 	flex: 1 0 140px; /* Se répartissent l'espace restant sans pouvoir se réduire, avec une base de 140px */
 	overflow: hidden;
-  display: flex;
+    
+    /* Réglages flex-conteneur */
+    display: flex;
 	flex-direction: column;
 }
 
@@ -84,7 +94,7 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 }
 
 #flexBoxBas {
-	display: flex;
+  display: flex;
 }
 #sLogMonitor {
   flex: 1 0 auto;
@@ -94,33 +104,85 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
   min-width: 600px;
 }
 #sActionsMonitor {
-	flex: 0;
-	display: flex;
-	flex-direction: column;
+  flex: 0;
+  display: flex;
+  flex-direction: column;
 }
+
+
+/*** OptionsA (Extraire + Envoi des messages) ***/
+.optionsRobotA {
+  /* flex-item */
+  flex: 0 0 auto;
+
+  /* flex-conteneur */
+  display: flex;
+  margin: 5px 0px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #dddddd;
+}
+.optionsRobotA * {
+  font-size: 0.9em;
+}
+#msg0, #msg1 {
+  flex: 1 2 auto;
+  border: 0;
+  /*background-color: rgb(240,240,240);*/
+  border: 1px solid #dddddd;
+}
+
+.bExport {
+  text-align: left;
+  border: 0px;
+  /*border-right: 1px solid #f0f0f0;*/
+  flex: 2 1 auto;
+  background: none;
+  /*margin-right: 30px;*/
+  padding: 0px 3px;
+  color: #bbbbbb;
+}
+#bExtrairePR:hover { color: blue; }
+#bExtraireGR:hover { color: orange; }
 
 
 /********************/
 
 
 #led0, #led1 {
-	position: absolute;
+    position: absolute;
 	top: 0px;
-	bottom: 0px;
+	height: 20px;
 	right: 0px;
 	width: 20px;
-	height: 20px;
 	/*border-radius: 10px;*/
 }
-#led0.off { background-color: #dddddd; }
-#led0.on { background-color: blue; }
-#led1.off { background-color: #dddddd; }
-#led1.on { background-color: orange; }
+
+.cpu_box {
+  position: absolute;
+  right: 23px;
+  top: 0px;
+  background-color: #eeeeee;
+  height: 20px;
+  width: 10px;
+}
+#cpu0, #cpu1 {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  height: 0%;
+}
+
+#led0.off, #led1.off { background-color: #dddddd; }
+#led0.on, #cpu0 { background-color: blue; }
+#led1.on, #cpu1 { background-color: orange; }
+
+.bExport:hover { cursor: pointer; }
 
 #logRobot0, #logRobot1 {
   flex-grow: 1;
-	overflow-y: auto;
-	word-wrap: break-word;
+  overflow-y: auto;
+  word-wrap: break-word;
 }
 
 .logMsg.highlight {
@@ -129,6 +191,9 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 
 .logMsg[data-evenement]:hover {
   background-color: lightgreen;
+}
+.msgSent {
+  background-color: #f3f3f3;
 }
 
 .infoTimer, #valeurTMatch0, #valeurTMatch1 {
@@ -174,8 +239,8 @@ Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/
 }
 
 #logMonitor {
-	/*height: 150px;*/
-	overflow-y: auto;
+  /*height: 150px;*/
+  overflow-y: auto;
 }
 
 

@@ -3,7 +3,6 @@
 const uint EEPROM_ADDRESS_SELECT = 0;
 const uint EEPROM_ADDRESS_COULEUR = 1;
 const uint EEPROM_ADDRESS_PROGRAMME = 2;
-const uint EEPROM_ADDRESS_ROULEAUX = 3;
 
 int menu_input_up();
 void match_start();
@@ -16,8 +15,8 @@ void menu_start() {
 
   // Récupération depuis la mémoire permanente
   robot.symetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
+  robot.estVert = !robot.symetrie;
   robot.programme = EEPROM.read(EEPROM_ADDRESS_PROGRAMME);
-  robot.rouleaux_actifs = EEPROM.read(EEPROM_ADDRESS_ROULEAUX);
   int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
 
   ecran_print_menu(selectPosition);
@@ -66,15 +65,14 @@ void menu_start() {
           break;
           
         case 3:
-          gr_fusee_init();
-          static bool open = 0;
-          if (open) {
-            gr_fusee_fermer();
-            open = 0;
-          } else {
-            gr_fusee_ouvrir();
-            open = 1;
+          // Menu libre
+          if(robot.propulseur_actif) {
+            gr_activer_propulseur(false);
           }
+          else {
+            gr_activer_propulseur(true);
+          }
+          ecran_print_menu(selectPosition);
           break;
           
         case 4:
@@ -107,6 +105,7 @@ void menu_start() {
             case 1:
               ecran_console_log("30cm en avant");
               robot.activeRotation = 0;
+              asserv_set_position(1000, 1000, 0);
               quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
               asserv_consigne_polaire_delta(300, 0);
               for(;;);
@@ -122,25 +121,30 @@ void menu_start() {
               
             case 4:
               ecran_console_log("Homologation");
-              /*if(robot.IS_PR)
+              if(robot.IS_PR)
                 homologation_pr();
-              else*/
+              else
                 homologation_gr();
               break;
             
             case 5:
-              ecran_console_log("Coucou");
-              gr_coucou();
+              if(robot.IS_PR) {
+                ecran_console_log("Coucou");
+                gr_coucou();
+              }
+              else {
+                ecran_console_log("Test 1");
+                test1_gr();
+              }
               break;
               
             case 6:
-              ecran_console_log("30cm en avant");
+              ecran_console_log("Demo A/R");
               demo_allers_retours();
               break;
              
-            case 7:
+            case 7:  
               // Libre
-              
               ecran_console_log("On avait pourtant\n");
               ecran_console_log("dit de ne pas\n");
               ecran_console_log("cliquer...\n\n");
@@ -154,7 +158,11 @@ void menu_start() {
           break;
           
         case 7:
+          // Active l'envoi de données pour le Monitor Sick
+          // Objectif purement démonstratif. Aucun programme ne doit être lancé avec le MonitorSick actif
           robot.activer_monitor_sick = !robot.activer_monitor_sick;
+          ecran_console_reset();
+          ecran_console_log("Monitor Sick ACTIF");
           if(robot.activer_monitor_sick) {
             asserv_set_position(1500, 1000, MATH_PI2);
             asserv_maintenir_position();
@@ -162,7 +170,8 @@ void menu_start() {
           break;
           
         case 8:
-          // Menu libre
+          // Réglage de l'asserv
+          asserv_reglage_constantes();
           break;
       }
     }
@@ -203,11 +212,8 @@ void match_start() {
 void match_changer_couleur() {
   robot.symetrie = !robot.symetrie;
   EEPROM.write(EEPROM_ADDRESS_COULEUR, robot.symetrie);
-}
-
-void match_activer_rouleaux() {
-  robot.rouleaux_actifs = !robot.rouleaux_actifs;
-  EEPROM.write(EEPROM_ADDRESS_ROULEAUX, robot.rouleaux_actifs);
+  
+  robot.estVert = !robot.symetrie;
 }
 
 void menu_changer_programme() {

@@ -23,6 +23,114 @@ void asserv_setup() {
   quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
 }
 
+void asserv_reglage_constantes() {
+  ecran_console_reset();
+  ecran_console_log("Regler Asserv\n");
+  ecran_console_log("\n");
+  ecran_console_log("X Ne maintenir que\n");
+  ecran_console_log("   la rotation\n");
+  ecran_console_log("A Kp_rotation\n");
+  ecran_console_log("B Kd_rotation\n");
+  ecran_console_log("\n");
+  ecran_console_log("Y Ne maintenir que\n");
+  ecran_console_log("   la distance\n");
+  ecran_console_log("C Kp_distance\n");
+  ecran_console_log("D Kd_distance\n\n");
+  ecran_console_log("Z Tout maintenir\n");
+  ecran_console_log("\n");
+  ecran_console_log("G Afficher tout\n");
+  
+  asserv_set_position(1500, 1000, 0);
+  
+  asserv_maintenir_position();
+  
+  char etape;
+  float valeur;
+  char str_valeur[7]; // Utilisé pour convertir float en str
+  
+  while(1) {
+    // Les paramètres sont transmis sous la forme
+    // <lettre><valeur>
+    // La lettre permet de savoir à quel paramètre correspond la valeur envoyée
+    
+    if(Serial.available() > 0) {
+      etape = toupper(Serial.read());
+      
+      switch(etape) {
+        case 'A': // Réglage Kp rotation
+          valeur = constrain(Serial.parseFloat(), 0, 10);
+          robot.ASSERV_ROTATION_KP = valeur;
+          
+          // Arduino ne peut afficher %f directement
+          // Voir https://stackoverflow.com/a/27652012
+          dtostrf(robot.ASSERV_ROTATION_KP, 4, 3, str_valeur);
+          com_printfln("Kp_r = %s", str_valeur);
+          break;
+          
+        case 'B': // Réglage Kd rotation
+          valeur = constrain(Serial.parseFloat(), 0, 10);
+          robot.ASSERV_ROTATION_KD = valeur;
+          
+          dtostrf(robot.ASSERV_ROTATION_KD, 4, 3, str_valeur);
+          com_printfln("Kd_r = %s", str_valeur);
+          break;
+          
+        case 'C': // Réglage Kp distance
+          valeur = constrain(Serial.parseFloat(), 0, 10);
+          robot.ASSERV_DISTANCE_KP = valeur;
+          
+          dtostrf(robot.ASSERV_DISTANCE_KP, 4, 3, str_valeur);
+          com_printfln("Kp_d = %s", str_valeur);
+          break;
+          
+        case 'D': // Réglage Kd distance
+          valeur = constrain(Serial.parseFloat(), 0, 10);
+          robot.ASSERV_DISTANCE_KD = valeur;
+          
+          dtostrf(robot.ASSERV_DISTANCE_KD, 4, 3, str_valeur);
+          com_printfln("Kd_d = %s", str_valeur);
+          break;
+        
+        case 'G': // Afficher tout
+          dtostrf(robot.ASSERV_ROTATION_KP, 4, 3, str_valeur);
+          com_printfln("A.  Kp_r = %s", str_valeur);
+          dtostrf(robot.ASSERV_ROTATION_KD, 4, 3, str_valeur);
+          com_printfln("B.  Kd_r = %s", str_valeur);
+          dtostrf(robot.ASSERV_DISTANCE_KP, 4, 3, str_valeur);
+          com_printfln("C.  Kp_d = %s", str_valeur);
+          dtostrf(robot.ASSERV_DISTANCE_KD, 4, 3, str_valeur);
+          com_printfln("D.  Kd_d = %s", str_valeur);
+          break;
+        
+        case 'X': // Ne maintenir que la rotation
+          robot.activeDistance = 0; 
+          robot.activeRotation = 1;
+          com_printfln("Ne maintenir que la rotation");
+          break;
+          
+        case 'Y': // Ne maintenir que la distance
+          robot.activeDistance = 1; 
+          robot.activeRotation = 0;
+          com_printfln("Ne maintenir que la distance");
+          break;
+          
+        case 'Z': // Tout maintenir
+          robot.activeDistance = 1; 
+          robot.activeRotation = 1;
+          com_printfln("On maintient tout");
+          break;
+        
+        default:
+          com_printfln("! Caractère non reconnu: %c", etape);
+      }
+    }
+    
+    delay(DT_MS);
+
+  }
+}
+
+
 /*******************************************************************************
   Haut niveau
  *******************************************************************************/
@@ -74,7 +182,7 @@ uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_
     // fin
     result = OK;
     asserv_consigne_polaire_delta(erreurDistance, 0);
-  } else if (D1 < erreurNorme && erreurNorme < D2) {
+  } else if (D2 < erreurNorme && erreurNorme < D1) {
     // distance seule car on est trop proche du point
     asserv_consigne_polaire_delta(erreurDistance, 0);
   } else if (abs(erreurAngleRad) > 0.5) {// 30/180*pi=0.5rad   10/180*pi=0.17rad
@@ -109,6 +217,7 @@ uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t time
   robot.consigneYmm = consigne_y_mm;
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     result = asserv_consigne_xy(consigne_x_mm, consigne_y_mm, uniquement_avant);
 
@@ -124,8 +233,8 @@ uint8_t asserv_go_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t time
     }
 
     if (robot.sickObstacle) {
-      com_printfln("#-----OBSTACLE");
       asserv_maintenir_position();
+      com_printfln("#-----OBSTACLE");
       tone_play_alert();
       return ERROR_OBSTACLE;
     }
@@ -156,7 +265,7 @@ uint8_t asserv_go_toutdroit(int32_t consigne_mm, uint16_t timeout) {
 }
 
 /**
- * Regarde vers le point indiqué X,Y en mm.
+ * Le robot va regarder vers le point (x_mm,y_mm)
  * Retour bloquant jusqu'à:
  * - OK
  * - ERROR_TIMEOUT
@@ -167,14 +276,10 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
   int32_t x = mm2tick(symetrie_x(x_mm));
   int32_t y = mm2tick(y_mm);
 
-  // le vecteur à faire
-  int32_t vx = x - robot.x;
-  int32_t vy = y - robot.y;
-
-  float angleVersPoint = atan2(vy, vx); // [-pi, +pi] radians
+  float angleAfaire = angle_relatif_robot_point(robot.x, robot.y, robot.a, x, y);
 
   robot.sans_symetrie = 1; // on fait déjà une symétrie sur x au dessus.
-  uint8_t ret = asserv_rotation_relative(angleVersPoint, timeout);
+  uint8_t ret = asserv_rotation_relative(angleAfaire, timeout);
   robot.sans_symetrie = 0;
   return ret;
 }
@@ -190,7 +295,7 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
 
 uint8_t asserv_distance(int32_t distance_mm, uint16_t timeout) {
   elapsedMillis timer;
-  asserv_consigne_polaire_delta(mm2tick(distance_mm), 0);
+  asserv_consigne_polaire_delta(distance_mm, 0);
 
   // On active seulement la distance sans la rotation
   // pour pouvoir se plaquer contre la bordure
@@ -199,6 +304,7 @@ uint8_t asserv_distance(int32_t distance_mm, uint16_t timeout) {
   robot.activeRotation = 0;
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     int32_t erreur = abs(robot.distance - robot.consigneDistance);
     int32_t marge_distance = mm2tick(20);
@@ -230,6 +336,7 @@ uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout) {
   int32_t marge_erreur_rotation = radian_vers_orientation(0.3);
 
   while (1) {
+    minuteur_arreter_tout_si_fin_match();
     synchronisation();
     int32_t erreur = abs(robot.rotation - robot.consigneRotation);
 
@@ -254,8 +361,7 @@ uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout) {
 void asserv_maintenir_position() {
   robot.activeDistance = 1;
   robot.activeRotation = 1;
-  robot.consigneDistance = robot.distance;
-  robot.consigneRotation = robot.rotation;
+  asserv_consigne_polaire_delta(0, 0);
 }
 
 // Vitesse en tick par delta t
@@ -316,7 +422,7 @@ void asserv_maj_position() {
   robot.rotation = radian_vers_orientation(rotation_initiale) + robot.codeurGauche - robot.codeurDroite;
 
   robot.delta_d = robot.distance - distance_precedente;
-  robot.delta_r = robot.rotation - rotation_precedente;
+  robot.delta_r = robot.rotation - rotation_precedente; // Rmq RSE 20/05/2018 : Cette variable n'est jamais utilisée
 
   int32_t rotation_moyenne = (robot.rotation + rotation_precedente) / 2;
   float rotation_moyenne_radian = orientation_vers_radian(rotation_moyenne);
@@ -364,9 +470,20 @@ void asserv_loop() {
   // robot.asserv_mode == ASSERV_MODE_POLAIRE
 
   // l'erreur correspond aussi au patinage, plus il augmente plus l'accélération devrait être baissée
-  robot.erreurDistance = quadramp_do_filter(&robot.ramp_distance, robot.consigneDistance) - robot.distance;
-  // robot.erreurDistance = robot.consigneDistance - robot.distance;
-  robot.erreurRotation = quadramp_do_filter(&robot.ramp_rotation, robot.consigneRotation) - robot.rotation;
+  //robot.erreurDistance = quadramp_do_filter(&robot.ramp_distance, robot.consigneDistance) - robot.distance;
+  //robot.erreurRotation = quadramp_do_filter(&robot.ramp_rotation, robot.consigneRotation) - robot.rotation;
+  
+  /* Pas de rampe :
+    Avantages:
+    - PID plus facile à config et plus stable, c'est lui la priorité
+    - le bug de début de match
+    Inconvénient:
+    - patinage, négligeable mais à tester
+    - mouvements plus brusques, mais on peut réduire la PWM
+  A valider par tests complémentaires
+  */
+  robot.erreurDistance = robot.consigneDistance - robot.distance;
+  robot.erreurRotation = robot.consigneRotation - robot.rotation;
 
   int32_t pwmDistance = 0;
   int32_t pwmRotation = 0;

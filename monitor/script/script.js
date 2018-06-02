@@ -8,8 +8,11 @@ var elem = {
   },
   infoTable: document.getElementById('infoTable'),
   table: document.getElementById('table'), // utiliser table.elem pour celui-là
+  cpu: [document.getElementById('cpu0'), document.getElementById('cpu1')],
   led: [document.getElementById('led0'), document.getElementById('led1')],
   obstacle: [document.getElementById('obstacle0'), document.getElementById('obstacle1')],
+  msg: [document.getElementById('msg0'), document.getElementById('msg1')],
+  bSendMsg: [document.getElementById('bSendMsg0'), document.getElementById('bSendMsg1')],
   curseur: [document.getElementById('curseurTMatch0'), document.getElementById('curseurTMatch1')],
   valeurCurseur: [document.getElementById('valeurTMatch0'), document.getElementById('valeurTMatch1')]
 }
@@ -50,7 +53,7 @@ var match = {
     if(match.termine[r] || match.enCours[r])
       return Math.trunc(((new Date().getTime()) - match.debut[r])/1000);
     else
-      return '-1';
+      return -1;
   }
 };
 
@@ -186,6 +189,7 @@ var log = {
   
 }
 
+
 elem.log.robot[0].addEventListener('mouseover', log.reperer);
 elem.log.robot[1].addEventListener('mouseover', log.reperer);
 
@@ -254,7 +258,38 @@ document.getElementById('bEffacerSection').addEventListener('click', function() 
   }
 });
 document.getElementById('bGenererJeuAleatoire').addEventListener('click', function() {
-	genererJeuAleatoire()
+	genererJeuAleatoire();
+});
+document.getElementById('bExtrairePR').addEventListener('click', function() {
+  donnees.extraireVersCSV(PR);
+});
+document.getElementById('bExtraireGR').addEventListener('click', function() {
+  donnees.extraireVersCSV(GR);
+});
+
+/** Envoi d'un message **/
+var sendMsg = function(robot) {
+  var msg = elem.msg[robot].value;
+  if(msg == '') {
+    log.robot(robot, '[Dites qqch]', 'msgSent');
+  }
+  else {
+    log.robot(robot, '> ' + msg, 'msgSent');
+    elem.msg[robot].value = '';
+    elem.msg[robot].focus();
+    
+    connection[robot].send(msg);
+  }
+}
+elem.bSendMsg[PR].addEventListener('click', function(event) { sendMsg(PR) });
+elem.bSendMsg[GR].addEventListener('click', function(event) { sendMsg(GR) });
+elem.msg[PR].addEventListener('keydown', function(event) {
+  if(event.keyCode == 13)
+      sendMsg(PR);
+});
+elem.msg[GR].addEventListener('keydown', function(event) {
+  if(event.keyCode == 13)
+      sendMsg(GR);
 });
 
 /*
@@ -388,7 +423,8 @@ setTimeout(function() {
   //genererJeuAleatoire();
   
   // Simulateur
-  changeSerialConnection(GR, 'simu');
+  // changeSerialConnection(GR, 'simu');
+
 
 
 }, 500);
