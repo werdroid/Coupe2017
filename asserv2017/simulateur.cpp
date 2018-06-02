@@ -38,10 +38,53 @@ void ecran_console_reset() {
 
 void ecran_console_log(const char* message) {
   com_printfln("ECRAN: %s", message);
-  return;
+}
+
+void com_serial1_print(const char* str) {
+  com_printfln("SERIAL1: %s", str);
 }
 
 void com_print(const char* msg) { EM_ASM_({ traiterMessage($0 ? 0 : 1, Pointer_stringify($1));}, robot.IS_PR, msg); }
+
+uint8_t com_err2str(uint8_t error) {
+  switch(error) {
+    case OK:
+      com_printfln("OK");
+      break;
+    case ERROR_TIMEOUT:
+      com_printfln("! ERROR_TIMEOUT");
+      break;
+    case ERROR_OBSTACLE:
+      com_printfln("! ERROR_OBSTACLE");
+      break;
+    case ERROR_FIN_MATCH:
+      com_printfln("! ERROR_FIN_MATCH");
+      break;
+    case ERROR_CAS_NON_GERE:
+      com_printfln("! ERROR_CAS_NON_GERE");
+      break;
+    case ERROR_PARAMETRE:
+      com_printfln("! ##### ERROR_PARAMETRE #####");
+      break;
+    case ERROR_PAS_CODE:
+      com_printfln("! ERROR_PAS_CODE");
+      break;
+    case ERROR_PLUS_RIEN_A_FAIRE:
+      com_printfln("! ERROR_PLUS_RIEN_A_FAIRE");
+      break;
+    case ERROR_PAS_POSSIBLE:
+      com_printfln("! ERROR_PAS_POSSIBLE");
+      break;
+    case AUTRE:
+      com_printfln("! # AUTRE");
+      break;
+    default:
+      com_printfln("! ##### ERROR_??? : %d", error);
+  }
+  return error;
+}
+
+
 
 // Taille max d'un log, doit être le plus court possible, la communication prend du temps
 // Ls deux derniers caractères sont \n et \0
@@ -56,6 +99,17 @@ void com_printfln(const char* format, ...) {
   com_print(dest);
 }
 
+// Termine par \0 (pas de \n). Max = 50 caractères
+constexpr uint8_t MAX_SERIAL1_LEN = 50 + 1;
+char dest_serial1[MAX_SERIAL1_LEN];
+void com_serial1_printf(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  vsnprintf(dest_serial1, MAX_SERIAL1_LEN, format, args);
+  va_end(args);
+  com_serial1_print(dest_serial1);
+}
+
 TrameMonitor trameMonitor;
 void com_send_robot_state() {
   trameMonitor.millis = millis();
@@ -63,13 +117,15 @@ void com_send_robot_state() {
   trameMonitor.xMm = robot.xMm; // mm
   trameMonitor.yMm = robot.yMm; // mm
   trameMonitor.isPR = robot.IS_PR;
+  trameMonitor.led_state = robot.led_state;
 
   EM_ASM_({
     var ptr = $0;
     var size = $1;
+    var robot = $2 ? 0 : 1;
     var buffer = Module.HEAPU8.buffer.slice(ptr, ptr + size);
-    traiterTrameMonitor(buffer);
-  }, &trameMonitor, sizeof(trameMonitor));
+    traiterTrameMonitor(robot, buffer);
+  }, &trameMonitor, sizeof(trameMonitor), robot.IS_PR);
 }
 
 void bouton_start_down() {}
@@ -91,7 +147,7 @@ void asserv_consigne_pwm(uint16_t gauche, uint16_t droite) {}
 void asserv_consigne_polaire(int32_t distance, int32_t rotation) {}
 void asserv_consigne_polaire_delta(int32_t distance_mm_delta, float rotation_rad_delta) {}
 uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant) {
-  
+
   // le vecteur à faire
   int32_t vx = consigne_x_mm - robot.xMm; // mm
   int32_t vy = consigne_y_mm - robot.yMm; // mm
@@ -109,7 +165,7 @@ uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_
     com_send_robot_state(); // données changées donc on envoie au monitor
   }
   */
-  
+
   robot.xMm = consigne_x_mm;
   robot.yMm = consigne_y_mm;
   com_send_robot_state(); // données changées donc on envoie au monitor

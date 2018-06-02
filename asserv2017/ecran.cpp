@@ -41,12 +41,12 @@ void ecran_print_menu(int selector) {
     "\n\n   Demarrer match __",
     "\n\n   Couleur:    _____",
     "\n\n   (Libre 2)        ",
-    "\n\n   Servo Fusee      ",
+    "\n\n   Ejecter       ___",
     "\n\n   (Libre 4)        ",
     "\n\n   Prg: ____________",
     "\n\n   Demarrer Program.",
     "\n\n   Monitor Sick  ___",
-    "\n\n   (Libre 8)        "
+    "\n\n   Regler Asserv    "
   };
 
 
@@ -59,12 +59,21 @@ void ecran_print_menu(int selector) {
   }
 
   // Menu 1 : Couleur
-  if(robot.symetrie) {
-    optionsMenu[1] = "\n\n   Couleur:    JAUNE";
-    couleur_robot = ST7735_YELLOW;
+  // BLACK BLUE RED MAGENTA GREEN CYAN YELLOW WHITE
+  if(robot.estVert) {
+    optionsMenu[1] = "\n\n   Couleur:     VERT";
+    couleur_robot = ST7735_GREEN;
   } else {
-    optionsMenu[1] = "\n\n   Couleur:     BLEU";
-    couleur_robot = ST7735_BLUE;
+    optionsMenu[1] = "\n\n   Couleur:   ORANGE";
+    couleur_robot = ST7735_YELLOW;
+  }
+  
+  // Menu 3 : Ejection
+  if(robot.propulseur_actif) {
+    optionsMenu[3] = "\n\n   Ejecter        ON";
+  }
+  else {
+    optionsMenu[3] = "\n\n   Ejecter       OFF";
   }
 
   // Menu 5 : Affichage du programme sélectionné
@@ -75,7 +84,12 @@ void ecran_print_menu(int selector) {
     case 2: optionsMenu[5] = "\n\n   Prg:  Tourner x10"; break;
     case 3: optionsMenu[5] = "\n\n   Prg: Part/Revient"; break;
     case 4: optionsMenu[5] = "\n\n   Prg: Homologation"; break;
-    case 5: optionsMenu[5] = "\n\n   Prg:       Coucou"; break;
+    case 5:
+      if(robot.IS_PR)
+        optionsMenu[5] = "\n\n   Prg:       Coucou";
+      else
+        optionsMenu[5] = "\n\n   Prg:        Test1";
+      break;
     case 6: optionsMenu[5] = "\n\n   Prg:     Demo A/R"; break;
     case 7: optionsMenu[5] = "\n\n   Prg:   DO NOT USE"; break;
   }
@@ -135,6 +149,12 @@ void ecran_print_menu(int selector) {
   int x = -25, y = selector*16 + 14;
   int offsetY = 0; // 35
   tft.fillTriangle(30 + x, offsetY + y, 30 + x, offsetY + y + 10, 35 + x, offsetY + y + 5, ST7735_BLACK);
+
+  
+  
+  // Envoi du menu visé par le sélecteur sur le com pour contourner problème d'écran chez Antoine.
+  com_printfln("%s <<<< [%d] <<<< Menu", (optionsMenu[selector]).c_str(), selector);
+  
 }
 
 void ecran_print_menu_status() {

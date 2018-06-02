@@ -6,7 +6,6 @@
 // LED activity
 // ####################################
 
-static uint8_t led_state = 1;
 static Metro metro = Metro(0);
 
 void led_setup() {
@@ -18,9 +17,8 @@ void led_setup() {
 
 void led_update() {
   if (metro.check()) {
-    led_state = 1 - led_state;
-    digitalWrite(PIN_DOUT_LED_INTERN, led_state);
-    com_printfln("#LedChange");
+    robot.led_state = 1 - robot.led_state;
+    digitalWrite(PIN_DOUT_LED_INTERN, robot.led_state);
   }
 }
 

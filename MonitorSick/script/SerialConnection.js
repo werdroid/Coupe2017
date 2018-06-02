@@ -65,7 +65,7 @@ SerialConnection.prototype.onReceive = function(receiveInfo) {
     return;
   }
 
-var buffer = receiveInfo.data;
+  var buffer = receiveInfo.data;
   var bufView = new Uint8Array(buffer);
   
   // la trame reçue est une trame "robot state" qui contient du binaire
