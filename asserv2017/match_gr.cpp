@@ -592,10 +592,10 @@ void match_gr() {
     
   } // Fin de la première partie !
   
-  /*
+  
   // Allons chez l'adversaire...
   com_printfln("=== Phase 2 ===");
-  
+  /*
   nb_iterations = 0;
   action = len_phase2;
   while(1) {
@@ -625,13 +625,14 @@ void match_gr() {
       if(nb_balles_eau_usee_dans_gr == 0) {
         break;
       }*/
-    /*  break;
+      /*
+      break;
     }
     
     
   }
-  */
-  gr_deposer_station(true);
+  
+  gr_deposer_station(true); */
   piloter_evacuation_eaux_usees(EEU_OUVRIR);
   
 

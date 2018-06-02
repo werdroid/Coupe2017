@@ -182,7 +182,7 @@ void match_pr() {
   int action_avancement[NOMBRE_ACTIONS] = { 0 };
 
   
-  delay(8000);
+  minuteur_attendre(3000);
 
   
   com_printfln("Sort de la zone de départ");
