@@ -417,6 +417,7 @@ void bouton_wait_select_up();
 
 // Asserv
 void asserv_setup();
+void asserv_reglage_constantes();
 void asserv_loop();
 void asserv_maj_position();
 void asserv_set_position(int32_t x, int32_t y, float a);

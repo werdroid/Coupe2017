@@ -144,22 +144,13 @@ void menu_start() {
               break;
              
             case 7:  
-              ecran_console_log("Maintenir Position");
-              asserv_set_position(1500, 1000, 0);
-              minuteur_demarrer();
-              asserv_maintenir_position();
-              robot.activeDistance = 0; // Pour ne maintenir que la rotation
-              // robot.activeRotation = 0; // Pour ne maintenir que la distance
-              while(1) delay(DT_MS);
-
               // Libre
-              /*
               ecran_console_log("On avait pourtant\n");
               ecran_console_log("dit de ne pas\n");
               ecran_console_log("cliquer...\n\n");
               ecran_console_log("Il ne se passera\n");
               ecran_console_log("rien, vous pouvez\n");
-              ecran_console_log("redemarrer.\n");*/
+              ecran_console_log("redemarrer.\n");
               break;
           
           }
@@ -179,7 +170,8 @@ void menu_start() {
           break;
           
         case 8:
-          // Menu libre
+          // Réglage de l'asserv
+          asserv_reglage_constantes();
           break;
       }
     }

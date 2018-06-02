@@ -23,6 +23,114 @@ void asserv_setup() {
   quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
 }
 
+void asserv_reglage_constantes() {
+  ecran_console_reset();
+  ecran_console_log("Regler Asserv\n");
+  ecran_console_log("\n");
+  ecran_console_log("X Ne maintenir que\n");
+  ecran_console_log("   la rotation\n");
+  ecran_console_log("A Kp_rotation\n");
+  ecran_console_log("B Kd_rotation\n");
+  ecran_console_log("\n");
+  ecran_console_log("Y Ne maintenir que\n");
+  ecran_console_log("   la distance\n");
+  ecran_console_log("C Kp_distance\n");
+  ecran_console_log("D Kd_distance\n\n");
+  ecran_console_log("Z Tout maintenir\n");
+  ecran_console_log("\n");
+  ecran_console_log("G Afficher tout\n");
+  
+  asserv_set_position(1500, 1000, 0);
+  
+  asserv_maintenir_position();
+  
+  char etape;
+  float valeur;
+  char str_valeur[7]; // Utilisé pour convertir float en str
+  
+  while(1) {
+    // Les paramètres sont transmis sous la forme
+    // <lettre><valeur>
+    // La lettre permet de savoir à quel paramètre correspond la valeur envoyée
+    
+    if(Serial.available() > 0) {
+      etape = toupper(Serial.read());
+      
+      switch(etape) {
+        case 'A': // Réglage Kp rotation
+          valeur = constrain(Serial.parseFloat(), 0, 10);
+          robot.ASSERV_ROTATION_KP = valeur;
+          
+          // Arduino ne peut afficher %f directement
+          // Voir https://stackoverflow.com/a/27652012
+          dtostrf(robot.ASSERV_ROTATION_KP, 4, 3, str_valeur);
+          com_printfln("Kp_r = %s", str_valeur);
+          break;
+          
+        case 'B': // Réglage Kd rotation
+          valeur = constrain(Serial.parseFloat(), 0, 10);
+          robot.ASSERV_ROTATION_KD = valeur;
+          
+          dtostrf(robot.ASSERV_ROTATION_KD, 4, 3, str_valeur);
+          com_printfln("Kd_r = %s", str_valeur);
+          break;
+          
+        case 'C': // Réglage Kp distance
+          valeur = constrain(Serial.parseFloat(), 0, 10);
+          robot.ASSERV_DISTANCE_KP = valeur;
+          
+          dtostrf(robot.ASSERV_DISTANCE_KP, 4, 3, str_valeur);
+          com_printfln("Kp_d = %s", str_valeur);
+          break;
+          
+        case 'D': // Réglage Kd distance
+          valeur = constrain(Serial.parseFloat(), 0, 10);
+          robot.ASSERV_DISTANCE_KD = valeur;
+          
+          dtostrf(robot.ASSERV_DISTANCE_KD, 4, 3, str_valeur);
+          com_printfln("Kd_d = %s", str_valeur);
+          break;
+        
+        case 'G': // Afficher tout
+          dtostrf(robot.ASSERV_ROTATION_KP, 4, 3, str_valeur);
+          com_printfln("A.  Kp_r = %s", str_valeur);
+          dtostrf(robot.ASSERV_ROTATION_KD, 4, 3, str_valeur);
+          com_printfln("B.  Kd_r = %s", str_valeur);
+          dtostrf(robot.ASSERV_DISTANCE_KP, 4, 3, str_valeur);
+          com_printfln("C.  Kp_d = %s", str_valeur);
+          dtostrf(robot.ASSERV_DISTANCE_KD, 4, 3, str_valeur);
+          com_printfln("D.  Kd_d = %s", str_valeur);
+          break;
+        
+        case 'X': // Ne maintenir que la rotation
+          robot.activeDistance = 0; 
+          robot.activeRotation = 1;
+          com_printfln("Ne maintenir que la rotation");
+          break;
+          
+        case 'Y': // Ne maintenir que la distance
+          robot.activeDistance = 1; 
+          robot.activeRotation = 0;
+          com_printfln("Ne maintenir que la distance");
+          break;
+          
+        case 'Z': // Tout maintenir
+          robot.activeDistance = 1; 
+          robot.activeRotation = 1;
+          com_printfln("On maintient tout");
+          break;
+        
+        default:
+          com_printfln("! Caractère non reconnu: %c", etape);
+      }
+    }
+    
+    delay(DT_MS);
+
+  }
+}
+
+
 /*******************************************************************************
   Haut niveau
  *******************************************************************************/
