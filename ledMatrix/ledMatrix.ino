@@ -1,6 +1,15 @@
 #include "LEDMatrixDriver.hpp"
 #include "display_library.h"
 
+/***
+1   B1  CLK
+2   B2  MOSI
+(3  B3  MISO Non utilisé)
+6   D1  CS
+7   D2  RX
+8   D3  TX
+***/
+
 
 // Define the ChipSelect pin for the led matrix (Dont use the SS or MISO pin of your Arduino!)
 const uint8_t LEDMATRIX_CS_PIN = 6;
