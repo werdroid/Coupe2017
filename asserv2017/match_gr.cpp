@@ -445,11 +445,11 @@ void match_gr() {
   minuteur_attendre(200);
   
   // Démarrage en pi = Problème !
-  if(robot.estVert)
+  //if(robot.estVert)
     asserv_set_position(250, 500, 0);
-  else
+  /*else
     asserv_set_position(150, 500, MATH_PI); // Pi => 0 après application de la symétrie
-    
+    */
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -462,10 +462,10 @@ void match_gr() {
   minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
   score_definir(0);
   
-  if(robot.estVert)
+  //if(robot.estVert)
     asserv_go_toutdroit(300, 10000);
-  else
-    asserv_go_toutdroit(-400, 10000);
+  /*else
+    asserv_go_toutdroit(-400, 10000);*/
     
   //aller_xy(500, 500, VITESSE_RAPIDE, 1, 5000, 30);
   
@@ -1080,7 +1080,7 @@ uint8_t gr_activer_abeille() {
     error = aller_xy(200, 2000, VITESSE_RAPIDE, 0, 2000, 5);
     if(error == ERROR_TIMEOUT) {
       robot.y = mm2tick(1850);
-      com_printfln("OK");
+      com_printfln("(Recalé au passage)");
     }
     
     com_printfln("ABEILLE atteinte.");
