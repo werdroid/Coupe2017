@@ -3,6 +3,7 @@ var localisation = {
     section: document.getElementById('sLocalisation')
   },
   SEUIL: 200,
+  DISTANCE_100: 500,
   init: function() {
     for(var i = 0; i < 270; i++) {
       $('<div class="score">' + i + '<br>' +
@@ -14,6 +15,9 @@ var localisation = {
   },
   majScore: function(i, valeur) {
     $('.bar' + i).css('width', Math.max((this.SEUIL - valeur) * 100 / this.SEUIL, 0) + '%').text(valeur);
+  },
+  majDistance: function(i, valeur) {
+    $('.bar' + i).css('width', Math.min(this.DISTANCE_100, valeur) / this.DISTANCE_100 * 100 + '%').text(valeur);
   },
 
   scoresAleatoires: function() {
