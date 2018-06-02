@@ -463,9 +463,9 @@ void match_gr() {
   score_definir(0);
   
   if(robot.estVert)
-    asserv_go_toutdroit(350, 10000);
+    asserv_go_toutdroit(300, 10000);
   else
-    asserv_go_toutdroit(-450, 10000);
+    asserv_go_toutdroit(-400, 10000);
     
   //aller_xy(500, 500, VITESSE_RAPIDE, 1, 5000, 30);
   
@@ -592,7 +592,7 @@ void match_gr() {
     
   } // Fin de la première partie !
   
-  
+  /*
   // Allons chez l'adversaire...
   com_printfln("=== Phase 2 ===");
   
@@ -625,12 +625,12 @@ void match_gr() {
       if(nb_balles_eau_usee_dans_gr == 0) {
         break;
       }*/
-      break;
+    /*  break;
     }
     
     
   }
-  
+  */
   gr_deposer_station(true);
   piloter_evacuation_eaux_usees(EEU_OUVRIR);
   
@@ -1051,7 +1051,7 @@ uint8_t gr_activer_abeille() {
   error = asserv_rotation_vers_point(3000, 1770, 2000);
   error = aller_xy(0, 1770, VITESSE_LENTE, 0, 1500, 5);
   if(error == ERROR_TIMEOUT) {
-    robot.x = mm2tick(150);
+    robot.x = mm2tick(symetrie_x(150));
     com_printfln("OK");
   }
   error = aller_xy(230, 1770,  VITESSE_RAPIDE, 1, 3000, 3);
