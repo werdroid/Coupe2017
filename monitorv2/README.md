@@ -20,5 +20,5 @@ npm start
 
 ## Help
 
-[Node API](https://nodejs.org/dist/latest-v8.x/docs/api/)
-[Electron API](https://electronjs.org/#get-started)
+- [Node API](https://nodejs.org/dist/latest-v8.x/docs/api/)
+- [Electron API](https://electronjs.org/#get-started)
