@@ -4,8 +4,8 @@ Application de contrôle et analyse à distance.
 
 ## Configuration requise
 
-- Node LTS (>= v8)
-- emcc (pour le simulateur)
+- [Node LTS](https://nodejs.org/en/download/) (>= v8)
+- [emcc](https://kripken.github.io/emscripten-site/docs/index.html) (pour le simulateur)
 
 ## Lancement
 
