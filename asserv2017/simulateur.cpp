@@ -207,6 +207,14 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
   return asserv_rotation_relative(angle_relatif_a_faire);
 }
 
+void sick_disable_detection(bool disabled) {
+  if (disabled) {
+    com_printfln("SICK sick_disable_detection=true");
+  } else {
+    com_printfln("SICK sick_disable_detection=false");
+  }
+}
+
 void tone_play_start() { com_printfln("SIMU: musique start"); }
 void tone_play_alert() { com_printfln("SIMU: musique alert"); }
 void tone_play_end() { com_printfln("SIMU: musique end"); }
