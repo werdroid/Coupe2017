@@ -171,8 +171,8 @@ typedef struct {
   uint32_t time_total; // temps complet de la dernière interruption
 
   // Réglage du déplacement
-  uint16_t PWM_MAX_DISTANCE;
-  uint16_t PWM_MAX_ROTATION;
+  uint16_t pwm_max_distance;
+  uint16_t pwm_max_rotation;
   
   // Configuration, initialisée au tout début
   float ASSERV_COEFF_TICKS_PAR_MM;
