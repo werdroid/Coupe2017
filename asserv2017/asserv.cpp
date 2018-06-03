@@ -122,19 +122,21 @@ void asserv_reglage_constantes() {
           
         // TESTS
         case 'V': // Réglage Vitesse D
+          minuteur_demarrer();
           valeur = constrain(Serial.parseInt(), 0, 127);
           robot.PWM_MAX_DISTANCE = valeur;
           com_printfln("v_d = %d", robot.PWM_MAX_DISTANCE);
-          minuteur_attendre(500);
+          //minuteur_attendre(500);
           asserv_go_toutdroit(750, 10000);
           break;
         
         case 'R': // Réglage Vitesse R
+          minuteur_demarrer();
           valeur = constrain(Serial.parseInt(), 0, 127);
           robot.PWM_MAX_ROTATION = valeur;
           com_printfln("v_d = %d", robot.PWM_MAX_ROTATION);
-          minuteur_attendre(500);
-          asserv_rotation_relative(MATH_PI2, 10000);
+          //minuteur_attendre(500);
+          asserv_rotation_relative(MATH_PI, 10000);
           break;        
 
         ////
@@ -395,11 +397,11 @@ void asserv_vitesse_rampe_rotation(uint32_t v) { // v entre 0 et 100
 // Réglage de la vitesse (sans rampe) par limitation de pwm
 void asserv_vitesse_distance(uint16_t pwm_max) {
   // 127, c'est déjà pas mal
-  quadramp_set_1st_order_vars(&robot.ramp_distance, v, v);
+  robot.PWM_MAX_DISTANCE = pwm_max;
 }
 void asserv_vitesse_rotation(uint16_t pwm_max) {
   // 50, c'est déjà pas mal
-  quadramp_set_1st_order_vars(&robot.ramp_rotation, v, v);
+  robot.PWM_MAX_ROTATION = pwm_max;
 }
 
 /*******************************************************************************
