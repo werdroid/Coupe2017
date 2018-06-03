@@ -485,17 +485,17 @@ void pr_init() {
   robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 1mm -> 12.25 pas
   robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 2207.0f; // 1rad -> 2207pas
 
-  /*Valeurs de gain asserv PR2016 = Alien2017 = Alien2018 -- oboslètes*/
-  /*robot.ASSERV_DISTANCE_KP = 0.15f; // 30 avril pr
+  /*Valeurs de gain asserv PR2016 = Alien2017 = Alien2018 -- rétablis après test */
+  robot.ASSERV_DISTANCE_KP = 0.15f; // 30 avril pr
   robot.ASSERV_DISTANCE_KD = 1.5f; // 30 avril pr
   robot.ASSERV_ROTATION_KP = 0.09f; // 30 avril pr
-  robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr*/
+  robot.ASSERV_ROTATION_KD = 1.1f; // 30 avril pr
 
   //Réglage gains PR du 02/06/2018 [asserv sans rampe]
-  robot.ASSERV_DISTANCE_KP = 0.06f;
+  /*robot.ASSERV_DISTANCE_KP = 0.06f;
   robot.ASSERV_DISTANCE_KD = 0.08f;
   robot.ASSERV_ROTATION_KP = 0.05f;
-  robot.ASSERV_ROTATION_KD = 0.01;
+  robot.ASSERV_ROTATION_KD = 0.01;*/
  
   robot.DISTANCE_DETECTION = 750; // mm 9/05/2018
   
