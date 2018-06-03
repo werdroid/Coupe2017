@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" media="screen" type="text/css" title="Design" href="design.css" />
+  <link rel="stylesheet" media="screen" type="text/css" title="Design" href="script/jquery-ui/jquery-ui.css" />
+</head>
+<body>
+<div id="main">
+
+  <div id="flexBox">
+    <section id="sRobot0">
+      <h2>
+       <span id="nomRobot0">Petit Robot</span>
+       <button class="bExport" id="bExtrairePR">⤤</button>
+       <span class="cpu_box"><span id="cpu0"></span></span>
+       <span id="led0" class="off"></span>
+      </h2>
+      <select id="serialSelect0"></select>
+      <div id="obstacle0" class="non">Obstacle</div>
+      <div id="logRobot0"></div>
+      <div id="match0">
+        <div id="curseurTMatch0"></div>
+        t = <span id="valeurT0"></span> <span id="valeurTMatch0"></span>
+      </div>
+    </section>
+    <section id="sRobot1">
+      <h2>
+       <span id="nomRobot1">Grand Robot</span>
+       <button class="bExport" id="bExtraireGR">⤤</button>
+             <span class="cpu_box"><span id="cpu1"></span></span>
+             <span id="led1" class="off"></span>
+      </h2>
+      <select id="serialSelect1"></select>
+      <div id="obstacle1" class="non">Obstacle</div>
+      <div id="logRobot1"></div>
+      <div id="match1">
+        <div id="curseurTMatch1"></div>
+        t = <span id="valeurT1"></span> <span id="valeurTMatch1"></span>
+      </div>
+    </section>
+    <section id="sTable">
+      <div id="blocTable">
+        <!-- Div flottants -->
+        <div id="infobulle" class="flottant_table"></div>
+        <!-- A intégrer à terme directement dans sTable... -->
+        <!--<div id="curseur" class="flottant_table"></div>-->
+        <canvas width="100" height="100" id="gabarit" class="flottant_table" style="display:none;"></canvas>
+        <!--  -->
+        <svg width="770" height="520" id="table"></svg>
+      </div>
+      <div id="paramTable">
+      </div>
+      <div id="infoTable"></div>
+    </section>
+  </div>
+  <div id="flexBoxBas">
+    <section id="sLogMonitor">
+      <div id="logMonitor"></div>
+    </section>
+    <section id="optionsTable">
+      <label for="lierCurseursTMatch"><input type="checkbox" id="lierCurseursTMatch" />Lier les curseurs de match</label><br>
+      <label for="curseurProgressif"><input type="checkbox" id="curseurProgressif" />Curseur progressif</label><br>
+      <label for="cbAfficherQuadrillage"><input type="checkbox" id="cbAfficherQuadrillage" checked="checked" />Afficher le quadrillage</label><br>
+      <label for="cbRelierPoints"><input type="checkbox" id="cbRelierPoints" />Relier les points</label><br>
+      <label for="cbAfficherGabarit"><input type="checkbox" id="cbAfficherGabarit" />Afficher le gabarit</label><br><br>
+      <label for="cbAfficherPtsEtape"><input type="checkbox" id="cbAfficherPtsEtape" checked="checked" />Afficher les Points Etape</label><br><br>
+      <div id="optionsAffichageTable">
+        <label>Positions</label><span class="optionAffichageTable on" id="opt_svg-Positions0">PR</span><span class="optionAffichageTable on" id="opt_svg-Positions1">GR</span><br>
+        <label>Destinations</label><span class="optionAffichageTable on" id="opt_svg-Destinations0">PR</span><span class="optionAffichageTable on" id="opt_svg-Destinations1">GR</span><br>
+        <label>Evénements</label><span class="optionAffichageTable on" id="opt_svg-Evenements0">PR</span><span class="optionAffichageTable on" id="opt_svg-Evenements1">GR</span><br>
+      </div>
+      <!--<div>⤤ Export <button id="bExtrairePR">PR</button><button id="bExtraireGR" >GR</button></div>-->
+    </section>
+    <section id="sActionsMonitor">
+      <button id="bEffacerTout">Tout effacer</button>
+      <button id="bEffacerSection">Effacer section</button>
+      <button id="bReconnecter" >Reconnecter</button>
+      <button id="bGenererJeuAleatoire" >Jeu aléatoire</button>
+    </section>
+  </div>
+</div>
+<script src="script/svg.js"></script>
+<script type="text/javascript">
+// Explications: https://github.com/electron/electron/issues/254
+// TL;DR: avec electron (le truc qui lance l'appli) on est dans un environnement CommonJS
+// comme NodeJS et donc jQuery essaie de s'exporter comme un CommonJS et non comme dans un Chrome.
+window.$ = window.jQuery = require('./script/jquery-3.1.1.js')
+</script>
+<script src="script/jquery-ui/jquery-ui.js"></script>
+
+<script src="script/coordonnees.js"></script>
+<script src="script/table_svg.js"></script>
+<script src="script/data.js"></script>
+<script src="script/evenements.js"></script>
+<script src="script/script.js"></script>
+<script src="script/SerialConnection.js"></script>
+<script src="script/simulateur.js"></script>
+</body>
+</html>

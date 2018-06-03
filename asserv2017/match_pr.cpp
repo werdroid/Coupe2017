@@ -157,10 +157,10 @@ void match_pr() {
   ecran_console_log("Pret\n");
   minuteur_attendre(200);
   
-  if(robot.estVert)
+  //if(robot.estVert)
     asserv_set_position(101, 159, 0);
-  else
-    asserv_set_position(299, 159, MATH_PI);
+  /*else
+    asserv_set_position(299, 159, MATH_PI);*/
     
   asserv_maintenir_position();
   bouton_wait_start_up();
@@ -182,12 +182,12 @@ void match_pr() {
   int action_avancement[NOMBRE_ACTIONS] = { 0 };
 
   
-  delay(8000);
+  minuteur_attendre(3000);
 
   
   com_printfln("Sort de la zone de départ");
   
-  if(robot.estVert)
+  //if(robot.estVert)
     asserv_go_toutdroit(99, 10000);
   // else : pas de mouvement
   
