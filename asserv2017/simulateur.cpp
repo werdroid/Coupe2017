@@ -133,8 +133,10 @@ void bouton_wait_start_up() {}
 void bouton_wait_select_down() {}
 void bouton_wait_select_up() {}
 
-void asserv_vitesse_distance(uint32_t v) {}
-void asserv_vitesse_rotation(uint32_t v) {}
+void asserv_vitesse_rampe_distance(uint32_t v) {}
+void asserv_vitesse_rampe_rotation(uint32_t v) {}
+void asserv_vitesse_pwm_distance(uint16_t pwm_max) {}
+void asserv_vitesse_pwm_rotation(uint16_t pwm_max) {}
 void asserv_set_position(int32_t x, int32_t y, float a) {
   robot.xMm = symetrie_x(x);
   robot.yMm = y;
@@ -203,6 +205,14 @@ uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout)
   int32_t vy = y_mm - robot.yMm;
   float angle_relatif_a_faire = atan2(vy, vx); // [-pi, +pi] radians
   return asserv_rotation_relative(angle_relatif_a_faire);
+}
+
+void sick_disable_detection(bool disabled) {
+  if (disabled) {
+    com_printfln("SICK sick_disable_detection=true");
+  } else {
+    com_printfln("SICK sick_disable_detection=false");
+  }
 }
 
 void tone_play_start() { com_printfln("SIMU: musique start"); }

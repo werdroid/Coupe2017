@@ -499,5 +499,8 @@ void pr_init() {
  
   robot.DISTANCE_DETECTION = 750; // mm 9/05/2018
   
+  robot.PWM_MAX_DISTANCE = 127;
+  robot.PWM_MAX_ROTATION = 50;
+  
   servo_bras.attach(29);
 }
