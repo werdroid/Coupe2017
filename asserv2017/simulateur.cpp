@@ -133,8 +133,10 @@ void bouton_wait_start_up() {}
 void bouton_wait_select_down() {}
 void bouton_wait_select_up() {}
 
-void asserv_vitesse_distance(uint32_t v) {}
-void asserv_vitesse_rotation(uint32_t v) {}
+void asserv_vitesse_rampe_distance(uint32_t v) {}
+void asserv_vitesse_rampe_rotation(uint32_t v) {}
+void asserv_vitesse_pwm_distance(uint16_t pwm_max) {}
+void asserv_vitesse_pwm_rotation(uint16_t pwm_max) {}
 void asserv_set_position(int32_t x, int32_t y, float a) {
   robot.xMm = symetrie_x(x);
   robot.yMm = y;

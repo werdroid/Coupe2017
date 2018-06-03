@@ -48,7 +48,7 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   }
   
   
-  asserv_vitesse_distance(vitesse);
+  asserv_vitesse_rampe_distance(vitesse);
 
   if (uniquement_avant) {
     asserv_rotation_vers_point(x, y, 2000);

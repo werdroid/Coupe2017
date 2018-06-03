@@ -428,8 +428,8 @@ void asserv_set_position(int32_t x, int32_t y, float a);
 
 void asserv_vitesse_rampe_distance(uint32_t v);
 void asserv_vitesse_rampe_rotation(uint32_t v);
-void asserv_vitesse_distance(uint16_t pwm_max);
-void asserv_vitesse_rotation(uint16_t pwm_max);
+void asserv_vitesse_pwm_distance(uint16_t pwm_max);
+void asserv_vitesse_pwm_rotation(uint16_t pwm_max);
 void asserv_maintenir_position();
 void asserv_consigne_stop();
 void asserv_consigne_pwm(uint16_t gauche, uint16_t droite);
