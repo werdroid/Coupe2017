@@ -120,6 +120,25 @@ void asserv_reglage_constantes() {
           com_printfln("On maintient tout");
           break;
         
+        /* // A n'activer qu'en connaissance de cause
+        // Si le robot est sur une table sans bordure, il peut tomber si une consigne est envoyée par inadvertance.
+        case 'V': // Test Vitesse Distance
+          minuteur_demarrer();
+          valeur = constrain(Serial.parseInt(), 0, 127);
+          robot.PWM_MAX_DISTANCE = valeur;
+          com_printfln("v_d = %d", robot.PWM_MAX_DISTANCE);
+          asserv_go_toutdroit(750, 10000);
+          break;
+        
+        case 'R': // Test Vitesse Rotation
+          minuteur_demarrer();
+          valeur = constrain(Serial.parseInt(), 0, 127);
+          robot.PWM_MAX_ROTATION = valeur;
+          com_printfln("v_d = %d", robot.PWM_MAX_ROTATION);
+          asserv_rotation_relative(MATH_PI, 10000);
+          break;    
+        // */
+        
         default:
           com_printfln("! Caractère non reconnu: %c", etape);
       }
