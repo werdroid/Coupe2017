@@ -170,6 +170,10 @@ typedef struct {
   uint32_t time_sick; // temps de lecture du SICK
   uint32_t time_total; // temps complet de la dernière interruption
 
+  // Réglage du déplacement
+  uint16_t PWM_MAX_DISTANCE;
+  uint16_t PWM_MAX_ROTATION;
+  
   // Configuration, initialisée au tout début
   float ASSERV_COEFF_TICKS_PAR_MM;
   float ASSERV_COEFF_TICKS_PAR_RADIAN;
@@ -422,8 +426,10 @@ void asserv_loop();
 void asserv_maj_position();
 void asserv_set_position(int32_t x, int32_t y, float a);
 
-void asserv_vitesse_distance(uint32_t v);
-void asserv_vitesse_rotation(uint32_t v);
+void asserv_vitesse_rampe_distance(uint32_t v);
+void asserv_vitesse_rampe_rotation(uint32_t v);
+void asserv_vitesse_distance(uint16_t pwm_max);
+void asserv_vitesse_rotation(uint16_t pwm_max);
 void asserv_maintenir_position();
 void asserv_consigne_stop();
 void asserv_consigne_pwm(uint16_t gauche, uint16_t droite);

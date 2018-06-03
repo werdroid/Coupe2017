@@ -1444,6 +1444,10 @@ void gr_init() {
   
   robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
   
+  robot.PWM_MAX_DISTANCE = 127;
+  robot.PWM_MAX_ROTATION = 50;
+  
+  
   // Actionneurs à init
   servo_evacuation_eaux_usees.attach(17);
   servo_cuillere_miel.attach(33);

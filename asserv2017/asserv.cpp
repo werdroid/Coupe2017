@@ -119,6 +119,25 @@ void asserv_reglage_constantes() {
           robot.activeRotation = 1;
           com_printfln("On maintient tout");
           break;
+          
+        // TESTS
+        case 'V': // Réglage Vitesse D
+          valeur = constrain(Serial.parseInt(), 0, 127);
+          robot.PWM_MAX_DISTANCE = valeur;
+          com_printfln("v_d = %d", robot.PWM_MAX_DISTANCE);
+          minuteur_attendre(500);
+          asserv_go_toutdroit(750, 10000);
+          break;
+        
+        case 'R': // Réglage Vitesse R
+          valeur = constrain(Serial.parseInt(), 0, 127);
+          robot.PWM_MAX_ROTATION = valeur;
+          com_printfln("v_d = %d", robot.PWM_MAX_ROTATION);
+          minuteur_attendre(500);
+          asserv_rotation_relative(MATH_PI2, 10000);
+          break;        
+
+        ////
         
         default:
           com_printfln("! Caractère non reconnu: %c", etape);
@@ -364,13 +383,22 @@ void asserv_maintenir_position() {
   asserv_consigne_polaire_delta(0, 0);
 }
 
-// Vitesse en tick par delta t
-void asserv_vitesse_distance(uint32_t v) { // v entre 0 et 100
+
+// Réglage de la vitesse (si rampes) en tick par delta t
+void asserv_vitesse_rampe_distance(uint32_t v) { // v entre 0 et 100
   quadramp_set_1st_order_vars(&robot.ramp_distance, v, v);
 }
+void asserv_vitesse_rampe_rotation(uint32_t v) { // v entre 0 et 100
+  quadramp_set_1st_order_vars(&robot.ramp_rotation, v, v);
+}
 
-// Vitesse en tick par delta t
-void asserv_vitesse_rotation(uint32_t v) { // v entre 0 et 100
+// Réglage de la vitesse (sans rampe) par limitation de pwm
+void asserv_vitesse_distance(uint16_t pwm_max) {
+  // 127, c'est déjà pas mal
+  quadramp_set_1st_order_vars(&robot.ramp_distance, v, v);
+}
+void asserv_vitesse_rotation(uint16_t pwm_max) {
+  // 50, c'est déjà pas mal
   quadramp_set_1st_order_vars(&robot.ramp_rotation, v, v);
 }
 
@@ -495,8 +523,8 @@ void asserv_loop() {
     pwmRotation = robot.erreurRotation * robot.ASSERV_ROTATION_KP + (robot.erreurRotation - erreur_rotation_precedente) * robot.ASSERV_ROTATION_KD;
   }
 
-  pwmDistance = constrain(pwmDistance, -127, 127);
-  pwmRotation = constrain(pwmRotation, -50, 50);
+  pwmDistance = constrain(pwmDistance, -robot.PWM_MAX_DISTANCE, robot.PWM_MAX_DISTANCE);
+  pwmRotation = constrain(pwmRotation, -robot.PWM_MAX_ROTATION, robot.PWM_MAX_ROTATION);
 
   // polaire
   robot.moteurGauche = pwmDistance + pwmRotation;
