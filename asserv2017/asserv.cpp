@@ -125,16 +125,16 @@ void asserv_reglage_constantes() {
         case 'V': // Test Vitesse Distance
           minuteur_demarrer();
           valeur = constrain(Serial.parseInt(), 0, 127);
-          robot.PWM_MAX_DISTANCE = valeur;
-          com_printfln("v_d = %d", robot.PWM_MAX_DISTANCE);
+          robot.pwm_max_distance = valeur;
+          com_printfln("v_d = %d", robot.pwm_max_distance);
           asserv_go_toutdroit(750, 10000);
           break;
         
         case 'R': // Test Vitesse Rotation
           minuteur_demarrer();
           valeur = constrain(Serial.parseInt(), 0, 127);
-          robot.PWM_MAX_ROTATION = valeur;
-          com_printfln("v_d = %d", robot.PWM_MAX_ROTATION);
+          robot.pwm_max_rotation = valeur;
+          com_printfln("v_d = %d", robot.pwm_max_rotation);
           asserv_rotation_relative(MATH_PI, 10000);
           break;    
         // */
@@ -395,11 +395,11 @@ void asserv_vitesse_rampe_rotation(uint32_t v) { // v entre 0 et 100
 // Réglage de la vitesse (sans rampe) par limitation de pwm
 void asserv_vitesse_pwm_distance(uint16_t pwm_max) {
   // 127, c'est déjà pas mal
-  robot.PWM_MAX_DISTANCE = pwm_max;
+  robot.pwm_max_distance = pwm_max;
 }
 void asserv_vitesse_pwm_rotation(uint16_t pwm_max) {
   // 50, c'est déjà pas mal
-  robot.PWM_MAX_ROTATION = pwm_max;
+  robot.pwm_max_rotation = pwm_max;
 }
 
 /*******************************************************************************
@@ -523,8 +523,8 @@ void asserv_loop() {
     pwmRotation = robot.erreurRotation * robot.ASSERV_ROTATION_KP + (robot.erreurRotation - erreur_rotation_precedente) * robot.ASSERV_ROTATION_KD;
   }
 
-  pwmDistance = constrain(pwmDistance, -robot.PWM_MAX_DISTANCE, robot.PWM_MAX_DISTANCE);
-  pwmRotation = constrain(pwmRotation, -robot.PWM_MAX_ROTATION, robot.PWM_MAX_ROTATION);
+  pwmDistance = constrain(pwmDistance, -robot.pwm_max_distance, robot.pwm_max_distance);
+  pwmRotation = constrain(pwmRotation, -robot.pwm_max_rotation, robot.pwm_max_rotation);
 
   // polaire
   robot.moteurGauche = pwmDistance + pwmRotation;
