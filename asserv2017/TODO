@@ -9,10 +9,13 @@
     . match_pr.cpp : Programmes spécifiques PR
 - Renommer Coupe2017 en Coupe
 - Date et Heure de compilation https://stackoverflow.com/a/10455223
+- Communication --> xBee ? (FamilyTeam)
 
 [Monitor]
 try... catch sur URI malformed
 marqueur personnel "fait marquant"
+
+
 
 
 [Investiguer]

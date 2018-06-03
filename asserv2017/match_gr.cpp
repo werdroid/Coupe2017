@@ -1048,20 +1048,31 @@ uint8_t gr_activer_abeille() {
   // Recalage ...
   com_print("Recalage en Y...");
   error = asserv_rotation_vers_point(230, 0, 2000);
+  sick_disable_detection(true); // On recule vers la bordure, inutile de détecter devant...
   error = aller_xy(230, 2000, VITESSE_RAPIDE, 0, 1500, 5);
   if(error == ERROR_TIMEOUT) {
     robot.y = mm2tick(1850);
     com_printfln("OK");
   }
+  sick_disable_detection(false);
+  // Un coup de cuillère au passage
+  minuteur_attendre(500);
+  piloter_cuillere_miel(robot.estVert ? CM_DROITE : CM_GAUCHE); // Activer
+  minuteur_attendre(500);
+  piloter_cuillere_miel(robot.estVert ? CM_GAUCHE : CM_DROITE); // Retour en position
+  minuteur_attendre(500);
+  // Et on continue pour de vrai
   error = aller_xy(230, 1770,  VITESSE_RAPIDE, 1, 3000, 3);
   
   com_print("Recalage en X...");
   error = asserv_rotation_vers_point(3000, 1770, 2000);
+  sick_disable_detection(true);
   error = aller_xy(0, 1770, VITESSE_LENTE, 0, 1500, 5);
   if(error == ERROR_TIMEOUT) {
     robot.x = mm2tick(symetrie_x(150));
     com_printfln("OK");
   }
+  sick_disable_detection(false);
   error = aller_xy(230, 1770,  VITESSE_RAPIDE, 1, 3000, 3);
   // ... On est bon
   
@@ -1081,15 +1092,17 @@ uint8_t gr_activer_abeille() {
     }
     minuteur_attendre(400);
     
-    error = aller_xy(200, 1800, VITESSE_RAPIDE, 0, 3000, 3); // Tendance à planter ?
+    error = aller_xy(200, 1800 + gr_nb_tentatives[ACTION_ACTIVER_ABEILLE], VITESSE_RAPIDE, 0, 3000, 3); // Tendance à planter ?
     if (error) return error;
      error = asserv_rotation_vers_point(200, 0, 2000);
-    if (error) return error;
+    //if (error) return error; // Pourquoi abandonner ici ?
+    sick_disable_detection(true);
     error = aller_xy(200, 2000, VITESSE_RAPIDE, 0, 2000, 5);
     if(error == ERROR_TIMEOUT) {
       robot.y = mm2tick(1850);
       com_printfln("(Recalé au passage)");
     }
+    sick_disable_detection(false);
     
     com_printfln("ABEILLE atteinte.");
 
