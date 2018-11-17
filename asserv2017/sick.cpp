@@ -9,7 +9,6 @@
 const uint16_t SICK_LIMIT_MIN = 90; // 50 = valeurs hors de portée ou signal trop faible, 90 = USB mm
 const uint16_t SICK_LIMIT_MAX = 3600; // diagonale de la table mm
 const uint16_t TABLE_MARGE_BORDURE = 200; // mm
-const uint16_t DISTANCE_DETECTION = 500; // mm (30 c'est juste)
 
 /*------------------------------------------------------------------------------
  * Protocol du sick
@@ -267,15 +266,16 @@ void sick_traiter_donnees() {
 
 
     // Points valides
-    if (point_dans_la_table(sick.points[i]) &&
-      distance_valide(sick.distances_values[i]) &&
-      sick.distances_values[i] < DISTANCE_DETECTION) {
+    if (point_dans_la_table(points[i]) &&
+      distance_valide(distances_values[i]) &&
+      distances_values[i] < robot.DISTANCE_DETECTION) {
       robot.sickObstacle = true;
     }
   }
-  
+
   // Démonstration fonctionnement Sick (utilisable avec MonitorSick)
   if(robot.activer_monitor_sick) {
+    //com_printfln("@|Sick|obstacle:%d,id:%d,dist:%d", (robot.sickObstacle ? 1:0), robot.proche_index, robot.proche_distance);
     for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
       // Envoi des points pour MonitorSick
       // (Destiné uniquement aux présentations au public)

@@ -35,12 +35,21 @@
  * Enum
  *----------------------------------------------------------------------------*/
 
+
 const uint8_t OK = 0;
+// Erreurs d'asserv
 const uint8_t ERROR_TIMEOUT = 1;
 const uint8_t ERROR_OBSTACLE = 2;
 const uint8_t ERROR_FIN_MATCH = 3;
-const uint8_t ERROR_STRATEGIE = 4; // Par exemple, cas non géré
-const uint8_t AUTRE = 127;
+const uint8_t AUTRE = 127; // ? (utilisé dans asserv.cpp)
+// Erreurs de stratégie
+const uint8_t ERROR_CAS_NON_GERE = 10; // Cas non géré (trop complexe)
+const uint8_t ERROR_PARAMETRE = 11; // Paramètre envoyé incorrect
+const uint8_t ERROR_PLUS_RIEN_A_FAIRE = 12; // Action déjà terminée
+const uint8_t ERROR_PAS_POSSIBLE = 14; // Pas le meilleur moment pour
+const uint8_t ERROR_PAS_CODE = 15; // Pas encore codé
+
+
 
 const uint8_t RT_STATE_SLEEP = 0; // on est dans le main normal
 const uint8_t RT_STATE_WAITING = 1; // le main attend la synchro de RT
@@ -63,7 +72,7 @@ const uint8_t ASSERV_MODE_POLAIRE = 2; // asservissement
 
 #define TABLE_LARGEUR_X 3000 /* mm */
 #define TABLE_LARGEUR_Y 2000 /* mm */
-#define TEMPS_JEU_MS 90000 /* ms */
+#define TEMPS_JEU_MS 98000 /* ms */ // On se garde 2 secondes pour l'évacuation des eaux usées
 
 #define SPD_MAX_MM 200 // mm/s
 #define ACC_MAX_MM 300 // mm/s2
@@ -110,13 +119,15 @@ typedef struct {
 
 typedef struct {
   bool IS_PR;
-  uint8_t symetrie; // 0=bleu 1=jaune
-  bool sans_symetrie; // 1=on fait pas les symmétries
+  uint8_t symetrie;
+  bool estVert; // est égal à l'inverse de symetrie (utilisé en haut niveau)
+  bool sans_symetrie; // 1=on fait pas les symétries
   bool activer_monitor_sick;
   uint8_t programme;
-  bool rouleaux_actifs;
-  int angle_bras_gauche;
-  int angle_bras_droit;
+  int score;
+  bool propulseur_actif = false;
+  bool trappe_ouverte = false;
+
 
   /* asserv states */
   uint8_t activeDistance;
@@ -163,8 +174,8 @@ typedef struct {
   int32_t consigneX; // tick
   int32_t consigneY; // tick
 
-
   // Sick
+  uint16_t DISTANCE_DETECTION;
   bool sickConnected;
   bool sickObstacle;
   uint32_t sickTramesVides;
@@ -179,8 +190,10 @@ typedef struct {
   
   
   // Profiling du CPU
-  uint32_t time_codeurs;
-  uint32_t time_sick;
+  uint8_t led_state; // Etat de la Led (aussi envoyé vers Monitor)
+  uint32_t time_codeurs; // temps de lecture des codeurs
+  uint32_t time_sick; // temps de lecture du SICK
+  uint32_t time_total; // temps complet de la dernière interruption
 
   // Configuration, initialisée au tout début
   float ASSERV_COEFF_TICKS_PAR_MM;
@@ -198,6 +211,7 @@ typedef struct {
 } Sick;
 
 
+
 // Structure à envoyer en tant que bloc binaire
 // On désiarialise via javascript avec un DataViewer
 // qui permet de lire/écrire selon chaque type:
@@ -212,6 +226,7 @@ typedef struct {
   // propriétés sur 4 bytes
   uint32_t millis;
   float   a; // float 32bits
+  uint32_t time_total;
 
   // propriétés sur 2 bytes
   int16_t xMm; // mm
@@ -221,6 +236,12 @@ typedef struct {
   // propriétés sur 1 byte
   uint8_t sickObstacle;
   uint8_t isPR;
+  uint8_t led_state;
+
+  // compléter pour avoir un total de bytes multiple de 4
+  uint8_t empty1;
+  uint8_t empty2;
+  uint8_t empty3;
 
   // Fin de trame sur 4 bytes
   char footer1 = '@';
@@ -235,7 +256,7 @@ volatile extern uint8_t lock_loop;
 
 
 /*-----------------------------------------------------------------------------
- * Constantes de stratégie
+ * Constantes et variables stratégie (communes PR/GR)
  *----------------------------------------------------------------------------*/
 
 
@@ -245,50 +266,73 @@ const uint16_t ZONE_A = 1 << 1;
 const uint16_t ZONE_B = 1 << 2;
 const uint16_t ZONE_C = 1 << 3;
 const uint16_t ZONE_D = 1 << 4;
-const uint16_t ZONE_E = 1 << 5;
-const uint16_t ZONE_F = 1 << 6;
-const uint16_t ZONE_G = 1 << 7;
-const uint16_t ZONE_H = 1 << 8;
-const uint16_t ZONE_I = 1 << 9;
-const uint16_t ZONE_J = 1 << 10;
+  // S pour Symétrie
+const uint16_t ZONE_AS = 1 << 5;
+const uint16_t ZONE_BS = 1 << 6;
+const uint16_t ZONE_CS = 1 << 7;
+const uint16_t ZONE_DS = 1 << 8;
+// Info: jusqu'à 10 en 2017
 // Ajout de zone à faire aussi dans robot_dans_zone();
 
 // Constantes de points
-// Ici, pas de bit mask. On évite les multiples de 2 pour éviter toute confusion avec un idZone
+// Ici, pas de bit mask. On évite les puissances de 2 pour éviter toute confusion avec un idZone
 const uint8_t PT_ETAPE_1 = 41;
+const uint8_t PT_ETAPE_2 = 42;
+const uint8_t PT_ETAPE_3 = 43;
 const uint8_t PT_ETAPE_4 = 44;
-const uint8_t PT_ETAPE_7 = 47;
+const uint8_t PT_ETAPE_5 = 45;
+const uint8_t PT_ETAPE_6 = 46;
+const uint8_t PT_ETAPE_6S = 86;
 const uint8_t PT_ETAPE_8 = 48;
+const uint8_t PT_ETAPE_9 = 49;
 const uint8_t PT_ETAPE_10 = 50;
+const uint8_t PT_ETAPE_11 = 51;
+const uint8_t PT_ETAPE_12 = 52;
+const uint8_t PT_ETAPE_12S = 92;
+const uint8_t PT_ETAPE_13 = 53;
 const uint8_t PT_ETAPE_14 = 54;
-const uint8_t PT_ETAPE_15 = 55;
 // Ajout de point à faire aussi dans match.cpp > getPoint();
 
 
-// Positions de bras
-const uint8_t POSITION_CROISIERE = 1;
-const uint8_t POSITION_RECOLTER = 2;
-const uint8_t POSITION_DEPOSER_BAS = 3;
-const uint8_t POSITION_DEPOSER_HAUT = 4;
-const uint8_t POSITION_APPROCHE_DEPOT_HAUT = 5;
-const uint8_t POSITION_MAX_SOUS_SICK = 6;
-const uint8_t POSITION_KNOCK_BLEU = 7;
-const uint8_t POSITION_KNOCK_JAUNE = 8;
-const uint8_t POSITION_KNOCK_FACE = 9;
+// Vitesses par défaut
+uint32_t const VITESSE_RAPIDE = 100;
+uint32_t const VITESSE_LENTE = 50;
+uint32_t const VITESSE_POUSSER_CUBES = 80;
 
+// Actions
+// Les numéros doivent être uniques et continus de 0 à NB_ACTIONS
+// L'ordre n'a pas d'importance
+const int ACTION_ALLUMER_PANNEAU    = 0;
+const int ACTION_VIDER_REP          = 1;
+const int ACTION_ACTIVER_ABEILLE    = 2;
+const int ACTION_VIDER_REM          = 3;
+const int ACTION_RAPPORTER_CUB0     = 4;
+const int ACTION_RAPPORTER_CUB1     = 5;
+const int ACTION_RAPPORTER_CUB2     = 6;
+const int ACTION_VIDER_REM_OPP      = 7;
+const int ACTION_VIDER_REP_OPP      = 8;
+const int ACTION_DEPOSER_CHATEAU = 9;
+const int ACTION_DEPOSER_STATION = 10;
+const int ACTION_OUVRIR_REP      = 11;
+
+const int NB_ACTIONS = 12; // Dernière action + 1
+
+
+/*-----------------------------------------------------------------------------
+ * Simulator only (not robot)
+ *----------------------------------------------------------------------------*/
 
 #ifdef __EMSCRIPTEN__
+
 class Servo {
 public:
   void write(int angle);
   void attach(int pin);
 };
 
-void com_printfln(const char* format, ...);
-void com_print(float msg);
-
 unsigned long millis();
 void delay(long time);
+
 #endif
 
 /*-----------------------------------------------------------------------------
@@ -307,11 +351,12 @@ float deg2rad(int32_t degre);
 int32_t symetrie_x(int32_t x);
 float symetrie_a_centrale(float a);
 float symetrie_a_axiale_y(float a);
+float angle_relatif_robot_point(int32_t x, int32_t y , float a, int32_t xx, int32_t yy);
 
 // Minuteur de match
 void minuteur_attendre(uint32_t timeout_ms);
 void minuteur_demarrer();
-uint32_t minuteur_temps_restant();
+int32_t minuteur_temps_restant();
 void minuteur_attendre_fin_match();
 void minuteur_arreter_tout_si_fin_match();
 
@@ -319,12 +364,15 @@ void minuteur_arreter_tout_si_fin_match();
 void synchronisation();
 
 // Match
+void score_incrementer(int increment);
+void score_definir(int valeur);
 void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to);
+void servo_jouer(Servo servo, uint8_t deg_from, uint8_t jeu = 5, uint8_t nb = 1);
 uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint16_t localiser_zone();
 Point getPoint(uint8_t idPoint);
-bool robot_proche_point(uint8_t idPoint);
+bool robot_proche_point(uint8_t idPoint, uint8_t marge = 50);
 bool robot_dans_zone(uint16_t idZone);
 bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
@@ -336,31 +384,10 @@ void match_gr();
 void demo_allers_retours();
 void homologation_gr();
 void debug_gr();
+void test1_gr();
 void gr_coucou();
 void match_gr_arret();
-
-uint8_t recuperer_minerais_pcd4();
-uint8_t recuperer_minerais_pcd7();
-uint8_t recuperer_minerais_pcl();
-uint8_t recuperer_minerais_gcc10();
-uint8_t recuperer_minerais_gcc14();
-uint8_t deposer_minerais_zone_depot(bool avec_robot_secondaire);
-uint8_t knocker_module2();
-uint8_t knocker_module2_de_face();
-uint8_t recuperer_fusee_depart();
-uint8_t recuperer_module1();
-uint8_t recuperer_module5(bool prendre_minerais_gcc_au_passage);
-uint8_t degager_module5();
-uint8_t prendre_minerais();
-void bras_position_croisiere();
-void positionner_deux_bras(uint8_t position, bool doucement);
-void positionner_bras_gauche(uint8_t position, bool doucement);
-void positionner_bras_droit(uint8_t position, bool doucement);
-
-void gr_fusee_init();
-void gr_fusee_fermer();
-void gr_fusee_ouvrir();
-
+void gr_activer_propulseur(bool activer);
 
 // PR
 extern "C" {
@@ -368,12 +395,8 @@ void pr_init();
 void match_pr();
 }
 void match_pr_arret();
-void grosse_dune_1();
-void grosse_dune_2();
-void grosse_dune_suite();
-void petite_dune1();
-void liberer_cubes();
 void debug_pr();
+void homologation_pr();
 
 // Menu
 void menu_start();
@@ -409,6 +432,7 @@ void bouton_wait_select_up();
 
 // Asserv
 void asserv_setup();
+void asserv_reglage_constantes();
 void asserv_loop();
 void asserv_maj_position();
 void asserv_set_position(int32_t x, int32_t y, float a);
@@ -428,6 +452,7 @@ uint8_t asserv_rotation_relative(float rotation_rad, uint16_t timeout = 5000);
 uint8_t asserv_rotation_vers_point(int32_t x_mm, int32_t y_mm, uint16_t timeout = 0);
 
 // Communication
+uint8_t com_err2str(uint8_t error);
 void com_setup();
 void com_loop();
 
@@ -435,6 +460,8 @@ void com_send_robot_state();
 void com_send_robot_infos();
 void com_printfln(const char* format, ...);
 void com_print(const char* str);
+void com_serial1_printf(const char* format, ...);
+void com_serial1_print(const char* str);
 
 // Monitor Panel
 void monitorCodeurs();
@@ -458,6 +485,15 @@ void ecran_console_error(const char* message);
 void ecran_print_menu(int);
 void ecran_print_menu_status();
 void ecran_print_debug();
+
+// ledMatrix
+void ledMatrix_effacer();
+void ledMatrix_definir_score(int valeur);
+void ledMatrix_afficher_score();
+void ledMatrix_incrementer_score(int increment);
+void ledMatrix_defiler_texte(const char* str);
+void ledMatrix_afficher_WRD();
+void ledMatrix_indiquer_obstacle();
 
 // SICK
 inline bool point_dans_la_table(const Point point);

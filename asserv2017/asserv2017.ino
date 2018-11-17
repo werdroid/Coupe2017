@@ -38,6 +38,8 @@ IntervalTimer timer;
 
 void setup() {
   Serial.begin(9600);
+  Serial.setTimeout(300);
+  
   // https://www.pjrc.com/teensy/td_libs_SPI.html
   SPI.setSCK(sclk);
   // SPI.setMOSI(mosi);
@@ -63,6 +65,13 @@ void setup() {
   // CORE_PIN14_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); // Alt2=SPIO_SCK.  chip pin PTD1
 
   ecran_console_reset();
+  
+  // Date et heure de **compilation**
+  ecran_console_log(__DATE__);
+  ecran_console_log(" ");
+  ecran_console_log(__TIME__);
+  ecran_console_log("\n\n");
+  
   ecran_console_log("Ecran OK\n");
 
   ecran_console_log("Init W5200 mac/ip\n");
@@ -144,7 +153,6 @@ void interruption_sample() {
   lock_loop = RT_STATE_RUNNING; // évite de rentrer dans la fonction si elle est déjà en cours
 
   time_total = 0;
-  unsigned long time = micros();
 
   tone_loop();
 
@@ -167,7 +175,9 @@ void interruption_sample() {
   led_update();
   tone_loop();
 
-  if ((micros() - time) >= DT_US) {
+  robot.time_total = time_total;
+
+  if (time_total >= DT_US) {
     com_printfln("RT INTERRUPTION TOO LONG");
   }
 
@@ -181,7 +191,6 @@ void interruption_sample() {
  */
 
 void synchronisation() {
-  minuteur_arreter_tout_si_fin_match();
   lock_loop = RT_STATE_WAITING;
   while(lock_loop != RT_STATE_SLEEP);
 }

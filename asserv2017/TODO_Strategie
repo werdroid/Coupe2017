@@ -1,0 +1,32 @@
+﻿Avancement fonctions Stratégie
+
+
+=== GR ===
+
+--------------------------- ------  ---------------- -------
+ Action de jeu               Codé    Points définis   Testé
+--------------------------- ------  ---------------- -------
+activer_panneau
+vider_REP
+vider_REM
+vider_REP_opp
+vider_REM_opp
+activer_abeille
+gr_rapporter_CUB
+deposer_chateau
+deposer_station
+--------------------------- ------  ---------------- -------
+
+
+
+
+=== PR ===
+
+--------------------------- ------  ---------------- -------
+ Action de jeu               Codé    Points définis   Testé
+--------------------------- ------  ---------------- -------
+pr_activer_panneau            X
+pr_rapporter_CUB              x*
+--------------------------- ------  ---------------- -------
+
+* CUB1 et CUB2 pas encore gérés

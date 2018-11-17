@@ -47,8 +47,18 @@ int32_t low_pass(int32_t valeur_precedente, int32_t valeur, float coeff) {
   return valeur_precedente + coeff * (valeur - valeur_precedente);
 }
 
+// Angle relatif entre le robot aux coordonnées (x,y,a) et le point (xx,yy)
+// Relatif veut dire qu'on se met à la place du robot et non de la table
+// ex: 0,0,0 et 1,0 => 0 car le point est devant
+// ex: 0,0,0 et 0,1 => pi/2 car le point est sur le côté droit
+// ex: 1,1,pi et 0,0 => pi/4 car le point est légèrement sur la droite devant
+// faire un schéma pour comprendre
+float angle_relatif_robot_point(int32_t x, int32_t y , float a, int32_t xx, int32_t yy) {
+  return normalize_radian(atan2(yy - y, xx - x) - a);
+}
+
 /* Prend a en radians
- * Retourne a en radians sous ]-pi; pi[
+ * Retourne a en radians sous [-pi; pi]
  */
 
 float normalize_radian(float a) {

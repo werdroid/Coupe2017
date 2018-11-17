@@ -70,7 +70,7 @@ void minuteur_demarrer() {
  * Retour non bloquant.
  */
 
-uint32_t minuteur_temps_restant() {
+int32_t minuteur_temps_restant() {
   return TEMPS_JEU_MS - (millis() - robot.match_debut);
 }
 
