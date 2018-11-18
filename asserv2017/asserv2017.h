@@ -99,11 +99,13 @@ struct quadramp_filter {
 typedef struct {
   bool IS_PR;
   uint8_t symetrie;
-  bool estVert; // est égal à l'inverse de symetrie (utilisé en haut niveau)
   bool sans_symetrie; // 1=on fait pas les symétries
   bool activer_monitor_sick;
   uint8_t programme;
   int score;
+  
+  /* Spécificités sur une année */
+  bool estVert; // est égal à l'inverse de symetrie (utilisé en haut niveau), à renommer chaque année partout
   bool propulseur_actif = false;
   bool trappe_ouverte = false;
 
@@ -244,68 +246,6 @@ extern Robot robot;
 volatile extern uint8_t lock_loop;
 
 
-/*-----------------------------------------------------------------------------
- * Constantes et variables stratégie (communes PR/GR)
- *----------------------------------------------------------------------------*/
-
-
-// Constantes de zone, utilisés comme bit masks
-const uint16_t ZONE_INCONNUE = 0;
-const uint16_t ZONE_A = 1 << 1;
-const uint16_t ZONE_B = 1 << 2;
-const uint16_t ZONE_C = 1 << 3;
-const uint16_t ZONE_D = 1 << 4;
-  // S pour Symétrie
-const uint16_t ZONE_AS = 1 << 5;
-const uint16_t ZONE_BS = 1 << 6;
-const uint16_t ZONE_CS = 1 << 7;
-const uint16_t ZONE_DS = 1 << 8;
-// Info: jusqu'à 10 en 2017
-// Ajout de zone à faire aussi dans robot_dans_zone();
-
-// Constantes de points
-// Ici, pas de bit mask. On évite les puissances de 2 pour éviter toute confusion avec un idZone
-const uint8_t PT_ETAPE_1 = 41;
-const uint8_t PT_ETAPE_2 = 42;
-const uint8_t PT_ETAPE_3 = 43;
-const uint8_t PT_ETAPE_4 = 44;
-const uint8_t PT_ETAPE_5 = 45;
-const uint8_t PT_ETAPE_6 = 46;
-const uint8_t PT_ETAPE_6S = 86;
-const uint8_t PT_ETAPE_8 = 48;
-const uint8_t PT_ETAPE_9 = 49;
-const uint8_t PT_ETAPE_10 = 50;
-const uint8_t PT_ETAPE_11 = 51;
-const uint8_t PT_ETAPE_12 = 52;
-const uint8_t PT_ETAPE_12S = 92;
-const uint8_t PT_ETAPE_13 = 53;
-const uint8_t PT_ETAPE_14 = 54;
-// Ajout de point à faire aussi dans match.cpp > getPoint();
-
-
-// Vitesses par défaut
-uint32_t const VITESSE_RAPIDE = 100;
-uint32_t const VITESSE_LENTE = 50;
-uint32_t const VITESSE_POUSSER_CUBES = 80;
-
-// Actions
-// Les numéros doivent être uniques et continus de 0 à NB_ACTIONS
-// L'ordre n'a pas d'importance
-const int ACTION_ALLUMER_PANNEAU    = 0;
-const int ACTION_VIDER_REP          = 1;
-const int ACTION_ACTIVER_ABEILLE    = 2;
-const int ACTION_VIDER_REM          = 3;
-const int ACTION_RAPPORTER_CUB0     = 4;
-const int ACTION_RAPPORTER_CUB1     = 5;
-const int ACTION_RAPPORTER_CUB2     = 6;
-const int ACTION_VIDER_REM_OPP      = 7;
-const int ACTION_VIDER_REP_OPP      = 8;
-const int ACTION_DEPOSER_CHATEAU = 9;
-const int ACTION_DEPOSER_STATION = 10;
-const int ACTION_OUVRIR_REP      = 11;
-
-const int NB_ACTIONS = 12; // Dernière action + 1
-
 
 /*-----------------------------------------------------------------------------
  * Simulator only (not robot)
@@ -352,40 +292,18 @@ void minuteur_arreter_tout_si_fin_match();
 // General
 void synchronisation();
 
-// Match
-void score_incrementer(int increment);
-void score_definir(int valeur);
-void servo_slowmotion(Servo servo, uint8_t deg_from, uint8_t deg_to);
-void servo_jouer(Servo servo, uint8_t deg_from, uint8_t jeu = 5, uint8_t nb = 1);
-uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
-uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
-uint16_t localiser_zone();
-Point getPoint(uint8_t idPoint);
-bool robot_proche_point(uint8_t idPoint, uint8_t marge = 50);
-bool robot_dans_zone(uint16_t idZone);
-bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-
 // GR
 extern "C" {
 void gr_init();
 void match_gr();
 }
-void demo_allers_retours();
-void homologation_gr();
-void debug_gr();
-void test1_gr();
-void gr_coucou();
-void match_gr_arret();
-void gr_activer_propulseur(bool activer);
 
 // PR
 extern "C" {
 void pr_init();
 void match_pr();
 }
-void match_pr_arret();
-void debug_pr();
-void homologation_pr();
+
 
 // Menu
 void menu_start();

@@ -1,4 +1,5 @@
 #include "asserv2017.h"
+#include "match.h"
 
 
 /** ============================================
@@ -19,21 +20,6 @@ bool pr_CUB_dans_ZOC[3] = { false };
 
 Point pr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
 
-
-/** ====================
-  Paramétrage des servos
-  ====================== **/
-  
-// Bras gauche (BRAS)
-// Angle + => Vers le haut
-const uint8_t BRAS_INIT = 29;
-const uint8_t BRAS_LEVER = 60;
-const uint8_t BRAS_POSITION_INTERRUPTEUR = 55;
-
-Servo servo_bras;
-uint8_t angle_bras;
-void piloter_bras(uint8_t angle, bool doucement = false, bool log = true);
-void pr_init_servos();
 
 /** =====================================
   Programmes alternatifs (Homolog, Debug)
@@ -439,37 +425,6 @@ void match_pr_arret() {
   com_printfln("On stop les moteurs");
 }
 
-/** =======================
-  Positionnement des Servos
-  ========================= **/
-  
-void pr_init_servos() {
-  com_printfln("Initialisation des servos");
-  
-  // Ne jamais utiliser doucement pendant l'init
-  piloter_bras(BRAS_INIT);
-}
-  
-  
-void piloter_bras(uint8_t angle, bool doucement, bool log) {
-  if(doucement) {
-    servo_slowmotion(servo_bras, angle_bras, angle);
-  }
-  else {
-    servo_bras.write(angle);
-  }
-  
-  if(log) {
-    com_print("Positionnement du bras : ");
-    switch(angle) {
-      case BRAS_INIT: com_printfln("Init"); break;
-      case BRAS_LEVER: com_printfln("Levé"); break;
-      case BRAS_POSITION_INTERRUPTEUR: com_printfln("Interrupteur"); break;
-      default: com_printfln("%d", angle); break;
-    }
-  }
-}
-
 
 /** ==============================
   Initialisation des données robot
@@ -502,5 +457,5 @@ void pr_init() {
   robot.pwm_max_distance = 127;
   robot.pwm_max_rotation = 50;
   
-  servo_bras.attach(29);
+  pr_attach_servos();
 }
