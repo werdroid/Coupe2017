@@ -1,4 +1,5 @@
 #include "asserv2017.h"
+#include "match.h"
 
 const uint EEPROM_ADDRESS_SELECT = 0;
 const uint EEPROM_ADDRESS_COULEUR = 1;

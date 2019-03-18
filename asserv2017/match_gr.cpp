@@ -1,4 +1,5 @@
 #include "asserv2017.h"
+#include "match.h"
 
 /** Dans ce fichier, plus on descend, plus on va dans le bas niveau **/
 
@@ -35,7 +36,7 @@
 
 #define PIN_DOUT_PROPULSEUR 5
 
-void gr_init_servos();
+
 uint8_t gr_jouer_action(int action);
 uint8_t gr_allumer_panneau();
 uint8_t gr_vider_REP();
@@ -66,76 +67,7 @@ bool gr_CUB_dans_ZOC[3] = { false };
 
 Point gr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
 
-
-/** ====================
-  Paramétrage des servos
-  ====================== **/
-
-/* Pour chaque servo, on associe :
-    des variables
-      Servo servo_exemple;
-      uint8_t angle_exemple;
-    une abréviation
-      EX
-    des positions prédéfinies (utiliser l'infinitif)
-      ! Toutes les valeurs doivent être différentes
-      const uint8_t EX_INIT = 79; // Au départ
-      const uint8_t EX_OUVRIR = 80;
-      const uint8_t EX_FERMER = 120;
-    une fonction de pilotage générique
-      piloter_exemple(uint8_t angle, bool doucement = false, log = true);
-        angle       angle à donner au Servo (pas forcément une valeur prédéfinie)
-        doucement   true pour y aller doucement
-        log         false pour ne pas spammer le monitor
-
-*/
-
-// Evacuation des Eaux Usees (EEU)
-// Angle+ = [Sens?]
-const uint8_t EEU_BLOQUER = 90;
-const uint8_t EEU_OUVRIR = 25;
-
-// Cuillère à miel
-// v1 : Verticale
-// Angle+ = Monter
-/*const uint8_t CM_INIT = 38;
-const uint8_t CM_LEVER = 135;
-const uint8_t CM_TAPER_ABEILLE = 40; // Abeille à peu près à 110
-const uint8_t CM_RANGER = 39;*/
-
-// Horizontale
-// Angle+ = Vers la gauche
-const uint8_t CM_INIT = 37;
-const uint8_t CM_GAUCHE = 160;
-const uint8_t CM_90 = 104;
-const uint8_t CM_DROITE = 40;
-
-// Tri de l'eau (TRI)
-// Angle + = Vers la droite
-const uint8_t TRI_NEUTRE = 100;
-const uint8_t TRI_EAU_PROPRE = 130;
-const uint8_t TRI_EAU_USEE = 60;
-const uint8_t TRI_EXTREME_GAUCHE = 65;
-const uint8_t TRI_EXTREME_DROITE = 140;
-// TODO : Allers-retours par incréments de 10
-// Recentrage immédiat
-
-
-// Variables et prototypes Servo
-Servo servo_evacuation_eaux_usees; // au pluriel
-Servo servo_cuillere_miel;
-Servo servo_tri_eau;
-
 Servo propulseur;
-
-
-uint8_t angle_evactuation_eaux_usees;
-uint8_t angle_cuillere_miel;
-uint8_t angle_tri_eau;
-
-void piloter_evacuation_eaux_usees(uint8_t angle, bool doucement = false, bool log = true);
-void piloter_cuillere_miel(uint8_t angle, bool doucement = false, bool log = true);
-void piloter_tri_eau(uint8_t angle, bool doucement = false, bool log = true);
 
 
 /** =====================================
@@ -1326,92 +1258,6 @@ void match_gr_arret() {
 }
 
 
-/** =======================
-  Positionnement des Servos
-  =========================
-  
-  Voir commentaire général sur les Servos dans la section Définition
-    @2019 : créer une classe ServoWRD
-    [Pas fait 2018, doute sur implémentation d'une liste de constantes pré-définies]
-**/
-
-void gr_init_servos() {
-  com_printfln("Initialisation des servos");
-  
-  // Ne jamais utiliser doucement pendant l'init
-  piloter_evacuation_eaux_usees(EEU_BLOQUER);
-  piloter_cuillere_miel(CM_INIT);
-  piloter_tri_eau(TRI_NEUTRE);
-}
-  
-  
-void piloter_evacuation_eaux_usees(uint8_t angle, bool doucement, bool log) {
-  if(doucement) {
-    servo_slowmotion(servo_evacuation_eaux_usees, angle_evactuation_eaux_usees, angle);
-  }
-  else {
-    servo_evacuation_eaux_usees.write(angle);
-  }
-  
-  angle_evactuation_eaux_usees = angle;
-  
-  if(log) {
-    com_print("Evacuation des eaux usées : ");
-    switch(angle) {
-      case EEU_BLOQUER: com_printfln("Bloquee"); break;
-      case EEU_OUVRIR: com_printfln("Ouverte"); break;
-      default: com_printfln("%d", angle); break;
-    }
-  }
-}
-
-void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
-  if(doucement) {
-    servo_slowmotion(servo_cuillere_miel, angle_cuillere_miel, angle);
-  }
-  else {
-    servo_cuillere_miel.write(angle);
-  }
-  
-  angle_cuillere_miel = angle;
-  
-  if(log) {
-    com_print("Cuillere a miel : ");
-    switch(angle) {
-      case CM_INIT: com_printfln("Init"); break;
-      case CM_GAUCHE: com_printfln("Gauche"); break;
-      case CM_90: com_printfln("A 90"); break;
-      case CM_DROITE: com_printfln("Droite"); break;
-      
-      default: com_printfln("%d", angle); break;
-    }
-  }
-}
-
-
-void piloter_tri_eau(uint8_t angle, bool doucement, bool log) {
-  if(doucement) {
-    servo_slowmotion(servo_tri_eau, angle_tri_eau, angle);
-  }
-  else {
-    servo_tri_eau.write(angle);
-  }
-  
-  angle_tri_eau = angle;
-  
-  if(log) {
-    com_print("Tri : ");
-    switch(angle) {
-      case TRI_NEUTRE: com_printfln("Neutre"); break;
-      case TRI_EAU_PROPRE: com_printfln("Eau propre"); break;
-      case TRI_EAU_USEE: com_printfln("Eau usee"); break;
-      case TRI_EXTREME_GAUCHE: com_printfln("Extreme Gauche"); break;
-      case TRI_EXTREME_DROITE: com_printfln("Extreme Droite"); break;
-      default: com_printfln("%d", angle); break;
-    }
-  }
-}
-
 
 /** ==============================
   Initialisation des données robot
@@ -1448,16 +1294,13 @@ void gr_init() {
   robot.pwm_max_rotation = 50;
   
   
-  // Actionneurs à init
-  servo_evacuation_eaux_usees.attach(17);
-  servo_cuillere_miel.attach(33);
-  servo_tri_eau.attach(9);
+  // Actionneurs à init  
+  gr_attach_servos();
   
   propulseur.attach(PIN_DOUT_PROPULSEUR);
   propulseur.write(0);
   //pinMode(PIN_DOUT_PROPULSEUR, OUTPUT);
   //analogWrite(PIN_DOUT_PROPULSEUR, 0);
-  
   
   gr_init_servos();
 }

@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "asserv2017.h"
+#include "match.h"
 
 // ####################################
 // Globals
