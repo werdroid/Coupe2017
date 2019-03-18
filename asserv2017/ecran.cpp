@@ -49,7 +49,6 @@ void ecran_print_menu(int selector) {
     "\n\n   Regler Asserv    "
   };
 
-
   // Menu 0 : Identification robot
   if(robot.IS_PR) {
     optionsMenu[0] = "\n\n   Demarrer match PR";
@@ -81,14 +80,14 @@ void ecran_print_menu(int selector) {
     //                       "\n\n   Prg:             "
     case 0: optionsMenu[5] = "\n\n   Prg:        Debug"; break;
     case 1: optionsMenu[5] = "\n\n   Prg: Avancer 30cm"; break;
-    case 2: optionsMenu[5] = "\n\n   Prg:  Tourner x10"; break;
+    case 2: optionsMenu[5] = "\n\n   Prg: Test Antoine"; break;
     case 3: optionsMenu[5] = "\n\n   Prg: Part/Revient"; break;
     case 4: optionsMenu[5] = "\n\n   Prg: Homologation"; break;
     case 5:
       if(robot.IS_PR)
-        optionsMenu[5] = "\n\n   Prg:       Coucou";
+        optionsMenu[5]     = "\n\n   Prg:       Coucou";
       else
-        optionsMenu[5] = "\n\n   Prg:        Test1";
+        optionsMenu[5]     = "\n\n   Prg:        Test1";
       break;
     case 6: optionsMenu[5] = "\n\n   Prg:     Demo A/R"; break;
     case 7: optionsMenu[5] = "\n\n   Prg:   DO NOT USE"; break;
@@ -103,8 +102,7 @@ void ecran_print_menu(int selector) {
   }
   
   uint16_t couleur = ST7735_WHITE;
-
-
+  
   // Fond
   synchronisation();
   tft.fillScreen(couleur);
@@ -149,12 +147,10 @@ void ecran_print_menu(int selector) {
   int x = -25, y = selector*16 + 14;
   int offsetY = 0; // 35
   tft.fillTriangle(30 + x, offsetY + y, 30 + x, offsetY + y + 10, 35 + x, offsetY + y + 5, ST7735_BLACK);
-
-  
-  
+ 
   // Envoi du menu visé par le sélecteur sur le com pour contourner problème d'écran chez Antoine.
-  com_printfln("%s <<<< [%d] <<<< Menu", (optionsMenu[selector]).c_str(), selector);
-  
+  // Antoine 17/11/2018 : mon écran fonctionne aujourd'hui sans cette action -> mis en commentaire
+  // com_printfln("%s <<<< [%d] <<<< Menu", (optionsMenu[selector]).c_str(), selector); 
 }
 
 void ecran_print_menu_status() {
@@ -199,5 +195,3 @@ void ecran_print_debug() {
   tft.print(robot.yMm);
   tft.print("\n");
 }
-
-

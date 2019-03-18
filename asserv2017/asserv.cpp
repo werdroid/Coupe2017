@@ -204,7 +204,7 @@ uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_
   } else if (D2 < erreurNorme && erreurNorme < D1) {
     // distance seule car on est trop proche du point
     asserv_consigne_polaire_delta(erreurDistance, 0);
-  } else if (abs(erreurAngleRad) > 0.5) {// 30/180*pi=0.5rad   10/180*pi=0.17rad
+  } else if (abs(erreurAngleRad) > 0.17) {// 30/180*pi=0.5rad   10/180*pi=0.17rad
     // rotation seule car on n'est pas dans l'axe
     asserv_consigne_polaire_delta(0, erreurAngleRad);
   } else {
