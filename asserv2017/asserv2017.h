@@ -79,6 +79,8 @@ const uint8_t ASSERV_MODE_POLAIRE = 2; // asservissement
 // #define SPD_MAX SPD_MAX_MM * ASSERV_COEFF_TICKS_PAR_MM_PR // tick/s
 // #define ACC_MAX ACC_MAX_MM * ASSERV_COEFF_TICKS_PAR_MM_PR // tick/s2
 
+// Valeurs du Sick
+const uint16_t SICK_VALUES_LENGTH = 270; // 270 mesures normalement
 
 /*-----------------------------------------------------------------------------
  * Data structures
@@ -95,6 +97,25 @@ struct quadramp_filter {
   int32_t previous_out;
   int32_t previous_in;
 };
+
+
+typedef struct {
+  int32_t x;
+  int32_t y;
+} Point; // 8 octets
+
+typedef struct {
+  int32_t x1;
+  int32_t y1;
+  int32_t x2;
+  int32_t y2;
+} Zone;
+
+typedef struct {
+  int32_t x;
+  int32_t y;
+  float a;
+} Position; // 12 octets
 
 typedef struct {
   bool IS_PR;
@@ -155,6 +176,7 @@ typedef struct {
   int32_t consigneX; // tick
   int32_t consigneY; // tick
 
+  // Sick
   uint16_t DISTANCE_DETECTION;
   bool sickConnected;
   bool sickObstacle;
@@ -165,7 +187,10 @@ typedef struct {
   uint32_t sickTramesBytesTotal;
   uint16_t proche_index; // index du point le plus proche
   uint16_t proche_distance; // distance du point le plus proche
-
+   
+  bool detection_enabled; // à faux, le sick ne détectera jamais rien comme obstacle
+  
+  
   // Profiling du CPU
   uint8_t led_state; // Etat de la Led (aussi envoyé vers Monitor)
   uint32_t time_codeurs; // temps de lecture des codeurs (us)
@@ -187,22 +212,11 @@ typedef struct {
 } Robot;
 
 typedef struct {
-  int32_t x;
-  int32_t y;
-} Point; // 8 octets
+  uint16_t distances_values[SICK_VALUES_LENGTH]; // 270 octets
+  uint8_t rssi_values[SICK_VALUES_LENGTH]; // 270 octets
+  Point points[SICK_VALUES_LENGTH]; // 2160 octets
+} Sick;
 
-typedef struct {
-  int32_t x1;
-  int32_t y1;
-  int32_t x2;
-  int32_t y2;
-} Zone;
-
-typedef struct {
-  int32_t x;
-  int32_t y;
-  float a;
-} Position; // 12 octets
 
 
 // Structure à envoyer en tant que bloc binaire
@@ -244,6 +258,7 @@ typedef struct {
 } TrameMonitor;
 
 extern Robot robot;
+extern Sick sick;
 volatile extern uint8_t lock_loop;
 
 
@@ -406,6 +421,11 @@ void ledMatrix_afficher_WRD();
 void ledMatrix_indiquer_obstacle();
 
 // SICK
+inline bool point_dans_la_table(const Point point);
+inline bool angle_dans_le_cone(int16_t angle);
+inline int16_t index_vers_angle(uint16_t index);
+inline int16_t distance_valide(uint16_t distance);
+inline int dist(const Point p1, const Point p2);
 uint8_t sick_setup();
 uint8_t sick_connect();
 uint8_t sick_connected();

@@ -73,7 +73,7 @@ SerialConnection.prototype.onReceive = function(receiveInfo) {
   // or le format de nos trames binaires commencent et terminent par un @
   if (String.fromCharCode(bufView[0]) === '@' && String.fromCharCode(bufView[bufView.length - 1]) === '@') {
     // on traite la trame binaire par la fonction qui va bien
-    traiterTrameMonitor((this.name == 'PR' ? PR : GR), buffer);
+    // RETIRE pour localisation uniquement // traiterTrameMonitor((this.name == 'PR' ? PR : GR), buffer);
     return;
   }
 

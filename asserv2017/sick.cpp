@@ -25,7 +25,7 @@ const uint16_t TABLE_MARGE_BORDURE = 200; // mm
 
  const uint16_t SICK_OFFSET_RSSI = 652; // 8 bits
  const uint16_t SICK_OFFSET_DISTANCE = 87; // et 88, 16 bits
- const uint16_t SICK_VALUES_LENGTH = 270; // 270 mesures normalement
+ // const uint16_t SICK_VALUES_LENGTH = ... Déplacé vers asserv2017.h
 
  const uint16_t SICK_BUFFER_SIZE = 945; // 945
 
@@ -41,10 +41,6 @@ const int port_serveur_binaire = 2112;
 EthernetClient client;
 
 uint8_t buffer[SICK_BUFFER_SIZE];
-uint16_t distances_values[SICK_VALUES_LENGTH]; // 270 octets
-uint8_t rssi_values[SICK_VALUES_LENGTH]; // 270 octets
-Point points[SICK_VALUES_LENGTH]; // 2160 octets
-bool detection_enabled = true; // à faux, le sick ne détectera jamais rien comme obstacle
 
 /*------------------------------------------------------------------------------
  * Utilitaires
@@ -99,6 +95,8 @@ uint8_t sick_setup() {
   robot.sickTramesBytes = 0;
   robot.sickTramesBytesTotal = 0;
 
+  robot.detection_enabled = true;
+  
   Ethernet.begin(mac_client, ip_client);
   W5100.setRetransmissionTime(250); // en 100us
   W5100.writeSnRX_SIZE(0, 0x4); // 4Ko socket 0
@@ -223,7 +221,7 @@ uint8_t sick_read_data() {
   robot.sickTramesBytesTotal += len;
 
   if (sick_check_buffer(len)) {
-    sick_parse_buffer(buffer, distances_values, rssi_values);
+    sick_parse_buffer(buffer, sick.distances_values, sick.rssi_values);
     flag_data_ready = 1;
     robot.sickTramesValides++;
     return 1;
@@ -245,13 +243,13 @@ void sick_disable_detection(bool disabled) {
     com_printfln("SICK sick_disable_detection=false");
   }
 
-  detection_enabled = !disabled;
+  robot.detection_enabled = !disabled;
 }
 
 void sick_traiter_donnees() {
   robot.sickObstacle = false;
 
-  if (detection_enabled == false) {
+  if(robot.detection_enabled == false) {
     // la détection est désactivée, inutile de traiter les données du sick
     // et robot.sickObstacle restera à false
     return;
@@ -263,8 +261,8 @@ void sick_traiter_donnees() {
     }
 
     // Convertir les distances/degrés en points absolus sur la table
-    points[i].x = robot.xMm + distances_values[i] * cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);
-    points[i].y = robot.yMm + distances_values[i] * sin(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);
+    sick.points[i].x = robot.xMm + sick.distances_values[i] * cos(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);
+    sick.points[i].y = robot.yMm + sick.distances_values[i] * sin(robot.a + index_vers_angle(i) / 180.0 * MATH_PI);
 
 
     // Points valides
@@ -277,10 +275,11 @@ void sick_traiter_donnees() {
 
   // Démonstration fonctionnement Sick (utilisable avec MonitorSick)
   if(robot.activer_monitor_sick) {
+    //com_printfln("@|Sick|obstacle:%d,id:%d,dist:%d", (robot.sickObstacle ? 1:0), robot.proche_index, robot.proche_distance);
     for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
       // Envoi des points pour MonitorSick
       // (Destiné uniquement aux présentations au public)
-      com_printfln("#,index:%d,angleDeg:%d,x:%d,y:%d,dist:%d,rssi:%d", i, index_vers_angle(i), points[i].x, points[i].y, distances_values[i], rssi_values[i]);
+      com_printfln("#,index:%d,angleDeg:%d,x:%d,y:%d,dist:%d,rssi:%d", i, index_vers_angle(i), sick.points[i].x, sick.points[i].y, sick.distances_values[i], sick.rssi_values[i]);
     }
   }
 }

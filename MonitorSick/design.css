@@ -43,6 +43,31 @@ section {
 	background-color: green;
 }
 
+/**** Localisation ****/
+
+#sLocalisation .score {
+  width: 30px;
+  display: inline-block;
+  margin-right: 3px;
+  margin-bottom: 3px;
+  font-size: 0.8em;
+  text-align: left;
+  color: #bbbbbb;
+}
+#sLocalisation .fond {
+  margin-left: 0px;
+  background-color: #ddd;
+  display: inline-block;
+  width: 30px;
+}
+#sLocalisation .bar {
+  width: 50%;
+  background-color: green;
+  display: inline-block;
+  color: black;
+}
+
+
 
 /**** Flex Box ****/
 /**

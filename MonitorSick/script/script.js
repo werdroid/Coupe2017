@@ -34,6 +34,7 @@ var log = {
 }
 
 vision.init();
+localisation.init();
 
 window.addEventListener('resize', vision.conteneur.majPosition);
 
@@ -54,6 +55,8 @@ traiterMessage = function(r, msgStr) {
     points[id] = trame;
     //pair = !pair;
     vision.modifier.pointVu(id, points[id]['dist'], parseInt(points[id]['rssi']));
+    //localisation.majDistance(id,  points[id]['dist']);
+    
     // rssi entre 0 et 255
     // dist entre 0 et 9777 (= 10000 ?)
     /*points[id]['rssi'] = parseInt(points[id]['rssi']);
@@ -64,6 +67,7 @@ traiterMessage = function(r, msgStr) {
     //console.log(rssiMin + ' - ' + rssiMax);
   }
   else if(msgStr[0] == '@') {
+    
     var action = msgStr.split('|');
     var param = JSON.parse('{' + action[2] + '}');
     switch(action[1]) {
@@ -75,6 +79,14 @@ traiterMessage = function(r, msgStr) {
         robot.aDeg = param.angleDeg;
         robot.aRad = param.angleRad;
         vision.modifier.positionRobot(robot.mmX, robot.mmY);
+        break;
+      case 'Localisation':
+        localisation.majScore(param.i, param.score);
+        break;
+      case 'Sick':
+        /*obstacle.detecte = param.obstacle;
+        obstacle.id = param.id;
+        obstacle.distance = param.dist;*/
         break;
       default:
         break;
