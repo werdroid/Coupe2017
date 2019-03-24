@@ -3,41 +3,53 @@
 
 /** Dans ce fichier, plus on descend, plus on va dans le bas niveau **/
 
-/* Glossaire 2018
-  // Parce que Antoine pense à nous
+/* Glossaire 2019
+  // Parce que Antoine pense à vous
   
   Sur la table
-    Depart  : zone de sa couleur proche du milieu de la table
-    REP     : Recuperateur Eau Propre (notre côté du terrain)
-    REM     : Recuperateur Eau Mixte (notre côté du terrain)
-    REP_opp : Recuperateur Eau Propre opp (côté adverse du terrain)
-    REM_opp : Recuperateur Eau Mixte opp (côté adverse du terrain)
-    CHATEAU : CHATEAU d'eau (le notre)
-    STATION : STATION d'epuration (la notre)
-    ABEILLE : ABEILLE qui pique (la notre)
-    PANNEAU : PANNEAU domotique (le notre)
-    CUB0    : groupe de cubes (modules de constructions de batiments HQE) à l'emplacement 1 centré sur [850;540]
-    CUB1    : groupe de cubes à l'emplacement 2 centré sur [300;1190]
-    CUB2    : groupe de cubes à l'emplacement 3 centré sur [1100;1500]
-    CUB0_opp : idem CUB0 par symétrie
-    CUB1_opp : idem CUB1 par symétrie
-    CUB2_opp : idem CUB2 par symétrie
-    ZOC     : Zone de Construction des batiments HQE
-  
-  
+    Z_Depart        : Zone de départ
+    Tab_Rd          : Tableau périodique – case Rd
+    Tab_Gn          : Tableau périodique – case Gn
+    Tab_Bl          : Tableau périodique – case Bl
+    Tab_Gd          : Tableau périodique – case Gd
+    ADP             : Accélérateur de particules
+    Balance         : Balance
+    Rampe_Balance   : Pente d’accès à la balance (de notre côté)
+    Z_Experience    : Zone d’expérience
+    Z_Chaos_own     : Zone de chaos de notre côté
+    Z_Chaos_opp     : Zone de chaos opposé
+    Atome_Oxygene   : Atome d’oxygène
+
+    Distrib_Petit   : Petits distributeurs (réservés)
+    Distrib_Grd_own : Grand distributeur de notre côté
+    Distrib_Grd_opp : Grand distributeur opposé
+
+  Elements de jeu
+    Gn : Greenium
+    Bl : Blueium
+    Rd : Redium
+    Gd : Goldenium
+
   Dans le robot
-    EEU   : Evacuation des Eaux Usees
-    CM    : Cuillère à Miel
+    A définir
+
+  Systèmes auxiliaires
+    Balise_A    : Balise fixe A (la nôtre)
+    Balise_B    : Balise fixe B (la nôtre)
+    Balise_C    : Balise fixe C (la nôtre)
+    Mat_Central : Système central de détection
 */
 
 /** ============================================
   Déclarations constantes, variables, prototypes
   ============================================== */
 
-#define PIN_DOUT_PROPULSEUR 5
-
-
 uint8_t gr_jouer_action(int action);
+int gr_nb_tentatives[NB_ACTIONS] = { 0 };
+
+//#define PIN_DOUT_PROPULSEUR 5 //2018
+
+/*2018
 uint8_t gr_allumer_panneau();
 uint8_t gr_vider_REP();
 uint8_t gr_ouvrir_REP();
@@ -50,10 +62,10 @@ uint8_t gr_deposer_station(bool y_aller_meme_si_rien_a_faire = false);
 uint8_t gr_rapporter_CUB(int cub);
 void gr_trier_vers_eau_propre();
 void gr_trier_vers_eau_usee();
-
-int gr_nb_tentatives[NB_ACTIONS] = { 0 };
+*/
 
 // Variables d'état de jeu
+/*2018
 int nb_balles_eau_propre_dans_gr = 0;
 int nb_balles_eau_usee_dans_gr = 0;
 bool gr_panneau_allume = false;
@@ -66,8 +78,9 @@ bool gr_a_bouge_CUB[3] = { false };
 bool gr_CUB_dans_ZOC[3] = { false };
 
 Point gr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
+*/
 
-Servo propulseur;
+//Servo propulseur; //2018
 
 
 /** =====================================
@@ -175,6 +188,7 @@ void homologation_gr() {
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
 
+  /*2018
   asserv_set_position(150, 500, 0);
   asserv_maintenir_position();
 
@@ -187,8 +201,8 @@ void homologation_gr() {
   ledMatrix_defiler_texte("Les arbitres sont tres sympa cette annee");
   aller_xy(500, 500, VITESSE_RAPIDE, 1, 10000, 50);
   
-  //gr_activer_abeille();
   gr_rapporter_CUB(1);
+  */
 
   minuteur_attendre_fin_match();
 }
@@ -250,7 +264,6 @@ void test1_gr() {
   const uint32_t ATTENTE_ENTRE_BALLES = 800; 
 
   
-  
   /*
   
     com_printfln("---- En attente ----");
@@ -266,12 +279,6 @@ void test1_gr() {
     */
     
   
-  
-  
-   
-   
-   
- 
   while(1) {
     delay(500);
     score_definir(225);
@@ -324,7 +331,6 @@ void match_gr() {
   ecran_console_log("\n\n");
 
   ecran_console_log("1. Positionner\n");
-  ecran_console_log(" . Retirer tasseaux\n");
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
   ecran_console_log("4. Jack out\n\n");
@@ -337,6 +343,7 @@ void match_gr() {
   int strategie = 1;
   
   int phase1[] = {
+    /*2018
     //ACTION_ALLUMER_PANNEAU, (PR)
     //ACTION_VIDER_REP,
     //ACTION_DEPOSER_CHATEAU,
@@ -351,18 +358,21 @@ void match_gr() {
     //ACTION_VIDER_REM_OPP,
     //ACTION_DEPOSER_STATION
     //ACTION_DEPOSER_CHATEAU
-    // AS-tu bien retiré la virgule sur la dernière ligne ?
+    */
+    // As-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase1 = sizeof(phase1) / sizeof(action);
   
   bool activer_phase2 = true;
   int phase2[] {
+    /*2018
     //ACTION_VIDER_REP_OPP,
     ACTION_VIDER_REM_OPP,
     ACTION_DEPOSER_STATION
     //ACTION_DEPOSER_STATION,
     //ACTION_DEPOSER_CHATEAU
-    // AS-tu bien retiré la virgule sur la dernière ligne ?
+    */
+    // As-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase2 = sizeof(phase2) / sizeof(action);
   
@@ -377,12 +387,17 @@ void match_gr() {
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
   
+  /*2018
   // Démarrage en pi = Problème !
   //if(robot.estVert)
     asserv_set_position(250, 500, 0);
   /*else
     asserv_set_position(150, 500, MATH_PI); // Pi => 0 après application de la symétrie
     */
+
+  asserv_set_position(150, 450, 0); //2019 GR calé dans Tab_Rd en première idée
+
+
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -404,38 +419,36 @@ void match_gr() {
   
   
   // Init scores
-  score_incrementer(5); //Dépose Abeille
-  score_incrementer(5); //Dépose Panneau
-  score_incrementer(29); // Score attendu PR = 25 (Panneau) + 1*4 (Cubes)
+  score_incrementer(5); // Dépose Expérience => 5 points
+  score_incrementer(0); // Score attendu PR à définir
     
-    
-
 
   /**
-	Stratégie de jeu 2018 GR seul [Niveau 1]:
+	Stratégie de jeu 2019 GR seul [Niveau 1]:
 	=========================================
 
-	Visiter dans l'ordre :
-	PANNEAU, REP, CHATEAU, ABEILLE, REM, degager CUB3, STATION, tout en évitant les cubes sur le chemin.
-	Si le temps le permet, visiter :
-	CUB 1, ZOC
+  Réaliser dans l'ordre :
+	1/ ACTIVER_EXPERIENCE
+  2/ CLASSER_ATOMES_TABLEAU, tout en évitant les atomes sur le chemin.
+  3/ Prendre les atomes du grand distributeur de notre côté, tout en évitant les atomes sur le chemin.
+  4/ Pousser les atomes de la Z_Chaos de notre côté vers Tab_Rd
+  5/ ACTIVER_ADP
+  6/ PRENDRE_GOLDENIUM
+  7/ DEPOSE_BALANCE, dépose du goldenium (en haut de la pile), et des atomes les plus lourds notre grand distributeur (en premier temps je propose de filtrer les Redium que l'on gardera pour l'ADP)
+  8/ Prendre les atomes de notre petit distributeur
+  9/ DEPOSE_BALANCE, dépose des atomes restants jusqu'à atteindre 6 atomes dans la balance
+  10/ DEPOSE_ADP, déposer les atomes restants dans l'ADP
 
 	Gestion des erreurs :
 	Si une action de mouvement est obstruée (max_tentatives = 3 atteint),
 		aller à l'action suivante et retenter l'action précédente manquée à la fin.
-	Si une action de mouvement vers une zone de dépôt (CHATEAU, STATION, ZOC) est obstruée (max_tentatives = 3 atteint),
-		Si destination = CHATEAU
-			aller à un point de retrait: Aller à [610;1540]
-			puis aller à CHATEAU
-		Si destination = STATION
-			aller à un point de retrait: Aller à [400;840]
-			puis aller à STATION
-		Si destination = ZOC
-			aller à un point de retrait: Aller à [850;1190]	directement, tourner sans reculer et mettre les cubes en vrac
+	Si une action de mouvement vers une zone de dépôt (DEPOSE_BALANCE) est obstruée (max_tentatives = 3 atteint),
+			aller à un point de retrait : Aller à p15
+			puis aller à BALANCE
 
 	Coordonnées des points de passage pré-enregistrées.
 
-	Stratégie de jeu 2018 GR seul [Niveau 2]:
+	Stratégie de jeu [Niveau 2]:
 	=========================================
 	
 	Choix dynamique de la prochaine action en fonction de l'espérance de points associé à chaque action.
@@ -443,7 +456,7 @@ void match_gr() {
 	Intégrer la possibilité de se localiser sur le terrain avec les balises si GR perdu (définir conditions pour estimer que GR est perdu).
 	Intégrer la vision de srécupérateurs par le SICK pour anticiper les erreurs de position.
 
-	Stratégie de jeu 2018 GR seul [Niveau 3]:
+	Stratégie de jeu [Niveau 3]:
 	=========================================
 
 	Intégrer la vision du jeu des robots adverses pour le choix des actions (comptage du temps passé des robots devant les récupérateurs).
@@ -451,13 +464,13 @@ void match_gr() {
 
 	Coordonnées des points de passage gérées par le robot.
 
-	Stratégie de jeu 2018 GR seul [Niveau 4]:
+	Stratégie de jeu [Niveau 4]:
 	=========================================
 
 	Prévision du déplacement des robots adverses et intégration au choix de la prochaine action.
 
 	
-	Stratégie de jeu 2018 GR seul [Niveau 5]:
+	Stratégie de jeu [Niveau 5]:
 	=========================================
 
 	Interruption d'une action en cours pour une autre action au cours du mouvement si l'espérance de points est modifiée.
@@ -493,6 +506,8 @@ void match_gr() {
 
     
     // Est-ce qu'on doit continuer à faire des trucs ?
+    
+    /*2018
     if(abeille_activee
     && REP_vide
     && gr_CUB_dans_ZOC[1]) {
@@ -512,16 +527,16 @@ void match_gr() {
         gr_jouer_action(ACTION_DEPOSER_STATION);
         
         if(/*nb_balles_eau_propre_dans_gr == 0
-        &&*/ nb_balles_eau_usee_dans_gr == 0) {
+        &&*/ /*nb_balles_eau_usee_dans_gr == 0) {
           break;
         }
         
       }
-      
-      break;
+          
+    break;
         
     }
-    
+    */
     
   } // Fin de la première partie !
   
@@ -551,7 +566,7 @@ void match_gr() {
 
       gr_jouer_action(phase2[action]);
       
-      
+      /*2018
       if(REM_opp_vide
       && nb_balles_eau_usee_dans_gr == 0) {
         /*
@@ -559,16 +574,19 @@ void match_gr() {
           break;
         }*/
         
-        break;
+        /*break;
       }
-      
+      */
       
     }
     
+    /*2018
     gr_deposer_station(true);
+    */
   } // activer_phase2
+  /*2018
   piloter_evacuation_eaux_usees(EEU_OUVRIR);
-  
+  */
 
   minuteur_attendre_fin_match();
 }
@@ -860,59 +878,7 @@ uint8_t gr_vider_REM_opp() {
   if(nb_balles_eau_usee_dans_gr > 4) return ERROR_PAS_POSSIBLE;*/
   
   gr_nb_tentatives[ACTION_VIDER_REM_OPP]++;
-  
-  /*// Initialisation
-  error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 1, 8000, 3);
-  if (error) return error;
-
-  piloter_tri_eau(TRI_EXTREME_GAUCHE, false, true); //Ouverture loquet récupérateurs 1/2
-  error = aller_xy(2390, 1850, VITESSE_LENTE, 1, 3000, 3); //Positionnement
-  piloter_tri_eau(TRI_EXTREME_DROITE, false, true); //Ouverture loquet récupérateurs 2/2
- 
-  //Récupération des eaux
-  // REM: La couleur de ce récupérateur et de la balle inférieure est celle la zone de départ la plus éloignée. (C2018_Rules_final_FR.pdf)
-  // => REM_opp : première balle propre
-  piloter_tri_eau(TRI_NEUTRE, false, true); //init
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  gr_trier_vers_eau_propre(); //balle 1
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  score_incrementer(10); //10 pts pour récupérateur de son équipe vidé d'au moins une balle
-  
-  piloter_tri_eau(TRI_NEUTRE, false, true);
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  gr_trier_vers_eau_usee(); //balle 2
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  
-  piloter_tri_eau(TRI_NEUTRE, false, true);
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  gr_trier_vers_eau_propre(); //balle 3
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  
-  piloter_tri_eau(TRI_NEUTRE, false, true);
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  gr_trier_vers_eau_usee(); //balle 4
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  
-  piloter_tri_eau(TRI_NEUTRE, false, true);
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  gr_trier_vers_eau_propre(); //balle 5
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  
-  piloter_tri_eau(TRI_NEUTRE, false, true);
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  gr_trier_vers_eau_usee(); //balle 6
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  
-  piloter_tri_eau(TRI_NEUTRE, false, true);
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  gr_trier_vers_eau_propre(); //balle 7
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  
-  piloter_tri_eau(TRI_NEUTRE, false, true);
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);
-  gr_trier_vers_eau_usee(); //balle 8
-  minuteur_attendre(ATTENTE_ENTRE_BALLES);*/
-  
+    
   int16_t positionnementX = (robot.estVert ? 2290 : 2490);
   
   // /!\ Initialisation sans tri
@@ -931,14 +897,7 @@ uint8_t gr_vider_REM_opp() {
   piloter_tri_eau(TRI_EXTREME_DROITE, false, true); //Ouverture loquet récupérateur 2/2
   minuteur_attendre(400);
   score_incrementer(10); //10 pts pour REP ouvert + vidé d'au moins une balle
-  
-  // TODO : Trembler ?
-  // Proposition ATN pour faire trembler : trembler sur axe Y
-  /*for(int i = 1; i < 3; i++) {
-    aller_xy(positionnementX, 1845, VITESSE_RAPIDE, 0, 3000, 3); //reculer de 5 mm
-    aller_xy(positionnementX, 1850, VITESSE_RAPIDE, 1, 3000, 3); //avancer de 5 mm, choc butée table
-  }*/
-  
+   
   // /!\  --Ecoulement des balles pour cas sans tri
   minuteur_attendre(5000);  
    
@@ -1212,11 +1171,7 @@ uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun ave
 }
 
 
-uint8_t gr_degager_CUB2() {
-  com_printfln("--- Dégager CUB2 ---");
-  com_printfln("! ### Non codé");
-  return OK;
-}
+
 
 /** =============
   Actions de base
@@ -1225,6 +1180,7 @@ uint8_t gr_degager_CUB2() {
   Il s'agit d'actions effectuées par le robot, appelées surtout par les actions de jeu.
 **/
 
+/*2018
 void gr_activer_propulseur(bool activer) {
   //pin 5
   if(activer) {
@@ -1245,12 +1201,15 @@ void gr_trier_vers_eau_usee() {
 void gr_trier_vers_eau_propre() {
   piloter_tri_eau(TRI_EAU_PROPRE, false, true);
 }
+*/
 
 void match_gr_arret() {
   asserv_consigne_stop();
   com_printfln("! On stoppe les moteurs");
   
+  /*2018
   piloter_evacuation_eaux_usees(EEU_OUVRIR);
+  */
 
   // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
   
@@ -1297,10 +1256,12 @@ void gr_init() {
   // Actionneurs à init  
   gr_attach_servos();
   
+  /*2018
   propulseur.attach(PIN_DOUT_PROPULSEUR);
   propulseur.write(0);
   //pinMode(PIN_DOUT_PROPULSEUR, OUTPUT);
   //analogWrite(PIN_DOUT_PROPULSEUR, 0);
+  */
   
   gr_init_servos();
 }
