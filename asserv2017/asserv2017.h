@@ -168,9 +168,10 @@ typedef struct {
 
   // Profiling du CPU
   uint8_t led_state; // Etat de la Led (aussi envoyé vers Monitor)
-  uint32_t time_codeurs; // temps de lecture des codeurs
-  uint32_t time_sick; // temps de lecture du SICK
-  uint32_t time_total; // temps complet de la dernière interruption
+  uint32_t time_codeurs; // temps de lecture des codeurs (us)
+  uint32_t time_sick; // temps de lecture du SICK (us)
+  uint32_t time_total; // temps complet de la dernière interruption (us)
+  uint32_t time_user; // temps passé dans la stratégie (us)
 
   // Réglage du déplacement
   uint16_t pwm_max_distance;

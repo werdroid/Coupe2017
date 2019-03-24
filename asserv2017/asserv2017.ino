@@ -24,9 +24,10 @@
 Robot robot;
 
 volatile uint8_t lock_loop = RT_STATE_NOTSTARTED; // thread RT pas encore démarré
-elapsedMicros time_total;
-elapsedMicros time_solo;
-IntervalTimer timer;
+elapsedMicros time_total; // temps passé dans l'interruption (sick, codeurs, etc.)
+elapsedMicros time_user; // temps passé dans la stratégie
+elapsedMicros time_solo; // mesure locale de bouts de l'interruption
+IntervalTimer timer; // horloge pour lancer l'interruption
 
 // ####################################
 // Setup
@@ -181,6 +182,7 @@ void interruption_sample() {
     com_printfln("RT INTERRUPTION TOO LONG");
   }
 
+  time_user = 0;
   lock_loop = RT_STATE_SLEEP;
 }
 
@@ -191,6 +193,10 @@ void interruption_sample() {
  */
 
 void synchronisation() {
+  minuteur_arreter_tout_si_fin_match();
+  robot.time_user = time_user;
+
+  // Mise en pause de la stratégie et attente que l'interruption prenne le relai
   lock_loop = RT_STATE_WAITING;
   while(lock_loop != RT_STATE_SLEEP);
 }
