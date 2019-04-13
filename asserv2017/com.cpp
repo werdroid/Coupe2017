@@ -20,6 +20,8 @@ void com_send_robot_state() {
   trameMonitor.a = robot.a;
   trameMonitor.xMm = robot.xMm; // mm
   trameMonitor.yMm = robot.yMm; // mm
+  trameMonitor.consigneXmm = robot.consigneXmm; // mm
+  trameMonitor.consigneYmm = robot.consigneYmm; // mm
   trameMonitor.isPR = robot.IS_PR;
   trameMonitor.led_state = robot.led_state;
 

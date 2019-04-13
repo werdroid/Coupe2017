@@ -225,7 +225,9 @@ typedef struct {
   int16_t xMm; // mm
   int16_t yMm; // mm
   uint16_t proche_distance; // distance du point le plus proche
-
+  uint16_t consigneXmm; // mm
+  uint16_t consigneYmm; // mm
+  
   // propriétés sur 1 byte
   uint8_t sickObstacle;
   uint8_t isPR;
