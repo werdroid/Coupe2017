@@ -59,12 +59,12 @@ void ecran_print_menu(int selector) {
 
   // Menu 1 : Couleur
   // BLACK BLUE RED MAGENTA GREEN CYAN YELLOW WHITE
-  if(robot.estVert) {
-    optionsMenu[1] = "\n\n   Couleur:     VERT";
-    couleur_robot = ST7735_GREEN;
-  } else {
-    optionsMenu[1] = "\n\n   Couleur:   ORANGE";
+  if(robot.estJaune) {
+    optionsMenu[1] = "\n\n   Couleur:   JAUNE ";
     couleur_robot = ST7735_YELLOW;
+  } else {
+    optionsMenu[1] = "\n\n   Couleur:   VIOLET";
+    couleur_robot = ST7735_MAGENTA;
   }
   
   // Menu 3 : Ejection

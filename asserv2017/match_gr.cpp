@@ -160,11 +160,11 @@ void homologation_gr() {
   ecran_console_reset();
   ecran_console_log("Homolog GR\n");
 
-  if(robot.estVert) {
-    ecran_console_log("Couleur : VERT\n");
+  if(robot.estJaune) {
+    ecran_console_log("Couleur : JAUNE\n");
   }
   else {
-    ecran_console_log("Couleur : ORANGE\n");
+    ecran_console_log("Couleur : VIOLET\n");
   }
 
   ecran_console_log("\n\n");
@@ -324,10 +324,10 @@ void match_gr() {
   ecran_console_reset();
   ecran_console_log("Match GR\n");
 
-  if(robot.estVert)
-    ecran_console_log("Couleur : VERT\n");
+  if(robot.estJaune)
+    ecran_console_log("Couleur : JAUNE\n");
   else
-    ecran_console_log("Couleur : ORANGE\n");
+    ecran_console_log("Couleur : VIOLET\n");
   ecran_console_log("\n\n");
 
   ecran_console_log("1. Positionner\n");
@@ -389,7 +389,7 @@ void match_gr() {
   
   /*2018
   // Démarrage en pi = Problème !
-  //if(robot.estVert)
+  //if(robot.estJaune)
     asserv_set_position(250, 500, 0);
   /*else
     asserv_set_position(150, 500, MATH_PI); // Pi => 0 après application de la symétrie
@@ -410,7 +410,7 @@ void match_gr() {
   minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
   score_definir(0);
   
-  //if(robot.estVert)
+  //if(robot.estJaune)
     asserv_go_toutdroit(300, 10000);
   /*else
     asserv_go_toutdroit(-400, 10000);*/
@@ -727,7 +727,7 @@ uint8_t gr_vider_REP() {
   //Réalisation
   piloter_tri_eau(TRI_EXTREME_DROITE, false, true); //Ouverture loquet récupérateur 1/2 - droite vers gauche pour rep
   
-  if(robot.estVert) {
+  if(robot.estJaune) {
     error = aller_xy(150, 940, VITESSE_LENTE, 1, 3000, 3); //Positionnement
   }
   else {
@@ -879,7 +879,7 @@ uint8_t gr_vider_REM_opp() {
   
   gr_nb_tentatives[ACTION_VIDER_REM_OPP]++;
     
-  int16_t positionnementX = (robot.estVert ? 2290 : 2490);
+  int16_t positionnementX = (robot.estJaune ? 2290 : 2490);
   
   // /!\ Initialisation sans tri
   error = aller_pt_etape(PT_ETAPE_6S, VITESSE_RAPIDE, 1, 8000, 3);
@@ -929,7 +929,7 @@ uint8_t gr_activer_abeille() {
   error = aller_xy(230, 1770, VITESSE_RAPIDE, 1, 3000, 3); // Approche de l'abeille 2/4
   //if (error) return error;
   
-  if(robot.estVert) {
+  if(robot.estJaune) {
     piloter_cuillere_miel(CM_GAUCHE); //armer avant approche, en vert, cuillère à gauche vu du servo
   }
   else {
@@ -948,9 +948,9 @@ uint8_t gr_activer_abeille() {
   sick_disable_detection(false);
   // Un coup de cuillère au passage
   minuteur_attendre(500);
-  piloter_cuillere_miel(robot.estVert ? CM_DROITE : CM_GAUCHE); // Activer
+  piloter_cuillere_miel(robot.estJaune ? CM_DROITE : CM_GAUCHE); // Activer
   minuteur_attendre(500);
-  piloter_cuillere_miel(robot.estVert ? CM_GAUCHE : CM_DROITE); // Retour en position
+  piloter_cuillere_miel(robot.estJaune ? CM_GAUCHE : CM_DROITE); // Retour en position
   minuteur_attendre(500);
   // Et on continue pour de vrai
   error = aller_xy(230, 1770,  VITESSE_RAPIDE, 1, 3000, 3);
@@ -975,7 +975,7 @@ uint8_t gr_activer_abeille() {
   
   for(int i = 1; i <= 2; i++) {
     
-    if(robot.estVert) {
+    if(robot.estJaune) {
       piloter_cuillere_miel(CM_GAUCHE);
     }
     else {
@@ -998,7 +998,7 @@ uint8_t gr_activer_abeille() {
     com_printfln("ABEILLE atteinte.");
 
     // Réalisation de l'action
-    if(robot.estVert) {
+    if(robot.estJaune) {
       piloter_cuillere_miel(CM_DROITE);
     }
     else {

@@ -16,7 +16,7 @@ void menu_start() {
 
   // Récupération depuis la mémoire permanente
   robot.symetrie = EEPROM.read(EEPROM_ADDRESS_COULEUR);
-  robot.estVert = !robot.symetrie;
+  robot.estJaune = !robot.symetrie;
   robot.programme = EEPROM.read(EEPROM_ADDRESS_PROGRAMME);
   int selectPosition = EEPROM.read(EEPROM_ADDRESS_SELECT) % selectLength;
 
@@ -214,7 +214,7 @@ void match_changer_couleur() {
   robot.symetrie = !robot.symetrie;
   EEPROM.write(EEPROM_ADDRESS_COULEUR, robot.symetrie);
   
-  robot.estVert = !robot.symetrie;
+  robot.estJaune = !robot.symetrie;
 }
 
 void menu_changer_programme() {

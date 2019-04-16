@@ -218,7 +218,7 @@ Point getPoint(uint8_t idPoint) {
   switch(idPoint) {
     case PT_ETAPE_1: return {.x = 270, .y = 250}; break;
     case PT_ETAPE_2:
-      if(robot.estVert)
+      if(robot.estJaune)
         return {.x = 500, .y = 940};
       else
         return {.x = 500, .y = 740};
@@ -226,7 +226,7 @@ Point getPoint(uint8_t idPoint) {
       break;
     case PT_ETAPE_3: return {.x = 610, .y = 1712}; break;
     case PT_ETAPE_4:
-      if(robot.estVert)
+      if(robot.estJaune)
         return {.x = 2500, .y = 940};
       else
         return {.x = 2500, .y = 740};

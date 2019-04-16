@@ -105,7 +105,7 @@ typedef struct {
   int score;
   
   /* Spécificités sur une année */
-  bool estVert; // est égal à l'inverse de symetrie (utilisé en haut niveau), à renommer chaque année partout
+  bool estJaune; // est égal à l'inverse de symetrie (utilisé en haut niveau), à renommer chaque année partout
   bool propulseur_actif = false;
   bool trappe_ouverte = false;
 

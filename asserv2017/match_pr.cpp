@@ -29,10 +29,10 @@ void homologation_pr() {
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
 
-  if(robot.estVert)
-    ecran_console_log("Couleur : VERT\n");
+  if(robot.estJaune)
+    ecran_console_log("Couleur : JAUNE\n");
   else
-    ecran_console_log("Couleur : ORANGE\n");
+    ecran_console_log("Couleur : VIOLET\n");
   ecran_console_log("\n\n");
 
   ecran_console_log("1. Positionner\n");
@@ -117,10 +117,10 @@ void match_pr() {
   ecran_console_log("Match PR\n\n");
   
   
-  if(robot.estVert)
-    ecran_console_log("Couleur : VERT\n");
+  if(robot.estJaune)
+    ecran_console_log("Couleur : JAUNE\n");
   else
-    ecran_console_log("Couleur : ORANGE\n");
+    ecran_console_log("Couleur : VIOLET\n");
   ecran_console_log("\n\n");
 
   ecran_console_log("1. Positionner\n");
@@ -143,7 +143,7 @@ void match_pr() {
   ecran_console_log("Pret\n");
   minuteur_attendre(200);
   
-  //if(robot.estVert)
+  //if(robot.estJaune)
     asserv_set_position(101, 159, 0);
   /*else
     asserv_set_position(299, 159, MATH_PI);*/
@@ -173,7 +173,7 @@ void match_pr() {
   
   com_printfln("Sort de la zone de départ");
   
-  //if(robot.estVert)
+  //if(robot.estJaune)
     asserv_go_toutdroit(99, 10000);
   // else : pas de mouvement
   
