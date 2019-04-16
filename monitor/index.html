@@ -71,8 +71,12 @@
       <label for="curseurProgressif"><input type="checkbox" id="curseurProgressif" />Curseur progressif</label><br>
       <label for="cbAfficherQuadrillage"><input type="checkbox" id="cbAfficherQuadrillage" checked="checked" />Afficher le quadrillage</label><br>
       <label for="cbRelierPoints"><input type="checkbox" id="cbRelierPoints" />Relier les points</label><br>
+      <br>
       <label for="cbAfficherGabarit"><input type="checkbox" id="cbAfficherGabarit" />Afficher le gabarit</label><br><br>
-      <label for="cbAfficherPtsEtape"><input type="checkbox" id="cbAfficherPtsEtape" checked="checked" />Afficher les Points Etape</label><br><br>
+      <label for="cbAfficherPtsEtape"><input type="checkbox" id="cbAfficherPtsEtape" checked="checked" />Afficher les Points Etape</label><br>
+      <label for="cbAfficherZones"><input type="checkbox" id="cbAfficherZones" />Afficher les Zones</label><br>
+      <!--<label for="cbAfficherFond"><input type="checkbox" id="cbAfficherFond" />Afficher la table</label><br>-->
+      <br>
       <div id="optionsAffichageTable">
         <label>Positions</label><span class="optionAffichageTable on" id="opt_svg-Positions0">PR</span><span class="optionAffichageTable on" id="opt_svg-Positions1">GR</span><br>
         <label>Destinations</label><span class="optionAffichageTable on" id="opt_svg-Destinations0">PR</span><span class="optionAffichageTable on" id="opt_svg-Destinations1">GR</span><br>
@@ -92,7 +96,9 @@
 <script src="script/jquery-3.1.1.js"></script>
 <script src="script/jquery-ui/jquery-ui.js"></script>
 
-<script src="script/coordonnees.js"></script>
+<!--<script src="script/coordonnees.js"></script>-->
+<script src="script/coordonnees_ptsEtapes.js"></script>
+<script src="script/coordonnees_zones.js"></script>
 <script src="script/table_svg.js"></script>
 <script src="script/data.js"></script>
 <script src="script/evenements.js"></script>
