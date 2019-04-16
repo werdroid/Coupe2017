@@ -22,6 +22,7 @@
 // ####################################
 
 Robot robot;
+Table table;
 
 volatile uint8_t lock_loop = RT_STATE_NOTSTARTED; // thread RT pas encore démarré
 elapsedMicros time_total; // temps passé dans l'interruption (sick, codeurs, etc.)
