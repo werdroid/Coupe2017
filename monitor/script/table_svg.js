@@ -18,9 +18,11 @@ var table = {
     grpEvenements: [null, null],
     
     grpPtsEtape: null,
+    grpPtsEtapeSym: null,
     grpZones: null,
     gabarit: null,
-    
+    fond: null,
+
     positions: [[],[]], // Un objet SVG par position
     reliures: [[],[]],
     destinations: [[],[]],
@@ -72,7 +74,9 @@ var table = {
       .rect(table.general.scWidth, table.general.scHeight)
       .fill('none')//table.svg.image('img/imageTable_rognee.png', '100%', '100%'))
       .stroke({width: 1, color: 'black'});
-    table.svg
+
+    // Fond
+    table.obj.fond = table.svg
       .image('img/Table2019.png')
       .width(table.general.scWidth)
       .height(table.general.scHeight);//*/
@@ -139,11 +143,13 @@ var table = {
     
     // Points clés ("Points coordonnées")
     table.obj.grpPtsEtape = table.svg.set();
+    table.obj.grpPtsEtapeSym = table.svg.set();
     for(var i = 0; i < ptsEtape.length; i++) {
       var ptAction = (ptsEtape[i][0].substr(-1) == 'A');
-      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', ptsEtape[i][1], ptsEtape[i][2], 'lightgreen', ptAction));
-      table.obj.grpPtsEtape.add(table.creer.ptEtape('Adverse ' + ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', 3000 - ptsEtape[i][1], ptsEtape[i][2], 'orangered', ptAction));
+      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', ptsEtape[i][1], ptsEtape[i][2], 'orangered', ptAction));
+      table.obj.grpPtsEtapeSym.add(table.creer.ptEtape('Adverse ' + ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', 3000 - ptsEtape[i][1], ptsEtape[i][2], 'lightgreen', ptAction));
     }
+    table.obj.grpPtsEtapeSym.hide();
     
     // Zones
     table.obj.grpZones = table.svg.set();
@@ -158,6 +164,7 @@ var table = {
     table.obj.grpZones.hide();
     
 
+    table.obj.grpPtsEtape.front();
     table.obj.grpPositions[0].front();
     table.obj.grpPositions[1].front();
 
@@ -237,7 +244,7 @@ var table = {
       delta = delta * table.general.scale;
       var group = table.svg.group();
       for(var y = delta; y < table.general.scHeight; y += delta) {
-        group.add(table.creer.ligne(0, y, table.general.scWidth, y, 1, '#ffffff')); // #dddddd avant 2019
+        group.add(table.creer.ligne(0, y, table.general.scWidth, y, 1, '#eeeeee')); // #dddddd avant 2019
       }
       return group;
     },
@@ -245,7 +252,7 @@ var table = {
       delta = delta * table.general.scale;
       var group = table.svg.group();
       for(var x = delta; x < table.general.scWidth; x += delta) {
-        group.add(table.creer.ligne(x , 0, x, table.general.scHeight, 1, '#ffffff')); // #dddddd avant 2019
+        group.add(table.creer.ligne(x , 0, x, table.general.scHeight, 1, '#eeeeee')); // #dddddd avant 2019
       }
       return group;
     },
@@ -657,6 +664,14 @@ $( function() {
       table.obj.grpPtsEtape.hide();
   });
 
+  // Affichage des points repère (symétrie)
+  $('#cbAfficherPtsEtapeSym').click(function() {
+    if($(this).prop('checked'))
+      table.obj.grpPtsEtapeSym.show();
+    else
+      table.obj.grpPtsEtapeSym.hide();
+  });
+
   // Affichage des zones
   $('#cbAfficherZones').click(function() {
     if($(this).prop('checked'))
@@ -665,13 +680,13 @@ $( function() {
       table.obj.grpZones.hide();
   });
 
-  /*// Affichage de la table
+  // Affichage du fond (image table)
   $('#cbAfficherFond').click(function() {
     if($(this).prop('checked'))
-      table.obj.grpZones.show();
+      table.obj.fond.show();
     else
-      table.obj.grpZones.hide();
-  });*/
+      table.obj.fond.hide();
+  });
   
   // Affichage de lignes pour relier les points
   $('#cbRelierPoints').click(function() {
