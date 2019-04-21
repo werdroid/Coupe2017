@@ -53,22 +53,19 @@ void homologation_pr() {
   
   minuteur_attendre(1000);
   
-  asserv_set_position(101, 159, 0);
+  asserv_set_position(235, 752, 0); // PT_ETAPE_2
   asserv_maintenir_position();
   bouton_wait_start_up();
-  
-  minuteur_attendre(8000);
-  aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
-  
-  //pr_activer_panneau(0);
-  
-  aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 10000, 10);
-  pr_rapporter_CUB(0, 0);
   
   
   
   minuteur_demarrer();
-  minuteur_attendre(500);
+  minuteur_attendre(1000);
+  aller_pt_etape(PT_ETAPE_9, VITESSE_RAPIDE, 1, 10000, 20);
+  aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 10000, 20);
+  aller_pt_etape(PT_ETAPE_1, VITESSE_RAPIDE, 1, 10000, 20);
+  
+  
 }
   
 void debug_pr() {
@@ -131,7 +128,6 @@ void match_pr() {
   
   ecran_console_log("Initialisation...");
  
-  
   minuteur_attendre(500);
   
   pr_init_servos();
@@ -144,7 +140,7 @@ void match_pr() {
   minuteur_attendre(200);
   
   //if(robot.estJaune)
-    asserv_set_position(101, 159, 0);
+    asserv_set_position(150, 450, 0); // TBC (grossièrement redium, proche PT_ETAPE_1)
   /*else
     asserv_set_position(299, 159, MATH_PI);*/
     
@@ -173,9 +169,12 @@ void match_pr() {
   
   com_printfln("Sort de la zone de départ");
   
-  //if(robot.estJaune)
-    asserv_go_toutdroit(99, 10000);
-  // else : pas de mouvement
+
+  asserv_go_toutdroit(100, 10000);
+  aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 10000, 10);
+  
+  // Directement, ou contourner par le bas pour éviter le robot adverse ?
+  aller_pt_etape(PT_ETAPE_13, VITESSE_RAPIDE, 1, 10000, 10);
   
 
   //piloter_bras(BRAS_LEVER);
@@ -244,27 +243,135 @@ void match_pr() {
 /** ============
   Actions de jeu
   ============== **/
-/*
+
+
+uint8_t aller_vers_blueium(uint32_t vitesse) {
+  /*
+    essayer par chemin direct
+    si gêné, descend un peu, et continue d'essayer par petits morceaux,
+    en tentant de se remettre au plus près de la bordure régulièrement
+    Si gêné, tente de se mettre au plus près de la bordure
+  */
+  
+  const uint8_t SUIVRE_ROUTE = 1;
+  const uint8_t ALLER_VERS_DEVIATION = 2;
+  const uint8_t SUIVRE_DEVIATION = 4;
+  const uint8_t REVENIR_VERS_ROUTE = 8;
+  
+  uint8_t error;
+  Point ptDestination = getPoint(PT_ETAPE_13);
+  uint8_t chemin = SUIVRE_ROUTE;
+  uint8_t nb_boucles = 0;
+  
+  /*
+  // Déterminer des conditions de début ??
+  if(!robot_dans_zone(...)) {
+    
+  }
+  */
+
+  while(nb_boucles < 30) {
+    nb_boucles++;
+  
+    switch(chemin) {
+      case SUIVRE_ROUTE:
+        error = aller_xy(ptDestination.x, ptDestination.y, vitesse, 1, 20000, 5);
+        
+        switch(error) {
+          case ERROR_OBSTACLE:
+            chemin = ALLER_VERS_DEVIATION;
+            break;
+          case OK:
+            return OK;
+            break;
+          default:
+            return error;
+        }
+        break;
+
+      case ALLER_VERS_DEVIATION:
+        // On essaye de se décaler
+        error = aller_xy(robot.xMm, 450, vitesse, 1, 20000, 3);
+        switch(error) {
+          case ERROR_OBSTACLE:
+            // PR est encerclé => obligé d'attendre un peu :
+            minuteur_attendre(5000);
+            chemin = SUIVRE_ROUTE;
+            break;
+          case OK:
+            chemin = SUIVRE_DEVIATION;
+            break;
+          default:
+            return error;
+        }
+        
+        break;
+
+      case SUIVRE_DEVIATION:
+        error = aller_xy(ptDestination.x, 450, vitesse, 1, 20000, 5);
+        switch(error) {
+          case ERROR_OBSTACLE:
+            chemin = REVENIR_VERS_ROUTE;
+            break;
+          case OK:
+            return OK;
+            break;
+          default:
+            return error;
+        }
+        break;
+
+      case REVENIR_VERS_ROUTE:
+          error = aller_xy(ptDestination.x, 150, vitesse, 1, 20000, 3);
+          switch(error) {
+            case ERROR_OBSTACLE:
+              minuteur_attendre(5000);
+              chemin = SUIVRE_DEVIATION;
+              break;
+            case OK:
+              chemin = SUIVRE_ROUTE;
+              break;
+            default:
+              return error;
+          }
+          break;
+
+      default:
+        return ERROR_CAS_NON_GERE;
+    }
+
+    if(nb_boucles >= 30) {
+      return ERROR_TIMEOUT;
+    }
+
+  }
+  
+  return ERROR_TIMEOUT;
+}
+
+
+
 uint8_t pr_jouer_action(int action) {  
   uint8_t error;
-
+/* (empêche compil 2019)
   switch(action) {
     case ACTION_ALLUMER_PANNEAU:    error = pr_allumer_panneau(); break;
-    case ACTION_RAPPORTER_CUB0:   error = rapporter_CUB(0); break;
-    case ACTION_RAPPORTER_CUB1:   error = rapporter_CUB(1); break;
-    case ACTION_RAPPORTER_CUB2:   error = rapporter_CUB(2); break;
+    case ACTION_RAPPORTER_CUB0:   error = pr_rapporter_CUB(0); break;
+    case ACTION_RAPPORTER_CUB1:   error = pr_rapporter_CUB(1); break;
+    case ACTION_RAPPORTER_CUB2:   error = pr_rapporter_CUB(2); break;
     default:
       com_printfln("PR ne peut pas faire l'action %d", action);
       error = ERROR_PARAMETRE;
   }
+*/
   
   if(error) {
     com_err2str(error);
-    if(error == ERROR_PLUS_RIEN_A_FAIRE) return OK
+    if(error == ERROR_PLUS_RIEN_A_FAIRE) return OK;
   }
   
   return error;
-}*/  
+}//*/  
   
 int pr_activer_panneau(int depart) {
   uint8_t error;

@@ -71,6 +71,8 @@ typedef struct {
   // Exemples fictifs
   uint8_t nb_balles = 0;
   bool cub_en_position_initiale = true;
+  bool adp_active = false;
+  bool goldenium_tombe = false;
 } Table;
 extern Table table;
  

@@ -47,9 +47,10 @@
 uint8_t gr_jouer_action(int action);
 int gr_nb_tentatives[NB_ACTIONS] = { 0 };
 
-//#define PIN_DOUT_PROPULSEUR 5 //2018
 
-/*2018
+// ------------------------------
+// 2018 (à mettre à jour !)
+#define PIN_DOUT_PROPULSEUR 5 //2018
 uint8_t gr_allumer_panneau();
 uint8_t gr_vider_REP();
 uint8_t gr_ouvrir_REP();
@@ -62,10 +63,11 @@ uint8_t gr_deposer_station(bool y_aller_meme_si_rien_a_faire = false);
 uint8_t gr_rapporter_CUB(int cub);
 void gr_trier_vers_eau_propre();
 void gr_trier_vers_eau_usee();
-*/
+// ------------------------------
 
 // Variables d'état de jeu
-/*2018
+// ------------------------------
+// 2018 (à mettre à jour !)
 int nb_balles_eau_propre_dans_gr = 0;
 int nb_balles_eau_usee_dans_gr = 0;
 bool gr_panneau_allume = false;
@@ -78,9 +80,9 @@ bool gr_a_bouge_CUB[3] = { false };
 bool gr_CUB_dans_ZOC[3] = { false };
 
 Point gr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
-*/
+// ------------------------------
 
-//Servo propulseur; //2018
+Servo propulseur; //2018
 
 
 /** =====================================
@@ -1180,7 +1182,7 @@ uint8_t gr_rapporter_CUB(int cub) {   // Note : Voir pour une mise en commun ave
   Il s'agit d'actions effectuées par le robot, appelées surtout par les actions de jeu.
 **/
 
-/*2018
+// ------------------------ 2018
 void gr_activer_propulseur(bool activer) {
   //pin 5
   if(activer) {
@@ -1201,7 +1203,7 @@ void gr_trier_vers_eau_usee() {
 void gr_trier_vers_eau_propre() {
   piloter_tri_eau(TRI_EAU_PROPRE, false, true);
 }
-*/
+// ------------------------ 
 
 void match_gr_arret() {
   asserv_consigne_stop();
@@ -1256,12 +1258,12 @@ void gr_init() {
   // Actionneurs à init  
   gr_attach_servos();
   
-  /*2018
+  // 2018 ----------------------------
   propulseur.attach(PIN_DOUT_PROPULSEUR);
   propulseur.write(0);
   //pinMode(PIN_DOUT_PROPULSEUR, OUTPUT);
   //analogWrite(PIN_DOUT_PROPULSEUR, 0);
-  */
+  // ----------------------------
   
   gr_init_servos();
 }
