@@ -120,6 +120,7 @@ uint8_t com_err2str(uint8_t error) {
 void com_setup() {
   Serial.begin(115200); // serial par l'USB
   Serial1.begin(115200); // serial hardware pin 0 et 1
+  Serial3.begin(115200); // serial hardware pin 7 et 8
   Serial.setTimeout(300);
   metro.reset();
 }
@@ -170,4 +171,26 @@ void com_serial1_print(const char* str) {
     synchronisation();
   }
   Serial1.print(str);
+}
+
+
+
+// Sortie sur le Serial3 (xBee)
+
+// Termine par \0 (pas de \n). Max = 20 caractères
+constexpr uint8_t MAX_SERIAL3_LEN = 20 + 1;
+char dest_serial3[MAX_SERIAL3_LEN];
+void com_serial3_printf(const char* format, ...) {
+  va_list args;
+  va_start(args, format);
+  vsnprintf(dest_serial3, MAX_SERIAL3_LEN, format, args);
+  va_end(args);
+  com_serial3_print(dest_serial3);
+}
+
+void com_serial3_print(const char* str) {
+  if (lock_loop == RT_STATE_SLEEP) {
+    synchronisation();
+  }
+  Serial3.print(str);
 }

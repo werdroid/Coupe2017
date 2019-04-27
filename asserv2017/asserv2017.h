@@ -374,6 +374,8 @@ void com_printfln(const char* format, ...);
 void com_print(const char* str);
 void com_serial1_printf(const char* format, ...);
 void com_serial1_print(const char* str);
+void com_serial3_printf(const char* format, ...);
+void com_serial3_print(const char* str);
 
 // Monitor Panel
 void monitorCodeurs();
