@@ -4,6 +4,7 @@
 #ifdef __EMSCRIPTEN__
 
 #include "asserv2017.h"
+#include "match.h"
 #include <stdarg.h>
 #include <string.h>
 #include <emscripten.h> // emscripten_sleep, emscripten_run_script_int
@@ -16,6 +17,7 @@
 // Libs werdroid: ecran, bouton, asserv,
 
 Robot robot;
+Table table;
 
 void Servo::write(int angle) {
   // Rien à faire

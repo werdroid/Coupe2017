@@ -67,13 +67,13 @@ void menu_start() {
           
         case 3:
           // Menu libre
-          if(robot.propulseur_actif) {
+          /*if(robot.propulseur_actif) {
             gr_activer_propulseur(false);
           }
           else {
             gr_activer_propulseur(true);
           }
-          ecran_print_menu(selectPosition);
+          ecran_print_menu(selectPosition);*/
           break;
           
         case 4:

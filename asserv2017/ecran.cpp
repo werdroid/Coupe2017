@@ -66,14 +66,14 @@ void ecran_print_menu(int selector) {
     optionsMenu[1] = "\n\n   Couleur:   VIOLET";
     couleur_robot = ST7735_MAGENTA;
   }
-  
+  /*
   // Menu 3 : Ejection
   if(robot.propulseur_actif) {
     optionsMenu[3] = "\n\n   Ejecter        ON";
   }
   else {
     optionsMenu[3] = "\n\n   Ejecter       OFF";
-  }
+  }*/
 
   // Menu 5 : Affichage du programme sélectionné
   switch(robot.programme) {
