@@ -43,9 +43,11 @@
 /** ============================================
   Déclarations constantes, variables, prototypes
   ============================================== */
+void gr_test_deplacements();
 
 uint8_t gr_jouer_action(int action);
 int gr_nb_tentatives[NB_ACTIONS] = { 0 };
+
 
 uint8_t gr_pousser_atome(uint8_t atome);
 
@@ -259,6 +261,52 @@ void test1_gr() {
   }
 }
 
+void gr_test_deplacements() {
+  aller_pt_etape(PT_ETAPE_1, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_2, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_4, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_5, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_6, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_7, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_9, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_10, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B1, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B2, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B4, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B5, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B6, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B8, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B9, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B10, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B12, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_11B13, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_12, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_13, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_14, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_15, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_16, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_16B, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_17, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_18, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_19, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_19B, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B1, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B2, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B3, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B4, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B5, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B6, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B7, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B8, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B9, VITESSE_RAPIDE, 1, 10000, 5);
+  aller_pt_etape(PT_ETAPE_20B10, VITESSE_RAPIDE, 1, 10000, 5);
+}
+
 /** =============
   Programme MATCH
   =============== **/
@@ -295,6 +343,11 @@ void match_gr() {
   int action;
   int nb_iterations = 0;
   int strategie = 1;
+  
+  
+  
+  
+  return gr_test_deplacements();
   
   int phase1[] = {
     /*2018

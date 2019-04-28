@@ -137,26 +137,13 @@ uint32_t const VITESSE_POUSSER_ATOMES = 80;
 // Actions
 // Les numéros doivent être uniques et continus de 0 à NB_ACTIONS
 // L'ordre n'a pas d'importance
-const uint8_t ACTION_ALLUMER_PANNEAU    = 0;
-const uint8_t ACTION_VIDER_REP          = 1;
-const uint8_t ACTION_ACTIVER_ABEILLE    = 2;
-const uint8_t ACTION_VIDER_REM          = 3;
-const uint8_t ACTION_RAPPORTER_CUB0     = 4;
-const uint8_t ACTION_RAPPORTER_CUB1     = 5;
-const uint8_t ACTION_RAPPORTER_CUB2     = 6;
-const uint8_t ACTION_VIDER_REM_OPP      = 7;
-const uint8_t ACTION_VIDER_REP_OPP      = 8;
-const uint8_t ACTION_DEPOSER_CHATEAU = 9;
-const uint8_t ACTION_DEPOSER_STATION = 10;
-const uint8_t ACTION_OUVRIR_REP      = 11;
-// Retirer actions ci-dessus après ménage 2018
-const uint8_t ACTION_FAIRE_TOMBER_BLUEIUM = 12;
-const uint8_t ACTION_POUSSER_ATOME0 = 13;
-const uint8_t ACTION_POUSSER_ATOME1 = 14;
-const uint8_t ACTION_POUSSER_ATOME2 = 15;
-const uint8_t ACTION_POUSSER_ATOMES_CHAOS = 16;
-const uint8_t ACTION_POUSSER_ATOMES_CHAOS_B = 17;
-const uint8_t NB_ACTIONS = 18; // Dernière action + 1
+const uint8_t ACTION_FAIRE_TOMBER_BLUEIUM = 0;
+const uint8_t ACTION_POUSSER_ATOME0 = 1;
+const uint8_t ACTION_POUSSER_ATOME1 = 2;
+const uint8_t ACTION_POUSSER_ATOME2 = 3;
+const uint8_t ACTION_POUSSER_ATOMES_CHAOS = 4;
+const uint8_t ACTION_POUSSER_ATOMES_CHAOS_B = 5;
+const uint8_t NB_ACTIONS = 6; // Dernière action + 1
 
 
 /*-----------------------------------------------------------------------------
