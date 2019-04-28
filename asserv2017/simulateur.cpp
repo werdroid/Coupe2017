@@ -86,7 +86,9 @@ uint8_t com_err2str(uint8_t error) {
   return error;
 }
 
-
+void com_send_position() {
+  com_printfln("Robot (x, y) = (%d, %d)", robot.xMm, robot.yMm);
+}
 
 // Taille max d'un log, doit être le plus court possible, la communication prend du temps
 // Ls deux derniers caractères sont \n et \0

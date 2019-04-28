@@ -262,6 +262,9 @@ void test1_gr() {
 }
 
 void gr_test_deplacements() {
+  
+  asserv_set_position(150, 450, 0);
+  
   aller_pt_etape(PT_ETAPE_1, VITESSE_RAPIDE, 1, 10000, 5);
   aller_pt_etape(PT_ETAPE_2, VITESSE_RAPIDE, 1, 10000, 5);
   aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 10000, 5);

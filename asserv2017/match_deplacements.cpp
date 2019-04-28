@@ -1465,6 +1465,9 @@ bool robot_dans_zone(uint16_t idZone) {
   
   bool result = false;
 
+  /*com_printfln("Zones testées : %d", idZone);
+  com_send_position();*/
+  
   /* Alternative, Import depuis Excel : Remplacer par Regexp
     z([A-Z])\t([0-9]{1,4})\t([0-9]{1,4})\t([0-9]{1,4})\t([0-9]{1,4})
     if\(\(idZone & ZONE_$1\) == ZONE_$1\)\n  result |= robot_dans_zone\($2, $3, $4, $5\);\n
@@ -1483,46 +1486,46 @@ bool robot_dans_zone(uint16_t idZone) {
   if((idZone & ZONE_A) == ZONE_A)
     result |= robot_dans_zone(0, 0, 276, 266);
 
-  else if((idZone & ZONE_B) == ZONE_B)
+  if((idZone & ZONE_B) == ZONE_B)
     result |= robot_dans_zone(0, 266, 276, 1277);
 
-  else if((idZone & ZONE_C) == ZONE_C)
+  if((idZone & ZONE_C) == ZONE_C)
     result |= robot_dans_zone(0, 1277, 276, 1639);
 
   if(result) return result;
   
-  else if((idZone & ZONE_D) == ZONE_D)
+  if((idZone & ZONE_D) == ZONE_D)
     result |= robot_dans_zone(0, 1639, 276, 2000);
 
-  else if((idZone & ZONE_E) == ZONE_E)
+  if((idZone & ZONE_E) == ZONE_E)
     result |= robot_dans_zone(276, 0, 1226, 1160);
 
-  else if((idZone & ZONE_F) == ZONE_F)
+  if((idZone & ZONE_F) == ZONE_F)
     result |= robot_dans_zone(276, 1160, 1500, 1639);
 
   if(result) return result;
   
-  else if((idZone & ZONE_G) == ZONE_G)
+  if((idZone & ZONE_G) == ZONE_G)
     result |= robot_dans_zone(1500, 1160, 2450, 1639);
 
-  else if((idZone & ZONE_H) == ZONE_H)
+  if((idZone & ZONE_H) == ZONE_H)
     result |= robot_dans_zone(400, 1639, 1500, 2000);
 
-  else if((idZone & ZONE_I) == ZONE_I)
+  if((idZone & ZONE_I) == ZONE_I)
     result |= robot_dans_zone(1226, 0, 3000, 1639);
   
   if(result) return result;
 
-  else if((idZone & ZONE_J) == ZONE_J)
+  if((idZone & ZONE_J) == ZONE_J)
     result |= robot_dans_zone(1500, 1639, 3000, 2000);
 
-  else if((idZone & ZONE_K) == ZONE_K)
+  if((idZone & ZONE_K) == ZONE_K)
     result |= robot_dans_zone(1226, 0, 1500, 1160);
 
-  else if((idZone & ZONE_L) == ZONE_L)
+  if((idZone & ZONE_L) == ZONE_L)
     result |= robot_dans_zone(1500, 0, 2180, 1160);
 
-  else if((idZone & ZONE_M) == ZONE_M)
+  if((idZone & ZONE_M) == ZONE_M)
     result |= robot_dans_zone(2180, 0, 2450, 1160);
 
   /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
@@ -1541,7 +1544,12 @@ bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
     return (robot.xMm >= x1 && robot.xMm <= x2) && (robot.yMm >= y1 && robot.yMm <= y2);
   else
     return (robot.xMm <= symetrie_x(x1) && robot.xMm >= symetrie_x(x2) && (robot.yMm >= y1 && robot.yMm <= y2));
-*/
+//*/
+ /* if((symetrie_x(robot.xMm) >= x1 && symetrie_x(robot.xMm) <= x2) && (robot.yMm >= y1 && robot.yMm <= y2))
+    com_printfln("Dans (%d, %d), (%d, %d)", x1, y1, x2, y2);
+  else
+    com_printfln("Pas dans (%d, %d), (%d, %d)", x1, y1, x2, y2);*/
+
 
   // Ne peut-on pas se contenter d'un
   return (symetrie_x(robot.xMm) >= x1 && symetrie_x(robot.xMm) <= x2) && (robot.yMm >= y1 && robot.yMm <= y2);

@@ -368,6 +368,7 @@ void com_loop();
 
 void com_send_robot_state();
 void com_send_robot_infos();
+void com_send_position();
 void com_printfln(const char* format, ...);
 void com_print(const char* str);
 void com_serial1_printf(const char* format, ...);
