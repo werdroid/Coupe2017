@@ -51,6 +51,8 @@ donnees.d = [
 
 **/
 
+var fs = require('fs');
+const {dialog} = require('electron').remote
 
 var donnees = {
   d: [[], []],  // PR et GR
@@ -212,7 +214,7 @@ function traiterTrameMonitor(robot, buffer) {
     throw new Error('Trame monitor ne termine pas par 4 arobases, trash it.');
   }
 
-  console.log(trameMonitor);
+  //console.log(trameMonitor);
 
   // On vérifie que PR est bien branché sur PR.
   // Si ce n'est pas le cas, simple information
@@ -378,36 +380,28 @@ var getDateStr = function() {
 }
 
 var exporterFichier = function(prefixe, fonctionEcriture) {
-  chrome.fileSystem.chooseEntry({
-      type: 'saveFile',
-      suggestedName: prefixe + getDateStr() + '.csv',
-      accepts: [ { description: 'Fichier csv (*.csv)',
-                   extensions: ['csv']} ],
-      acceptsAllTypes: true
-    },
+  // https://ourcodeworld.com/articles/read/106/how-to-choose-read-save-delete-or-create-a-file-with-electron-framework
 
-    function(fileEntry) {
-      //savedFileEntry = fileEntry;
+  dialog.showSaveDialog({
+      defaultPath: prefixe + getDateStr() + '.csv',
+      filters: [{ name: 'Fichier csv (*.csv)',
+          extensions: ['csv']}]
+    }, (fileName) => {
+        if (fileName === undefined){
+            log.monitor("Export abandonné");
+            return;
+        }
 
-      // Use this to get a file path appropriate for displaying
-      var pathFichier;
-      chrome.fileSystem.getDisplayPath(fileEntry, function(path) {
-        pathFichier = path;
-        log.monitor('Export vers ' + path);
+        content = fonctionEcriture();
+
+        // fileName is a string that contains the path and filename created in the save file dialog.  
+        fs.writeFile(fileName, content, (err) => {
+            if(err){
+                log.monitor("Erreur pendant la création du fichier : "+ err.message)
+            }
+
+            log.monitor("Données exportées vers " + fileName);
+        });
       });
-      
-      fileEntry.createWriter(function(fileWriter) {
-        fileWriter.onwriteend = function(e) {
-          log.monitor('Terminé');
-        };
-
-        fileWriter.onerror = function(e) {
-          log.monitor('Echec : '+e.toString());
-        };
-
-        fileWriter.write(new Blob([fonctionEcriture()]));
-      });
-    });
-
 }
 
