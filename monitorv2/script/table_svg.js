@@ -18,8 +18,11 @@ var table = {
     grpEvenements: [null, null],
     
     grpPtsEtape: null,
+    grpPtsEtapeSym: null,
+    grpZones: null,
     gabarit: null,
-    
+    fond: null,
+
     positions: [[],[]], // Un objet SVG par position
     reliures: [[],[]],
     destinations: [[],[]],
@@ -71,18 +74,21 @@ var table = {
       .rect(table.general.scWidth, table.general.scHeight)
       .fill('none')//table.svg.image('img/imageTable_rognee.png', '100%', '100%'))
       .stroke({width: 1, color: 'black'});
-    table.svg
-      .image('img/Table2018.png')
+
+    // Fond
+    table.obj.fond = table.svg
+      .image('img/Table2019.png')
       .width(table.general.scWidth)
       .height(table.general.scHeight);//*/
     
+    /*
     // Les cubes 2018
     table.creer.groupeCubes(850, 540);
     table.creer.groupeCubes(300, 1190);
     table.creer.groupeCubes(1100, 1500);
     table.creer.groupeCubes(2150, 540);
     table.creer.groupeCubes(2700, 1190);
-    table.creer.groupeCubes(1900, 1500);
+    table.creer.groupeCubes(1900, 1500);*/
     
     // Grille
     table.obj.quadrillage = table.svg.group();
@@ -137,11 +143,28 @@ var table = {
     
     // Points clés ("Points coordonnées")
     table.obj.grpPtsEtape = table.svg.set();
+    table.obj.grpPtsEtapeSym = table.svg.set();
     for(var i = 0; i < ptsEtape.length; i++) {
-      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', ptsEtape[i][1], ptsEtape[i][2], 'lightgreen'));
-      table.obj.grpPtsEtape.add(table.creer.ptEtape('Adverse ' + ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', 3000 - ptsEtape[i][1], ptsEtape[i][2], 'orangered'));
+      var ptAction = (ptsEtape[i][0].substr(-1) == 'A');
+      table.obj.grpPtsEtape.add(table.creer.ptEtape(ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', ptsEtape[i][1], ptsEtape[i][2], 'orangered', ptAction));
+      table.obj.grpPtsEtapeSym.add(table.creer.ptEtape('Adverse ' + ptsEtape[i][0] + ' (' + ptsEtape[i][1] + ' x ' + ptsEtape[i][2] + ')', 3000 - ptsEtape[i][1], ptsEtape[i][2], 'lightgreen', ptAction));
     }
+    table.obj.grpPtsEtapeSym.hide();
+    
+    // Zones
+    table.obj.grpZones = table.svg.set();
+    for(var i = 0; i < zones.length; i++) {
+      var couleur = new SVG.Color({
+                          r: parseInt(Math.random()*155+100),
+                          g: parseInt(Math.random()*155+100),
+                          b :parseInt(Math.random()*155+100)
+                    });
+      table.obj.grpZones.add(table.creer.zone('Zone ' + zones[i][0], zones[i][1], zones[i][2], zones[i][3], zones[i][4], couleur));
+    }
+    table.obj.grpZones.hide();
+    
 
+    table.obj.grpPtsEtape.front();
     table.obj.grpPositions[0].front();
     table.obj.grpPositions[1].front();
 
@@ -221,7 +244,7 @@ var table = {
       delta = delta * table.general.scale;
       var group = table.svg.group();
       for(var y = delta; y < table.general.scHeight; y += delta) {
-        group.add(table.creer.ligne(0, y, table.general.scWidth, y, 1, '#dddddd'));
+        group.add(table.creer.ligne(0, y, table.general.scWidth, y, 1, '#eeeeee')); // #dddddd avant 2019
       }
       return group;
     },
@@ -229,7 +252,7 @@ var table = {
       delta = delta * table.general.scale;
       var group = table.svg.group();
       for(var x = delta; x < table.general.scWidth; x += delta) {
-        group.add(table.creer.ligne(x , 0, x, table.general.scHeight, 1, '#dddddd'));
+        group.add(table.creer.ligne(x , 0, x, table.general.scHeight, 1, '#eeeeee')); // #dddddd avant 2019
       }
       return group;
     },
@@ -252,9 +275,9 @@ var table = {
       );
       return gab;
     },
-    ptEtape: function(id, x, y, couleur) {
+    ptEtape: function(id, x, y, couleur, ptAction = false) {
       return table.svg
-        .rect(3, 3)
+        .rect(ptAction ? 2 : 3, ptAction ? 2 : 3)
         .center(x * table.general.scale, y * table.general.scale)
         .fill(couleur)
         .stroke('none')
@@ -263,6 +286,26 @@ var table = {
         })
         .mouseout(function(e) {
           infobulle.masquer();
+        });
+    },
+    zone: function(id, x1, y1, x2, y2, couleur) {
+      return table.svg
+        .rect((x2 - x1) * table.general.scale, (y2 - y1) * table.general.scale)
+        .fill(couleur)
+        .stroke({color: 'white', opacity: 1, width: 1})
+        .move(x1 * table.general.scale, y1 * table.general.scale)
+        .opacity(0.2)
+        .mouseover(function(e) {
+          var forme = SVG.get(e.target.id);
+          table.majInfobulle(e.clientX, e.clientY, id);
+          forme.opacity(0.4);
+          forme.stroke({color: 'blue', opacity: 1, width: 2});
+        })
+        .mouseout(function(e) {
+          var forme = SVG.get(e.target.id);
+          infobulle.masquer();
+          forme.opacity(0.2);
+          forme.stroke({color: 'white', opacity: 1, width: 1});
         });
     },
     texte: function(txt, x, y, couleur, police) {
@@ -619,6 +662,30 @@ $( function() {
       table.obj.grpPtsEtape.show();
     else
       table.obj.grpPtsEtape.hide();
+  });
+
+  // Affichage des points repère (symétrie)
+  $('#cbAfficherPtsEtapeSym').click(function() {
+    if($(this).prop('checked'))
+      table.obj.grpPtsEtapeSym.show();
+    else
+      table.obj.grpPtsEtapeSym.hide();
+  });
+
+  // Affichage des zones
+  $('#cbAfficherZones').click(function() {
+    if($(this).prop('checked'))
+      table.obj.grpZones.show();
+    else
+      table.obj.grpZones.hide();
+  });
+
+  // Affichage du fond (image table)
+  $('#cbAfficherFond').click(function() {
+    if($(this).prop('checked'))
+      table.obj.fond.show();
+    else
+      table.obj.fond.hide();
   });
   
   // Affichage de lignes pour relier les points
