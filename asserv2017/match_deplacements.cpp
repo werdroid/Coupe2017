@@ -1480,9 +1480,9 @@ bool robot_dans_zone(uint16_t idZone) {
   */
   
   /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Code généré automatiquement par GenererListesZones
-    le 2019-04-27 à 20:48:03
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
+      Code généré automatiquement par GenererListesZones
+      le 2019-04-29 à 23:09:38
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
   if((idZone & ZONE_A) == ZONE_A)
     result |= robot_dans_zone(0, 0, 276, 266);
 
@@ -1493,9 +1493,9 @@ bool robot_dans_zone(uint16_t idZone) {
     result |= robot_dans_zone(0, 1277, 276, 1639);
 
   if(result) return result;
-  
+
   if((idZone & ZONE_D) == ZONE_D)
-    result |= robot_dans_zone(0, 1639, 276, 2000);
+    result |= robot_dans_zone(0, 1639, 400, 2000);
 
   if((idZone & ZONE_E) == ZONE_E)
     result |= robot_dans_zone(276, 0, 1226, 1160);
@@ -1504,7 +1504,7 @@ bool robot_dans_zone(uint16_t idZone) {
     result |= robot_dans_zone(276, 1160, 1500, 1639);
 
   if(result) return result;
-  
+
   if((idZone & ZONE_G) == ZONE_G)
     result |= robot_dans_zone(1500, 1160, 2450, 1639);
 
@@ -1512,8 +1512,8 @@ bool robot_dans_zone(uint16_t idZone) {
     result |= robot_dans_zone(400, 1639, 1500, 2000);
 
   if((idZone & ZONE_I) == ZONE_I)
-    result |= robot_dans_zone(1226, 0, 3000, 1639);
-  
+    result |= robot_dans_zone(2450, 0, 3000, 1639);
+
   if(result) return result;
 
   if((idZone & ZONE_J) == ZONE_J)
