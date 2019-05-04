@@ -261,10 +261,10 @@ document.getElementById('bGenererJeuAleatoire').addEventListener('click', functi
 	genererJeuAleatoire();
 });
 document.getElementById('bExtrairePR').addEventListener('click', function() {
-  donnees.extraireVersCSV(PR);
+  exporterDonnees(PR);
 });
 document.getElementById('bExtraireGR').addEventListener('click', function() {
-  donnees.extraireVersCSV(GR);
+  exporterDonnees(GR);
 });
 
 /** Envoi d'un message **/

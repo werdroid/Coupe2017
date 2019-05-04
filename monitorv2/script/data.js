@@ -106,53 +106,44 @@ var donnees = {
     curseur.definirMax(robot, id);
   },
 
+  genererCSV: function(robot) {
+    var param = ['t', 'tMatch', 'position', 'destination', 'stats', 'sick'];
+    var EOL = "\r\n";
 
-  extraireVersCSV: function(robot) {
-    
-    if(donnees.d[robot].length == 0) {
-      log.monitor("Rien à exporter pour ce robot");
-      return;
+    // Données d'export
+    var file = (robot == PR ? 'PR' : 'GR') + EOL;
+    file += getDateStr() + EOL;
+
+    // En-têtes
+    file += EOL;
+    for(var p = 0; p < param.length; p++) {
+    if(typeof donnees.d[robot][0][param[p]] === "object") {
+      for(var key in donnees.d[robot][0][param[p]]) {
+        file += param[p] + '.' + key + ';';
+      }
+    }
+    else {
+      file += param[p] + ';';
+    }
+    }
+    file += EOL;
+
+    // Données
+    for(var i = 0; i < donnees.d[robot].length; i++) {
+    for(var p = 0; p < param.length; p++) {
+      if(typeof donnees.d[robot][i][param[p]] === 'object') {
+        for(var key in donnees.d[robot][i][param[p]]) {
+          file += donnees.d[robot][i][param[p]][key] + ';';
+        }
+      }
+      else {
+        file += donnees.d[robot][i][param[p]] + ';';
+      }
+    }
+    file += EOL;
     }
 
-    exporterFichier("Monitor_" + (robot == PR ? 'PR' : 'GR') + "_", function() {
-      var param = ['t', 'tMatch', 'position', 'destination', 'stats', 'sick'];
-      var EOL = "\r\n";
-
-      // Données d'export
-      var file = (robot == PR ? 'PR' : 'GR') + EOL;
-      file += getDateStr() + EOL;
-
-      // En-têtes
-      file += EOL;
-      for(var p = 0; p < param.length; p++) {
-        if(typeof donnees.d[robot][0][param[p]] === "object") {
-          for(var key in donnees.d[robot][0][param[p]]) {
-            file += param[p] + '.' + key + ';';
-          }
-        }
-        else {
-          file += param[p] + ';';
-        }
-      }
-      file += EOL;
-
-      // Données
-      for(var i = 0; i < donnees.d[robot].length; i++) {
-        for(var p = 0; p < param.length; p++) {
-          if(typeof donnees.d[robot][i][param[p]] === 'object') {
-            for(var key in donnees.d[robot][i][param[p]]) {
-              file += donnees.d[robot][i][param[p]][key] + ';';
-            }
-          }
-          else {
-            file += donnees.d[robot][i][param[p]] + ';';
-          }
-        }
-        file += EOL;
-      }
-
-      return file;
-   });
+    return file;
   }
 }
 
@@ -385,6 +376,7 @@ var getDateStr = function() {
   return date.getFullYear() + '-' + twoDigits(date.getMonth()+1) + '-' + twoDigits(date.getDate()) + '_' + twoDigits(date.getHours()) + twoDigits(date.getMinutes()) + twoDigits(date.getSeconds());
 }
 
+// Fonction plus générique, conservée "au cas où"
 var exporterFichier = function(prefixe, fonctionEcriture) {
   // https://ourcodeworld.com/articles/read/106/how-to-choose-read-save-delete-or-create-a-file-with-electron-framework
 
@@ -393,21 +385,58 @@ var exporterFichier = function(prefixe, fonctionEcriture) {
       filters: [{ name: 'Fichier csv (*.csv)',
           extensions: ['csv']}]
     }, (fileName) => {
-        if (fileName === undefined){
-            log.monitor("Export abandonné");
-            return;
-        }
+          if (fileName === undefined){
+              log.monitor("Export abandonné");
+              return;
+          }
 
-        content = fonctionEcriture();
+          content = fonctionEcriture();
 
-        // fileName is a string that contains the path and filename created in the save file dialog.  
-        fs.writeFile(fileName, content, (err) => {
-            if(err){
-                log.monitor("Erreur pendant la création du fichier : "+ err.message)
-            }
+          // fileName is a string that contains the path and filename created in the save file dialog.  
+          fs.writeFile(fileName, content, (err) => {
+              if(err){
+                  log.monitor("Erreur pendant la création du fichier : "+ err.message)
+              }
 
-            log.monitor("Données exportées vers " + fileName);
-        });
-      });
+              log.monitor("Données exportées vers " + fileName);
+          });
+      }
+    );
 }
 
+var exporterDonnees = function(robot) {
+  if(donnees.d[robot].length == 0) {
+    log.monitor("Rien à exporter pour ce robot");
+    return;
+  }
+
+  var fileName1 = dialog.showSaveDialog({
+    defaultPath: "Monitor_" + (robot == PR ? 'PR' : 'GR') + "_" + getDateStr() + '.csv',
+    filters: [{ name: 'Fichier csv (*.csv)',
+        extensions: ['csv']}]
+  });
+
+  if(fileName1 === undefined){
+      log.monitor("Export abandonné");
+      return;
+  }
+
+  // Données des trames
+  var content = donnees.genererCSV(robot);
+  fs.writeFile(fileName1, content, (err) => {
+      if(err){
+          log.monitor("Erreur pendant l'export des données csv : "+ err.message)
+      }
+      log.monitor("Données exportées vers " + fileName1);
+  });
+
+  // Logs
+  var logs = document.getElementById('logRobot' + robot).innerHTML; // C'est moche mais simple
+  var fileName2 = fileName1.replace('.csv', '.html');
+  fs.writeFile(fileName2, logs, (err) => {
+    if(err){
+        log.monitor("Erreur pendant l'export des logs : "+ err.message)
+    }
+    log.monitor("Logs exportés vers " + fileName2);
+  });
+}
