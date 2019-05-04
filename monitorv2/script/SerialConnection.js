@@ -93,6 +93,8 @@ class SerialConnection extends EventEmitter {
   }
 
   onReceive(buffer) {
+    // Sur node.js, c'est un Buffer. Sur Chrome, c'était un ArrayBuffer.
+    // Cela provoque une différence de traitement dans traiterTrameMonitor
     var bufView = new Uint8Array(buffer);
 
     // la trame reçue est une trame "robot state" qui contient du binaire

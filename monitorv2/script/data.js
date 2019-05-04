@@ -165,8 +165,12 @@ var donnees = {
 // en binaire via un buffer, il faut parser cela puis
 // envoyer le résultat dans notre structure JS
 var logVerificationBranchementPRGR = [true, true]; // Utilisé pour afficher un log spécifique 1 seule fois
-function traiterTrameMonitor(robot, buffer) {
-  //console.log('nouvelle trame robot state monitor', buffer);
+function traiterTrameMonitor(robot, buf) {
+  //console.log('nouvelle trame robot state monitor', buffer);  
+
+  // Explication de la ligne ci-dessous : https://stackoverflow.com/a/31394257
+  var buffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+
   var offset = 0;
   var HEAP8 = new Int8Array(buffer);
   var HEAP16 = new Int16Array(buffer);
@@ -199,6 +203,8 @@ function traiterTrameMonitor(robot, buffer) {
   trameMonitor.xMm = nextInt16();
   trameMonitor.yMm = nextInt16();
   trameMonitor.proche_distance = nextUInt16();
+  trameMonitor.consigneXmm = nextUInt16();
+  trameMonitor.consigneYmm = nextUInt16();
   trameMonitor.sickObstacle = nextUInt8();
   trameMonitor.isPR = nextUInt8();
   trameMonitor.led_state = nextUInt8();
@@ -254,9 +260,9 @@ function traiterTrameMonitor(robot, buffer) {
       a: trameMonitor.a,
       aDeg: parseInt(trameMonitor.a * 180 / Math.PI)
     },
-    destination: {  /**** TODO : Réceptionner la destination *****/
-      mmX: 0,
-      mmY: 0
+    destination: {
+      mmX: trameMonitor.consigneXmm,
+      mmY: trameMonitor.consigneYmm
     }
   });
 
