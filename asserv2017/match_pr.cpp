@@ -80,9 +80,12 @@ void debug_pr() {
 
   minuteur_demarrer();
 
-  asserv_go_toutdroit(200, 2000);
-  //asserv_go_xy(1500, 800, 2000, 1);
+  //asserv_go_toutdroit(200, 2000);
+  asserv_go_xy(1500, 800, 2000, 1);
   
+  asserv_go_xy(1500,1000, 2000, 1);
+  asserv_go_xy(1500, 800, 2000, 1);
+  asserv_go_xy(1500,1000, 2000, 1);
   /*asserv_distance(-5000, 5000);
   tone_play_end();
   asserv_distance(2000, 2000);
