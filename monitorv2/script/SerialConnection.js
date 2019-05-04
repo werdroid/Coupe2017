@@ -25,6 +25,36 @@ var ab2str = function(buf) {
   return decodeURIComponent(escape(encodedString));
 };
 
+// La fonction ci-dessus peut poser un problème quand une trame @@@@ s'enchaîne directement avec une ligne \n
+// On tente une autre méthode en cas d'échec.
+var ab2str_secondeChance = function(buf, robot) {
+  var bufView = new Uint8Array(buf);
+  var encodedString = String.fromCharCode.apply(null, bufView);
+  var debut, fin;
+  // console.log(encodedString);
+  if((debut = encodedString.indexOf('@@@@')) >= 0) {
+    if((fin = encodedString.indexOf('@@@@', debut + 1)) >= 0) {
+      // console.log(debut, fin)
+      //traiterTrameMonitor(robot, str2ab(encodedString.substring(debut, fin + 4)));
+      if(debut == 0) {
+        return '[Trame interceptée...]\n' + encodedString.substr(fin + 4);
+      }
+      else if(fin == encodedString.length - 1) {
+        return encodedString.substr(0, debut) + '[...Trame interceptée]\n';
+      }
+      else {
+        return '[Trop de trames] ' + encodedString;
+      }
+    }
+    else {
+      return '[Non interprété] ' + encodedString;  
+    }
+  }
+  else {
+    return '[Non interprété] ' + encodedString;
+  }
+}
+
 /* Converts a string to UTF-8 encoding in a Uint8Array; returns the array buffer. */
 var str2ab = function(str) {
   var encodedString = unescape(encodeURIComponent(str));
@@ -74,7 +104,12 @@ class SerialConnection extends EventEmitter {
       return;
     }
 
-    this.lineBuffer += ab2str(buffer);
+    try {
+      this.lineBuffer += ab2str(buffer);
+    }
+    catch(err) {
+      this.lineBuffer += ab2str_secondeChance(buffer, (this.name == 'PR' ? PR : GR));
+    }
 
     var index;
     while ((index = this.lineBuffer.indexOf('\n')) >= 0) {
@@ -89,7 +124,6 @@ class SerialConnection extends EventEmitter {
   }
 
   connect(path) {
-    nomPort = path;
     logStatutSerial('Tentative de connexion à ' + path);
     const options = {};
     this.connection = new SerialPort(path, options, this.onConnectComplete.bind(this));
@@ -104,7 +138,7 @@ class SerialConnection extends EventEmitter {
 
   disconnect(callback) {
     if (!this.connection) {
-      throw new Error(`Deconnection alors que la connexion n'est pas faire`);
+      throw new Error(`Deconnexion alors que la connexion n'est pas faite`);
     }
 
     this.isConnected = false;
