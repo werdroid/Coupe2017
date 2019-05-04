@@ -199,6 +199,8 @@ function traiterTrameMonitor(robot, buffer) {
   trameMonitor.xMm = nextInt16();
   trameMonitor.yMm = nextInt16();
   trameMonitor.proche_distance = nextUInt16();
+  trameMonitor.consigneXmm = nextUInt16();
+  trameMonitor.consigneYmm = nextUInt16();
   trameMonitor.sickObstacle = nextUInt8();
   trameMonitor.isPR = nextUInt8();
   trameMonitor.led_state = nextUInt8();
@@ -254,9 +256,9 @@ function traiterTrameMonitor(robot, buffer) {
       a: trameMonitor.a,
       aDeg: parseInt(trameMonitor.a * 180 / Math.PI)
     },
-    destination: {  /**** TODO : Réceptionner la destination *****/
-      mmX: 0,
-      mmY: 0
+    destination: {
+      mmX: trameMonitor.consigneXmm,
+      mmY: trameMonitor.consigneYmm
     }
   });
 
