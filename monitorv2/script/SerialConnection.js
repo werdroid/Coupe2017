@@ -131,9 +131,10 @@ class SerialConnection extends EventEmitter {
 
   send(msg) {
     if (!this.connection) {
-      throw new Error(`Envoi d'un message alors que la connexion n'est pas faire`);
+      throw new Error(`Envoi d'un message alors que la connexion n'est pas faite`);
     }
-    this.connection.write(str2ab(msg), 'binary');
+    //this.connection.write(str2ab(msg)); //, 'binary');
+    this.connection.write(msg);
   }
 
   disconnect(callback) {
