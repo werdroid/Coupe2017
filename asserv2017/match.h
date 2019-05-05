@@ -2,6 +2,43 @@
 #define match_h
 
 
+/* Glossaire 2019
+  // Parce que Antoine pense à vous
+  
+  Sur la table
+    Z_Depart        : Zone de départ
+    Tab_Rd          : Tableau périodique – case Rd
+    Tab_Gn          : Tableau périodique – case Gn
+    Tab_Bl          : Tableau périodique – case Bl
+    Tab_Gd          : Tableau périodique – case Gd
+    ADP             : Accélérateur de particules
+    Balance         : Balance
+    Rampe_Balance   : Pente d’accès à la balance (de notre côté)
+    Z_Experience    : Zone d’expérience
+    Z_Chaos_own     : Zone de chaos de notre côté
+    Z_Chaos_opp     : Zone de chaos opposé
+    Atome_Oxygene   : Atome d’oxygène
+
+    Distrib_Petit   : Petits distributeurs (réservés)
+    Distrib_Grd_own : Grand distributeur de notre côté
+    Distrib_Grd_opp : Grand distributeur opposé
+
+  Elements de jeu
+    Gn : Greenium
+    Bl : Blueium
+    Rd : Redium
+    Gd : Goldenium
+
+  Dans le robot
+    A définir
+
+  Systèmes auxiliaires
+    Balise_A    : Balise fixe A (la nôtre)
+    Balise_B    : Balise fixe B (la nôtre)
+    Balise_C    : Balise fixe C (la nôtre)
+    Mat_Central : Système central de détection
+*/
+
 /*-----------------------------------------------------------------------------
  * Constantes et variables stratégie (communes PR/GR)
  *----------------------------------------------------------------------------*/
@@ -137,20 +174,21 @@ uint32_t const VITESSE_POUSSER_ATOMES = 80;
 // Actions
 // Les numéros doivent être uniques et continus de 0 à NB_ACTIONS
 // L'ordre n'a pas d'importance
-const uint8_t ACTION_FAIRE_TOMBER_BLUEIUM = 0;
+const uint8_t ACTION_ACTIVER_ADP = 0;
 const uint8_t ACTION_POUSSER_ATOME0 = 1;
 const uint8_t ACTION_POUSSER_ATOME1 = 2;
 const uint8_t ACTION_POUSSER_ATOME2 = 3;
 const uint8_t ACTION_POUSSER_ATOMES_CHAOS = 4;
 const uint8_t ACTION_POUSSER_ATOMES_CHAOS_B = 5;
-const uint8_t NB_ACTIONS = 6; // Dernière action + 1
+const uint8_t ACTION_POUSSER_ATOMES_CHAOS_ADV = 6;
+const uint8_t NB_ACTIONS = 7; // Dernière action + 1
 
 
 /*-----------------------------------------------------------------------------
  * Structure stratégie
  *----------------------------------------------------------------------------*/
 typedef struct {
-  bool blueium_tombe = false;
+  bool adp_active = false;
   
   /* Numérotation des atomes :
       0 Rd
@@ -158,16 +196,16 @@ typedef struct {
       2 Bl
       3 Zone de chaos, par PT_ETAPE_16
       4 Zone de chaos, par PT_ETAPE_16B
+      5 Zone chaos adverse
   */
-  bool atome_a_bouge[5] = { false };
-  bool atome_rapporte[5] = { false };
-  Point atome_position[5] = { {500, 4500}, {500, 750}, {500, 1050}, {1000, 1050}, {1000, 1050} };
+  bool atome_a_bouge[6] = { false };
+  bool atome_rapporte[6] = { false };
+  Point atome_position[6] = { {500, 4500}, {500, 750}, {500, 1050}, {1000, 1050}, {1000, 1050}, {2000, 1050} };
   
   
   // Autres exemples fictifs
   uint8_t nb_balles = 0;
   bool cub_en_position_initiale = true;
-  bool adp_active = false;
   bool goldenium_tombe = false;
 } Table;
 extern Table table;

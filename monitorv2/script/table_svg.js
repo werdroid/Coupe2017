@@ -43,7 +43,7 @@ var table = {
     }
   },
   general: {
-    scale: 0.25,
+    scale: 0.25, // TODO : mettre à 1 et ajuster la taille des points et autres éléments...
     width: 3000,
     height: 2000,
     // Redéfinis à l'init

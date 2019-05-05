@@ -6,13 +6,13 @@
   Déclarations constantes, variables, prototypes
   ============================================== */
 
+uint8_t pr_activer_adp();
 uint8_t pr_jouer_action(int action);
 
-uint8_t pr_aller_vers_blueium(uint32_t vitesse);
+uint8_t pr_aller_vers_adp(uint32_t vitesse);
 uint8_t pr_pousser_atome(uint8_t atome);
 
 int pr_nb_tentatives[NB_ACTIONS] = { 0 };
-
 
 /** =====================================
   Programmes alternatifs (Homolog, Debug)
@@ -27,7 +27,11 @@ void homologation_pr() {
   else
     ecran_console_log("Couleur : VIOLET\n");
   ecran_console_log("\n\n");
-
+  
+  ecran_console_log("Les arbitres sont\n");
+  ecran_console_log("hyper sympa cette\n");
+  ecran_console_log("annee.\n\n");
+  
   ecran_console_log("1. Positionner\n");
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
@@ -50,15 +54,14 @@ void homologation_pr() {
   asserv_maintenir_position();
   bouton_wait_start_up();
   
-  
-  
   minuteur_demarrer();
   minuteur_attendre(1000);
  
-  /**
-  TO DO
-  **/
+  aller_xy(1250, 750, VITESSE_RAPIDE, 1, 10000, 50);
+  pr_jouer_action(ACTION_POUSSER_ATOME0);
+  asserv_go_toutdroit(-50, 2000);
   
+  minuteur_attendre_fin_match();
 }
   
 void debug_pr() {
@@ -106,6 +109,15 @@ void gr_coucou() {
   =============== **/
 
 void match_pr() {
+  
+  #ifdef __EMSCRIPTEN__
+  com_printfln("----------");
+  com_printfln(__DATE__);
+  com_printfln(__TIME__);
+  com_printfln("----------");
+  #endif
+  
+  
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
   
@@ -125,6 +137,21 @@ void match_pr() {
   ecran_console_log("Initialisation...");
  
   minuteur_attendre(500);
+  
+  uint8_t error;
+  uint8_t action;
+  int nb_iterations = 0;
+  uint8_t phase1[] = {
+    ACTION_ACTIVER_ADP,
+    ACTION_POUSSER_ATOME0,
+    ACTION_POUSSER_ATOME1,
+    ACTION_POUSSER_ATOME2,
+    ACTION_POUSSER_ATOMES_CHAOS,
+    ACTION_POUSSER_ATOMES_CHAOS_B
+    // AS-tu bien retiré la virgule sur la dernière ligne ?
+  };
+  int len_phase1 = sizeof(phase1) / sizeof(action);
+  
   
   pr_init_servos();
   
@@ -149,23 +176,41 @@ void match_pr() {
   /** ------------
     Début du Match
     ------------- **/
-
-  uint8_t error;
-  bool continuer_boucle;
-  int nb_iterations;
-  
-  int action;
-  int const NOMBRE_ACTIONS = 2;
-  int action_pr_nb_tentatives[NOMBRE_ACTIONS] = { 0 };
-  int action_avancement[NOMBRE_ACTIONS] = { 0 };
-
   
   minuteur_attendre(3000);
 
   
   com_printfln("Sort de la zone de départ");
+  asserv_go_toutdroit(200, 10000);
   
-  /* To do */
+  
+  action = len_phase1;
+  while(1) {
+    
+    #ifdef __EMSCRIPTEN__
+    nb_iterations++;
+    if(nb_iterations > 50) {
+      com_printfln("! #### BOUCLE INFINIE ? ###");
+      break;
+    }
+    #endif
+    
+    action++;
+    if(action >= len_phase1) {
+      action = 0;
+      com_printfln("=== (1) On boucle ===");
+    }
+    
+    pr_jouer_action(phase1[action]);
+    
+    // Conditions de fin de phase 1
+    if(table.adp_active &&
+      table.atome_a_bouge[0] && table.atome_a_bouge[1] && table.atome_a_bouge[2] && table.atome_a_bouge[3] && table.atome_a_bouge[4]) {
+      com_printfln("=== Tout est fait ! ===");
+      break;
+    }
+    
+  }
 
   minuteur_attendre_fin_match();
 }
@@ -176,7 +221,86 @@ void match_pr() {
   ============== **/
 
 
-uint8_t pr_aller_vers_blueium(uint32_t vitesse) {
+uint8_t pr_jouer_action(int action) {  
+  uint8_t error;
+  switch(action) {
+    case ACTION_ACTIVER_ADP:             error = pr_activer_adp(); break;
+    case ACTION_POUSSER_ATOME0:           error = pr_pousser_atome(0); break;
+    case ACTION_POUSSER_ATOME1:           error = pr_pousser_atome(1); break;
+    case ACTION_POUSSER_ATOME2:           error = pr_pousser_atome(2); break;
+    case ACTION_POUSSER_ATOMES_CHAOS:     error = pr_pousser_atome(3); break;
+    case ACTION_POUSSER_ATOMES_CHAOS_B:   error = pr_pousser_atome(4); break;
+    default:
+      com_printfln("PR ne peut pas faire l'action %d", action);
+      error = ERROR_PARAMETRE;
+  }
+  
+  if(error) {
+    com_err2str(error);
+    if(error == ERROR_PLUS_RIEN_A_FAIRE) return OK;
+  }
+  
+  return error;
+}
+  
+
+uint8_t pr_activer_adp() {
+  uint8_t error;
+  Point pt13 = getPoint(PT_ETAPE_13);
+  
+  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
+  pr_nb_tentatives[ACTION_ACTIVER_ADP]++;
+  
+  error = pr_aller_vers_adp(VITESSE_RAPIDE);
+  if(error) return error;
+  com_printfln("Bien arrivé proche de l'ADP");
+  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  
+  piloter_bras(BRAS_LEVER);
+  
+  error = asserv_rotation_vers_point(pt13.x, 0, 2000);
+  if(error) return error;
+  
+  /****** TODO *******/
+  com_printfln("## Programmer la suite ##");
+  /****** TODO *******/
+  
+  table.adp_active = true;
+  
+  return OK;
+  
+}
+
+
+
+
+uint8_t pr_pousser_atome(uint8_t atome) {
+  uint8_t error;
+  
+  piloter_bras(BRAS_LEVER);
+  
+  error = pousser_atome(atome);
+  
+  if(error != ERROR_PLUS_RIEN_A_FAIRE) {
+    switch(atome) {
+      case 0: pr_nb_tentatives[ACTION_POUSSER_ATOME0]++; break;
+      case 1: pr_nb_tentatives[ACTION_POUSSER_ATOME1]++; break;
+      case 2: pr_nb_tentatives[ACTION_POUSSER_ATOME2]++; break;
+      case 3: pr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS]++; break;
+      case 4: pr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS_B]++; break;
+    }
+  }
+  
+  piloter_bras(BRAS_BAISSER);
+  
+  return error;
+}
+  
+/** =============
+  Actions de base
+  =============== **/
+
+uint8_t pr_aller_vers_adp(uint32_t vitesse) {
   /*
     essayer par chemin direct
     si gêné, descend un peu, et continue d'essayer par petits morceaux,
@@ -196,7 +320,7 @@ uint8_t pr_aller_vers_blueium(uint32_t vitesse) {
   
   
   com_printfln("--- Direction Blueium ---");
-  if(table.blueium_tombe) return ERROR_PLUS_RIEN_A_FAIRE;
+  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
   
   
   // Déterminer des conditions de début ??
@@ -283,47 +407,6 @@ uint8_t pr_aller_vers_blueium(uint32_t vitesse) {
   
   return ERROR_TIMEOUT;
 }
-
-
-
-uint8_t pr_jouer_action(int action) {  
-  uint8_t error;
-  switch(action) {
-    case ACTION_FAIRE_TOMBER_BLUEIUM:     error = pr_aller_vers_blueium(VITESSE_RAPIDE); break;
-    case ACTION_POUSSER_ATOME0:           error = pr_pousser_atome(0); break;
-    case ACTION_POUSSER_ATOME1:           error = pr_pousser_atome(1); break;
-    case ACTION_POUSSER_ATOME2:           error = pr_pousser_atome(2); break;
-    case ACTION_POUSSER_ATOMES_CHAOS:     error = pr_pousser_atome(3); break;
-    case ACTION_POUSSER_ATOMES_CHAOS_B:   error = pr_pousser_atome(4); break;
-    default:
-      com_printfln("PR ne peut pas faire l'action %d", action);
-      error = ERROR_PARAMETRE;
-  }
-  
-  if(error) {
-    com_err2str(error);
-    if(error == ERROR_PLUS_RIEN_A_FAIRE) return OK;
-  }
-  
-  return error;
-}
-  
-
-uint8_t pr_pousser_atome(uint8_t atome) {
-  uint8_t error;
-  
-  piloter_bras(BRAS_LEVER);
-  
-  error = pousser_atome(atome);
-  
-  piloter_bras(BRAS_BAISSER);
-  
-  return error;
-}
-  
-/** =============
-  Actions de base
-  =============== **/
 
 void match_pr_arret() {
   asserv_consigne_stop();

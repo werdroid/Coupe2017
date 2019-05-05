@@ -6,13 +6,13 @@
     Actions communes
     ================ **/
     
-uint8_t pousser_atome(uint8_t atome) {   // Note : Voir pour une mise en commun avec code pr
+uint8_t pousser_atome(uint8_t atome) { 
   uint8_t error;
   
   com_printfln("--- Rapporter Atome %d ---", atome);
-  if(atome > 4) return ERROR_PARAMETRE;
+  if(atome > 5) return ERROR_PARAMETRE;
   if(table.atome_rapporte[atome]) return ERROR_PLUS_RIEN_A_FAIRE;
-  
+
   int points = 0;
 
   // Positionnement proche des atomes
@@ -36,11 +36,17 @@ uint8_t pousser_atome(uint8_t atome) {   // Note : Voir pour une mise en commun 
         break;
 
       case 2:
+        /** TODO : Discuter
+        Si dans ZONE_E : passer par PT_ETAPE_9 puis 11B6 ?
+        **/
         error = aller_pt_etape(PT_ETAPE_10, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         break;
         
       case 3:
+        /** TODO : Discuter
+        Si dans ZONE_E : passer par PT_ETAPE_9 avant ?
+        **/
         error = aller_pt_etape(PT_ETAPE_16, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         break;
@@ -49,6 +55,11 @@ uint8_t pousser_atome(uint8_t atome) {   // Note : Voir pour une mise en commun 
         error = aller_pt_etape(PT_ETAPE_16B, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         break;
+        
+      case 5:
+        error = aller_pt_etape(PT_ETAPE_19, VITESSE_RAPIDE, 1, 8000, 10);
+        if(error) return error;
+        
     }
     
   /*
@@ -89,10 +100,10 @@ uint8_t pousser_atome(uint8_t atome) {   // Note : Voir pour une mise en commun 
   }
   */
   
-  // Déplacement vers les zones d'éléments
+  // Déplacement vers tableau périodique
   switch(atome) {
     case 0:
-      error = aller_pt_direct(PT_8A, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
+      error = aller_xy(500, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
       table.atome_a_bouge[0] = true;
       
       if(error) {
@@ -177,6 +188,36 @@ uint8_t pousser_atome(uint8_t atome) {   // Note : Voir pour une mise en commun 
         score_incrementer(points);
       }
       break;
+      
+    case 5:
+      error = aller_xy(450, 1050, VITESSE_POUSSER_ATOMES, 1, 15000, 10);
+      table.atome_a_bouge[5] = true;
+      if(robot_dans_zone(ZONE_B | ZONE_E)) {
+        table.atome_a_bouge[3] = true;
+        table.atome_a_bouge[4] = true;
+      }
+      if(error) {
+        table.atome_position[5].x = robot.xMm;
+        table.atome_position[5].y = robot.yMm;
+        if(robot_dans_zone(ZONE_B | ZONE_E)) {
+          table.atome_position[3].x = robot.xMm;
+          table.atome_position[3].y = robot.yMm;
+          table.atome_position[4].x = robot.xMm;
+          table.atome_position[4].y = robot.yMm;
+        }
+        return error;
+      }
+      else {
+        if(!table.atome_rapporte[3] && !table.atome_rapporte[4])
+          points += 12; // 8 atomes * 1 pt + 1 bien placé dans le lot quand même, non ? * 5pts - 1 perdu
+        else
+          points += 9; // 4 atomes * 1pt + le bleu bien placé * 5 pts
+        if(!table.atome_rapporte[2]) points += 1; // le vert n'avait pas déjà été rapporté, on l'a mis dans le bleu au passage
+        table.atome_rapporte[5] = true;
+        score_incrementer(points);
+      }
+      break;
+      
   }
   
   asserv_go_toutdroit(-80, 2000); // On recule avant de tourner
