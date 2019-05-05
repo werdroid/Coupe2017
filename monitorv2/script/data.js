@@ -159,9 +159,20 @@ var logVerificationBranchementPRGR = [true, true]; // Utilisé pour afficher un 
 function traiterTrameMonitor(robot, buf) {
   //console.log('nouvelle trame robot state monitor', buffer);  
 
-  // Explication de la ligne ci-dessous : https://stackoverflow.com/a/31394257
-  var buffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  // console.log('Buffer :', buf instanceof Buffer);
+  // console.log('ArrayBuffer :',  buf instanceof ArrayBuffer);
+  
+  if(buf instanceof Buffer) {
+    // "Vrai" Port Serial, reçu avec node.js
+    // Explication de cette ligne : https://stackoverflow.com/a/31394257
+    var buffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  }
+  else {
+    // Simulateur ou Connexion Série Chrome
+    var buffer = buf;
+  }
 
+  
   var offset = 0;
   var HEAP8 = new Int8Array(buffer);
   var HEAP16 = new Int16Array(buffer);
