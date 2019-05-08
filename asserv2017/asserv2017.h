@@ -245,6 +245,33 @@ typedef struct {
   char footer4 = '@';
 } TrameMonitor;
 
+typedef struct {
+  // Début de trame
+  char header1 = '%';
+  char header2 = '%';
+  char header3 = '%';
+  char header4 = '%';
+
+  // 2 octets
+  uint16_t index;
+  int16_t angleDeg;
+  // x: non utilisé
+  // y: non utilisé
+  uint16_t distance;
+  
+  // 1 octet
+  uint8_t rssi;
+  
+  uint8_t empty1;
+
+  
+  // Fin de trame sur 4 bytes
+  char footer1 = '%';
+  char footer2 = '%';  
+  char footer3 = '%';  
+  char footer4 = '%';  
+} TrameSick;
+
 extern Robot robot;
 volatile extern uint8_t lock_loop;
 

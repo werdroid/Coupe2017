@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" media="screen" type="text/css" title="Design" href="design-sick.css" />
+  <link rel="stylesheet" media="screen" type="text/css" title="Design" href="script/jquery-ui/jquery-ui.css" />  
+</head>
+<body>
+<div id="main">
+  <section id="sTable">
+    <div id="blocVision">
+      <!-- Div flottants -->
+      <!-- A intégrer à terme directement dans sTable... -->
+      <div id="infobulle" class="flottant_table"></div>
+      <div id="curseur" class="flottant_table"></div>
+      <canvas width="100" height="100" id="gabarit" class="flottant_table" style="display:none;"></canvas>
+      <!--	--->
+      <svg width="950" height="700" id="vision"></svg>
+    </div>
+  </section>
+  <div id="colDroite">
+    <section id="param">
+      <div id="obstacle" class="non">Obstacle</div>
+      <div id="seuilsForces">
+        <div id="handleMin" class="ui-slider-handle"></div>
+        <div id="handleMax" class="ui-slider-handle"></div>
+      </div>
+      <span id="valSeuilsForces"></span>
+      <button id="bExporterPoints">Exporter</button>
+      <!--<input type="range" id="seuilForceMax" min="0" max="254" step="1" value="220" /><span id="valSeuilForceMax">220</span>-->
+    </section>
+    <section id="sLogMonitor">
+      <span id="led" class="off"></span> 
+      <select id="serialSelect0"></select>
+      <select id="serialSelect1" style="display: none"></select>
+      <div id="logMonitor"></div>
+    </section>
+  </div>
+</div>
+<nav>
+  <a href="index.html">Suivi table</a> - 
+  <span class="actif">Sick</span>
+</nav>
+<script src="script/svg.js"></script>
+<!--<script src="script/jquery-3.1.1.js"></script>-->
+<script type="text/javascript">
+// Explications: https://github.com/electron/electron/issues/254
+// TL;DR: avec electron (le truc qui lance l'appli) on est dans un environnement CommonJS
+// comme NodeJS et donc jQuery essaie de s'exporter comme un CommonJS et non comme dans un Chrome.
+window.$ = window.jQuery = require('./script/jquery-3.1.1.js')
+</script>
+<script src="script/jquery-ui/jquery-ui.js"></script>
+
+<script src="script/sick/vision_svg.js"></script>
+<script src="script/decodeurs_trames.js"></script>
+<script src="script/sick/script.js"></script>
+<script src="script/SerialConnection.js"></script>
+</body>
+</html>

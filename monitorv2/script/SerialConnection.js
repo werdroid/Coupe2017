@@ -97,15 +97,43 @@ class SerialConnection extends EventEmitter {
     // Cela provoque une différence de traitement dans traiterTrameMonitor
     var bufView = new Uint8Array(buffer);
 
+    /**
+      Todo :
+        A l'état actuel, le script identifie les trames binaires quand elles commencent et se terminent par @@@@
+        Problème : si un message suit de trop près une trame, la trame n'est pas correctement interprétée
+        Essayer de se concentrer sur les 4 premiers @ puis de découper le buffer en autant de trames qu'on en a reçu
+        
+        Une tentative a été faite pour TrameSick (%%%%) mais abandonné car TrameSick balance beaucoup trop de trames.
+        Le mélange de %%%% et de @@@@ devient alors inutilisable.
+    **/
+    
     // la trame reçue est une trame "robot state" qui contient du binaire
     // donc on ne transforme pas en string
     // or le format de nos trames binaires commencent et terminent par un @
     if (String.fromCharCode(bufView[0]) === '@' && String.fromCharCode(bufView[bufView.length - 1]) === '@') {
       // on traite la trame binaire par la fonction qui va bien
       traiterTrameMonitor((this.name == 'PR' ? PR : GR), buffer);
+      // Attention, traiterTrameMonitor est définie dans data.js (pour Monitor classique) et sick\script.js (pour Monitor Sick)
       return;
     }
+    
+    /*
+    var offset = 0;
+    // Trame Sick
+    while (offset < bufView.length
+      && String.fromCharCode(bufView[offset + 0]) === '%'
+      && String.fromCharCode(bufView[offset + 1]) === '%'
+      && String.fromCharCode(bufView[offset + 2]) === '%'
+      && String.fromCharCode(bufView[offset + 3]) === '%') {
+      // on traite la trame binaire par la fonction qui va bien
+      traiterTrameSick(buffer, offset);
+      // Attention, traiterTrameSick est définie dans data.js (pour Monitor classique) et sick\script.js (pour Monitor Sick)
+      offset += 16;
+      //return;
+    }
+    if(offset >= bufView.length) return;*/
 
+    
     try {
       this.lineBuffer += ab2str(buffer);
     }
@@ -269,7 +297,7 @@ var logStatutSerial = function(msg) {
   log.monitor(msg);
 }
 
-
+/*
 document.getElementById('bReconnecter').addEventListener('click', function() {
   if(document.getElementById('serialSelect0').value != 'disconnect') {
     connection[0].disconnect(function() {
@@ -281,7 +309,7 @@ document.getElementById('bReconnecter').addEventListener('click', function() {
       connection[1].connect(document.getElementById('serialSelect1').value);
     });
   }
-});
+});//*/
 
 
 getDevices();
