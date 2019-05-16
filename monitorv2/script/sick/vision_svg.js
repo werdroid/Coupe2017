@@ -39,6 +39,7 @@ var vision = {
     },
     seuilForceMax: 220,
     seuilForceMin: 50,
+    zoneObstacle: [90, 750], // 90 = Limite min, 750 = Pour PR
     afficherCoordonnees: function() { return vision.param.elem.afficherCoordonnees.checked; }
   },
   util: {
@@ -109,9 +110,9 @@ var vision = {
     // Zone de détection d'obstacles
     var i = 0;
     for(var a = -39; a < 40; a++) {
-      vision.objets.zoneObstacle[i] = vision.creer.zoneObstacle(a, 750); // Pour PR
+      vision.objets.zoneObstacle[i] = vision.creer.zoneObstacle(a, vision.param.zoneObstacle[0]);
       i++;
-      vision.objets.zoneObstacle[i] = vision.creer.zoneObstacle(a, 90); // Limite min
+      vision.objets.zoneObstacle[i] = vision.creer.zoneObstacle(a, vision.param.zoneObstacle[1]);
       i++;
     }
     
@@ -219,6 +220,17 @@ var vision = {
     },
     positionRobot: function(x, y) {
       vision.objets.robot.cx(x * vision.general.scale).cy(y * vision.general.scale);
+    },
+    zoneObstacle: function() {
+      var i = 0;
+      for(var a = -39; a < 40; a++) {
+        var pt = vision.util.pol2cart(vision.param.zoneObstacle[0], robot.aRad + vision.util.deg2rad(a));
+        vision.objets.zoneObstacle[i].cx(pt[0] * vision.general.scale).cy(pt[1] * vision.general.scale);
+        i++;
+        pt = vision.util.pol2cart(vision.param.zoneObstacle[1], robot.aRad + vision.util.deg2rad(a));
+        vision.objets.zoneObstacle[i].cx(pt[0] * vision.general.scale).cy(pt[1] * vision.general.scale);
+        i++;
+      }
     }
   },
   match: {

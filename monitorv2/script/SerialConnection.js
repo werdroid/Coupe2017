@@ -25,35 +25,6 @@ var ab2str = function(buf) {
   return decodeURIComponent(escape(encodedString));
 };
 
-// La fonction ci-dessus peut poser un problème quand une trame @@@@ s'enchaîne directement avec une ligne \n
-// On tente une autre méthode en cas d'échec.
-var ab2str_secondeChance = function(buf, robot) {
-  var bufView = new Uint8Array(buf);
-  var encodedString = String.fromCharCode.apply(null, bufView);
-  var debut, fin;
-  // console.log(encodedString);
-  if((debut = encodedString.indexOf('@@@@')) >= 0) {
-    if((fin = encodedString.indexOf('@@@@', debut + 1)) >= 0) {
-      // console.log(debut, fin)
-      //traiterTrameMonitor(robot, str2ab(encodedString.substring(debut, fin + 4)));
-      if(debut == 0) {
-        return '[Trame interceptée...]\n' + encodedString.substr(fin + 4);
-      }
-      else if(fin == encodedString.length - 1) {
-        return encodedString.substr(0, debut) + '[...Trame interceptée]\n';
-      }
-      else {
-        return '[Trop de trames] ' + encodedString;
-      }
-    }
-    else {
-      return '[Non interprété] ' + encodedString;  
-    }
-  }
-  else {
-    return '[Non interprété] ' + encodedString;
-  }
-}
 
 /* Converts a string to UTF-8 encoding in a Uint8Array; returns the array buffer. */
 var str2ab = function(str) {
@@ -92,9 +63,22 @@ class SerialConnection extends EventEmitter {
     this.emit('connect');
   }
 
-  onReceive(buffer) {
-    // Sur node.js, c'est un Buffer. Sur Chrome, c'était un ArrayBuffer.
-    // Cela provoque une différence de traitement dans traiterTrameMonitor
+  onReceive(buf) {
+    // Sur node.js, buffer est un Buffer. Sur Chrome, c'était un ArrayBuffer.
+
+    // console.log('Buffer :', buf instanceof Buffer);
+    // console.log('ArrayBuffer :',  buf instanceof ArrayBuffer);
+    
+    if(buf instanceof Buffer) {
+      // "Vrai" Port Serial, reçu avec node.js
+      // Explication de cette ligne : https://stackoverflow.com/a/31394257
+      var buffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+    }
+    else {
+      // Simulateur ou Connexion Série Chrome
+      var buffer = buf;
+    }
+    
     var bufView = new Uint8Array(buffer);
 
     /**
@@ -107,46 +91,90 @@ class SerialConnection extends EventEmitter {
         Le mélange de %%%% et de @@@@ devient alors inutilisable.
     **/
     
-    // la trame reçue est une trame "robot state" qui contient du binaire
-    // donc on ne transforme pas en string
-    // or le format de nos trames binaires commencent et terminent par un @
-    if (String.fromCharCode(bufView[0]) === '@' && String.fromCharCode(bufView[bufView.length - 1]) === '@') {
-      // on traite la trame binaire par la fonction qui va bien
-      traiterTrameMonitor((this.name == 'PR' ? PR : GR), buffer);
-      // Attention, traiterTrameMonitor est définie dans data.js (pour Monitor classique) et sick\script.js (pour Monitor Sick)
-      return;
-    }
-    
-    /*
-    var offset = 0;
-    // Trame Sick
-    while (offset < bufView.length
-      && String.fromCharCode(bufView[offset + 0]) === '%'
-      && String.fromCharCode(bufView[offset + 1]) === '%'
-      && String.fromCharCode(bufView[offset + 2]) === '%'
-      && String.fromCharCode(bufView[offset + 3]) === '%') {
-      // on traite la trame binaire par la fonction qui va bien
-      traiterTrameSick(buffer, offset);
-      // Attention, traiterTrameSick est définie dans data.js (pour Monitor classique) et sick\script.js (pour Monitor Sick)
-      offset += 16;
-      //return;
-    }
-    if(offset >= bufView.length) return;*/
+    // Table ASCII : http://www.asciitable.com/
+    const enumTypeTrame = { NONE: 0, MONITOR: 10, SICK: 11 }; // Sorte d'enum https://stackoverflow.com/a/5040502
+    var trameEnCours = enumTypeTrame.NONE;
+    var debut = 0;
+    var curseur = 0;
 
-    
-    try {
-      this.lineBuffer += ab2str(buffer);
-    }
-    catch(err) {
-      this.lineBuffer += ab2str_secondeChance(buffer, (this.name == 'PR' ? PR : GR));
-    }
+    while( curseur < bufView.byteLength ) {
+      //    STX STX STX DC1
+      // ou STX STX STX DC2
+      if(bufView[curseur] == 2
+      && bufView[curseur + 1] == 2
+      && bufView[curseur + 2] == 2
+      && (bufView[curseur + 3] == 17 || bufView[curseur + 3] == 18)) {
+        
+        if(trameEnCours != enumTypeTrame.NONE) {
+          // trame interrompue : prévenir, jeter le buffer en cours de lecture (ou le compléter par des 0 ??)
+          this.emit('readline', '[Trame {' + trameEnCours + '} interrompue]'); // slice(debut, fin) : début (inclus), fin (exclu)
+          debut = curseur;
+        }
+        else if(debut != curseur) {      
+          // Message interrompu (ou sans \n)
+          try {
+            this.emit('readline', ab2str(buffer.slice(debut, curseur)) + ' [Message interrompu]\n'); // slice(debut, fin) : début (inclus), fin (exclu)
+          }
+          catch(err) {
+            // C'est probablement une trame qui était en cours de transmission au moment de la connexion du Serial Port
+            this.emit('readline', '[Message interrompu non interprétable]');
+            console.log('Message interrompu non interprétable');
+            console.log(bufView);
+            console.log(debut, curseur);
+          }
+          debut = curseur;
+        }
+        
+        if(bufView[curseur + 3] == 17) { // DC1
+          trameEnCours = enumTypeTrame.MONITOR;                
+        }
+        else if(bufView[curseur + 3] == 18) { // DC2
+          trameEnCours = enumTypeTrame.SICK;
+        }
+        
+        curseur += 4;
+      }
+      
+      // ETX ETX ETX ETX
+      else if(bufView[curseur] == 3
+          && bufView[curseur + 1] == 3
+          && bufView[curseur + 2] == 3
+          && bufView[curseur + 3] == 3
+          && trameEnCours != enumTypeTrame.NONE) {
+        
+        // Finir et interpréter la trame
+        if(trameEnCours == enumTypeTrame.MONITOR) {
+          traiterTrameMonitor((this.name == 'PR' ? PR : GR), buffer.slice(debut, curseur + 4)); // slice(debut, fin) : debut (inclus), fin (exclu)
+        }
+        else if(trameEnCours == enumTypeTrame.SICK) {
+          traiterTrameSick(buffer.slice(debut, curseur + 4));
+        }
 
-    var index;
-    while ((index = this.lineBuffer.indexOf('\n')) >= 0) {
-      var line = this.lineBuffer.substr(0, index + 1);
-      this.emit('readline', line);
-      this.lineBuffer = this.lineBuffer.substr(index + 1);
+        curseur += 4;
+        debut = curseur;
+        trameEnCours = enumTypeTrame.NONE;
+      }
+      
+      // NewLine
+      else if(bufView[curseur] == 10
+          && trameEnCours == enumTypeTrame.NONE) {
+
+          this.emit('readline', ab2str(buffer.slice(debut, curseur + 1))); // slice(debut, fin) : début (inclus), fin (exclu)
+          
+          curseur++;
+          debut = curseur;
+      }
+      
+      // Autre
+      else {
+
+        // On se contente d'avancer
+        curseur++;
+      }
+      
     }
+        
+      
   }
 
   onReceiveError(error) {

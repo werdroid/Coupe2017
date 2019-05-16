@@ -1,19 +1,5 @@
-var decoderTrameMonitor = function(buf) {
+var decoderTrameMonitor = function(buffer) {
 
-  // console.log('Buffer :', buf instanceof Buffer);
-  // console.log('ArrayBuffer :',  buf instanceof ArrayBuffer);
-  
-  if(buf instanceof Buffer) {
-    // "Vrai" Port Serial, reçu avec node.js
-    // Explication de cette ligne : https://stackoverflow.com/a/31394257
-    var buffer = buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
-  }
-  else {
-    // Simulateur ou Connexion Série Chrome
-    var buffer = buf;
-  }
-
-  
   var offset = 0;
   var HEAP8 = new Int8Array(buffer);
   var HEAP16 = new Int16Array(buffer);
@@ -32,11 +18,11 @@ var decoderTrameMonitor = function(buf) {
   function nextFloat() {   var value = HEAPF32[offset >> 2]; offset += 4; return value; }
 
   var trameMonitor = {};
-  if (nextChar() !== '@' ||
-      nextChar() !== '@' ||
-      nextChar() !== '@' ||
-      nextChar() !== '@') {
-    throw new Error('Trame monitor ne commence pas par 4 arobases, trash it.');
+  if (nextChar() !== '' ||
+      nextChar() !== '' ||
+      nextChar() !== '' ||
+      nextChar() !== '') {
+    throw new Error('Trame monitor ne commence pas par STX STX STX DC1, trash it.');
   }
 
   // pour la lecture, l'ordre est important
@@ -56,30 +42,19 @@ var decoderTrameMonitor = function(buf) {
   trameMonitor.empty = nextUInt8();
   trameMonitor.empty = nextUInt8();
 
-  if (nextChar() !== '@' ||
-      nextChar() !== '@' ||
-      nextChar() !== '@' ||
-      nextChar() !== '@') {
-    throw new Error('Trame monitor ne termine pas par 4 arobases, trash it.');
+  if (nextChar() !== '' ||
+      nextChar() !== '' ||
+      nextChar() !== '' ||
+      nextChar() !== '') {
+    throw new Error('Trame monitor ne termine pas par 4 ETX, trash it.');
   }
   
   return trameMonitor;
   
 }
 
-// Fail
-/*
-var decoder1TrameSick = function(buf, offset) {
-  const TAILLE_TRAME = 16;
-  if(buf instanceof Buffer) {
-    // "Vrai" Port Serial, reçu avec node.js
-    // Explication de cette ligne : https://stackoverflow.com/a/31394257
-    var buffer = buf.buffer.slice(buf.byteOffset + offset, buf.byteOffset + offset + TAILLE_TRAME);
-  }
-  else {
-    // Simulateur ou Connexion Série Chrome
-    var buffer = buf;
-  }
+
+var decoderTrameSick = function(buffer) {
 
   var offset = 0;
   var HEAP8 = new Int8Array(buffer);
@@ -101,11 +76,11 @@ var decoder1TrameSick = function(buf, offset) {
 
   var trameSick = {};
   
-  if (nextChar() !== '%' ||
-      nextChar() !== '%' ||
-      nextChar() !== '%' ||
-      nextChar() !== '%') {
-    throw new Error('Trame Sick ne commence pas par 4 %, trash it.');
+  if (nextChar() !== '' ||
+      nextChar() !== '' ||
+      nextChar() !== '' ||
+      nextChar() !== '') {
+    throw new Error('Trame Sick ne commence pas par STX STX STX DC2, trash it.');
   }
 
   // pour la lecture, l'ordre est important
@@ -117,11 +92,11 @@ var decoder1TrameSick = function(buf, offset) {
   trameSick.empty = nextUInt8();
   
   
-  if (nextChar() !== '%' ||
-      nextChar() !== '%' ||
-      nextChar() !== '%' ||
-      nextChar() !== '%') {
-    throw new Error('Trame monitor ne termine pas par 4 %, trash it.');
+  if (nextChar() !== '' ||
+      nextChar() !== '' ||
+      nextChar() !== '' ||
+      nextChar() !== '') {
+    throw new Error('Trame monitor ne termine pas par 4 ETX, trash it.');
   }
   
   return trameSick;

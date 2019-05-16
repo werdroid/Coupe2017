@@ -283,9 +283,8 @@ void sick_traiter_donnees() {
       // Envoi des points pour MonitorSick
       // (Destiné uniquement aux présentations au public)
       //com_printfln("#,index:%d,angleDeg:%d,x:%d,y:%d,dist:%d,rssi:%d", i, index_vers_angle(i), points[i].x, points[i].y, distances_values[i], rssi_values[i]);
-      com_printfln("#,i:%d,d:%d,f:%d", i, distances_values[i], rssi_values[i]);
+      //com_printfln("#,i:%d,d:%d,f:%d", i, distances_values[i], rssi_values[i]);
       
-      /*
       trameSick.index = i;
       trameSick.angleDeg = index_vers_angle(i);
       trameSick.distance = distances_values[i];
@@ -293,13 +292,9 @@ void sick_traiter_donnees() {
       
       //com_printfln("");
       Serial.write((uint8_t *)&trameSick, sizeof(trameSick));
-      delay(10);*/
+      //delay(10);*/
     }//*/
-    com_printfln("#@,led:%d,obstacle:%d,A:A", robot.led_state, robot.sickObstacle);
-    /*
-    memcpy(trameSick.distance, distances_values, SICK_VALUES_LENGTH);
-    memcpy(trameSick.rssi, rssi_values, SICK_VALUES_LENGTH);
-    Serial.write((uint8_t *)&trameSick, sizeof(trameSick));//*/
+    //com_printfln("#@,led:%d,obstacle:%d,A:A", robot.led_state, robot.sickObstacle);
   }
 }
 

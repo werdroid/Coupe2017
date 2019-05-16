@@ -211,10 +211,10 @@ typedef struct {
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DataView
 typedef struct {
   // Début de trame sur 4 bytes
-  char header1 = '@';
-  char header2 = '@';
-  char header3 = '@';
-  char header4 = '@';
+  char header1 = '';
+  char header2 = '';
+  char header3 = '';
+  char header4 = '';
 
   // propriétés sur 4 bytes
   uint32_t millis;
@@ -239,18 +239,18 @@ typedef struct {
   uint8_t empty3;
 
   // Fin de trame sur 4 bytes
-  char footer1 = '@';
-  char footer2 = '@';
-  char footer3 = '@';
-  char footer4 = '@';
+  char footer1 = '';
+  char footer2 = '';
+  char footer3 = '';
+  char footer4 = '';
 } TrameMonitor;
 
 typedef struct {
   // Début de trame
-  char header1 = '%';
-  char header2 = '%';
-  char header3 = '%';
-  char header4 = '%';
+  char header1 = '';
+  char header2 = '';
+  char header3 = '';
+  char header4 = '';
 
   // 2 octets
   uint16_t index;
@@ -266,10 +266,10 @@ typedef struct {
 
   
   // Fin de trame sur 4 bytes
-  char footer1 = '%';
-  char footer2 = '%';  
-  char footer3 = '%';  
-  char footer4 = '%';  
+  char footer1 = '';
+  char footer2 = '';
+  char footer3 = '';
+  char footer4 = ''; 
 } TrameSick;
 
 extern Robot robot;

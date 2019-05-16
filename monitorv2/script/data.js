@@ -86,6 +86,11 @@ var donnees = {
   getLast: function(robot) {
     return donnees.get(robot, -1);
   },
+  
+  // Affiche dans le log robot la dernière trame reçue
+  displayLast: function(robot) {
+    log.robot(robot, JSON.stringify(donnees.getLast(robot)));
+  },
 
 
   // Enregistre un jeu de données, l'affiche sur le Monitor, et retourne son indice

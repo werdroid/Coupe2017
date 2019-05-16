@@ -45,26 +45,25 @@ var points = [];
 var rssiMin = 999;
 var rssiMax = 100;
 
-/*
-var traiterTrameSick = function(buf, offset) {
+
+var traiterTrameSick = function(buffer) {
   const NB_VALEURS_SICK = 270;
-  try {
-    trameSick = decoder1TrameSick(buf, offset);
+  //try {
+    trameSick = decoderTrameSick(buffer);
     
-    console.log(trameSick);
+    //console.log(trameSick);
     
     points[trameSick.id] = trameSick;
     vision.modifier.pointVu(trameSick.id, points[trameSick.id]['dist'], points[trameSick.id]['rssi']);
-  }
+  /*}
   catch(err) {
     log.monitor('[TrameSick non déchiffrable]');
     console.log(err);
-  }
-}*/
+  }*/
+}
 
 var traiterTrameMonitor = function(r, buffer) {
-  return;
-  
+
   try {
     var trameMonitor = decoderTrameMonitor(buffer);
     
@@ -75,8 +74,10 @@ var traiterTrameMonitor = function(r, buffer) {
     robot.obstacle = trameMonitor.sickObstacle;
 
     vision.modifier.positionRobot(robot.mmX, robot.mmY);
+    vision.modifier.zoneObstacle();
     
     elem.led.className = (trameMonitor.led_state ? 'on' : 'off');
+    elem.obstacle.className = (trameMonitor.sickObstacle == 1 ? 'oui' : 'non');
   }
   catch(err) {
     log.monitor('[TrameMonitor non déchiffrable]');
@@ -85,7 +86,7 @@ var traiterTrameMonitor = function(r, buffer) {
 }
 
 var traiterMessage = function(r, msgStr) {
-  msgStr = msgStr.replace("[Trop de trames] ",""); // Cf ab2str_secondeChance
+  msgStr = msgStr.replace("[Trop de trames] ",""); // Cf ab2str_secondeChance [Obsolète]
   
   if(msgStr[0] == '#') {
     if(msgStr[1] == ',') {
@@ -147,7 +148,7 @@ var traiterMessage = function(r, msgStr) {
     switch(msgStr) {
       case "DebutDuMatch\n":
       case "led change\n":
-      //case "RT INTERRUPTION TOO LONG\n":
+      case "RT INTERRUPTION TOO LONG\n":
       case "\n":
         break;
       default:
