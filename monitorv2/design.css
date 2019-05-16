@@ -14,6 +14,13 @@ section {
 	margin: 5px;
 }
 
+nav {
+  text-align: center;
+}
+nav .actif {
+  font-weight: bold;
+}
+
 #serialSelect0, #serialSelect1 {
 	margin-bottom: 5px;
 	flex: none;
@@ -71,12 +78,12 @@ https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 	overflow: hidden;
 }
 #sRobot0, #sRobot1 {
-	/* Réglages flex-item */
-	flex: 1 0 140px; /* Se répartissent l'espace restant sans pouvoir se réduire, avec une base de 140px */
+	/* RÃ©glages flex-item */
+	flex: 1 0 140px; /* Se rÃ©partissent l'espace restant sans pouvoir se rÃ©duire, avec une base de 140px */
 	overflow: hidden;
     
-    /* Réglages flex-conteneur */
-    display: flex;
+    /* RÃ©glages flex-conteneur */
+	display: flex;
 	flex-direction: column;
 }
 

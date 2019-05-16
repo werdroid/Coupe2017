@@ -1,0 +1,122 @@
+html {
+	overflow-y: visible;
+}
+
+body {
+	margin: 0px;
+	font-family: calibri;
+	background-color: rgb(230,230,230);
+}
+
+section {
+	background-color: white;
+	padding: 5px;
+	margin: 5px;
+  flex-grow: 1;
+}
+
+nav {
+  text-align: center;
+}
+nav .actif {
+  font-weight: bold;
+}
+
+#serialSelect0, #serialSelect1 {
+	margin-bottom: 5px;
+}
+
+/*#table {
+	border: 1px solid red;
+}*/
+.flottant_table {
+	position: absolute;
+	opacity: 0;
+	/*transition: opacity 0.3s;*/
+}
+
+#infobulle {
+	padding: 1px 2px;
+	/*border: 1px solid #eeeeee;*/
+	background-color: #eeeeee;
+	font-size: 0.8em;
+	font-family: calibri;
+	z-index: 999;
+}
+
+#curseur {
+	width: 3px;
+	height: 3px;
+	background-color: green;
+}
+
+
+/**** Flex Box ****/
+/**
+Rappels : https://developer.mozilla.org/fr/docs/Web/CSS/CSS_Flexible_Box_Layout/Utilisation_des_flexbox_en_CSS **/
+#main {
+  display: flex;
+  /*flex-direction: column;*/
+}
+#sTable {
+	/*width: 805px;*/
+	/*height: 540px;*/
+  /*flex: 0 0 770px;*/
+  height: 710px;
+  flex: 0 1 960px;
+  /*flex-grow: 0;*/
+}
+#blocTable {
+	position: relative;
+	overflow: hidden;
+}
+
+#colDroite {
+  display: flex;
+  flex-direction: column;
+}
+
+#sLogMonitor {
+  /*flex: 1 0 auto;*/
+  /*height: 300px;*/
+  overflow: hidden;
+}
+#logMonitor {
+	height: 200px;
+	overflow-y: hidden;
+}
+
+#seuilsForces {
+  margin-bottom: 10px;
+}
+#handleMin, #handleMax {
+  font-size: 0.9em;
+  padding: 2px 5px;
+}
+
+/********************/
+
+
+#led {
+  display: inline-block;
+	height: 20px;
+	width: 20px;
+	/*border-radius: 10px;*/
+}
+
+#led.off { background-color: #dddddd; }
+#led.on { background-color: darkgreen; }
+
+#obstacle {
+	padding: 2px 5px;
+	font-size: 2em;
+	text-align: center;
+	border-top: 1px solid #dddddd;
+	border-bottom: 1px solid #dddddd;
+	color: #dddddd;
+  margin-bottom: 15px;
+}
+#obstacle.oui {
+	background-color: purple;
+	color: white;
+}

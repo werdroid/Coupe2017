@@ -46,6 +46,8 @@ uint8_t rssi_values[SICK_VALUES_LENGTH]; // 270 octets
 Point points[SICK_VALUES_LENGTH]; // 2160 octets
 bool detection_enabled = true; // à faux, le sick ne détectera jamais rien comme obstacle
 
+TrameSick trameSick;
+
 /*------------------------------------------------------------------------------
  * Utilitaires
  *--------------------------------------------------------------------------- */
@@ -280,8 +282,19 @@ void sick_traiter_donnees() {
     for (uint16_t i = 0; i < SICK_VALUES_LENGTH; i++) {
       // Envoi des points pour MonitorSick
       // (Destiné uniquement aux présentations au public)
-      com_printfln("#,index:%d,angleDeg:%d,x:%d,y:%d,dist:%d,rssi:%d", i, index_vers_angle(i), points[i].x, points[i].y, distances_values[i], rssi_values[i]);
-    }
+      //com_printfln("#,index:%d,angleDeg:%d,x:%d,y:%d,dist:%d,rssi:%d", i, index_vers_angle(i), points[i].x, points[i].y, distances_values[i], rssi_values[i]);
+      //com_printfln("#,i:%d,d:%d,f:%d", i, distances_values[i], rssi_values[i]);
+      
+      trameSick.index = i;
+      trameSick.angleDeg = index_vers_angle(i);
+      trameSick.distance = distances_values[i];
+      trameSick.rssi = rssi_values[i];
+      
+      //com_printfln("");
+      Serial.write((uint8_t *)&trameSick, sizeof(trameSick));
+      //delay(10);*/
+    }//*/
+    //com_printfln("#@,led:%d,obstacle:%d,A:A", robot.led_state, robot.sickObstacle);
   }
 }
 
