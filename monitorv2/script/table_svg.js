@@ -30,7 +30,9 @@ var table = {
 
     repereX: null,
     repereY: null,
-    grpRepere: null
+    grpRepere: null,
+
+    ptPositionSouris: null // cf init gabarit
   },
   conteneur: {
     elem: document.getElementById('blocTable'),
@@ -46,7 +48,9 @@ var table = {
     scale: 0.25,
     width: 3000,
     height: 2000,
+    affichageX: 3000, // Sert de base au niveau de zoom
     // Redéfinis à l'init
+    aspectRatio: 0,
     scWidth: 0,
     scHeight: 0/*,
     posX: 0,
@@ -59,27 +63,47 @@ var table = {
     afficherDestinations: [false, false],
     afficherEvenements: [true, true]
   },
+  util: {
+    recupererCoordonneesSouris: function(e) {
+      // Pour récupérer les coordonnées de la souris dans le repère de la table(SVG) :
+      // https://stackoverflow.com/a/10298843/9899989
+      table.obj.ptPositionSouris.x = e.clientX;
+      table.obj.ptPositionSouris.y = e.clientY;
+      return table.obj.ptPositionSouris.matrixTransform(table.elem.getScreenCTM().inverse());
+    },
+    contraindre: function(valeur, min, max) {
+      if(valeur < min) return min;
+      if(valeur > max) return max;
+      return valeur;
+    }
+  },
   init: function() {
     this.general.scWidth = table.general.scale * table.general.width;
     this.general.scHeight = table.general.scale * table.general.height;
+    table.general.aspectRatio = table.general.width / table.general.height;
     table.conteneur.majPosition();
-    table.general.posX = table.elem.getBoundingClientRect().left + 10;
-    table.general.posY = table.elem.getBoundingClientRect().top + 10;
+    table.general.posX = table.elem.getBoundingClientRect().left + 40;
+    table.general.posY = table.elem.getBoundingClientRect().top + 40;
+
       
     // On se décale de 10, 10
-    table.svg.viewbox(-10, -10, this.general.scWidth + 20, this.general.scHeight + 20);
+    //table.svg.viewbox(-40, -40, this.general.width + 80, this.general.height + 80);
+    table.recadrer.parDefaut();
     
+    // Servira à récupérer les coordonnées de la souris
+    table.obj.ptPositionSouris = table.elem.createSVGPoint();
+
     // La table
     table.svg
-      .rect(table.general.scWidth, table.general.scHeight)
+      .rect(table.general.width, table.general.height)
       .fill('none')//table.svg.image('img/imageTable_rognee.png', '100%', '100%'))
-      .stroke({width: 1, color: 'black'});
+      .stroke({width: 4, color: 'black'});
 
     // Fond
     table.obj.fond = table.svg
       .image('img/Table2019.png')
-      .width(table.general.scWidth)
-      .height(table.general.scHeight);//*/
+      .width(table.general.width)
+      .height(table.general.height);
     
     /*
     // Les cubes 2018
@@ -128,15 +152,19 @@ var table = {
     // Gabarit
     table.obj.gabarit = table.creer.gabarit();
     table.obj.gabarit.hide();
-    
+
     table.svg.mousemove(function(e) {
       if(table.param.afficherGabarit) {
-        var x = (e.clientX - table.general.posX) / table.general.scale;
-        var y = (e.clientY - table.general.posY) / table.general.scale;
+        var pos = table.util.recupererCoordonneesSouris(e);
+
+        /*var x = e.clientX - table.general.posX;
+        var y = e.clientY - table.general.posY;*/
+        var x = pos.x;
+        var y = pos.y;
         var x50 = Math.round(x / 50) * 50;
         var y50 = Math.round(y / 50) * 50;
         table.majInfobulle(e.clientX, e.clientY, x50 + ' x ' + y50);
-        table.obj.gabarit.center(x50 * table.general.scale, y50 * table.general.scale);
+        table.obj.gabarit.center(x50, y50);
         table.obj.gabarit.show();
       }
     });
@@ -168,6 +196,44 @@ var table = {
     table.obj.grpPositions[0].front();
     table.obj.grpPositions[1].front();
 
+
+    // Zoom
+    table.elem.addEventListener('wheel', function(e) {
+      var posSouris = table.util.recupererCoordonneesSouris(e);
+      table.recadrer.zoomerSouris(posSouris.x, posSouris.y, e.deltaY);
+    });
+
+  },
+  recadrer: {
+    parDefaut: function() {
+      table.svg.viewbox(-40, -40, table.general.width + 80, table.general.height + 80);
+    },
+    zoomerSouris: function(curseurX, curseurY, delta) {
+      // affichageX représente la largeur visible du viewbox
+
+      table.general.affichageX += delta;
+      table.general.affichageX = table.util.contraindre(table.general.affichageX, 500, 3000);
+
+      if(table.general.affichageX >= 3000) {
+        table.recadrer.parDefaut();
+        return;
+      }
+
+      // Quand on zoom au centre, on s'attend à zoomer vers le centre
+      // Quand on zoom sur le tiers en haut à gauche, on ne s'attend pas à ce que le point de zoom se retrouve au milieu de la page
+      // ratioX/Y permettent en gros de zoomer là où on s'attend
+      var ratioX = (curseurX - table.svg.viewbox().x) / table.svg.viewbox().width;
+      var ratioY = (curseurY - table.svg.viewbox().y) / table.svg.viewbox().height;
+
+      var bordGauche = curseurX - table.general.affichageX * ratioX;
+      var bordHaut = curseurY - (table.general.affichageX / table.general.aspectRatio * ratioY);
+      
+      // On essaye de ne pas aller trop loin en dehors de la table
+      bordGauche = table.util.contraindre(bordGauche, -200, table.general.width - table.general.affichageX + 200);
+      bordHaut = table.util.contraindre(bordHaut, -10, table.general.height - table.general.affichageX / table.general.aspectRatio + 10);
+
+      table.svg.viewbox(bordGauche, bordHaut, table.general.affichageX, table.general.affichageX / table.general.aspectRatio);
+    }
   },
   effacerTout: function() {
     for(var r = 0; r <= 1; r++) {
@@ -183,7 +249,7 @@ var table = {
       return table.svg
         //.rect(diametre, diametre)
         .circle(diametre)
-        .center(x * table.general.scale, y * table.general.scale)
+        .center(x, y)
         .fill(couleur)
         .stroke('none');
     },
@@ -196,11 +262,11 @@ var table = {
       // Sinon, ça complique la gestion des reliures entre les points...
       var rayon = parseInt(diametre / 2);
       var demiRayon = parseInt(diametre / 4);
-      var p1_x = x * table.general.scale - demiRayon * Math.cos(a);
-      var p1_y = y * table.general.scale - demiRayon * Math.sin(a);
-      var p2_x = x * table.general.scale + rayon * Math.cos(a);
-      var p2_y = y * table.general.scale + rayon * Math.sin(a);
-      var ligne = table.creer.ligne(p1_x, p1_y, p2_x, p2_y, 1, 'white');
+      var p1_x = x - demiRayon * Math.cos(a);
+      var p1_y = y - demiRayon * Math.sin(a);
+      var p2_x = x + rayon * Math.cos(a);
+      var p2_y = y + rayon * Math.sin(a);
+      var ligne = table.creer.ligne(p1_x, p1_y, p2_x, p2_y, 4, 'white');
 
       var group = table.svg.group();
       group.add(pt);
@@ -208,19 +274,19 @@ var table = {
       return group;
     },
     pointRepere: function(x, y, numero, couleur) {
-      table.creer.point(x - 4, y - 4, 8, couleur);
+      table.creer.point(x - 16, y - 16, 32, couleur);
       //table.creer.texte(numero, x + 3, y - 5, couleur, '11px Calibri');
     },
     cube: function(x, y) {
       //table.ctx.strokeStyle = "yellow";
       table.svg
-          .rect(58 * table.general.scale, 58 * table.general.scale)
-          .stroke({width: 1, color: 'purple'})
+          .rect(232, 232)
+          .stroke({width: 4, color: 'purple'})
           .fill('none')
-          .move(x * table.general.scale, y * table.general.scale);
+          .move(x, y);
     },
     groupeCubes: function(cx, cy) { // Crée 5 cubes en croix (2018)
-      var tailleCube = 58;
+      var tailleCube = 232;
       table.creer.cube(cx - tailleCube/2, cy - tailleCube/2);
       table.creer.cube(cx - tailleCube/2, cy - tailleCube/2 - tailleCube);
       table.creer.cube(cx - tailleCube/2, cy + tailleCube/2);
@@ -231,8 +297,8 @@ var table = {
       return table.svg.line(x1, y1, x2, y2).stroke({width: epaisseur, color: couleur});
     },
     croix: function(x, y, diametre, epaisseur, couleur) {
-      x = x * table.general.scale;
-      y = y * table.general.scale;
+      x = x;
+      y = y;
       var l1 = table.creer.ligne(x - diametre/2, y - diametre/2, x + diametre/2, y + diametre/2, epaisseur, couleur);
       var l2 = table.creer.ligne(x - diametre/2, y + diametre/2, x + diametre/2, y - diametre/2, epaisseur, couleur);
       var group = table.svg.group();
@@ -241,44 +307,44 @@ var table = {
       return group;
     },
     quadrillageHorizontal: function(delta) {
-      delta = delta * table.general.scale;
+      delta = delta;
       var group = table.svg.group();
-      for(var y = delta; y < table.general.scHeight; y += delta) {
-        group.add(table.creer.ligne(0, y, table.general.scWidth, y, 1, '#eeeeee')); // #dddddd avant 2019
+      for(var y = delta; y < table.general.height; y += delta) {
+        group.add(table.creer.ligne(0, y, table.general.width, y, 4, '#eeeeee')); // #dddddd avant 2019
       }
       return group;
     },
     quadrillageVertical: function(delta) {
-      delta = delta * table.general.scale;
+      delta = delta;
       var group = table.svg.group();
-      for(var x = delta; x < table.general.scWidth; x += delta) {
-        group.add(table.creer.ligne(x , 0, x, table.general.scHeight, 1, '#eeeeee')); // #dddddd avant 2019
+      for(var x = delta; x < table.general.width; x += delta) {
+        group.add(table.creer.ligne(x , 0, x, table.general.height, 4, '#eeeeee')); // #dddddd avant 2019
       }
       return group;
     },
     gabarit: function() {
       var gab = table.svg.set();
       gab.add(
-        table.svg.rect(3, 3)
+        table.svg.rect(12, 12)
           .fill('green')
       );
       // GR
       gab.add(
-        table.svg.circle(390 * table.general.scale)
-          .stroke('orange')
+        table.svg.circle(390)
+          .stroke({color: 'orange', width: 3})
           .fill('none')
       );
       gab.add(
-        table.svg.rect(300 * table.general.scale, 300 * table.general.scale)
-          .stroke('orange')
+        table.svg.rect(300, 300)
+          .stroke({color: 'orange', width: 3})
           .fill('none')
       );
       return gab;
     },
     ptEtape: function(id, x, y, couleur, ptAction = false) {
       return table.svg
-        .rect(ptAction ? 2 : 3, ptAction ? 2 : 3)
-        .center(x * table.general.scale, y * table.general.scale)
+        .rect(ptAction ? 8 : 12, ptAction ? 8 : 12)
+        .center(x, y)
         .fill(couleur)
         .stroke('none')
         .mouseover(function(e) {
@@ -290,29 +356,29 @@ var table = {
     },
     zone: function(id, x1, y1, x2, y2, couleur) {
       return table.svg
-        .rect((x2 - x1) * table.general.scale, (y2 - y1) * table.general.scale)
+        .rect(x2 - x1, y2 - y1)
         .fill(couleur)
-        .stroke({color: 'white', opacity: 1, width: 1})
-        .move(x1 * table.general.scale, y1 * table.general.scale)
+        .stroke({color: 'white', opacity: 1, width: 2})
+        .move(x1, y1)
         .opacity(0.2)
         .mouseover(function(e) {
           var forme = SVG.get(e.target.id);
           table.majInfobulle(e.clientX, e.clientY, id);
           forme.opacity(0.4);
-          forme.stroke({color: 'blue', opacity: 1, width: 2});
+          forme.stroke({color: 'blue', opacity: 1, width: 4});
         })
         .mouseout(function(e) {
           var forme = SVG.get(e.target.id);
           infobulle.masquer();
           forme.opacity(0.2);
-          forme.stroke({color: 'white', opacity: 1, width: 1});
+          forme.stroke({color: 'white', opacity: 1, width: 2});
         });
     },
     texte: function(txt, x, y, couleur, police) {
-      console.log("Va falloir attendre un peu (pas longtemps) pour afficher du texte sur la table :)");
+      console.log("Va falloir attendre un peu pour afficher du texte sur la table :)");
       /*table.ctx.fillStyle = couleur;
       table.ctx.font = police;
-      table.ctx.fillText(txt, x * table.general.scale, y * table.general.scale);*/
+      table.ctx.fillText(txt, x, y);*/
     }
   },
   
@@ -320,8 +386,8 @@ var table = {
     creer: function() {
       var group = table.svg.group();
 
-      table.obj.repereX = table.creer.ligne(1500 * table.general.scale, 0, 1500 * table.general.scale, table.general.scHeight, 2, 'lightgreen');
-      table.obj.repereY = table.creer.ligne(0, 1000 * table.general.scale, table.general.scWidth, 1000 * table.general.scale, 2, 'lightgreen');
+      table.obj.repereX = table.creer.ligne(1500, 0, 1500, table.general.height, 8, 'lightgreen');
+      table.obj.repereY = table.creer.ligne(0, 1000, table.general.width, 1000, 8, 'lightgreen');
       
       group.add(table.obj.repereX);
       group.add(table.obj.repereY);
@@ -335,10 +401,8 @@ var table = {
         table.obj.grpRepere.hide();
     },
     positionner: function(x, y) {
-      x *= table.general.scale;
-      y *= table.general.scale;
-      table.obj.repereX.plot(x, 0, x, table.general.scHeight);
-      table.obj.repereY.plot(0, y, table.general.scWidth, y);
+      table.obj.repereX.plot(x, 0, x, table.general.height);
+      table.obj.repereY.plot(0, y, table.general.width, y);
     }
   },
 
@@ -349,7 +413,7 @@ var table = {
         // Création du point et événements associés
         var infos = donnees.get(robot, id);
 
-        var pt = table.creer.pointOriente(infos.position.mmX, infos.position.mmY, infos.position.a, 5, (robot == PR ? 'blue' : 'orange'))
+        var pt = table.creer.pointOriente(infos.position.mmX, infos.position.mmY, infos.position.a, 20, (robot == PR ? 'blue' : 'orange'))
           .data({
             robot: robot,
             type: 'position',
@@ -369,13 +433,13 @@ var table = {
             if(table.param.afficherDestinations[forme.data('robot')]) {
               // La croix est visible, on se contente de tracer une ligne
               var objDestination = table.obj.destinations[robot][infos.svg.destination];
-              var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 1, 'grey').back();
+              var ligne = table.creer.ligne(forme.cx(), forme.cy(), objDestination.first().cx(), objDestination.cy(), 4, 'grey').back();
               grpEphemere.add(ligne);
             }
             else {
               // On doit retracer la ligne
-              var croixDestination = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 10, 1, (robot == PR ? 'green' : 'red')).back();
-              var ligne = table.creer.ligne(forme.cx(), forme.cy(), croixDestination.first().cx(), croixDestination.cy(), 1, 'grey').back();
+              var croixDestination = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 40, 4, (robot == PR ? 'green' : 'red')).back();
+              var ligne = table.creer.ligne(forme.cx(), forme.cy(), croixDestination.first().cx(), croixDestination.cy(), 4, 'grey').back();
               grpEphemere.add(croixDestination).add(ligne);
             }
             forme.data('grpDestinationEphemere', grpEphemere.attr('id')); // Permettra d'effacer la ligne sur mouseout
@@ -397,7 +461,7 @@ var table = {
         // Création de la ligne pour relier
         if(id > 0) {
           var ptPrecedent = table.obj.positions[robot][donnees.get(robot, id-1).svg.pt];
-          var reliure = table.creer.ligne(pt.cx(), pt.cy(), ptPrecedent.cx(), ptPrecedent.cy(), 1, (robot == PR ? 'blue' : 'orange'))
+          var reliure = table.creer.ligne(pt.cx(), pt.cy(), ptPrecedent.cx(), ptPrecedent.cy(), 4, (robot == PR ? 'blue' : 'orange'))
             .data({
               robot: robot,
               type: 'reliure',
@@ -432,7 +496,7 @@ var table = {
         }
         else {
           // Destination différente, on crée une nouvelle croix destination
-          var dest = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 10, 1, (robot == PR ? 'green' : 'red'))
+          var dest = table.creer.croix(infos.destination.mmX, infos.destination.mmY, 40, 4, (robot == PR ? 'green' : 'red'))
             .data({
               robot: robot,
               type: 'destination',
@@ -459,7 +523,7 @@ var table = {
     evenements: {
       ajouter: function(robot, id) {
         var infos = evenements.get(robot, id);
-        var ptEvenement = table.creer.point(donnees.getLast(robot).position.mmX, donnees.getLast(robot).position.mmY, 10, (robot == PR ? 'cyan' : 'yellow'))
+        var ptEvenement = table.creer.point(donnees.getLast(robot).position.mmX, donnees.getLast(robot).position.mmY, 40, (robot == PR ? 'cyan' : 'yellow'))
           .data({
             robot: robot,
             id: id,
