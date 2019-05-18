@@ -29,8 +29,11 @@ LEDMatrixDriver lmd(LEDMATRIX_SEGMENTS, LEDMATRIX_CS_PIN);
 
 int score = 0;
 
+void display();
 
 void setup() {
+  
+  Serial.begin(9600);
   
   Serial1.begin(115200);
   Serial1.setTimeout(300);
@@ -41,12 +44,17 @@ void setup() {
   
   lmd.clear();
   
-  delay(1000);
+  delay(800);
   
-  afficherWRD();  
+  afficherWRD();
 }
 
-
+void display() {
+  // Choisir l'une des 2 lignes selon les années :
+  
+  //lmd.display();  // Connecteur à droite
+  lmd.displayReverse(); // Connecteur à gauche
+}
 
 
 void loop() {
@@ -57,7 +65,7 @@ void loop() {
     switch(c) {
       case '@': // On efface
         lmd.clear();
-        lmd.display();
+        display();
         break;
       case '=': // Affichage du score précis
         lmd.clear();
@@ -86,10 +94,10 @@ void loop() {
       //default:
         /*for(byte i = 0; i < 5; i++) {
           lmd.setPixel(0, 0, true);
-          lmd.display();
+          display();
           delay(300);
           lmd.setPixel(0, 0, false);
-          lmd.display();
+          display();
           delay(300);
         }*/
         /*Serial1.print("#"); Ce caractère ne doit pas être interprétable par un case ci-dessus
@@ -178,7 +186,7 @@ void afficherWRD() {
     x += WRD_LARGEUR[i];
     x++; // Ajout d'une colonne de séparation entre chaque lettre.
   }
-  lmd.display();
+  display();
   
 }
 
@@ -217,7 +225,7 @@ void afficherIncrement(int nombre, byte x, byte y) {
     
   } while(nombre > 0);
   
-  lmd.display();
+  display();
 }
 
 void afficherRectangle(int largeur, int hauteur, int posX, int posY, bool allumer) {
@@ -226,7 +234,7 @@ void afficherRectangle(int largeur, int hauteur, int posX, int posY, bool allume
       lmd.setPixel(posX + x, posY + y, allumer);
     }
   }
-  lmd.display();
+  display();
 }
 
 
@@ -246,7 +254,7 @@ void afficherNombre(int nombre, byte xFin, byte y) {
     
   } while(nombre > 0);
   
-  lmd.display();
+  display();
   
 }
 
@@ -264,7 +272,7 @@ void defilerTexte(const char *text) {
 
   while(x >= len * -8) {
     drawString(text, len, x, 0);
-    lmd.display();
+    display();
     
     delay(delai);
     x--;

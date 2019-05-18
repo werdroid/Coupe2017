@@ -4,7 +4,12 @@
  *  Created on: 30.03.2017
  *      Author: Bartosz Bielawski
  */
-
+/*
+ *   Updated: Add reverse display
+ *    Author: Rémi Seguin | WRD
+ *      Date: 2019-05-17
+ */
+ 
 /*
  * This is a driver for MAX7219 based LED matrix displays.
  * It was written to replace the one already available as a library in Arduino repository.
@@ -62,6 +67,12 @@ class LEDMatrixDriver
 		//clear the framebuffer
 		void clear() {memset(frameBuffer, 0, 8*N);}
 		
+    /** Added by WRD: reverse display **/
+    // Affiche la matrice tournée à 180°
+    void displayReverse();
+    /** ***************************** **/
+    
+    
 		enum class scrollDirection 
 		{
 			scrollUp = 0,
@@ -84,12 +95,24 @@ class LEDMatrixDriver
 	private:
 		void _sendCommand(uint16_t command);
 		void _displayRow(uint8_t row);
+    
+    /** Added by WRD: reverse display **/
+    // Reverse char : 0010 1101 devient 1011 0100
+    // https://stackoverflow.com/a/2603254
+    uint8_t reverseChar(uint8_t n);
+    
+    const unsigned char lookupTableReverseChar[16] = {
+    0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
+    0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf };
+    /** ***************************** **/
 
 		const uint8_t N;
 		SPISettings spiSettings;
 		uint8_t* frameBuffer;
 		bool selfAllocated;
 		uint8_t ssPin;
+    
+
 };
 
 #endif /* LEDMATRIXDRIVER_H_ */

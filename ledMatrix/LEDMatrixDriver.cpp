@@ -4,6 +4,12 @@
  *  Created on: 30.03.2017
  *      Author: Bartosz Bielawski
  */
+/*
+ *  R.SEGUIN / WRD
+ *    Add reverse display
+ *      2019-05-17
+ *
+ */
 
 #include "LEDMatrixDriver.hpp"
 #include <Arduino.h>
@@ -160,6 +166,9 @@ void LEDMatrixDriver::_displayRow(uint8_t row)
 	SPI.endTransaction();
 }
 
+// Connecteurs à droite : les char sont envoyés dans l'ordre
+// d'écriture "habituel humain" (de gauche à droite puis de haut en bas).
+// Ligne 0 = Tout en haut
 void LEDMatrixDriver::display()
 {
 	for (uint8_t y = 0; y < 8; y++)
@@ -167,6 +176,30 @@ void LEDMatrixDriver::display()
 		_displayRow(y);
 	}
 }
+
+/** Added by WRD: reverse display **/
+void LEDMatrixDriver::displayReverse() {
+  for (uint8_t row = 0; row < 8; row++) {
+		SPI.beginTransaction(spiSettings);
+    digitalWrite(ssPin, 0);
+    for (uint16_t d = N; d > 0; d--) { // On ne peut pas boucler de for(uint16_t d = N-1; d >= 0; d--) : comme unsigned, ça fait une boucle infinie
+      uint16_t cmd = (((7 - row) + 1) << 8) | reverseChar(frameBuffer[d-1 + row*N]);
+      //                ^^^                   ^^^^^^^^^^^              ^^
+      //              Pour afficher à l'envers, on écrit de            puisqu'on n'a
+      //             droite à gauche puis de bas en haut (la           pas pu boucler de
+      //           ligne 1 du buffer devient la dernière ligne)        N-1 à 0, on corrige ici
+      SPI.transfer16(cmd);
+    }
+    digitalWrite(ssPin, 1);
+    SPI.endTransaction();
+	}
+}
+
+uint8_t LEDMatrixDriver::reverseChar(uint8_t n) {
+   // Reverse the top and bottom nibble then swap them.
+   return (lookupTableReverseChar[n & 0b1111] << 4) | lookupTableReverseChar[n>>4];
+}
+/** ***************************** **/
 
 void LEDMatrixDriver::scroll( scrollDirection direction )
 {
