@@ -29,18 +29,21 @@ var decoderTrameMonitor = function(buffer) {
   trameMonitor.millis = nextUInt32();
   trameMonitor.a = nextFloat();
   trameMonitor.time_total = nextUInt32();
+  
   trameMonitor.xMm = nextInt16();
   trameMonitor.yMm = nextInt16();
-  trameMonitor.proche_distance = nextUInt16();
   trameMonitor.consigneXmm = nextUInt16();
   trameMonitor.consigneYmm = nextUInt16();
+  trameMonitor.sickAngleObstacle = nextInt16();
+  trameMonitor.sickDistanceObstacle = nextUInt16();
+  
   trameMonitor.sickObstacle = nextUInt8();
   trameMonitor.isPR = nextUInt8();
   trameMonitor.led_state = nextUInt8();
   
   trameMonitor.empty = nextUInt8();
-  trameMonitor.empty = nextUInt8();
-  trameMonitor.empty = nextUInt8();
+  //trameMonitor.empty = nextUInt8();
+  //trameMonitor.empty = nextUInt8();
 
   if (nextChar() !== '' ||
       nextChar() !== '' ||

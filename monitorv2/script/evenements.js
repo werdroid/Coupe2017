@@ -34,7 +34,7 @@ var evenements = {
   e: [[], []],  // PR et GR
 
   // Enregistre un jeu de données et retourne son indice
-  enregistrer: function(robot, message) {
+  enregistrer: function(robot, message, infosComplementaires) {
     var id = evenements.e[robot].push({
       id: evenements.e[robot].length,
       t: donnees.getLast(robot).t,
@@ -42,9 +42,29 @@ var evenements = {
       msg: message,
       idData: donnees.d[robot].length - 1
     }) - 1;
-    table.match.evenements.ajouter(robot, id);
+    
+    if(typeof(infosComplementaires) === 'object') {
+      table.match.evenements.ajouter(robot, id, infosComplementaires);
+    }
+    else {
+      table.match.evenements.ajouter(robot, id);      
+    }
     
     log.robot(robot, '<span class="pointRepere' + robot + '">' + id + '</span> ' + message, undefined, {evenement: id});
+  },
+  enregistrerObstacle: function(robot) {
+    var d = donnees.getLast(robot);
+    if(d.sick.obstacle) {
+      var infosObstacles = {
+        distance: d.sick.distanceObstacle,
+        angle: d.sick.angleObstacle
+      }
+      evenements.enregistrer(robot, 'Obstacle (' + d.sick.angleObstacle + '° -> ' + d.sick.distanceObstacle + ')', infosObstacles);    
+    }
+    else {
+      evenements.enregistrer(robot, 'Obstacle ([??])');
+    }
+  
   },
   
   // Retourne le jeu de données à l'indice indiqué

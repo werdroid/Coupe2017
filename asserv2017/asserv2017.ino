@@ -140,6 +140,9 @@ void setup() {
   // Teensy 3.1 can support up to 16 levels of nesting, so priority levels 0 to 15 are all the same, 16 to 31 are the same, and so on
   // IntervalTimer for priority 48, on Teensy 3.1/3.2 it will not block Systick at 32
 
+  // On se dit au milieu de la table (permet de tester le Sick sans se faire avoir par les points hors table)
+  asserv_set_position(1500, 1000, 0);
+
   ecran_console_log("Starting menu...\n");
   menu_start();
 }

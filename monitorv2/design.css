@@ -235,6 +235,12 @@ https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 	background-color: orange;
 	color: white;
 }
+#angleObstacle0, #angleObstacle1, #distanceObstacle0, #distanceObstacle1 {
+	font-size: 0.5em;
+	display: inline-block;
+	width: 45px;
+}
+	
 
 #match0, #match1 {
   margin-top: 5px;

@@ -25,8 +25,9 @@ void com_send_robot_state() {
   trameMonitor.isPR = robot.IS_PR;
   trameMonitor.led_state = robot.led_state;
 
-  trameMonitor.proche_distance = robot.proche_distance;
   trameMonitor.sickObstacle = robot.sickObstacle;
+  trameMonitor.sickAngleObstacle = robot.sickAngleObstacle;
+  trameMonitor.sickDistanceObstacle = robot.sickDistanceObstacle;
   trameMonitor.time_total = robot.time_total;
 
   Serial.write((uint8_t *)&trameMonitor, sizeof(trameMonitor));

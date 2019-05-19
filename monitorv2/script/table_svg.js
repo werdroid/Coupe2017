@@ -71,6 +71,14 @@ var table = {
       if(valeur < min) return min;
       if(valeur > max) return max;
       return valeur;
+    },
+    deg2rad: function(deg) {
+      return deg * Math.PI / 180;
+    },
+    pol2cart: function(origine, r, a) {
+                                                  // Un peu foireux ici a ou -a ?
+                                                  // Piste de réflexion : Vérifier sens de numérotation du Sick, ça doit être sens trigo alors qu'on est dans un repère avec y inversé. Donc ça marche, mais il serait mieux de traiter ça au cas par cas
+      return [r * Math.cos(a) + origine.mmX, r * Math.sin(a) + origine.mmY];
     }
   },
   init: function() {
@@ -515,9 +523,10 @@ var table = {
       }
     },
     evenements: {
-      ajouter: function(robot, id) {
+      ajouter: function(robot, id, infosObstacle) {
         var infos = evenements.get(robot, id);
-        var ptEvenement = table.creer.point(donnees.getLast(robot).position.mmX, donnees.getLast(robot).position.mmY, 40, (robot == PR ? 'cyan' : 'yellow'))
+        var positionRobot = donnees.getLast(robot).position;
+        var ptEvenement = table.creer.point(positionRobot.mmX, positionRobot.mmY, 40, (robot == PR ? 'cyan' : 'yellow'))
           .data({
             robot: robot,
             id: id,
@@ -536,8 +545,19 @@ var table = {
             infobulle.masquer();
             log.highlight.removeAll();
           });
-        table.obj.grpEvenements[robot].add(ptEvenement);
-        infos.svg = table.obj.evenements[robot].push(ptEvenement) - 1;
+
+        var objEvenement;
+        if(typeof(infosObstacle) === "object") {
+          objEvenement = table.svg.group();
+          objEvenement.add(ptEvenement);
+          var posObstacle = table.util.pol2cart(positionRobot, infosObstacle.distance, table.util.deg2rad(infosObstacle.angle));
+          objEvenement.add(table.creer.ligne(positionRobot.mmX, positionRobot.mmY, posObstacle[0], posObstacle[1], 4, (robot == PR ? 'cyan' : 'yellow')))
+        }
+        else {
+          objEvenement = ptEvenement;
+        }
+        table.obj.grpEvenements[robot].add(objEvenement);
+        infos.svg = table.obj.evenements[robot].push(objEvenement) - 1;
       }
     },
     

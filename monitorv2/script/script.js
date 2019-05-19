@@ -11,6 +11,8 @@ var elem = {
   cpu: [document.getElementById('cpu0'), document.getElementById('cpu1')],
   led: [document.getElementById('led0'), document.getElementById('led1')],
   obstacle: [document.getElementById('obstacle0'), document.getElementById('obstacle1')],
+  angleObstacle: [document.getElementById('angleObstacle0'), document.getElementById('angleObstacle1')],
+  distanceObstacle: [document.getElementById('distanceObstacle0'), document.getElementById('distanceObstacle1')],
   msg: [document.getElementById('msg0'), document.getElementById('msg1')],
   bSendMsg: [document.getElementById('bSendMsg0'), document.getElementById('bSendMsg1')],
   curseur: [document.getElementById('curseurTMatch0'), document.getElementById('curseurTMatch1')],
@@ -390,8 +392,18 @@ var genererJeuAleatoire = function() {
 		donnees.enregistrer(robot, msg);
 
     // Ajout d'événements aléatoires
-    if(alea.unSur(250)) {
-      evenements.enregistrer(robot, 'Evénement ! ' + i);
+    if(alea.unSur(150)) {
+      if(alea.unSur(3)) {
+        evenements.enregistrer(robot, 'Evénement ! ' + i);
+      }
+      else {        
+        // Obstacle
+        var infosObstacles = {
+          distance: alea.nb(300) + 50,
+          angle: alea.nb(90) - 45
+        }
+        evenements.enregistrer(robot, 'Obstacle (' + infosObstacles.angle + '° -> ' + infosObstacles.distance + ') ' + i, infosObstacles);
+      }
       //nouvelleDirection(robot, alea.aleaX(), alea.aleaY(), alea.nb(10) + 2);
       destX[robot] = alea.aleaX();
       destY[robot] = alea.aleaY();

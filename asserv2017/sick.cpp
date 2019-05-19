@@ -64,7 +64,10 @@ inline bool angle_dans_le_cone(int16_t angle) {
   return -40 < angle && angle < 40;
 }
 
-inline int16_t index_vers_angle(uint16_t index) { // 0° c'est devant le robot
+inline int16_t index_vers_angle(uint16_t index) {
+  // Négatif vers la gauche
+  // 0° c'est devant le robot
+  // Positif vers la droite
   return 135 - index;
 }
 
@@ -252,6 +255,8 @@ void sick_disable_detection(bool disabled) {
 
 void sick_traiter_donnees() {
   robot.sickObstacle = false;
+  robot.sickAngleObstacle = 0;
+  robot.sickDistanceObstacle = 0;
 
   if (detection_enabled == false) {
     // la détection est désactivée, inutile de traiter les données du sick
@@ -274,6 +279,8 @@ void sick_traiter_donnees() {
       distance_valide(distances_values[i]) &&
       distances_values[i] < robot.DISTANCE_DETECTION) {
       robot.sickObstacle = true;
+      robot.sickAngleObstacle = index_vers_angle(i);
+      robot.sickDistanceObstacle = distances_values[i];
     }
   }
 
@@ -289,10 +296,8 @@ void sick_traiter_donnees() {
       trameSick.angleDeg = index_vers_angle(i);
       trameSick.distance = distances_values[i];
       trameSick.rssi = rssi_values[i];
-      
-      //com_printfln("");
+
       Serial.write((uint8_t *)&trameSick, sizeof(trameSick));
-      //delay(10);*/
     }//*/
     //com_printfln("#@,led:%d,obstacle:%d,A:A", robot.led_state, robot.sickObstacle);
   }

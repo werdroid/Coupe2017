@@ -165,6 +165,9 @@ typedef struct {
   uint32_t sickTramesBytesTotal;
   uint16_t proche_index; // index du point le plus proche
   uint16_t proche_distance; // distance du point le plus proche
+  int16_t sickAngleObstacle; // Angle du point le plus proche, dans le cône de détection
+  uint16_t sickDistanceObstacle; // Distance du point le plus proche, dans le cône de détection
+
 
   // Profiling du CPU
   uint8_t led_state; // Etat de la Led (aussi envoyé vers Monitor)
@@ -224,9 +227,10 @@ typedef struct {
   // propriétés sur 2 bytes
   int16_t xMm; // mm
   int16_t yMm; // mm
-  uint16_t proche_distance; // distance du point le plus proche
   uint16_t consigneXmm; // mm
   uint16_t consigneYmm; // mm
+  int16_t sickAngleObstacle; // deg
+  uint16_t sickDistanceObstacle; // mm
   
   // propriétés sur 1 byte
   uint8_t sickObstacle;
@@ -235,8 +239,8 @@ typedef struct {
 
   // compléter pour avoir un total de bytes multiple de 4
   uint8_t empty1;
-  uint8_t empty2;
-  uint8_t empty3;
+  /*uint8_t empty2;
+  uint8_t empty3;*/
 
   // Fin de trame sur 4 bytes
   char footer1 = ''; // ETX

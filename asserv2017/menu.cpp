@@ -105,6 +105,7 @@ void menu_start() {
             
             case 1:
               ecran_console_log("30cm en avant");
+              delay(200);
               robot.activeRotation = 0;
               asserv_set_position(1000, 1000, 0);
               quadramp_set_1st_order_vars(&robot.ramp_distance, 100, 100);
@@ -114,6 +115,7 @@ void menu_start() {
             
             case 3:
               ecran_console_log("Part et revient");
+              delay(200);
               asserv_go_xy(1000, 0);
               asserv_rotation_relative(MATH_PI * 2);
               asserv_go_xy(0, 0);
@@ -165,6 +167,7 @@ void menu_start() {
           ecran_console_reset();
           ecran_console_log("Monitor Sick ACTIF");
           if(robot.activer_monitor_sick) {
+            delay(200);
             asserv_set_position(1500, 1000, MATH_PI2);
             asserv_maintenir_position();
           }

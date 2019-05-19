@@ -32,6 +32,15 @@ donnees.d = [
         mmX:    (provient de la trame)
         mmY:    (provient de la trame)
       },
+      stats: { // signes vitaux du robot (cpu)
+        time_total:
+        cpu_pourcent:
+      },
+      sick: {
+        obstacle:
+        angleObstacle:
+        distanceObstacle:
+      },
       ~svg: {    Ensemble des index (dans table.obj) des éléments dessinés sur la table et liés à cette trame
         pt:     pt position,
         reliure:
@@ -200,8 +209,9 @@ function traiterTrameMonitor(robot, buf) {
       cpu_pourcent:  cpuPourcent
     },
     sick: {
-      sickObstacle: trameMonitor.sickObstacle,
-      proche_distance: trameMonitor.proche_distance
+      obstacle: trameMonitor.sickObstacle,
+      angleObstacle: trameMonitor.sickAngleObstacle,
+      distanceObstacle: trameMonitor.sickDistanceObstacle
     },
     position: {
       mmX: trameMonitor.xMm,
@@ -216,7 +226,15 @@ function traiterTrameMonitor(robot, buf) {
   });
 
   // === Affichages ===
-  elem.obstacle[robot].className = (trameMonitor.sickObstacle == 1 ? 'oui' : 'non');
+  if(trameMonitor.sickObstacle == 1) {
+	elem.obstacle[robot].className = 'oui';
+	elem.angleObstacle[robot].innerText = trameMonitor.sickAngleObstacle;
+	elem.distanceObstacle[robot].innerText = trameMonitor.sickDistanceObstacle;
+  }
+  else {
+	elem.obstacle[robot].className = 'non';
+	// On laisse volontairement les valeurs du dernier obstacle détecté
+  }
   elem.cpu[robot].style.height = cpuPourcent + '%'; 
   elem.led[robot].className = (trameMonitor.led_state ? 'on' : 'off');
 }
@@ -258,7 +276,7 @@ var traiterMessage = function(r, msg) {
         match.terminer(r);
         break;
       case "#-----OBSTACLE\n":
-        evenements.enregistrer(r, 'Obstacle');
+        evenements.enregistrerObstacle(r);
         break;
       default:
         log.robot(r, msg + ' [[Non interprété]]');
