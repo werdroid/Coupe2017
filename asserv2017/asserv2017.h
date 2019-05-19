@@ -114,6 +114,7 @@ typedef struct {
   uint8_t activeDistance;
   uint8_t activeRotation;
   uint32_t match_debut; // millis() de lancement
+  bool match_started = false;
 
   int32_t codeurGauche; // tick
   int32_t codeurDroite; // tick

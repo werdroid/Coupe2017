@@ -61,6 +61,7 @@ void minuteur_arreter_tout_si_fin_match() {
  */
 
 void minuteur_demarrer() {
+  robot.match_started = true;
   robot.match_debut = millis();
   com_printfln("#DebutDuMatch\n");
 }
@@ -72,6 +73,8 @@ void minuteur_demarrer() {
  */
 
 int32_t minuteur_temps_restant() {
+  if(!robot.match_started) return TEMPS_JEU_MS;
+  
   return TEMPS_JEU_MS - (millis() - robot.match_debut);
 }
 
