@@ -45,16 +45,12 @@ var table = {
     }
   },
   general: {
-    scale: 0.25,
     width: 3000,
     height: 2000,
     affichageX: 3000, // Sert de base au niveau de zoom
+	
     // Redéfinis à l'init
-    aspectRatio: 0,
-    scWidth: 0,
-    scHeight: 0/*,
-    posX: 0,
-    posY: 0*/
+    aspectRatio: 0
   },
   param: {
     afficherReliures: false,
@@ -78,8 +74,6 @@ var table = {
     }
   },
   init: function() {
-    this.general.scWidth = table.general.scale * table.general.width;
-    this.general.scHeight = table.general.scale * table.general.height;
     table.general.aspectRatio = table.general.width / table.general.height;
     table.conteneur.majPosition();
     table.general.posX = table.elem.getBoundingClientRect().left + 40;
@@ -161,8 +155,8 @@ var table = {
         var y = e.clientY - table.general.posY;*/
         var x = pos.x;
         var y = pos.y;
-        var x50 = Math.round(x / 50) * 50;
-        var y50 = Math.round(y / 50) * 50;
+        var x50 = Math.round(x / 25) * 25;
+        var y50 = Math.round(y / 25) * 25;
         table.majInfobulle(e.clientX, e.clientY, x50 + ' x ' + y50);
         table.obj.gabarit.center(x50, y50);
         table.obj.gabarit.show();
@@ -221,7 +215,7 @@ var table = {
 
       // Quand on zoom au centre, on s'attend à zoomer vers le centre
       // Quand on zoom sur le tiers en haut à gauche, on ne s'attend pas à ce que le point de zoom se retrouve au milieu de la page
-      // ratioX/Y permettent en gros de zoomer là où on s'attend
+      // ratioX/Y permet de conserver le point visé par le zoom sous la souris
       var ratioX = (curseurX - table.svg.viewbox().x) / table.svg.viewbox().width;
       var ratioY = (curseurY - table.svg.viewbox().y) / table.svg.viewbox().height;
 
@@ -280,13 +274,13 @@ var table = {
     cube: function(x, y) {
       //table.ctx.strokeStyle = "yellow";
       table.svg
-          .rect(232, 232)
+          .rect(58, 58)
           .stroke({width: 4, color: 'purple'})
           .fill('none')
           .move(x, y);
     },
     groupeCubes: function(cx, cy) { // Crée 5 cubes en croix (2018)
-      var tailleCube = 232;
+      var tailleCube = 58;
       table.creer.cube(cx - tailleCube/2, cy - tailleCube/2);
       table.creer.cube(cx - tailleCube/2, cy - tailleCube/2 - tailleCube);
       table.creer.cube(cx - tailleCube/2, cy + tailleCube/2);
