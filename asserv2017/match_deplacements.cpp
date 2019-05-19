@@ -80,6 +80,11 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   return error;
 }
 
+uint8_t aller_pt_direct(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives) {
+  Point point = getPoint(idPoint);
+  return aller_xy(point.x, point.y, vitesse, uniquement_avant, timeout, max_tentatives);
+}
+
 uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives) {
 
   /* Si accessible directement : return aller_xy()
@@ -96,55 +101,26 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
 
   switch(idPoint) {
 
-  /* Je garde un exemple avec "robot_proche_point"
+    // [A copier coller dans aller_pt_etape()]
+    /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Morceau de code généré automatiquement par GenererPtsdePassage
+        le 2019-04-27 à 20:48:10
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
     case PT_ETAPE_1:
       com_printfln("Destination P1");
-      if(robot_dans_zone(ZONE_A)) {
+      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_D | ZONE_E | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_E | ZONE_H | ZONE_I)) {
-          point_de_passage = PT_ETAPE_8;
-        }
-        else if(robot_dans_zone(ZONE_F)) {
-          if(robot_proche_point(PT_ETAPE_8)) { // PT8 est dans ZONE_F
-            point_de_passage = PT_ETAPE_4;
-          }
-          else {
-            point_de_passage = PT_ETAPE_8;
-          }
-        }
-        else if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_G)) {
-          if(robot_proche_point(PT_ETAPE_4)) { // PT4 est dans ZONE_B
-            point_accessible = true;
-          }
-          else {
-            point_de_passage = PT_ETAPE_4;
-          }
-        }
-        else if(robot_dans_zone(ZONE_J))
+        if(robot_dans_zone(ZONE_F))
           point_de_passage = PT_ETAPE_15;
-        else
-          je_suis_perdu = true;
-      }
-      break;
-    */
-    
-    /** Ce morceau de code a été généré automatiquement :) **/
-    case PT_ETAPE_1:
-      com_printfln("Destination P1");
-      if(robot_dans_zone(ZONE_A | ZONE_B)) {
-        point_accessible = true;
-      }
-      else {
-        point_accessible = false;
-        if(robot_dans_zone(ZONE_C))
-          point_de_passage = PT_ETAPE_14;
-        else if(robot_dans_zone(ZONE_D | ZONE_BS | ZONE_CS))
+        else if(robot_dans_zone(ZONE_G))
           point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -152,15 +128,19 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_2:
       com_printfln("Destination P2");
-      if(robot_dans_zone(ZONE_A | ZONE_C | ZONE_CS)) {
+      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_D | ZONE_E | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_B | ZONE_D | ZONE_BS))
+        if(robot_dans_zone(ZONE_F))
+          point_de_passage = PT_ETAPE_15;
+        else if(robot_dans_zone(ZONE_G))
           point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -168,19 +148,17 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_3:
       com_printfln("Destination P3");
-      if(robot_dans_zone(ZONE_C | ZONE_D)) {
+      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_D | ZONE_E | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_9;
-        else if(robot_dans_zone(ZONE_B))
-          point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
-        else if(robot_dans_zone(ZONE_BS | ZONE_CS))
-          point_de_passage = PT_ETAPE_12;
+        if(robot_dans_zone(ZONE_F | ZONE_G))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -188,17 +166,19 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_4:
       com_printfln("Destination P4");
-      if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_AS | ZONE_BS | ZONE_CS)) {
+      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_E | ZONE_F | ZONE_K)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_D))
-          point_de_passage = PT_ETAPE_12;
-        else if(robot_dans_zone(ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
+        if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_5;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -206,17 +186,21 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_5:
       com_printfln("Destination P5");
-      if(robot_dans_zone(ZONE_AS | ZONE_BS | ZONE_CS | ZONE_DS)) {
+      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_D)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_B | ZONE_C))
-          point_de_passage = PT_ETAPE_12S;
-        else if(robot_dans_zone(ZONE_D))
-          point_de_passage = PT_ETAPE_12;
+        if(robot_dans_zone(ZONE_E | ZONE_K))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_F))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -224,17 +208,129 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_6:
       com_printfln("Destination P6");
-      if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_D)) {
+      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_D | ZONE_F)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_9;
-        else if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
-        else if(robot_dans_zone(ZONE_BS | ZONE_CS))
-          point_de_passage = PT_ETAPE_12;
+        if(robot_dans_zone(ZONE_E | ZONE_K))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_6B1:
+      com_printfln("Destination P6B1");
+      if(robot_dans_zone(ZONE_C | ZONE_D)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_F))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_K))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_6B2:
+      com_printfln("Destination P6B2");
+      if(robot_dans_zone(ZONE_C | ZONE_D | ZONE_H)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B))
+          point_de_passage = PT_ETAPE_5;
+        else if(robot_dans_zone(ZONE_E | ZONE_K))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_F))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_6B3:
+      com_printfln("Destination P6B3");
+      if(robot_dans_zone(ZONE_C | ZONE_D)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B))
+          point_de_passage = PT_ETAPE_5;
+        else if(robot_dans_zone(ZONE_E | ZONE_K))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_F))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_6B4:
+      com_printfln("Destination P6B4");
+      if(robot_dans_zone(ZONE_C | ZONE_D)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B))
+          point_de_passage = PT_ETAPE_5;
+        else if(robot_dans_zone(ZONE_E | ZONE_K))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_F))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_7:
+      com_printfln("Destination P7");
+      if(robot_dans_zone(ZONE_A | ZONE_E | ZONE_F | ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_D))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -242,19 +338,19 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_8:
       com_printfln("Destination P8");
-      if(robot_dans_zone(ZONE_D)) {
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_9;
-        else if(robot_dans_zone(ZONE_B | ZONE_C))
-          point_de_passage = PT_ETAPE_6;
-        else if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
-        else if(robot_dans_zone(ZONE_BS | ZONE_CS))
-          point_de_passage = PT_ETAPE_12;
+        if(robot_dans_zone(ZONE_A | ZONE_G))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_D))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -262,13 +358,19 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_9:
       com_printfln("Destination P9");
-      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_D | ZONE_BS | ZONE_CS)) {
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
+        if(robot_dans_zone(ZONE_A | ZONE_G))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_D))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -276,35 +378,307 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_10:
       com_printfln("Destination P10");
-      if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_BS | ZONE_CS)) {
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_9;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
         else if(robot_dans_zone(ZONE_D))
-          point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
       break;
       
-    case PT_ETAPE_11:
-      com_printfln("Destination P11");
-      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_BS | ZONE_CS | ZONE_DS)) {
+    case PT_ETAPE_11B1:
+      com_printfln("Destination P11B1");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_C))
-          point_de_passage = PT_ETAPE_12;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
         else if(robot_dans_zone(ZONE_D))
-          point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_AS))
-          point_de_passage = PT_ETAPE_12S;
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B2:
+      com_printfln("Destination P11B2");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B3:
+      com_printfln("Destination P11B3");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B4:
+      com_printfln("Destination P11B4");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B5:
+      com_printfln("Destination P11B5");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B6:
+      com_printfln("Destination P11B6");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B7:
+      com_printfln("Destination P11B7");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B8:
+      com_printfln("Destination P11B8");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B9:
+      com_printfln("Destination P11B9");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B10:
+      com_printfln("Destination P11B10");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B11:
+      com_printfln("Destination P11B11");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B12:
+      com_printfln("Destination P11B12");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_11B13:
+      com_printfln("Destination P11B13");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -312,15 +686,23 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_12:
       com_printfln("Destination P12");
-      if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_D | ZONE_BS | ZONE_CS)) {
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
         if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -328,13 +710,23 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_13:
       com_printfln("Destination P13");
-      if(robot_dans_zone(ZONE_A | ZONE_B | ZONE_C | ZONE_D | ZONE_BS | ZONE_CS)) {
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
-        if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
@@ -342,57 +734,485 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
       
     case PT_ETAPE_14:
       com_printfln("Destination P14");
-      if(robot_dans_zone(ZONE_A | ZONE_C)) {
-        point_accessible = true;
-      }
-      else {
-        point_accessible = false;
-        if(robot_dans_zone(ZONE_B | ZONE_D | ZONE_BS | ZONE_CS))
-          point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_AS | ZONE_DS))
-          point_de_passage = PT_ETAPE_12S;
-        else
-          je_suis_perdu = true;
-      }
-      break;
-      
-    case PT_ETAPE_6S:
-      com_printfln("Destination P6S");
-      if(robot_dans_zone(ZONE_AS | ZONE_BS | ZONE_CS | ZONE_DS)) {
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
         if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_13;
-        else if(robot_dans_zone(ZONE_B | ZONE_C))
-          point_de_passage = PT_ETAPE_12S;
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
         else if(robot_dans_zone(ZONE_D))
-          point_de_passage = PT_ETAPE_12;
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
       break;
       
-    case PT_ETAPE_12S:
-      com_printfln("Destination P12S");
-      if(robot_dans_zone(ZONE_B | ZONE_C | ZONE_AS | ZONE_BS | ZONE_CS | ZONE_DS)) {
+    case PT_ETAPE_15:
+      com_printfln("Destination P15");
+      if(robot_dans_zone(ZONE_E | ZONE_F | ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
         point_accessible = true;
       }
       else {
         point_accessible = false;
         if(robot_dans_zone(ZONE_A))
-          point_de_passage = PT_ETAPE_13;
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
         else if(robot_dans_zone(ZONE_D))
-          point_de_passage = PT_ETAPE_12;
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
         else
           je_suis_perdu = true;
       }
       break;
+      
+    case PT_ETAPE_16:
+      com_printfln("Destination P16");
+      if(robot_dans_zone(ZONE_F | ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E))
+          point_de_passage = PT_ETAPE_15;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_16B:
+      com_printfln("Destination P16B");
+      if(robot_dans_zone(ZONE_F | ZONE_K)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E))
+          point_de_passage = PT_ETAPE_15;
+        else if(robot_dans_zone(ZONE_G | ZONE_L | ZONE_M))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_17:
+      com_printfln("Destination P17");
+      if(robot_dans_zone(ZONE_F | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E))
+          point_de_passage = PT_ETAPE_15;
+        else if(robot_dans_zone(ZONE_G))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_18:
+      com_printfln("Destination P18");
+      if(robot_dans_zone(ZONE_E | ZONE_I | ZONE_J | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_F))
+          point_de_passage = PT_ETAPE_12;
+        else if(robot_dans_zone(ZONE_G))
+          point_de_passage = PT_ETAPE_19;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_K))
+          point_de_passage = PT_ETAPE_13;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_19:
+      com_printfln("Destination P19");
+      if(robot_dans_zone(ZONE_G | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_I | ZONE_J | ZONE_L))
+          point_de_passage = PT_ETAPE_18;
+        else if(robot_dans_zone(ZONE_F))
+          point_de_passage = PT_ETAPE_12;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_K))
+          point_de_passage = PT_ETAPE_13;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_19B:
+      com_printfln("Destination P19B");
+      if(robot_dans_zone(ZONE_G | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_I | ZONE_J | ZONE_L))
+          point_de_passage = PT_ETAPE_18;
+        else if(robot_dans_zone(ZONE_F))
+          point_de_passage = PT_ETAPE_12;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_K))
+          point_de_passage = PT_ETAPE_13;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B1:
+      com_printfln("Destination P20B1");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B2:
+      com_printfln("Destination P20B2");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B3:
+      com_printfln("Destination P20B3");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B4:
+      com_printfln("Destination P20B4");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B5:
+      com_printfln("Destination P20B5");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B6:
+      com_printfln("Destination P20B6");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B7:
+      com_printfln("Destination P20B7");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B8:
+      com_printfln("Destination P20B8");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B9:
+      com_printfln("Destination P20B9");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    case PT_ETAPE_20B10:
+      com_printfln("Destination P20B10");
+      if(robot_dans_zone(ZONE_G | ZONE_K | ZONE_L | ZONE_M)) {
+        point_accessible = true;
+      }
+      else {
+        point_accessible = false;
+        if(robot_dans_zone(ZONE_A))
+          point_de_passage = PT_ETAPE_7;
+        else if(robot_dans_zone(ZONE_B))
+          point_de_passage = PT_ETAPE_3;
+        else if(robot_dans_zone(ZONE_C))
+          point_de_passage = PT_ETAPE_4;
+        else if(robot_dans_zone(ZONE_D))
+          point_de_passage = PT_ETAPE_6;
+        else if(robot_dans_zone(ZONE_E | ZONE_F))
+          point_de_passage = PT_ETAPE_16;
+        else if(robot_dans_zone(ZONE_H))
+          point_de_passage = PT_ETAPE_6B2;
+        else if(robot_dans_zone(ZONE_I | ZONE_J))
+          point_de_passage = PT_ETAPE_18;
+        else
+          je_suis_perdu = true;
+      }
+      break;
+      
+    /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
+
+
     /********************************************************/
   }
 
-  if (je_suis_perdu) {
+  if(je_suis_perdu) {
     com_printfln("! ######### ERREUR : Point '%d' sans stratégie", idPoint);
     return ERROR_CAS_NON_GERE;
   }
@@ -416,10 +1236,41 @@ uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_av
   Utilitaires de déplacement
   ========================== **/
   
+//Antoine 24/03/2018 : TODO_Rémi màj code des zones
+
 uint16_t localiser_zone() {
   // Ajout de zone à faire aussi dans getZone() et asserv2017.h
   // Généré automatiquement
-  if(robot_dans_zone(ZONE_B)) {
+
+  /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      Morceau de code généré automatiquement par GenererZonesLocaliser
+      le 2019-04-27 à 20:48:08
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
+  if(robot_dans_zone(ZONE_E)) {
+    com_printfln("Localisé zone E");
+    return ZONE_E;
+  }
+  else if(robot_dans_zone(ZONE_L)) {
+    com_printfln("Localisé zone L");
+    return ZONE_L;
+  }
+  else if(robot_dans_zone(ZONE_F)) {
+    com_printfln("Localisé zone F");
+    return ZONE_F;
+  }
+  else if(robot_dans_zone(ZONE_G)) {
+    com_printfln("Localisé zone G");
+    return ZONE_G;
+  }
+  else if(robot_dans_zone(ZONE_K)) {
+    com_printfln("Localisé zone K");
+    return ZONE_K;
+  }
+  else if(robot_dans_zone(ZONE_M)) {
+    com_printfln("Localisé zone M");
+    return ZONE_M;
+  }
+  else if(robot_dans_zone(ZONE_B)) {
     com_printfln("Localisé zone B");
     return ZONE_B;
   }
@@ -427,30 +1278,28 @@ uint16_t localiser_zone() {
     com_printfln("Localisé zone C");
     return ZONE_C;
   }
-  else if(robot_dans_zone(ZONE_A)) {
-    com_printfln("Localisé zone A");
-    return ZONE_A;
-  }
   else if(robot_dans_zone(ZONE_D)) {
     com_printfln("Localisé zone D");
     return ZONE_D;
   }
-  else if(robot_dans_zone(ZONE_BS)) {
-    com_printfln("Localisé zone BS");
-    return ZONE_BS;
+  else if(robot_dans_zone(ZONE_A)) {
+    com_printfln("Localisé zone A");
+    return ZONE_A;
   }
-  else if(robot_dans_zone(ZONE_CS)) {
-    com_printfln("Localisé zone CS");
-    return ZONE_CS;
+  else if(robot_dans_zone(ZONE_I)) {
+    com_printfln("Localisé zone I");
+    return ZONE_I;
   }
-  else if(robot_dans_zone(ZONE_AS)) {
-    com_printfln("Localisé zone AS");
-    return ZONE_AS;
+  else if(robot_dans_zone(ZONE_J)) {
+    com_printfln("Localisé zone J");
+    return ZONE_J;
   }
-  else if(robot_dans_zone(ZONE_DS)) {
-    com_printfln("Localisé zone DS");
-    return ZONE_DS;
+  else if(robot_dans_zone(ZONE_H)) {
+    com_printfln("Localisé zone H");
+    return ZONE_H;
   }
+  /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
+
 
   com_printfln("##### Zone inconnue");
   return ZONE_INCONNUE;
@@ -460,42 +1309,146 @@ uint16_t localiser_zone() {
 Point getPoint(uint8_t idPoint) {
   // Ajout de point à faire aussi dans asserv2017.h
   
-  /* Import depuis Excel : Remplacer par RegExp
+  /* Alternative : Import depuis Excel : Remplacer par RegExp
     p([0-9]{1,2})\t([0-9]{3,4})\t([0-9]{3,4})
     case PT_ETAPE_$1: return {.x = $2, .y = $3}; break;
   */
-  
-  switch(idPoint) {
-    case PT_ETAPE_1: return {.x = 270, .y = 250}; break;
-    case PT_ETAPE_2:
-      if(robot.estVert)
-        return {.x = 500, .y = 940};
-      else
-        return {.x = 500, .y = 740};
-      
-      break;
-    case PT_ETAPE_3: return {.x = 610, .y = 1712}; break;
-    case PT_ETAPE_4:
-      if(robot.estVert)
-        return {.x = 2500, .y = 940};
-      else
-        return {.x = 2500, .y = 740};
-      break;
-    case PT_ETAPE_5: return {.x = 2390, .y = 1712}; break;
-    case PT_ETAPE_6: return {.x = 610, .y = 1500}; break;
-    case PT_ETAPE_8: return {.x = 230, .y = 1500}; break;
-    case PT_ETAPE_9: return {.x = 589, .y = 1080}; break;
-    case PT_ETAPE_10: return {.x = 1450, .y = 940}; break;
-    case PT_ETAPE_11: return {.x = 1130, .y = 210}; break;
-    case PT_ETAPE_12: return {.x = 1130, .y = 940}; break;
-    case PT_ETAPE_13: return {.x = 850, .y = 940}; break;
-    case PT_ETAPE_14: return {.x = 300, .y = 540}; break;
-    case PT_ETAPE_6S: return {.x = 2390, .y = 1580}; break;
-    case PT_ETAPE_12S: return {.x = 1870, .y = 1040}; break;
-    default:
-      com_printfln("! ########## ERREUR: idPoint '%d' incorrect dans getPoint", idPoint);
-      return {.x = 500, .y = 1100}; // P8
+  /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      Code généré automatiquement par GenererListePoints
+      le 2019-04-27 à 20:48:01
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
+  // NE PAS CHANGER L'ORDRE !!
+  // Les points sont regroupés par environ 15 points pour réduire le temps de recherche d'un point
+  if(idPoint <= PT_ETAPE_7) {
+    switch(idPoint) {
+      case PT_ETAPE_1: return {.x = 236, .y = 450}; break;
+      case PT_ETAPE_2: return {.x = 235, .y = 752}; break;
+      case PT_ETAPE_3: return {.x = 259, .y = 236}; break;
+      case PT_3A: return {.x = 259, .y = 152}; break;
+      case PT_ETAPE_4: return {.x = 293, .y = 1342}; break;
+      case PT_ETAPE_5: return {.x = 223, .y = 1545}; break;
+      case PT_ETAPE_6: return {.x = 214, .y = 1343}; break;
+      case PT_ETAPE_6B1: return {.x = 173, .y = 1828}; break;
+      case PT_ETAPE_6B2: return {.x = 223, .y = 1794}; break;
+      case PT_ETAPE_6B3: return {.x = 276, .y = 1793}; break;
+      case PT_ETAPE_6B4: return {.x = 325, .y = 1793}; break;
+      case PT_6B1A: return {.x = 174, .y = 1855}; break;
+      case PT_6B2A: return {.x = 223, .y = 1855}; break;
+      case PT_6B3A: return {.x = 276, .y = 1855}; break;
+      case PT_6B4A: return {.x = 323, .y = 1855}; break;
+      case PT_ETAPE_7: return {.x = 862, .y = 288}; break;
+      default:
+        com_printfln("! ####### idPoint '%d' incorrect dans getPoint", idPoint);
+        return {.x = 750, .y = 1000}; // Milieu de la demi-table
+    }
   }
+  else if(idPoint <= PT_ETAPE_11B10) {
+    switch(idPoint) {
+      case PT_ETAPE_8: return {.x = 749, .y = 450}; break;
+      case PT_8A: return {.x = 693, .y = 452}; break;
+      case PT_ETAPE_9: return {.x = 749, .y = 753}; break;
+      case PT_9A: return {.x = 691, .y = 753}; break;
+      case PT_ETAPE_10: return {.x = 496, .y = 1300}; break;
+      case PT_10A: return {.x = 495, .y = 1243}; break;
+      case PT_ETAPE_11B1: return {.x = 446, .y = 1333}; break;
+      case PT_ETAPE_11B2: return {.x = 494, .y = 1333}; break;
+      case PT_ETAPE_11B3: return {.x = 542, .y = 1333}; break;
+      case PT_ETAPE_11B4: return {.x = 598, .y = 1333}; break;
+      case PT_ETAPE_11B5: return {.x = 640, .y = 1333}; break;
+      case PT_ETAPE_11B6: return {.x = 699, .y = 1333}; break;
+      case PT_ETAPE_11B7: return {.x = 751, .y = 1333}; break;
+      case PT_ETAPE_11B8: return {.x = 801, .y = 1333}; break;
+      case PT_ETAPE_11B9: return {.x = 851, .y = 1333}; break;
+      case PT_ETAPE_11B10: return {.x = 902, .y = 1333}; break;
+      default:
+        com_printfln("! ####### idPoint '%d' incorrect dans getPoint", idPoint);
+        return {.x = 750, .y = 1000}; // Milieu de la demi-table
+    }
+  }
+  else if(idPoint <= PT_11B13A) {
+    switch(idPoint) {
+      case PT_ETAPE_11B11: return {.x = 948, .y = 1333}; break;
+      case PT_ETAPE_11B12: return {.x = 1003, .y = 1333}; break;
+      case PT_ETAPE_11B13: return {.x = 1055, .y = 1333}; break;
+      case PT_11B1A: return {.x = 446, .y = 1393}; break;
+      case PT_11B2A: return {.x = 494, .y = 1393}; break;
+      case PT_11B3A: return {.x = 542, .y = 1393}; break;
+      case PT_11B4A: return {.x = 598, .y = 1393}; break;
+      case PT_11B5A: return {.x = 640, .y = 1393}; break;
+      case PT_11B6A: return {.x = 699, .y = 1393}; break;
+      case PT_11B7A: return {.x = 751, .y = 1393}; break;
+      case PT_11B8A: return {.x = 801, .y = 1393}; break;
+      case PT_11B9A: return {.x = 851, .y = 1393}; break;
+      case PT_11B10A: return {.x = 902, .y = 1393}; break;
+      case PT_11B11A: return {.x = 948, .y = 1393}; break;
+      case PT_11B12A: return {.x = 1003, .y = 1393}; break;
+      case PT_11B13A: return {.x = 1055, .y = 1393}; break;
+      default:
+        com_printfln("! ####### idPoint '%d' incorrect dans getPoint", idPoint);
+        return {.x = 750, .y = 1000}; // Milieu de la demi-table
+    }
+  }
+  else if(idPoint <= PT_19A) {
+    switch(idPoint) {
+      case PT_ETAPE_12: return {.x = 1312, .y = 273}; break;
+      case PT_12A: return {.x = 1312, .y = 189}; break;
+      case PT_ETAPE_13: return {.x = 1679, .y = 273}; break;
+      case PT_13A: return {.x = 1679, .y = 189}; break;
+      case PT_ETAPE_14: return {.x = 2225, .y = 277}; break;
+      case PT_14A: return {.x = 2225, .y = 210}; break;
+      case PT_ETAPE_15: return {.x = 1373, .y = 889}; break;
+      case PT_ETAPE_16: return {.x = 1364, .y = 1051}; break;
+      case PT_16A: return {.x = 1302, .y = 1052}; break;
+      case PT_ETAPE_16B: return {.x = 1227, .y = 1334}; break;
+      case PT_16BA: return {.x = 1192, .y = 1290}; break;
+      case PT_ETAPE_17: return {.x = 1296, .y = 1277}; break;
+      case PT_17A: return {.x = 1297, .y = 1427}; break;
+      case PT_ETAPE_18: return {.x = 2299, .y = 842}; break;
+      case PT_ETAPE_19: return {.x = 2344, .y = 1048}; break;
+      case PT_19A: return {.x = 2297, .y = 1047}; break;
+      default:
+        com_printfln("! ####### idPoint '%d' incorrect dans getPoint", idPoint);
+        return {.x = 750, .y = 1000}; // Milieu de la demi-table
+    }
+  }
+  else if(idPoint <= PT_20B4A) {
+    switch(idPoint) {
+      case PT_ETAPE_19B: return {.x = 2333, .y = 1192}; break;
+      case PT_19BA: return {.x = 2281, .y = 1170}; break;
+      case PT_ETAPE_20B1: return {.x = 1947, .y = 1333}; break;
+      case PT_ETAPE_20B2: return {.x = 1996, .y = 1333}; break;
+      case PT_ETAPE_20B3: return {.x = 2048, .y = 1333}; break;
+      case PT_ETAPE_20B4: return {.x = 2099, .y = 1333}; break;
+      case PT_ETAPE_20B5: return {.x = 2149, .y = 1333}; break;
+      case PT_ETAPE_20B6: return {.x = 2198, .y = 1333}; break;
+      case PT_ETAPE_20B7: return {.x = 2249, .y = 1333}; break;
+      case PT_ETAPE_20B8: return {.x = 2299, .y = 1333}; break;
+      case PT_ETAPE_20B9: return {.x = 2350, .y = 1333}; break;
+      case PT_ETAPE_20B10: return {.x = 2402, .y = 1333}; break;
+      case PT_20B1A: return {.x = 1947, .y = 1393}; break;
+      case PT_20B2A: return {.x = 1996, .y = 1393}; break;
+      case PT_20B3A: return {.x = 2048, .y = 1393}; break;
+      case PT_20B4A: return {.x = 2099, .y = 1393}; break;
+      default:
+        com_printfln("! ####### idPoint '%d' incorrect dans getPoint", idPoint);
+        return {.x = 750, .y = 1000}; // Milieu de la demi-table
+    }
+  }
+  else {
+    switch(idPoint) {
+      case PT_20B5A: return {.x = 2149, .y = 1393}; break;
+      case PT_20B6A: return {.x = 2198, .y = 1393}; break;
+      case PT_20B7A: return {.x = 2249, .y = 1393}; break;
+      case PT_20B8A: return {.x = 2299, .y = 1393}; break;
+      case PT_20B9A: return {.x = 2350, .y = 1393}; break;
+      case PT_20B10A: return {.x = 2402, .y = 1393}; break;
+      default:
+        com_printfln("! ####### idPoint '%d' incorrect dans getPoint", idPoint);
+        return {.x = 750, .y = 1000}; // Milieu de la demi-table
+    }
+  }
+  /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
+
 }
 
 
@@ -512,39 +1465,70 @@ bool robot_dans_zone(uint16_t idZone) {
   
   bool result = false;
 
-  /* Import depuis Excel : Remplacer par Regexp
+  /*com_printfln("Zones testées : %d", idZone);
+  com_send_position();*/
+  
+  /* Alternative, Import depuis Excel : Remplacer par Regexp
     z([A-Z])\t([0-9]{1,4})\t([0-9]{1,4})\t([0-9]{1,4})\t([0-9]{1,4})
     if\(\(idZone & ZONE_$1\) == ZONE_$1\)\n  result |= robot_dans_zone\($2, $3, $4, $5\);\n
   */
+  /*
+    [Il peut être intéressant de trier les conditions par ordre de fréquence probable]
+    Et d'ajouter cette ligne à mi-chemin
+    
+    if(result) return result; // Bilan à mi-parcours. Inutile de continuer si on est déjà true
+  */
   
+  /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      Code généré automatiquement par GenererListesZones
+      le 2019-04-29 à 23:09:38
+      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
   if((idZone & ZONE_A) == ZONE_A)
-    result |= robot_dans_zone(0, 0, 1000, 840);
+    result |= robot_dans_zone(0, 0, 276, 266);
 
   if((idZone & ZONE_B) == ZONE_B)
-    result |= robot_dans_zone(1000, 0, 1500, 2000);
+    result |= robot_dans_zone(0, 266, 276, 1277);
 
   if((idZone & ZONE_C) == ZONE_C)
-    result |= robot_dans_zone(0, 840, 1000, 1375);
+    result |= robot_dans_zone(0, 1277, 276, 1639);
+
+  if(result) return result;
 
   if((idZone & ZONE_D) == ZONE_D)
-    result |= robot_dans_zone(0, 1375, 1000, 2000);
+    result |= robot_dans_zone(0, 1639, 400, 2000);
 
+  if((idZone & ZONE_E) == ZONE_E)
+    result |= robot_dans_zone(276, 0, 1226, 1160);
 
-  if(result) return result; // Bilan à mi-parcours. Inutile de continuer si on est déjà true
-  
-  
-  if((idZone & ZONE_AS) == ZONE_AS)
-    result |= robot_dans_zone(2000, 0, 3000, 840);
+  if((idZone & ZONE_F) == ZONE_F)
+    result |= robot_dans_zone(276, 1160, 1500, 1639);
 
-  if((idZone & ZONE_BS) == ZONE_BS)
-    result |= robot_dans_zone(1500, 0, 2000, 2000);
+  if(result) return result;
 
-  if((idZone & ZONE_CS) == ZONE_CS)
-    result |= robot_dans_zone(2000, 840, 3000, 1375);
+  if((idZone & ZONE_G) == ZONE_G)
+    result |= robot_dans_zone(1500, 1160, 2450, 1639);
 
-  if((idZone & ZONE_DS) == ZONE_DS)
-    result |= robot_dans_zone(2000, 1375, 3000, 2000);
+  if((idZone & ZONE_H) == ZONE_H)
+    result |= robot_dans_zone(400, 1639, 1500, 2000);
 
+  if((idZone & ZONE_I) == ZONE_I)
+    result |= robot_dans_zone(2450, 0, 3000, 1639);
+
+  if(result) return result;
+
+  if((idZone & ZONE_J) == ZONE_J)
+    result |= robot_dans_zone(1500, 1639, 3000, 2000);
+
+  if((idZone & ZONE_K) == ZONE_K)
+    result |= robot_dans_zone(1226, 0, 1500, 1160);
+
+  if((idZone & ZONE_L) == ZONE_L)
+    result |= robot_dans_zone(1500, 0, 2180, 1160);
+
+  if((idZone & ZONE_M) == ZONE_M)
+    result |= robot_dans_zone(2180, 0, 2450, 1160);
+
+  /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ **/
 
   return result;
 }
@@ -560,7 +1544,12 @@ bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2) {
     return (robot.xMm >= x1 && robot.xMm <= x2) && (robot.yMm >= y1 && robot.yMm <= y2);
   else
     return (robot.xMm <= symetrie_x(x1) && robot.xMm >= symetrie_x(x2) && (robot.yMm >= y1 && robot.yMm <= y2));
-*/
+//*/
+ /* if((symetrie_x(robot.xMm) >= x1 && symetrie_x(robot.xMm) <= x2) && (robot.yMm >= y1 && robot.yMm <= y2))
+    com_printfln("Dans (%d, %d), (%d, %d)", x1, y1, x2, y2);
+  else
+    com_printfln("Pas dans (%d, %d), (%d, %d)", x1, y1, x2, y2);*/
+
 
   // Ne peut-on pas se contenter d'un
   return (symetrie_x(robot.xMm) >= x1 && symetrie_x(robot.xMm) <= x2) && (robot.yMm >= y1 && robot.yMm <= y2);

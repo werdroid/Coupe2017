@@ -105,7 +105,7 @@ typedef struct {
   int score;
   
   /* Spécificités sur une année */
-  bool estVert; // est égal à l'inverse de symetrie (utilisé en haut niveau), à renommer chaque année partout
+  bool estJaune; // est égal à l'inverse de symetrie (utilisé en haut niveau), à renommer chaque année partout
   bool propulseur_actif = false;
   bool trappe_ouverte = false;
 
@@ -397,6 +397,7 @@ void com_loop();
 
 void com_send_robot_state();
 void com_send_robot_infos();
+void com_send_position();
 void com_printfln(const char* format, ...);
 void com_print(const char* str);
 void com_serial1_printf(const char* format, ...);

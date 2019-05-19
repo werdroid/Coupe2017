@@ -6,20 +6,13 @@
   Déclarations constantes, variables, prototypes
   ============================================== */
 
-int pr_rapporter_CUB(int cub, int depart);
-int pr_activer_panneau(int depart);
+uint8_t pr_activer_adp();
 uint8_t pr_jouer_action(int action);
 
+uint8_t pr_aller_vers_adp(uint32_t vitesse);
+uint8_t pr_pousser_atome(uint8_t atome);
+
 int pr_nb_tentatives[NB_ACTIONS] = { 0 };
-
-int nb_balles_eau_propre_dans_pr = 0;
-int nb_balles_eau_usee_dans_pr = 0;
-bool pr_panneau_allume = false;
-bool pr_a_bouge_CUB[3] = { false };
-bool pr_CUB_dans_ZOC[3] = { false };
-
-Point pr_pt_CUB[3] = {{850, 540}, {300, 1190}, {1100, 1500}};
-
 
 /** =====================================
   Programmes alternatifs (Homolog, Debug)
@@ -29,12 +22,16 @@ void homologation_pr() {
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
 
-  if(robot.estVert)
-    ecran_console_log("Couleur : VERT\n");
+  if(robot.estJaune)
+    ecran_console_log("Couleur : JAUNE\n");
   else
-    ecran_console_log("Couleur : ORANGE\n");
+    ecran_console_log("Couleur : VIOLET\n");
   ecran_console_log("\n\n");
-
+  
+  ecran_console_log("Les arbitres sont\n");
+  ecran_console_log("hyper sympa cette\n");
+  ecran_console_log("annee.\n\n");
+  
   ecran_console_log("1. Positionner\n");
   ecran_console_log("2. Jack in\n");
   ecran_console_log("3. BAU off\n");
@@ -53,22 +50,18 @@ void homologation_pr() {
   
   minuteur_attendre(1000);
   
-  asserv_set_position(101, 159, 0);
+  asserv_set_position(235, 752, 0); // PT_ETAPE_2
   asserv_maintenir_position();
   bouton_wait_start_up();
   
-  minuteur_attendre(8000);
-  aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
-  
-  //pr_activer_panneau(0);
-  
-  aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 10000, 10);
-  pr_rapporter_CUB(0, 0);
-  
-  
-  
   minuteur_demarrer();
-  minuteur_attendre(500);
+  minuteur_attendre(1000);
+ 
+  aller_xy(1250, 750, VITESSE_RAPIDE, 1, 10000, 50);
+  pr_jouer_action(ACTION_POUSSER_ATOME0);
+  asserv_go_toutdroit(-50, 2000);
+  
+  minuteur_attendre_fin_match();
 }
   
 void debug_pr() {
@@ -116,14 +109,23 @@ void gr_coucou() {
   =============== **/
 
 void match_pr() {
+  
+  #ifdef __EMSCRIPTEN__
+  com_printfln("----------");
+  com_printfln(__DATE__);
+  com_printfln(__TIME__);
+  com_printfln("----------");
+  #endif
+  
+  
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
   
   
-  if(robot.estVert)
-    ecran_console_log("Couleur : VERT\n");
+  if(robot.estJaune)
+    ecran_console_log("Couleur : JAUNE\n");
   else
-    ecran_console_log("Couleur : ORANGE\n");
+    ecran_console_log("Couleur : VIOLET\n");
   ecran_console_log("\n\n");
 
   ecran_console_log("1. Positionner\n");
@@ -134,8 +136,22 @@ void match_pr() {
   
   ecran_console_log("Initialisation...");
  
-  
   minuteur_attendre(500);
+  
+  uint8_t error;
+  uint8_t action;
+  int nb_iterations = 0;
+  uint8_t phase1[] = {
+    ACTION_ACTIVER_ADP,
+    ACTION_POUSSER_ATOME0,
+    ACTION_POUSSER_ATOME1,
+    ACTION_POUSSER_ATOME2,
+    ACTION_POUSSER_ATOMES_CHAOS,
+    ACTION_POUSSER_ATOMES_CHAOS_B
+    // AS-tu bien retiré la virgule sur la dernière ligne ?
+  };
+  int len_phase1 = sizeof(phase1) / sizeof(action);
+  
   
   pr_init_servos();
   
@@ -146,8 +162,8 @@ void match_pr() {
   ecran_console_log("Pret\n");
   minuteur_attendre(200);
   
-  //if(robot.estVert)
-    asserv_set_position(101, 159, 0);
+  //if(robot.estJaune)
+    asserv_set_position(150, 450, 0); // TBC (grossièrement redium, proche PT_ETAPE_1)
   /*else
     asserv_set_position(299, 159, MATH_PI);*/
     
@@ -160,86 +176,42 @@ void match_pr() {
   /** ------------
     Début du Match
     ------------- **/
-
-  uint8_t error;
-  bool continuer_boucle;
-  int nb_iterations;
-  
-  int action;
-  int const NOMBRE_ACTIONS = 2;
-  int action_pr_nb_tentatives[NOMBRE_ACTIONS] = { 0 };
-  int action_avancement[NOMBRE_ACTIONS] = { 0 };
-
   
   minuteur_attendre(3000);
 
   
   com_printfln("Sort de la zone de départ");
+  asserv_go_toutdroit(200, 10000);
   
-  //if(robot.estVert)
-    asserv_go_toutdroit(99, 10000);
-  // else : pas de mouvement
   
-
-  //piloter_bras(BRAS_LEVER);
-
-  
-  //error = aller_xy(200, 179, VITESSE_RAPIDE, 1, 10000, 20);
-
-  
-  action = 0;
-  
-  /** ----------------------------------
-    Bouclage sur les actions principales
-    ------------------------------------ **/
+  action = len_phase1;
+  while(1) {
     
-  do {
-    continuer_boucle = true;
+    #ifdef __EMSCRIPTEN__
+    nb_iterations++;
+    if(nb_iterations > 50) {
+      com_printfln("! #### BOUCLE INFINIE ? ###");
+      break;
+    }
+    #endif
     
-    
-    /** On effectue l'action **/
-    
-    action_pr_nb_tentatives[action]++;
-    
-    switch(action) {
-      case 0:
-        action_avancement[action] = pr_activer_panneau(action_avancement[action]);
-        break;
-        
-      case 1:
-        action_avancement[action] = pr_rapporter_CUB(0, action_avancement[action]);
-        break;
-        
-      default:
-        com_printfln("! ######### ERREUR : action inconnue");
+    action++;
+    if(action >= len_phase1) {
+      action = 0;
+      com_printfln("=== (1) On boucle ===");
     }
     
+    pr_jouer_action(phase1[action]);
     
-    com_printfln("::: Action %d [%d] :::", action, action_avancement[action]);
-    
-
-    /** Recherche de la prochaine action à effectuer **/
-    // (celle qui n'a pas encore un statut OK)
-    nb_iterations = 0;      
-    do {
-      action++;
-      action = action % NOMBRE_ACTIONS;
-      
-      nb_iterations++;
-      com_printfln("Prochaine action : %d [%d] ?", action, action_avancement[action]);
-    } while(action_avancement[action] == 100 && nb_iterations <= NOMBRE_ACTIONS);
-    // tant qu'on n'a pas réussi toutes les actions (on ne parcourt cette liste qu'une fois, sinon boucle infinie)
-    
-    
-    if(action_avancement[action] == 100) {
-      // On a déjà tout réussi, on pourra s'arrêter ici
-      continuer_boucle = false;
+    // Conditions de fin de phase 1
+    if(table.adp_active &&
+      table.atome_a_bouge[0] && table.atome_a_bouge[1] && table.atome_a_bouge[2] && table.atome_a_bouge[3] && table.atome_a_bouge[4]) {
+      com_printfln("=== Tout est fait ! ===");
+      break;
     }
     
-  } while(continuer_boucle);
-  
-  aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 10000, 10);
-  
+  }
+
   minuteur_attendre_fin_match();
 }
 
@@ -247,15 +219,17 @@ void match_pr() {
 /** ============
   Actions de jeu
   ============== **/
-/*
+
+
 uint8_t pr_jouer_action(int action) {  
   uint8_t error;
-
   switch(action) {
-    case ACTION_ALLUMER_PANNEAU:    error = pr_allumer_panneau(); break;
-    case ACTION_RAPPORTER_CUB0:   error = rapporter_CUB(0); break;
-    case ACTION_RAPPORTER_CUB1:   error = rapporter_CUB(1); break;
-    case ACTION_RAPPORTER_CUB2:   error = rapporter_CUB(2); break;
+    case ACTION_ACTIVER_ADP:             error = pr_activer_adp(); break;
+    case ACTION_POUSSER_ATOME0:           error = pr_pousser_atome(0); break;
+    case ACTION_POUSSER_ATOME1:           error = pr_pousser_atome(1); break;
+    case ACTION_POUSSER_ATOME2:           error = pr_pousser_atome(2); break;
+    case ACTION_POUSSER_ATOMES_CHAOS:     error = pr_pousser_atome(3); break;
+    case ACTION_POUSSER_ATOMES_CHAOS_B:   error = pr_pousser_atome(4); break;
     default:
       com_printfln("PR ne peut pas faire l'action %d", action);
       error = ERROR_PARAMETRE;
@@ -263,165 +237,176 @@ uint8_t pr_jouer_action(int action) {
   
   if(error) {
     com_err2str(error);
-    if(error == ERROR_PLUS_RIEN_A_FAIRE) return OK
+    if(error == ERROR_PLUS_RIEN_A_FAIRE) return OK;
   }
   
   return error;
-}*/  
+}
   
-int pr_activer_panneau(int depart) {
-  uint8_t error;
-  com_printfln("==== Activation du panneau ====");
 
-  /*** TODO Ensemble des points à confirmer ***/
+uint8_t pr_activer_adp() {
+  uint8_t error;
+  Point pt13 = getPoint(PT_ETAPE_13);
   
+  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
+  pr_nb_tentatives[ACTION_ACTIVER_ADP]++;
   
-  // Se positionne face à l'interrupteur
-  error = aller_pt_etape(PT_ETAPE_11, VITESSE_RAPIDE, 1, 5000, 5);
+  error = pr_aller_vers_adp(VITESSE_RAPIDE);
+  if(error) return error;
+  com_printfln("Bien arrivé proche de l'ADP");
+  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  
   piloter_bras(BRAS_LEVER);
-  if(error) return 0;
   
-  error = asserv_rotation_vers_point(1130, 0);
-  if(error) return 0;
+  error = asserv_rotation_vers_point(pt13.x, 0, 2000);
+  if(error) return error;
   
-  // Lever le bras
-  piloter_bras(BRAS_POSITION_INTERRUPTEUR);
+  /****** TODO *******/
+  com_printfln("## Programmer la suite ##");
+  /****** TODO *******/
   
-  /** Tentative 1 **/
-  error = aller_xy(1130, 80, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
-  error = aller_xy(1130, 420, VITESSE_RAPIDE, 0, 2000, 5); // Reculer
+  table.adp_active = true;
   
-  /** Tentative 2 **/
-  // Un peu plus à gauche
-  error = aller_xy(1080, 80, VITESSE_RAPIDE, 1, 2000, 5);
-  error = aller_xy(1080, 420, VITESSE_RAPIDE, 0, 2000, 5);
+  return OK;
   
-  /** Tentative 3 **/
-  // Un peu plus à droite
-  error = aller_xy(1180, 420, VITESSE_RAPIDE, 1, 2000, 5); // On se met en face
-  
-  error = aller_xy(1180, 80, VITESSE_RAPIDE, 1, 2000, 5); // Enclencher
-  error = aller_xy(1180, 420, VITESSE_RAPIDE, 0, 2000, 5); // Reculer
-  
-  // Espérons que c'est ok
-  
-  return 100;
 }
 
-int pr_rapporter_CUB(int cub, int depart) {
+
+
+
+uint8_t pr_pousser_atome(uint8_t atome) {
   uint8_t error;
-  
-  com_printfln("==== Rapporter CUB%d ====", cub);
-  
-  if(cub >= 3) {
-    com_printfln("! ####### cub doit être 0 1 ou 2 (reçu : %d)", cub);
-    com_err2str(ERROR_PARAMETRE);
-    return 100;
-  }
-  
-  
   
   piloter_bras(BRAS_LEVER);
   
-  switch(depart) {
-    case 0:
-    
-      // On se positionne devant les cubes à des endroits savamment étudiés
-      switch(cub) {
-        case 0:
-          error = aller_xy(1130, 680, VITESSE_RAPIDE, 1, 5000, 3);
-          if(error) return 0;
-          
-          error = aller_xy(850, 800, VITESSE_RAPIDE, 1, 3000, 3);
-          if(error) return 0;
-          break;
-          
-          
-        case 1:
-          com_err2str(ERROR_PAS_CODE);
-          return 100;
-          break;
-          
-          
-        case 2:
-          com_err2str(ERROR_PAS_CODE);
-          return 100;
-          break;
-      }
-    
-      break;
-      
-    case 60:
-      // On a abandonné les cubes lors d'une précédente tentative.
-      // Essayons de se replacer près d'eux
-      
-      if(pr_pt_CUB[cub].x < 200    // Trop proche du bord gauche
-        || pr_pt_CUB[cub].x > 1300 // Trop proche de l'adversaire
-        || pr_pt_CUB[cub].y > 1100 // Trop proche du bord bas
-        || pr_pt_CUB[cub].y < 900) { // Trop proche de la zone de construction, l'échec était sans doute dû à un timeout...
-        com_err2str(ERROR_CAS_NON_GERE);
-        return 100;
-      }
-      
-      error = aller_xy(pr_pt_CUB[cub].x, pr_pt_CUB[cub].y, VITESSE_RAPIDE, 1, 5000, 3);
-      if(error) return 60;
-      
-      break;
-      
-    default:
-      com_err2str(ERROR_PARAMETRE);
-      com_printfln("Attendu : 0|60 ; Reçu : %d", depart);
-      return 0;
-  }
+  error = pousser_atome(atome);
   
-  
-  // Déplacement vers la zone de construction
-  switch(cub) {
-    case 0:    
-      error = aller_xy(850, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
-      break;
-    case 1:
-      error = aller_xy(550, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
-      break;
-    case 2:
-      error = aller_xy(700, 150, VITESSE_POUSSER_CUBES, 1, 8000, 6);
-      break;
-  }
-  
-  // Erreur lorsqu'on a voulu rapporter les cubes
-  // Abandon mais sauvegarde de l'emplacement des cubes
-  if(error) {
-    // En réalité, on sauvegarde la position du robot, mais c'est pas si mal
-    pr_pt_CUB[cub].x = robot.xMm;
-    pr_pt_CUB[cub].y = robot.yMm;
-  
-    com_printfln("CUB%d placé en {%d, %d}", cub, robot.xMm, robot.yMm);
-    return 60;
-  }
-  else {
-    // reculer
-    switch(cub) {
-      case 0:    
-        error = aller_xy(850, 400, VITESSE_POUSSER_CUBES, 0, 8000, 4);
-        break;
-      case 1:
-        error = aller_xy(550, 400, VITESSE_POUSSER_CUBES, 0, 8000, 4);
-        break;
-      case 2:
-        error = aller_xy(700, 400, VITESSE_POUSSER_CUBES, 0, 8000, 4);
-        break;
+  if(error != ERROR_PLUS_RIEN_A_FAIRE) {
+    switch(atome) {
+      case 0: pr_nb_tentatives[ACTION_POUSSER_ATOME0]++; break;
+      case 1: pr_nb_tentatives[ACTION_POUSSER_ATOME1]++; break;
+      case 2: pr_nb_tentatives[ACTION_POUSSER_ATOME2]++; break;
+      case 3: pr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS]++; break;
+      case 4: pr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS_B]++; break;
     }
   }
   
+  piloter_bras(BRAS_BAISSER);
   
-  return 100;
+  return error;
 }
-  
-
   
 /** =============
   Actions de base
   =============== **/
+
+uint8_t pr_aller_vers_adp(uint32_t vitesse) {
+  /*
+    essayer par chemin direct
+    si gêné, descend un peu, et continue d'essayer par petits morceaux,
+    en tentant de se remettre au plus près de la bordure régulièrement
+    Si gêné, tente de se mettre au plus près de la bordure
+  */
+  
+  const uint8_t SUIVRE_ROUTE = 1;
+  const uint8_t ALLER_VERS_DEVIATION = 2;
+  const uint8_t SUIVRE_DEVIATION = 4;
+  const uint8_t REVENIR_VERS_ROUTE = 8;
+  
+  uint8_t error;
+  Point ptDestination = getPoint(PT_ETAPE_13);
+  uint8_t chemin = SUIVRE_ROUTE;
+  uint8_t nb_boucles = 0;
+  
+  
+  com_printfln("--- Direction Blueium ---");
+  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  
+  // Déterminer des conditions de début ??
+  if(!robot_dans_zone(0, 0, 1800, 600)) {
+    error = aller_pt_etape(PT_ETAPE_3, vitesse, 1, 20000, 10);
+    if(error) return error;
+  }
+  
+  while(nb_boucles < 30) {
+    nb_boucles++;
+  
+    switch(chemin) {
+      case SUIVRE_ROUTE:
+        error = aller_xy(ptDestination.x, ptDestination.y, vitesse, 1, 20000, 5);
+        
+        switch(error) {
+          case ERROR_OBSTACLE:
+            chemin = ALLER_VERS_DEVIATION;
+            break;
+          case OK:
+            return OK;
+            break;
+          default:
+            return error;
+        }
+        break;
+
+      case ALLER_VERS_DEVIATION:
+        // On essaye de se décaler
+        error = aller_xy(robot.xMm, 450, vitesse, 1, 20000, 3);
+        switch(error) {
+          case ERROR_OBSTACLE:
+            // PR est encerclé => obligé d'attendre un peu :
+            minuteur_attendre(5000);
+            chemin = SUIVRE_ROUTE;
+            break;
+          case OK:
+            chemin = SUIVRE_DEVIATION;
+            break;
+          default:
+            return error;
+        }
+        
+        break;
+
+      case SUIVRE_DEVIATION:
+        error = aller_xy(ptDestination.x, 450, vitesse, 1, 20000, 5);
+        switch(error) {
+          case ERROR_OBSTACLE:
+            chemin = REVENIR_VERS_ROUTE;
+            break;
+          case OK:
+            return OK;
+            break;
+          default:
+            return error;
+        }
+        break;
+
+      case REVENIR_VERS_ROUTE:
+          error = aller_xy(ptDestination.x, 150, vitesse, 1, 20000, 3);
+          switch(error) {
+            case ERROR_OBSTACLE:
+              minuteur_attendre(5000);
+              chemin = SUIVRE_DEVIATION;
+              break;
+            case OK:
+              chemin = SUIVRE_ROUTE;
+              break;
+            default:
+              return error;
+          }
+          break;
+
+      default:
+        return ERROR_CAS_NON_GERE;
+    }
+
+    if(nb_boucles >= 30) {
+      return ERROR_TIMEOUT;
+    }
+
+  }
+  
+  return ERROR_TIMEOUT;
+}
 
 void match_pr_arret() {
   asserv_consigne_stop();
