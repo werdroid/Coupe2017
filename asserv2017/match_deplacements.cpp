@@ -23,9 +23,10 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   uint8_t error2;
   uint8_t tentatives = 0;
   
+  /*
   if(!robot.IS_PR) {
     max_tentatives += 5;
-  }
+  }//*/
   
   
   asserv_vitesse_rampe_distance(vitesse);

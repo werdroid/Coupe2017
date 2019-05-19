@@ -181,7 +181,8 @@ const uint8_t ACTION_POUSSER_ATOME2 = 3;
 const uint8_t ACTION_POUSSER_ATOMES_CHAOS = 4;
 const uint8_t ACTION_POUSSER_ATOMES_CHAOS_B = 5;
 const uint8_t ACTION_POUSSER_ATOMES_CHAOS_ADV = 6;
-const uint8_t NB_ACTIONS = 7; // Dernière action + 1
+const uint8_t ACTION_ACTIVER_EXPERIENCE = 7;
+const uint8_t NB_ACTIONS = 8; // Dernière action + 1
 
 
 /*-----------------------------------------------------------------------------
@@ -189,6 +190,7 @@ const uint8_t NB_ACTIONS = 7; // Dernière action + 1
  *----------------------------------------------------------------------------*/
 typedef struct {
   bool adp_active = false;
+  bool experience_activee = false;
   
   /* Numérotation des atomes :
       0 Rd
@@ -202,10 +204,7 @@ typedef struct {
   bool atome_rapporte[6] = { false };
   Point atome_position[6] = { {500, 4500}, {500, 750}, {500, 1050}, {1000, 1050}, {1000, 1050}, {2000, 1050} };
   
-  
   // Autres exemples fictifs
-  uint8_t nb_balles = 0;
-  bool cub_en_position_initiale = true;
   bool goldenium_tombe = false;
 } Table;
 extern Table table;
@@ -234,7 +233,7 @@ bool robot_dans_zone(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 // ------ Actions communes (match.cpp) ------
 uint8_t pousser_atome(uint8_t atome);
-
+uint8_t aller_vers_adp(int32_t yDirect, int32_t yDetour, uint32_t vitesse);
 
 // ------ Actions GR (match_gr.cpp) ------
 void demo_allers_retours();

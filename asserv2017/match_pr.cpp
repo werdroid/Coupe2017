@@ -9,7 +9,6 @@
 uint8_t pr_activer_adp();
 uint8_t pr_jouer_action(int action);
 
-uint8_t pr_aller_vers_adp(uint32_t vitesse);
 uint8_t pr_pousser_atome(uint8_t atome);
 
 int pr_nb_tentatives[NB_ACTIONS] = { 0 };
@@ -59,7 +58,7 @@ void homologation_pr() {
  
   aller_xy(1250, 750, VITESSE_RAPIDE, 1, 10000, 50);
   pr_jouer_action(ACTION_POUSSER_ATOME0);
-  asserv_go_toutdroit(-50, 2000);
+  //asserv_go_toutdroit(-50, 2000);
   
   minuteur_attendre_fin_match();
 }
@@ -67,6 +66,8 @@ void homologation_pr() {
 void debug_pr() {
   ecran_console_log("2 sec\n\n");
 
+  delay(200);
+  
   asserv_set_position(1500, 1000, MATH_PI);
   asserv_maintenir_position();
   delay(2000);
@@ -74,11 +75,11 @@ void debug_pr() {
   minuteur_demarrer();
 
   //asserv_go_toutdroit(200, 2000);
-  asserv_go_xy(1500, 800, 2000, 1);
+  aller_xy(1500,  800, VITESSE_LENTE, 1, 50000, 50);
   
-  asserv_go_xy(1500,1000, 2000, 1);
-  asserv_go_xy(1500, 800, 2000, 1);
-  asserv_go_xy(1500,1000, 2000, 1);
+  aller_xy(1500, 1000, VITESSE_LENTE, 1, 50000, 50);
+  aller_xy(1500,  800, VITESSE_LENTE, 1, 50000, 50);
+  aller_xy(1500, 1000, VITESSE_LENTE, 1, 50000, 50);
   /*asserv_distance(-5000, 5000);
   tone_play_end();
   asserv_distance(2000, 2000);
@@ -116,6 +117,7 @@ void match_pr() {
   com_printfln(__TIME__);
   com_printfln("----------");
   #endif
+  
   
   
   ecran_console_reset();
@@ -230,6 +232,7 @@ uint8_t pr_jouer_action(int action) {
     case ACTION_POUSSER_ATOME2:           error = pr_pousser_atome(2); break;
     case ACTION_POUSSER_ATOMES_CHAOS:     error = pr_pousser_atome(3); break;
     case ACTION_POUSSER_ATOMES_CHAOS_B:   error = pr_pousser_atome(4); break;
+    case ACTION_POUSSER_ATOMES_CHAOS_ADV: error = pr_pousser_atome(5); break;
     default:
       com_printfln("PR ne peut pas faire l'action %d", action);
       error = ERROR_PARAMETRE;
@@ -251,7 +254,13 @@ uint8_t pr_activer_adp() {
   if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
   pr_nb_tentatives[ACTION_ACTIVER_ADP]++;
   
-  error = pr_aller_vers_adp(VITESSE_RAPIDE);
+  
+  if(!robot_dans_zone(0, 0, 1800, 600)) {
+    error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10);
+    if(error) return error;
+  }
+  
+  error = aller_vers_adp(150, 450, VITESSE_RAPIDE);
   if(error) return error;
   com_printfln("Bien arrivé proche de l'ADP");
   // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
@@ -300,113 +309,6 @@ uint8_t pr_pousser_atome(uint8_t atome) {
   Actions de base
   =============== **/
 
-uint8_t pr_aller_vers_adp(uint32_t vitesse) {
-  /*
-    essayer par chemin direct
-    si gêné, descend un peu, et continue d'essayer par petits morceaux,
-    en tentant de se remettre au plus près de la bordure régulièrement
-    Si gêné, tente de se mettre au plus près de la bordure
-  */
-  
-  const uint8_t SUIVRE_ROUTE = 1;
-  const uint8_t ALLER_VERS_DEVIATION = 2;
-  const uint8_t SUIVRE_DEVIATION = 4;
-  const uint8_t REVENIR_VERS_ROUTE = 8;
-  
-  uint8_t error;
-  Point ptDestination = getPoint(PT_ETAPE_13);
-  uint8_t chemin = SUIVRE_ROUTE;
-  uint8_t nb_boucles = 0;
-  
-  
-  com_printfln("--- Direction Blueium ---");
-  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
-  
-  
-  // Déterminer des conditions de début ??
-  if(!robot_dans_zone(0, 0, 1800, 600)) {
-    error = aller_pt_etape(PT_ETAPE_3, vitesse, 1, 20000, 10);
-    if(error) return error;
-  }
-  
-  while(nb_boucles < 30) {
-    nb_boucles++;
-  
-    switch(chemin) {
-      case SUIVRE_ROUTE:
-        error = aller_xy(ptDestination.x, ptDestination.y, vitesse, 1, 20000, 5);
-        
-        switch(error) {
-          case ERROR_OBSTACLE:
-            chemin = ALLER_VERS_DEVIATION;
-            break;
-          case OK:
-            return OK;
-            break;
-          default:
-            return error;
-        }
-        break;
-
-      case ALLER_VERS_DEVIATION:
-        // On essaye de se décaler
-        error = aller_xy(robot.xMm, 450, vitesse, 1, 20000, 3);
-        switch(error) {
-          case ERROR_OBSTACLE:
-            // PR est encerclé => obligé d'attendre un peu :
-            minuteur_attendre(5000);
-            chemin = SUIVRE_ROUTE;
-            break;
-          case OK:
-            chemin = SUIVRE_DEVIATION;
-            break;
-          default:
-            return error;
-        }
-        
-        break;
-
-      case SUIVRE_DEVIATION:
-        error = aller_xy(ptDestination.x, 450, vitesse, 1, 20000, 5);
-        switch(error) {
-          case ERROR_OBSTACLE:
-            chemin = REVENIR_VERS_ROUTE;
-            break;
-          case OK:
-            return OK;
-            break;
-          default:
-            return error;
-        }
-        break;
-
-      case REVENIR_VERS_ROUTE:
-          error = aller_xy(ptDestination.x, 150, vitesse, 1, 20000, 3);
-          switch(error) {
-            case ERROR_OBSTACLE:
-              minuteur_attendre(5000);
-              chemin = SUIVRE_DEVIATION;
-              break;
-            case OK:
-              chemin = SUIVRE_ROUTE;
-              break;
-            default:
-              return error;
-          }
-          break;
-
-      default:
-        return ERROR_CAS_NON_GERE;
-    }
-
-    if(nb_boucles >= 30) {
-      return ERROR_TIMEOUT;
-    }
-
-  }
-  
-  return ERROR_TIMEOUT;
-}
 
 void match_pr_arret() {
   asserv_consigne_stop();

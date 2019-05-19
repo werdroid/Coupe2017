@@ -225,6 +225,115 @@ uint8_t pousser_atome(uint8_t atome) {
   return OK;
 }
 
+
+uint8_t aller_vers_adp(int32_t yDirect, int32_t yDetour, uint32_t vitesse) {
+  /*
+    essayer par chemin direct
+    si gêné, descend un peu, et continue d'essayer par petits morceaux,
+    en tentant de se remettre au plus près de la bordure régulièrement
+    Si gêné, tente de se mettre au plus près de la bordure
+  */
+  /*
+    ATTENTION ! Peut ne pas fonctionner si le robot s'interdit de tourner quand il voit un obstacle...
+  
+  **/
+  
+  const uint8_t SUIVRE_ROUTE = 1;
+  const uint8_t ALLER_VERS_DEVIATION = 2;
+  const uint8_t SUIVRE_DEVIATION = 4;
+  const uint8_t REVENIR_VERS_ROUTE = 8;
+  
+  uint8_t error;
+  Point ptDestination = getPoint(PT_ETAPE_13);
+  uint8_t chemin = SUIVRE_ROUTE;
+  uint8_t nb_boucles = 0;
+  
+  
+  com_printfln("--- Direction Blueium ---");
+  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+  
+  // Déterminer des conditions de début ??  
+  while(nb_boucles < 30) {
+    nb_boucles++;
+  
+    switch(chemin) {
+      case SUIVRE_ROUTE:
+        error = aller_xy(ptDestination.x, ptDestination.y, vitesse, 1, 20000, 5);
+        
+        switch(error) {
+          case ERROR_OBSTACLE:
+            chemin = ALLER_VERS_DEVIATION;
+            break;
+          case OK:
+            return OK;
+            break;
+          default:
+            return error;
+        }
+        break;
+
+      case ALLER_VERS_DEVIATION:
+        // On essaye de se décaler
+        error = aller_xy(robot.xMm, yDetour, vitesse, 1, 20000, 3);
+        switch(error) {
+          case ERROR_OBSTACLE:
+            // On est encerclé => obligé d'attendre un peu :
+            minuteur_attendre(5000);
+            chemin = SUIVRE_ROUTE;
+            break;
+          case OK:
+            chemin = SUIVRE_DEVIATION;
+            break;
+          default:
+            return error;
+        }
+        
+        break;
+
+      case SUIVRE_DEVIATION:
+        error = aller_xy(ptDestination.x, yDetour, vitesse, 1, 20000, 5);
+        switch(error) {
+          case ERROR_OBSTACLE:
+            chemin = REVENIR_VERS_ROUTE;
+            break;
+          case OK:
+            return OK;
+            break;
+          default:
+            return error;
+        }
+        break;
+
+      case REVENIR_VERS_ROUTE:
+          error = aller_xy(robot.xMm, yDirect, vitesse, 1, 20000, 3);
+          switch(error) {
+            case ERROR_OBSTACLE:
+              minuteur_attendre(5000);
+              chemin = SUIVRE_DEVIATION;
+              break;
+            case OK:
+              chemin = SUIVRE_ROUTE;
+              break;
+            default:
+              return error;
+          }
+          break;
+
+      default:
+        return ERROR_CAS_NON_GERE;
+    }
+
+    if(nb_boucles >= 30) {
+      return ERROR_TIMEOUT;
+    }
+
+  }
+  
+  return ERROR_TIMEOUT;
+}
+
+
 /** ================
     Gestion du score
     ================ **/

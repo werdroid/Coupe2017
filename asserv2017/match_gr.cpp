@@ -13,6 +13,8 @@ int gr_nb_tentatives[NB_ACTIONS] = { 0 };
 
 
 uint8_t gr_pousser_atome(uint8_t atome);
+uint8_t gr_activer_adp();
+uint8_t gr_activer_experience();
 
 /** =====================================
   Programmes alternatifs (Homolog, Debug)
@@ -122,6 +124,22 @@ void homologation_gr() {
   /*
   TODO 2019
   */
+  asserv_set_position(150, 450, 0); //2019 GR calé dans Tab_Rd en première idée
+
+
+  asserv_maintenir_position();
+  bouton_wait_start_up();
+
+  minuteur_demarrer();
+  
+  minuteur_attendre(500);
+  score_definir(0);
+  
+  
+  aller_xy(1000, 450, VITESSE_RAPIDE, 1, 10000, 50);
+  gr_jouer_action(ACTION_POUSSER_ATOME1);
+  
+  
 
   minuteur_attendre_fin_match();
 }
@@ -278,6 +296,7 @@ void gr_test_deplacements() {
   =============== **/
   
 void match_gr() {
+  
   int start;
   uint8_t error;
 
@@ -569,38 +588,19 @@ void match_gr() {
     Actions de jeu
     ============== **/
 
-/* Actions 2018
-
-Fonction					=> note si succès
--------------------------------------------------------------
-uint8_t vider_REP()			=> REP_vide = true;
-uint8_t vider_REM()			=> REM_vide = true;
-uint8_t vider_REP_opp()		=> REP_opp_vide = true;
-uint8_t vider_REM_opp()		=> REM_opp_vide = true;
-    => Et aussi nb_balles_eau_(propre|usee)_dans_robot > 0
-
-uint8_t deposer_chateau()	=> nb_balles_eau_propre_dans_gr = 0;
-uint8_t deposer_station()	=> nb_balles_eau_usee_dans_gr = 0;
-
-uint8_t allumer_panneau()	=> gr_panneau_allume = true;
-uint8_t activer_abeille()	=> abeille_activee = true;
-
-uint8_t constr_CUB0() (jusque ZOC)
-uint8_t degager_CUB1() (non défini TBC_ATN)
-uint8_t degager_CUB2() (hors STATION, chez STATION opp)
-
-*/    
-
 uint8_t gr_jouer_action(int action) {
   
   uint8_t error;
 
   switch(action) {
+    case ACTION_ACTIVER_ADP:              error = gr_activer_adp(); break;
     case ACTION_POUSSER_ATOME0:           error = gr_pousser_atome(0); break;
     case ACTION_POUSSER_ATOME1:           error = gr_pousser_atome(1); break;
     case ACTION_POUSSER_ATOME2:           error = gr_pousser_atome(2); break;
     case ACTION_POUSSER_ATOMES_CHAOS:     error = gr_pousser_atome(3); break;
     case ACTION_POUSSER_ATOMES_CHAOS_B:   error = gr_pousser_atome(4); break;
+    case ACTION_POUSSER_ATOMES_CHAOS_ADV: error = gr_pousser_atome(5); break;
+    case ACTION_ACTIVER_EXPERIENCE:       error = gr_activer_experience(); break;
     default:
       com_printfln("GR ne peut pas faire l'action %d", action);
       error = ERROR_PARAMETRE;
@@ -614,6 +614,24 @@ uint8_t gr_jouer_action(int action) {
   return error;
 }
 
+
+uint8_t gr_activer_experience() { 
+
+  uint8_t error;
+  
+  if(table.experience_activee) return ERROR_PLUS_RIEN_A_FAIRE;
+  gr_nb_tentatives[ACTION_ACTIVER_EXPERIENCE]++;
+  
+  
+  
+  // TODO : Activer expérience
+  
+  
+  table.experience_activee = true;
+  
+  return OK;
+}
+
 uint8_t gr_pousser_atome(uint8_t atome) {
   uint8_t error;
   
@@ -625,6 +643,9 @@ uint8_t gr_pousser_atome(uint8_t atome) {
   
   // TODO : Rétablir des servos ?
   
+  
+  // Schéma légèrement différent : on incrémente les tentatives qu'à la fin
+  // puisque ERROR_PLUS_RIEN_A_FAIRE est donné dans pousser_atome()
   if(error != ERROR_PLUS_RIEN_A_FAIRE) {
     switch(atome) {
       case 0: gr_nb_tentatives[ACTION_POUSSER_ATOME0]++; break;
@@ -638,7 +659,36 @@ uint8_t gr_pousser_atome(uint8_t atome) {
   return error;
 }
 
-
+uint8_t gr_activer_adp() {
+  uint8_t error;
+  Point pt13 = getPoint(PT_ETAPE_13);
+  
+  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
+  gr_nb_tentatives[ACTION_ACTIVER_ADP]++;
+  
+  
+  if(!robot_dans_zone(0, 0, 1800, 600)) {
+    error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10);
+    if(error) return error;
+  }
+  
+  error = aller_vers_adp(150, 450, VITESSE_RAPIDE);
+  if(error) return error;
+  com_printfln("Bien arrivé proche de l'ADP");
+  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  
+  error = asserv_rotation_vers_point(pt13.x, 0, 2000);
+  if(error) return error;
+  
+  /****** TODO *******/
+  com_printfln("## Programmer la suite ##");
+  /****** TODO *******/
+  
+  table.adp_active = true;
+  
+  return OK;
+  
+}
 
 
 /** =============
