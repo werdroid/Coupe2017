@@ -294,25 +294,29 @@ void pr_init_servos();
 */
 
 // ... GR ...
-// Evacuation des Eaux Usees (EEU)
+// TA (Tractopelle atomique)
 // Angle+ = [Sens?]
-const uint8_t EEU_BLOQUER = 90;
-const uint8_t EEU_OUVRIR = 25;
+const uint8_t TA_NEUTRE = 90;
+const uint8_t TA_DECHARGER = 91;
 
-// Cuillère à miel (CM)
-// Angle+ = Vers la gauche
-const uint8_t CM_INIT = 37;
-const uint8_t CM_GAUCHE = 160;
-const uint8_t CM_90 = 104;
-const uint8_t CM_DROITE = 40;
+// BDF (Barre de fer)
+// Angle+ = [Sens?]
+const uint8_t BDF_RANGER = 91;
+const uint8_t BDF_SUR_PALET = 90;
+const uint8_t BDF_FAIRE_TOMBER = 92;
 
-// Tri de l'eau (TRI)
-// Angle + = Vers la droite
-const uint8_t TRI_NEUTRE = 100;
-const uint8_t TRI_EAU_PROPRE = 130;
-const uint8_t TRI_EAU_USEE = 60;
-const uint8_t TRI_EXTREME_GAUCHE = 65;
-const uint8_t TRI_EXTREME_DROITE = 140;
+// ADP translation (ADPT)
+// Angle+ = [Sens?]
+const uint8_t ADPT_JAUNE = 90;
+const uint8_t ADPT_VIOLET = 91;
+const uint8_t ADPT_NEUTRE = 92;
+
+// ADP Deploiement (ADPD)
+// Angle+ = [Sens?]
+const uint8_t ADPD_LEVER = 90;
+const uint8_t ADPD_BAISSER = 91;
+
+
 
 // ... PR ...
 // Bras gauche (BRAS)
@@ -326,9 +330,10 @@ const uint8_t BRAS_POSITION_INTERRUPTEUR = 55;
 
 // ----- Prototypes -----
 // GR
-void piloter_evacuation_eaux_usees(uint8_t angle, bool doucement = false, bool log = true);
-void piloter_cuillere_miel(uint8_t angle, bool doucement = false, bool log = true);
-void piloter_tri_eau(uint8_t angle, bool doucement = false, bool log = true);
+void piloter_TA(uint8_t angle, bool doucement = false, bool log = true);
+void piloter_BDF(uint8_t angle, bool doucement = false, bool log = true);
+void piloter_ADP_deploiement(uint8_t angle, bool doucement = false, bool log = true);
+void piloter_ADP_translation(uint8_t angle, bool doucement = false, bool log = true);
 
 // PR
 void piloter_bras(uint8_t angle, bool doucement = false, bool log = true);

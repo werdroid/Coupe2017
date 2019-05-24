@@ -42,13 +42,15 @@ void servo_jouer(Servo servo, uint8_t deg_from, uint8_t jeu, uint8_t nb) {
 
   
 // GR
-Servo servo_evacuation_eaux_usees; // au pluriel
-Servo servo_cuillere_miel;
-Servo servo_tri_eau;
+Servo servo_TA; // TA
+Servo servo_BDF; // BDF
+Servo servo_ADP_translation; // ADPT
+Servo servo_ADP_deploiement; // ADPD
 
-uint8_t angle_evactuation_eaux_usees;
-uint8_t angle_cuillere_miel;
-uint8_t angle_tri_eau;
+uint8_t angle_TA;
+uint8_t angle_BDF;
+uint8_t angle_ADP_translation;
+uint8_t angle_ADP_deploiement;
 
 // PR
 Servo servo_bras;
@@ -60,9 +62,10 @@ uint8_t angle_bras;
   ============= **/
   
 void gr_attach_servos() {
-  servo_evacuation_eaux_usees.attach(17);
-  servo_cuillere_miel.attach(33);
-  servo_tri_eau.attach(9);
+  servo_TA.attach(33);
+  servo_BDF.attach(17);
+  servo_ADP_deploiement.attach(10);
+  servo_ADP_translation.attach(9);
 }
 
 
@@ -79,9 +82,10 @@ void gr_init_servos() {
   com_printfln("Initialisation des servos");
   
   // Ne jamais utiliser doucement pendant l'init
-  piloter_evacuation_eaux_usees(EEU_BLOQUER);
-  piloter_cuillere_miel(CM_INIT);
-  piloter_tri_eau(TRI_NEUTRE);
+  piloter_TA(TA_NEUTRE);
+  piloter_BDF(BDF_RANGER);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  piloter_ADP_translation(ADPT_NEUTRE);
 }
  
  
@@ -98,43 +102,42 @@ void pr_init_servos() {
   Pilotage Servos GR
   ================== **/
   
-void piloter_evacuation_eaux_usees(uint8_t angle, bool doucement, bool log) {
+void piloter_TA(uint8_t angle, bool doucement, bool log) {
   if(doucement) {
-    servo_slowmotion(servo_evacuation_eaux_usees, angle_evactuation_eaux_usees, angle);
+    servo_slowmotion(servo_TA, angle_TA, angle);
   }
   else {
-    servo_evacuation_eaux_usees.write(angle);
+    servo_TA.write(angle);
   }
   
-  angle_evactuation_eaux_usees = angle;
+  angle_TA = angle;
   
   if(log) {
-    com_print("Evacuation des eaux usées : ");
+    com_print("TA : ");
     switch(angle) {
-      case EEU_BLOQUER: com_printfln("Bloquee"); break;
-      case EEU_OUVRIR: com_printfln("Ouverte"); break;
+      case TA_NEUTRE: com_printfln("Neutre"); break;
+      case TA_DECHARGER: com_printfln("Decharger"); break;
       default: com_printfln("%d", angle); break;
     }
   }
 }
 
-void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
+void piloter_BDF(uint8_t angle, bool doucement, bool log) {
   if(doucement) {
-    servo_slowmotion(servo_cuillere_miel, angle_cuillere_miel, angle);
+    servo_slowmotion(servo_BDF, angle_BDF, angle);
   }
   else {
-    servo_cuillere_miel.write(angle);
+    servo_BDF.write(angle);
   }
   
-  angle_cuillere_miel = angle;
+  angle_BDF = angle;
   
   if(log) {
-    com_print("Cuillere a miel : ");
+    com_print("BDF : ");
     switch(angle) {
-      case CM_INIT: com_printfln("Init"); break;
-      case CM_GAUCHE: com_printfln("Gauche"); break;
-      case CM_90: com_printfln("A 90"); break;
-      case CM_DROITE: com_printfln("Droite"); break;
+      case BDF_RANGER: com_printfln("Ranger"); break;
+      case BDF_SUR_PALET: com_printfln("Sur palet"); break;
+      case BDF_FAIRE_TOMBER: com_printfln("Faire tomber"); break;
       
       default: com_printfln("%d", angle); break;
     }
@@ -142,24 +145,42 @@ void piloter_cuillere_miel(uint8_t angle, bool doucement, bool log) {
 }
 
 
-void piloter_tri_eau(uint8_t angle, bool doucement, bool log) {
+void piloter_ADP_deploiement(uint8_t angle, bool doucement, bool log) {
   if(doucement) {
-    servo_slowmotion(servo_tri_eau, angle_tri_eau, angle);
+    servo_slowmotion(servo_ADP_deploiement, angle_ADP_deploiement, angle);
   }
   else {
-    servo_tri_eau.write(angle);
+    servo_ADP_deploiement.write(angle);
   }
   
-  angle_tri_eau = angle;
+  angle_ADP_deploiement = angle;
   
   if(log) {
-    com_print("Tri : ");
+    com_print("ADP depl : ");
     switch(angle) {
-      case TRI_NEUTRE: com_printfln("Neutre"); break;
-      case TRI_EAU_PROPRE: com_printfln("Eau propre"); break;
-      case TRI_EAU_USEE: com_printfln("Eau usee"); break;
-      case TRI_EXTREME_GAUCHE: com_printfln("Extreme Gauche"); break;
-      case TRI_EXTREME_DROITE: com_printfln("Extreme Droite"); break;
+      case ADPD_LEVER: com_printfln("Lever"); break;
+      case ADPD_BAISSER: com_printfln("Baisser"); break;
+      default: com_printfln("%d", angle); break;
+    }
+  }
+}
+
+void piloter_ADP_translation(uint8_t angle, bool doucement, bool log) {
+  if(doucement) {
+    servo_slowmotion(servo_ADP_translation, angle_ADP_translation, angle);
+  }
+  else {
+    servo_ADP_translation.write(angle);
+  }
+  
+  angle_ADP_translation = angle;
+  
+  if(log) {
+    com_print("ADP transl : ");
+    switch(angle) {
+      case ADPT_JAUNE: com_printfln("Violet"); break;
+      case ADPT_VIOLET: com_printfln("Jaune"); break;
+      case ADPT_NEUTRE: com_printfln("Neutre"); break;
       default: com_printfln("%d", angle); break;
     }
   }
