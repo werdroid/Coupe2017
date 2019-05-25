@@ -24,6 +24,22 @@ void asserv_setup() {
 }
 
 void asserv_reglage_constantes() {
+  /* Réglage PID:
+  Régler les 4 valeurs si le poids du robot change à chaque fois,
+  les codeurs doivent évidemment avoir le même écartement sinon ils doivent aussi être réglés.
+  
+  Commencer par rotation isolée (distance désactivée),
+  régler le kP jusqu’à avoir une oscillation autour de sa commande,
+  puis augmenter kD petit à petit jusqu’à éliminer l’oscillation,
+  dès que c’est stable forcer une petite rotation avec les mains, le robot va vouloir revenir à sa position
+  et va sans doute faire une petit oscillation,
+  augmenter kD encore un peu jusqu’à éliminer ce résidu.
+  Au final tu dois pouvoir embêter le robot manuellement et il revient à sa position rapidement avec force et sans oscillation.
+  
+  Faire pareil avec la distance.
+  */
+
+  
   ecran_console_reset();
   ecran_console_log("Regler Asserv\n");
   ecran_console_log("\n");
@@ -39,6 +55,7 @@ void asserv_reglage_constantes() {
   ecran_console_log("Z Tout maintenir\n");
   ecran_console_log("\n");
   ecran_console_log("G Afficher tout\n");
+  minuteur_attendre(500);
   
   asserv_set_position(1500, 1000, 0);
   

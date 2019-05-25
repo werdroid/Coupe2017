@@ -30,6 +30,7 @@ void homologation_pr() {
   ecran_console_log("Les arbitres sont\n");
   ecran_console_log("hyper sympa cette\n");
   ecran_console_log("annee.\n\n");
+  robot.homologation = true;
   
   ecran_console_log("1. Positionner\n");
   ecran_console_log("2. Jack in\n");
@@ -342,9 +343,10 @@ void pr_init() {
   robot.ASSERV_ROTATION_KP = 0.05f;
   robot.ASSERV_ROTATION_KD = 0.01;*/
  
-  robot.DISTANCE_DETECTION = 750; // mm 9/05/2018
+  robot.DISTANCE_DETECTION = 600; // mm 2019-05-25 (vitesse réduite)
+  // 750 depuis 9/05/2018
   
-  robot.pwm_max_distance = 127;
+  robot.pwm_max_distance = 65; // 2019-05-25. Auparavant: 127;
   robot.pwm_max_rotation = 50;
   
   pr_attach_servos();

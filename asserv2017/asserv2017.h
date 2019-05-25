@@ -103,6 +103,7 @@ typedef struct {
   bool activer_monitor_sick;
   uint8_t programme;
   int score;
+  bool homologation = false;
   
   /* Spécificités sur une année */
   bool estJaune; // est égal à l'inverse de symetrie (utilisé en haut niveau), à renommer chaque année partout

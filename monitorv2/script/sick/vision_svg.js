@@ -39,7 +39,7 @@ var vision = {
     },
     seuilForceMax: 220,
     seuilForceMin: 50,
-    zoneObstacle: [90, 750], // 90 = Limite min, 750 = Pour PR
+    zoneObstacle: [90, 600], // 90 = Limite min, 600 = Pour PR
     afficherCoordonnees: function() { return vision.param.elem.afficherCoordonnees.checked; }
   },
   util: {

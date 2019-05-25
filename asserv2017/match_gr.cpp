@@ -104,6 +104,7 @@ void homologation_gr() {
   ecran_console_log("Les arbitres sont\n");
   ecran_console_log("hyper sympa cette\n");
   ecran_console_log("annee.\n\n");
+  robot.homologation = true;
   
   ledMatrix_defiler_texte("Les arbitres sont tres sympa cette annee");
 
