@@ -9,7 +9,11 @@ void setup() {
   Serial.begin(9600);
   
   pinMode(PIN_LED, OUTPUT);    // sets the digital pin 13 as output
+  pinMode(PIN_MOTOR, OUTPUT); 
 
+  delay(200);
+  
+  digitalWrite(PIN_MOTOR, LOW);
   delay(200);
 }
 
@@ -26,8 +30,11 @@ void loop() {
       case '0':
         allumerLED(false);
         break;
-      case '9':
+      case '7':
         Serial.print('A');
+        break;
+      case '9':
+        activer_experience();
         break;
     }
   }
@@ -35,9 +42,11 @@ void loop() {
 
 
 void activer_experience() {
+  Serial.print('!');
   digitalWrite(PIN_MOTOR, HIGH);
   delay(3000);
   digitalWrite(PIN_MOTOR, LOW);
+  Serial.print('.');
 }
 
 
