@@ -178,10 +178,13 @@ void asserv_reglage_constantes() {
  */
 
 uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_t uniquement_avant) {
+
   // le vecteur à faire
   int32_t vx = consigne_x_mm - robot.xMm; // mm
   int32_t vy = consigne_y_mm - robot.yMm; // mm
-
+   
+  // Etape 1 : vers où va-t-on
+   
   // norme et angle
   int32_t erreurNorme = sqrt(pow(vx, 2) + pow(vy, 2)); // mm
   int32_t erreurDistance; // mm
@@ -204,13 +207,15 @@ uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_
     erreurAngleRad = erreurAngleRad;
   }
 
+   
+  // Etape 2 : Comment on y va
   /* départ --(distance/rotation)-- D1 --(distance)-- D2 --(gagné)-- 0
-   * rotation seule tant que a > A et
-   * rotation et distance tant que d > D1
-   * distance seule tant que D1 > d > D2
-   */
-
-  int D1 = 200; // rayon sans rotation en mm
+  * rotation seule tant que a > A et
+  * rotation et distance tant que d > D1
+  * distance seule tant que D1 > d > D2
+  */
+  
+  int D1 = 80; // rayon sans rotation en mm
   int D2 = 30; // rayon marge d'erreur distance en mm
   uint8_t result = AUTRE;
 
@@ -218,10 +223,10 @@ uint8_t asserv_consigne_xy(int32_t consigne_x_mm, int32_t consigne_y_mm, uint16_
     // fin
     result = OK;
     asserv_consigne_polaire_delta(erreurDistance, 0);
-  } else if (D2 < erreurNorme && erreurNorme < D1) {
+  } /*else if (D2 < erreurNorme && erreurNorme < D1) {
     // distance seule car on est trop proche du point
     asserv_consigne_polaire_delta(erreurDistance, 0);
-  } else if (abs(erreurAngleRad) > 0.17) {// 30/180*pi=0.5rad   10/180*pi=0.17rad
+  }*/ else if (abs(erreurAngleRad) > 0.17) {// 30/180*pi=0.5rad   10/180*pi=0.17rad
     // rotation seule car on n'est pas dans l'axe
     asserv_consigne_polaire_delta(0, erreurAngleRad);
   } else {
