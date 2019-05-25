@@ -76,9 +76,7 @@ var table = {
       return deg * Math.PI / 180;
     },
     pol2cart: function(origine, r, a) {
-                                                  // Un peu foireux ici a ou -a ?
-                                                  // Piste de réflexion : Vérifier sens de numérotation du Sick, ça doit être sens trigo alors qu'on est dans un repère avec y inversé. Donc ça marche, mais il serait mieux de traiter ça au cas par cas
-      return [r * Math.cos(a) + origine.mmX, r * Math.sin(a) + origine.mmY];
+      return [r * Math.cos(origine.a + a) + origine.mmX, r * Math.sin(origine.a + a) + origine.mmY];
     }
   },
   init: function() {
