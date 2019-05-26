@@ -64,7 +64,7 @@ uint8_t angle_bras;
 void gr_attach_servos() {
   servo_TA.attach(9);
   servo_BDF.attach(17);
-  servo_ADP_deploiement.attach(10);
+  servo_ADP_deploiement.attach(5);
   servo_ADP_translation.attach(33);
 }
 

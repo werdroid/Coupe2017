@@ -16,8 +16,8 @@ void setup() {
   Serial.begin(9600);
   
   myServoA.attach(10);
-  //myServoB.attach(30);
-  //myServoC.attach(31);
+  myServoB.attach(17);
+  myServoC.attach(33);
 }
 
 
@@ -48,7 +48,7 @@ void loop() {
          Serial.print("Position B incorrecte : ");
          Serial.println(pos);  
        }
-     }/*
+     }
      else if(c == 'C') {
        pos = Serial.parseInt();
        if(pos >= 0 && pos <= 180) {
@@ -60,7 +60,7 @@ void loop() {
          Serial.print("Position C incorrecte : ");
          Serial.println(pos);  
        }
-     }*/
+     }
      /*else {
        Serial.println("Identifiant incorrect");
      }*/

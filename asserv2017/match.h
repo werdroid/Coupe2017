@@ -220,6 +220,9 @@ void score_incrementer(int increment);
 void score_definir(int valeur);
 
 
+// ------ Expérience (match.cpp) ------
+void experience_activer();
+
 // ------ Déplacements (match_deplacements.cpp) ------
 uint8_t aller_pt_etape(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);
 uint8_t aller_pt_direct(uint8_t idPoint, uint32_t vitesse, uint16_t uniquement_avant, uint16_t timeout, uint8_t max_tentatives);

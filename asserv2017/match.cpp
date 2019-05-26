@@ -353,3 +353,10 @@ void score_incrementer(int increment) {
 }
 
 
+/** ==========
+    Expérience
+    ========== **/
+
+void experience_activer() {
+  com_serial3_print("9");
+}

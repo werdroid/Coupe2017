@@ -126,7 +126,7 @@ uint8_t com_err2str(uint8_t error) {
 void com_setup() {
   Serial.begin(115200); // serial par l'USB
   Serial1.begin(115200); // serial hardware pin 0 et 1
-  Serial3.begin(115200); // serial hardware pin 7 et 8
+  Serial3.begin(9600); // serial hardware pin 7 et 8
   Serial.setTimeout(300);
   metro.reset();
 }
@@ -199,4 +199,13 @@ void com_serial3_print(const char* str) {
     synchronisation();
   }
   Serial3.print(str);
+}
+
+// Programmer la carte qui porte la xBee pour allumer sa LED
+// sur réception d'un 1 / 0
+void xBee_lumiere(bool allumer) {
+  if(allumer)
+    com_serial3_print("1");
+  else
+    com_serial3_print("0");
 }

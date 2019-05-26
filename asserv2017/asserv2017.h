@@ -410,6 +410,8 @@ void com_serial1_printf(const char* format, ...);
 void com_serial1_print(const char* str);
 void com_serial3_printf(const char* format, ...);
 void com_serial3_print(const char* str);
+void xBee_lumiere(bool allumer);
+
 
 // Monitor Panel
 void monitorCodeurs();
@@ -424,6 +426,7 @@ void led_setup();
 void led_update();
 void led_blink_slow();
 void led_blink_quick();
+
 
 // Ecran
 void ecran_setup();

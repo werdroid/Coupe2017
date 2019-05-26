@@ -19,6 +19,7 @@ void led_update() {
   if (metro.check()) {
     robot.led_state = 1 - robot.led_state;
     digitalWrite(PIN_DOUT_LED_INTERN, robot.led_state);
+    xBee_lumiere(robot.led_state);
   }
 }
 
