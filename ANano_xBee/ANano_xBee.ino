@@ -1,4 +1,10 @@
-
+/*!!!!!!!!!!!!!!
+ !! ATTENTION !!
+ !!!!!!!!!!!!!!!
+ Choisir Type de Carte = Arduino Uno (et non Nano !)
+ pour le téléversement !
+ */
+ 
 
 const uint8_t PIN_MOTOR = 2;
 const uint8_t PIN_LED = 13;
@@ -15,6 +21,8 @@ void setup() {
   
   digitalWrite(PIN_MOTOR, LOW);
   delay(200);
+  
+  //test_activer_experience();
 }
 
 void loop() {
@@ -44,7 +52,7 @@ void loop() {
 void activer_experience() {
   Serial.print('!');
   digitalWrite(PIN_MOTOR, HIGH);
-  delay(3000);
+  delay(60000);
   digitalWrite(PIN_MOTOR, LOW);
   Serial.print('.');
 }
@@ -55,4 +63,21 @@ void allumerLED(bool allumer) {
     digitalWrite(PIN_LED, HIGH);
   else
     digitalWrite(PIN_LED, LOW);
+}
+
+void test_activer_experience() {
+  delay(1000);
+  allumerLED(true);
+  delay(200);
+  allumerLED(false);
+  delay(200);
+  allumerLED(true);
+  delay(200);
+  allumerLED(false);
+  delay(200);
+  allumerLED(true);
+  delay(200);
+  allumerLED(false);
+  delay(200);
+  activer_experience();
 }
