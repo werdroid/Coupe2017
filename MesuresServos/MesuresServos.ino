@@ -2,6 +2,10 @@
   Programme basique pour tester et paramétrer les positions des Servo
 ****/
 
+/**
+  RAPPEL
+  Retirer le bouton d'arrêt d'urgence pour les servo alimentés par "5V Power"
+**/
 
 #include <Servo.h>
 
@@ -15,8 +19,8 @@ char c;
 void setup() {
   Serial.begin(9600);
   
-  myServoA.attach(10);
-  myServoB.attach(17);
+  myServoA.attach(5);
+  myServoB.attach(9);
   myServoC.attach(33);
 }
 

@@ -298,26 +298,26 @@ void pr_init_servos();
 
 // ... GR ...
 // TA (Tractopelle atomique)
-// Angle+ = [Sens?]
-const uint8_t TA_NEUTRE = 90;
-const uint8_t TA_DECHARGER = 91;
+// Angle+ = Décharger
+const uint8_t TA_NEUTRE = 47;
+const uint8_t TA_DECHARGER = 90;
 
 // BDF (Barre de fer)
-// Angle+ = [Sens?]
-const uint8_t BDF_RANGER = 91;
-const uint8_t BDF_SUR_PALET = 90;
-const uint8_t BDF_FAIRE_TOMBER = 92;
+// Angle+ = Le bras du plateau monte
+const uint8_t BDF_RANGER = 70;
+const uint8_t BDF_SUR_PALET = 114;
+const uint8_t BDF_FAIRE_TOMBER = 155;
 
 // ADP translation (ADPT)
-// Angle+ = [Sens?]
-const uint8_t ADPT_JAUNE = 90;
-const uint8_t ADPT_VIOLET = 91;
-const uint8_t ADPT_NEUTRE = 92;
+// Angle+ = Vers la droite du robot
+const uint8_t ADPT_JAUNE = 126;
+const uint8_t ADPT_VIOLET = 44;
+const uint8_t ADPT_NEUTRE = 90;
 
 // ADP Deploiement (ADPD)
-// Angle+ = [Sens?]
-const uint8_t ADPD_LEVER = 90;
-const uint8_t ADPD_BAISSER = 91;
+// Angle+ = Vers le haut
+const uint8_t ADPD_LEVER = 126;
+const uint8_t ADPD_BAISSER = 20;
 
 
 
