@@ -747,8 +747,11 @@ void gr_init() {
   
   robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
   
-  robot.pwm_max_distance = 127; // 40 Tres_lent ; 90 intermédiaire
-  robot.pwm_max_rotation = 50;
+  robot.VITESSE_DISTANCE_NOMINALE = 127; // 40 Tres_lent ; 90 intermédiaire
+  robot.VITESSE_ROTATION_NOMINALE = 50;
+  
+  robot.VITESSE_DISTANCE_LENTE = 90; // Arbitraire
+  robot.VITESSE_ROTATION_LENTE = 40; // Arbitraire
   
   
   // Actionneurs à init  

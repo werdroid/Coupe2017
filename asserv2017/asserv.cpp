@@ -21,6 +21,9 @@ void asserv_setup() {
   quadramp_init(&robot.ramp_rotation);
   asserv_vitesse_rampe_rotation(100);
   quadramp_set_2nd_order_vars(&robot.ramp_rotation, 1, 1);
+  
+  asserv_vitesse_pwm_distance(robot.VITESSE_DISTANCE_NOMINALE);
+  asserv_vitesse_pwm_rotation(robot.VITESSE_ROTATION_NOMINALE);
 }
 
 void asserv_reglage_constantes() {

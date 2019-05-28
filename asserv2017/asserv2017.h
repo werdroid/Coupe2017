@@ -181,6 +181,10 @@ typedef struct {
   // Réglage du déplacement
   uint16_t pwm_max_distance;
   uint16_t pwm_max_rotation;
+  uint16_t VITESSE_DISTANCE_NOMINALE;
+  uint16_t VITESSE_ROTATION_NOMINALE;
+  uint16_t VITESSE_DISTANCE_LENTE;
+  uint16_t VITESSE_ROTATION_LENTE;
   
   // Configuration, initialisée au tout début
   float ASSERV_COEFF_TICKS_PAR_MM;

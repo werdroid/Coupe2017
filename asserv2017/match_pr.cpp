@@ -346,8 +346,11 @@ void pr_init() {
   robot.DISTANCE_DETECTION = 600; // mm 2019-05-25 (vitesse réduite)
   // 750 depuis 9/05/2018
   
-  robot.pwm_max_distance = 65; // 2019-05-25. Auparavant: 127;
-  robot.pwm_max_rotation = 50;
+  robot.VITESSE_DISTANCE_NOMINALE = 65;  // 2019-05-25. Auparavant: 127;
+  robot.VITESSE_ROTATION_NOMINALE = 50;
+  
+  robot.VITESSE_DISTANCE_LENTE = 40; // Arbitraire
+  robot.VITESSE_ROTATION_LENTE = 40; // Arbitraire
   
   pr_attach_servos();
 }

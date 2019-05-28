@@ -30,7 +30,22 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
   }
   
   
-  asserv_vitesse_rampe_distance(vitesse);
+  // asserv_vitesse_rampe_distance(vitesse); // Y'a plus de rampe
+  switch(vitesse) {
+    case VITESSE_RAPIDE: // = 2
+      asserv_vitesse_pwm_distance(robot.VITESSE_DISTANCE_NOMINALE);
+      asserv_vitesse_pwm_rotation(robot.VITESSE_ROTATION_NOMINALE);
+      break;
+    case VITESSE_LENTE: // = 1
+      asserv_vitesse_pwm_distance(robot.VITESSE_DISTANCE_LENTE);
+      asserv_vitesse_pwm_rotation(robot.VITESSE_ROTATION_LENTE);
+      break;
+    default:
+      asserv_vitesse_pwm_distance(constrain(vitesse, 0, 127)); // 127 arbitraire, relever si nécessaire, mais c'est déjà pas mal.
+      asserv_vitesse_pwm_rotation((vitesse > robot.VITESSE_DISTANCE_LENTE ? robot.VITESSE_ROTATION_NOMINALE : robot.VITESSE_DISTANCE_LENTE));
+  }
+  
+  
 
   if (uniquement_avant) {
     asserv_rotation_vers_point(x, y, 2000);
@@ -78,7 +93,11 @@ uint8_t aller_xy(int32_t x, int32_t y, uint32_t vitesse, uint16_t uniquement_ava
       com_printfln("! Après %d tentatives (max)", tentatives);
     }
   }
-
+  
+  // On remet la vitesse nominale pour ne pas influencer les autres fonctions de déplacement (aller_*, asserv_*)
+  asserv_vitesse_pwm_distance(robot.VITESSE_DISTANCE_NOMINALE);
+  asserv_vitesse_pwm_rotation(robot.VITESSE_ROTATION_NOMINALE);
+      
   return error;
 }
 

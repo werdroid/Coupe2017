@@ -167,9 +167,18 @@ const uint8_t PT_20B10A = 131;
 
 
 // Vitesses par défaut
-uint32_t const VITESSE_RAPIDE = 100;
-uint32_t const VITESSE_LENTE = 50;
-uint32_t const VITESSE_POUSSER_ATOMES = 80;
+
+// VITESSE_LENTE et VITESSE_RAPIDE sont associées à
+// robot.VITESSE_DISTANCE_NOMINALE, VITESSE_ROTATION_NOMINALE, VITESSE_DISTANCE_LENTE et VITESSE_ROTATION_LENTE
+// définis dans pr_init et gr_init.
+// VITESSE_LENTE et VITESSE_RAPIDE sont à considérer comme des enum et seront
+// interceptés dans aller_xy() (ET UNIQUEMENT aller_xy !!)
+// Ne pas les modifier
+uint32_t const VITESSE_RAPIDE = 2; 
+uint32_t const VITESSE_LENTE = 1;
+// D'autres valeurs peuvent tout de même être spécifiées si nécessaire
+// Exemple :
+// uint32_t const VITESSE_POUSSER = 45;
 
 // Actions
 // Les numéros doivent être uniques et continus de 0 à NB_ACTIONS

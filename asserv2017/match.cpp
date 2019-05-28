@@ -15,6 +15,15 @@ uint8_t pousser_atome(uint8_t atome) {
 
   int points = 0;
 
+  // Déclaré ici, sera facilement adaptable si on veut une valeur spécifique pour PR et GR
+  uint32_t VITESSE_POUSSER_ATOMES = VITESSE_RAPIDE;
+  /*if(robot.IS_PR) {
+    VITESSE_POUSSER_ATOMES = VITESSE_RAPIDE;
+  }
+  else {
+    VITESSE_POUSSER_ATOMES = VITESSE_RAPIDE;
+  } //*/
+
   // Positionnement proche des atomes
   com_printfln("Direction l'atome");
   /*
