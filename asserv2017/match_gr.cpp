@@ -300,7 +300,6 @@ void match_gr() {
   
   int start;
   uint8_t error;
-
   
   ecran_console_reset();
 
@@ -333,31 +332,24 @@ void match_gr() {
   
   
   
-  return gr_test_deplacements();
+  //return gr_test_deplacements();
   
   int phase1[] = {
-    /*2018
-    //ACTION_ALLUMER_PANNEAU, (PR)
-    //ACTION_VIDER_REP,
-    //ACTION_DEPOSER_CHATEAU,
-    //ACTION_VIDER_REM,
-    //ACTION_DEPOSER_STATION,
-    //ACTION_RAPPORTER_CUB2, (j'y crois pas)
-    //ACTION_DEPOSER_CHATEAU,
-    //ACTION_DEPOSER_STATION,
-    ACTION_RAPPORTER_CUB1,
-    ACTION_OUVRIR_REP,
-    ACTION_ACTIVER_ABEILLE
-    //ACTION_VIDER_REM_OPP,
-    //ACTION_DEPOSER_STATION
-    //ACTION_DEPOSER_CHATEAU
-    */
+    
+    ACTION_ACTIVER_EXPERIENCE,
+    ACTION_POUSSER_ATOME0,
+    ACTION_POUSSER_ATOME1,
+    ACTION_POUSSER_ATOME2,
+    ACTION_ACTIVER_EXPERIENCE,
+    ACTION_POUSSER_ATOMES_CHAOS,
+    ACTION_POUSSER_ATOMES_CHAOS_B
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase1 = sizeof(phase1) / sizeof(action);
   
   bool activer_phase2 = true;
   int phase2[] {
+    ACTION_ACTIVER_EXPERIENCE
     /*2018
     //ACTION_VIDER_REP_OPP,
     ACTION_VIDER_REM_OPP,
@@ -413,7 +405,7 @@ void match_gr() {
   
   // Init scores
   score_incrementer(5); // Dépose Expérience => 5 points
-  score_incrementer(0); // Score attendu PR à définir
+  //score_incrementer(0); // Score attendu PR à définir
     
 
   /**
@@ -625,7 +617,7 @@ uint8_t gr_activer_experience() {
   
   
   
-  // TODO : Activer expérience
+  experience_activer();
   
   
   table.experience_activee = true;
@@ -636,7 +628,7 @@ uint8_t gr_activer_experience() {
 uint8_t gr_pousser_atome(uint8_t atome) {
   uint8_t error;
   
-  if(atome > 4) return ERROR_PARAMETRE;
+  if(atome > 5) return ERROR_PARAMETRE;
   
   // TODO : Ranger la pelle et/ou la bar de faire ?
   
@@ -654,6 +646,7 @@ uint8_t gr_pousser_atome(uint8_t atome) {
       case 2: gr_nb_tentatives[ACTION_POUSSER_ATOME2]++; break;
       case 3: gr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS]++; break;
       case 4: gr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS_B]++; break;
+      case 5: gr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS_ADV]++; break;
     }
   }
   

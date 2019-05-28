@@ -287,6 +287,8 @@ uint8_t pr_activer_adp() {
 uint8_t pr_pousser_atome(uint8_t atome) {
   uint8_t error;
   
+  if(atome > 5) return ERROR_PARAMETRE;
+  
   piloter_bras(BRAS_LEVER);
   
   error = pousser_atome(atome);
@@ -298,6 +300,7 @@ uint8_t pr_pousser_atome(uint8_t atome) {
       case 2: pr_nb_tentatives[ACTION_POUSSER_ATOME2]++; break;
       case 3: pr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS]++; break;
       case 4: pr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS_B]++; break;
+      case 5: pr_nb_tentatives[ACTION_POUSSER_ATOMES_CHAOS_ADV]++; break;
     }
   }
   
