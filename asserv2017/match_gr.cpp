@@ -136,10 +136,15 @@ void homologation_gr() {
   minuteur_attendre(500);
   score_definir(0);
   
+  // Programme d'homologation standard GR seul
+  //aller_xy(1000, 450, VITESSE_RAPIDE, 1, 10000, 50);
+  //gr_jouer_action(ACTION_POUSSER_ATOME1);
   
-  aller_xy(1000, 450, VITESSE_RAPIDE, 1, 10000, 50);
-  gr_jouer_action(ACTION_POUSSER_ATOME1);
-  
+  // Programme d'homologation avec un seul moteur (moteur droit), en conjonction avec PR
+  // /!\ brancher le moteur droit, moteur gauche inactif
+  // /!\ débrancher les codeurs pour que GR avance en boucle ouverte
+  // Comportement attendu : le robot sort de la zone de départ en décrivant un arc de cercle sur la gauche.
+  aller_xy(1000, 450, VITESSE_RAPIDE, 1, 5000, 50); //commande d'avance tout droit, abandon après 5 secondes
   
 
   minuteur_attendre_fin_match();
@@ -325,7 +330,7 @@ void match_gr() {
   ecran_console_log("Initialisation...");
 
   // Variables de stratégie
-  int action;
+  int action; //TBD_RSE : ATN: pas besoin de l'initialiser ?
   int nb_iterations = 0;
   int strategie = 1;
   
@@ -359,7 +364,7 @@ void match_gr() {
     */
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
-  int len_phase2 = sizeof(phase2) / sizeof(action);
+  int len_phase2 = sizeof(phase2) / sizeof(action); //TBC_RSE : ATN: 1/que vaut sizeof(action)? 2/division et pas soustraction ?
   
   gr_init_servos();
 
@@ -396,7 +401,7 @@ void match_gr() {
   score_definir(0);
   
   //if(robot.estJaune)
-    asserv_go_toutdroit(300, 10000);
+    asserv_go_toutdroit(300, 10000); //TBC_RSE : ATN: pourquoi ce mouvement ?
   /*else
     asserv_go_toutdroit(-400, 10000);*/
     
@@ -413,7 +418,7 @@ void match_gr() {
 	=========================================
 
   Réaliser dans l'ordre :
-	1/ ACTIVER_EXPERIENCE
+  1/ ACTIVER_EXPERIENCE
   2/ CLASSER_ATOMES_TABLEAU, tout en évitant les atomes sur le chemin.
   3/ Prendre les atomes du grand distributeur de notre côté, tout en évitant les atomes sur le chemin.
   4/ Pousser les atomes de la Z_Chaos de notre côté vers Tab_Rd
@@ -631,6 +636,7 @@ uint8_t gr_pousser_atome(uint8_t atome) {
   if(atome > 5) return ERROR_PARAMETRE;
   
   // TODO : Ranger la pelle et/ou la bar de faire ?
+  // ATN : normalement, sans appel, les servos devraient être déjà rangés en configuration de croisière
   
   error = pousser_atome(atome);
   
@@ -656,13 +662,14 @@ uint8_t gr_pousser_atome(uint8_t atome) {
 uint8_t gr_activer_adp() {
   uint8_t error;
   Point pt13 = getPoint(PT_ETAPE_13);
+   
+  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE; //Vérifier que l'action reste à faire
+  gr_nb_tentatives[ACTION_ACTIVER_ADP]++; //TBC_RSE : utile ?
   
-  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
-  gr_nb_tentatives[ACTION_ACTIVER_ADP]++;
-  
+
   
   if(!robot_dans_zone(0, 0, 1800, 600)) {
-    error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10);
+    error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); //TBC_RSE : pourquoi le point étape 3 comme point de retrait ?
     if(error) return error;
   }
   
@@ -671,19 +678,89 @@ uint8_t gr_activer_adp() {
   com_printfln("Bien arrivé proche de l'ADP");
   // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
   
-  error = asserv_rotation_vers_point(pt13.x, 0, 2000);
+  error = asserv_rotation_vers_point(pt13.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
   if(error) return error;
+  
+  error = aller_xy(pt13.x, 189, VITESSE_RAPIDE, 0, 20000, 10); //Reculer vers ADP
+  //Note : on pourrait privilégier une fonction de recalage
   
   /****** TODO *******/
   com_printfln("## Programmer la suite ##");
+  
+  //deploiement_ADP : bas
+  //translation_ADP
+  //deploiement_ADP : haut
+    
   /****** TODO *******/
   
   table.adp_active = true;
+  
+  error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 20000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
   
   return OK;
   
 }
 
+uint8_t gr_distributeur(uint8_t place) {
+	// place = 1 : petit distributeur own, pour les deux atomes à droite, qui comprennent un Redium
+	// place = 2 : grand distributeur own, pour les deux atomes à gauche
+	// place = 3 : grand distributeur own, pour les deux atomes au milieu
+	// place = 4 : grand distributeur own, pour les deux atomes à droite
+	/** Les mouvements vers le grand distributeur opp ne sont pas codés à ce stade. **/
+	
+	uint8_t error;
+	uint8_t distrib_x;
+	uint8_t distrib_y;
+			
+	if(place > 4) return ERROR_PARAMETRE;
+	
+	switch place
+		case 1: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
+			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_6B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+		case 2: //Grand distributeur own, on se positionne pour les deux atomes à gauche
+			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_11B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+		case 3: //Grand distributeur own, on se positionne pour les deux atomes au milieu
+			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_11B7A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+		case 4: //Grand distributeur own, on se positionne pour les deux atomes à droite
+			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_11B11A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			
+			/** TODO : prévoir un recalage plutôt que les points action, pour s'assurer d'arriver en contact avec la bordure **/
+			
+	//Action BDF
+	/** TODO : servo BDF en position basse **/
+	
+	/** TODO : Reculer lentement de 10 cm, sans coordonnées ? **/
+	
+	// Retour en arrière à la position libre de mouvement
+	switch place
+		case 1: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
+			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+		case 2: //Grand distributeur own, on se positionne pour les deux atomes à gauche
+			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+		case 3: //Grand distributeur own, on se positionne pour les deux atomes au milieu
+			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+		case 4: //Grand distributeur own, on se positionne pour les deux atomes à droite
+			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+	
+	/** TODO : servo BDF en position haute **/
+	
+  // Aller déposer les atomes dans le tableau périodique
+  error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+  error = aller_pt_etape(PT_ETAPE_1, VITESSE_LENTE, 1, 20000, 10); if(error) return error;
+  
+  /** TODO : monter TA **/
+  /** TODO : attendre 1 sec ?
+  /** TODO : baisser TA **/
+  
+  // Reculer pour se dégager
+   error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+  
+  /** TODO booleen succès visite de chaque emplacement
+}
 
 /** =============
   Actions de base

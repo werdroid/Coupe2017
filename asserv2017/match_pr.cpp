@@ -50,6 +50,8 @@ void homologation_pr() {
   
   minuteur_attendre(1000);
   
+  // Programme d'homologation PR seul 
+  /*
   asserv_set_position(235, 752, 0); // PT_ETAPE_2
   asserv_maintenir_position();
   bouton_wait_start_up();
@@ -60,6 +62,23 @@ void homologation_pr() {
   aller_xy(1250, 750, VITESSE_RAPIDE, 1, 10000, 50);
   pr_jouer_action(ACTION_POUSSER_ATOME0);
   //asserv_go_toutdroit(-50, 2000);
+  */
+  
+  // Programme d'homologation en conjonction avec GR
+  // Comportement attendu de GR : aller sur la gauche de Tab_Rd.
+  
+  asserv_set_position(280, 722, MATH_PI); // PR tourné vers y+
+  asserv_maintenir_position();
+  bouton_wait_start_up();
+  
+  minuteur_demarrer();
+  minuteur_attendre(1000);
+  
+  aller_xy(280, 1050, VITESSE_RAPIDE, 1, 10000, 50); //descendre bers Tab_Bl
+  aller_xy(745, 1050, VITESSE_RAPIDE, 1, 10000, 50); //s'écarter du tableau
+  aller_xy(749, 753, VITESSE_RAPIDE, 1, 10000, 50); //= PT_ETAPE_9, devant l'atome de Tab_Gn
+  aller_xy(235, 752, VITESSE_RAPIDE, 1, 10000, 50); //= PT_ETAPE_2, aller dans Tab_Gn pour pousser l'atome
+  
   
   minuteur_attendre_fin_match();
 }

@@ -107,7 +107,7 @@ uint8_t pousser_atome(uint8_t atome) {
       table.atome_a_bouge[0] = true;
       
       if(error) {
-        table.atome_position[0].x = robot.xMm;
+        table.atome_position[0].x = robot.xMm; //TBC_RSE : ATN: Faudrait-il y ajouter la distance de l'atome par rapport au centre du robot
         table.atome_position[0].y = robot.yMm;
         return error;
       }
