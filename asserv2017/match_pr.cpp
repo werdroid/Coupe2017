@@ -40,6 +40,7 @@ void homologation_pr() {
   
   ecran_console_log("Initialisation...");
  
+  piloter_bras(BRAS_BAISSER);
   minuteur_attendre(500);
   
   ecran_console_log(" Ok\n");
@@ -67,7 +68,7 @@ void homologation_pr() {
   // Programme d'homologation en conjonction avec GR
   // Comportement attendu de GR : aller sur la gauche de Tab_Rd.
   
-  asserv_set_position(280, 722, MATH_PI); // PR tourné vers y+
+  asserv_set_position(280, 722, MATH_PI2); // PR tourné vers y+
   asserv_maintenir_position();
   bouton_wait_start_up();
   
@@ -131,14 +132,13 @@ void gr_coucou() {
 
 void match_pr() {
   
+  
   #ifdef __EMSCRIPTEN__
   com_printfln("----------");
   com_printfln(__DATE__);
   com_printfln(__TIME__);
   com_printfln("----------");
   #endif
-  
-  
   
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");

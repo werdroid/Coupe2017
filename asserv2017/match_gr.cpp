@@ -145,6 +145,7 @@ void homologation_gr() {
   // /!\ débrancher les codeurs pour que GR avance en boucle ouverte
   // Comportement attendu : le robot sort de la zone de départ en décrivant un arc de cercle sur la gauche.
   aller_xy(1000, 450, VITESSE_RAPIDE, 1, 5000, 50); //commande d'avance tout droit, abandon après 5 secondes
+  score_incrementer(90);
   
 
   minuteur_attendre_fin_match();
@@ -305,6 +306,7 @@ void match_gr() {
   
   int start;
   uint8_t error;
+  
   
   ecran_console_reset();
 
@@ -714,20 +716,24 @@ uint8_t gr_distributeur(uint8_t place) {
 			
 	if(place > 4) return ERROR_PARAMETRE;
 	
-	switch place
+	switch(place) {
 		case 1: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
 			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_etape(PT_ETAPE_6B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+      break;
 		case 2: //Grand distributeur own, on se positionne pour les deux atomes à gauche
 			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_etape(PT_ETAPE_11B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+      break;
 		case 3: //Grand distributeur own, on se positionne pour les deux atomes au milieu
 			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_etape(PT_ETAPE_11B7A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+      break;
 		case 4: //Grand distributeur own, on se positionne pour les deux atomes à droite
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_etape(PT_ETAPE_11B11A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			
+			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+      break;
+  }
 			/** TODO : prévoir un recalage plutôt que les points action, pour s'assurer d'arriver en contact avec la bordure **/
 			
 	//Action BDF
@@ -736,16 +742,20 @@ uint8_t gr_distributeur(uint8_t place) {
 	/** TODO : Reculer lentement de 10 cm, sans coordonnées ? **/
 	
 	// Retour en arrière à la position libre de mouvement
-	switch place
+	switch(place) {
 		case 1: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
 			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+      break;
 		case 2: //Grand distributeur own, on se positionne pour les deux atomes à gauche
 			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+      break;
 		case 3: //Grand distributeur own, on se positionne pour les deux atomes au milieu
 			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+      break;
 		case 4: //Grand distributeur own, on se positionne pour les deux atomes à droite
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
-	
+      break;
+	}
 	/** TODO : servo BDF en position haute **/
 	
   // Aller déposer les atomes dans le tableau périodique
@@ -759,7 +769,10 @@ uint8_t gr_distributeur(uint8_t place) {
   // Reculer pour se dégager
    error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
   
-  /** TODO booleen succès visite de chaque emplacement
+  /** TODO booleen succès visite de chaque emplacement **/
+
+  
+  return OK;
 }
 
 /** =============
