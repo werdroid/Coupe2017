@@ -388,7 +388,7 @@ void match_gr() {
   
   // Init scores
   score_incrementer(5); // Dépose Expérience => 5 points
-  score_incrementer(14); // Antoine: Estimation Match 1 = 14 points
+  score_incrementer(20); // Antoine: Estimation Match 1 = 14 points
     
 
   /**
@@ -697,22 +697,22 @@ uint8_t gr_distributeur(uint8_t place) {
 	uint8_t distrib_x;
 	uint8_t distrib_y;
 			
-	if(place > 4) return ERROR_PARAMETRE;
+	if(place > 3) return ERROR_PARAMETRE;
 	
 	switch(place) {
-		case 1: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
+		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
 			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
 			error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
-		case 2: //Grand distributeur own, on se positionne pour les deux atomes à gauche
+		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
 			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
 			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
-		case 3: //Grand distributeur own, on se positionne pour les deux atomes au milieu
+		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
 			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
 			error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
-		case 4: //Grand distributeur own, on se positionne pour les deux atomes à droite
+		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
 			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
@@ -726,16 +726,16 @@ uint8_t gr_distributeur(uint8_t place) {
 	
 	// Retour en arrière à la position libre de mouvement
 	switch(place) {
-		case 1: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
+		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
 			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
       break;
-		case 2: //Grand distributeur own, on se positionne pour les deux atomes à gauche
+		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
 			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
       break;
-		case 3: //Grand distributeur own, on se positionne pour les deux atomes au milieu
+		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
 			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
       break;
-		case 4: //Grand distributeur own, on se positionne pour les deux atomes à droite
+		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
       break;
 	}

@@ -169,7 +169,8 @@ void match_pr() {
     //ACTION_POUSSER_ATOME1, //non disponible car GR présent en Tab_Gn
     ACTION_POUSSER_ATOME2, //Code valide pour PR Match 1
     ACTION_POUSSER_ATOMES_CHAOS_B, //première passe vers Tab_Rd
-    ACTION_POUSSER_ATOMES_CHAOS //puis 2ème passe vers Tab_Gn
+    ACTION_POUSSER_ATOMES_CHAOS, //puis 2ème passe vers Tab_Gn
+    ACTION_POUSSER_ATOMES_CHAOS_ADV
     // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase1 = sizeof(phase1) / sizeof(action);

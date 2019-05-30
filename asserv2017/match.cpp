@@ -60,12 +60,12 @@ uint8_t pousser_atome(uint8_t atome) {
         if(error) return error;
         break;
         
-      case 4: //ACTION_POUSSER_ATOMES_CHAOS_B - Prise des atomes de la zone de chaos own, mettre dans Tab_Gn
+      case 4: //ACTION_POUSSER_ATOMES_CHAOS_B - Prise des atomes de la zone de chaos own, mettre dans Tab_Bl
         error = aller_pt_etape(PT_ETAPE_16B, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         break;
         
-      case 5: //ACTION_POUSSER_ATOMES_CHAOS_ADV
+      case 5: //ACTION_POUSSER_ATOMES_CHAOS_ADV - Prise des atomes de la zone de chaos opp, mettre dans Tab_Bl
         error = aller_pt_etape(PT_ETAPE_19, VITESSE_RAPIDE, 1, 8000, 10);
         if(error) return error;
         
