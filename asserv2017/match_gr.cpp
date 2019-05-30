@@ -306,10 +306,6 @@ void match_gr() {
   
   int start;
   uint8_t error;
-  
-  
-  ecran_console_reset();
-
 
   /** ==========================
     Préparation & Initialisation
@@ -332,24 +328,18 @@ void match_gr() {
   ecran_console_log("Initialisation...");
 
   // Variables de stratégie
-  int action; //TBD_RSE : ATN: pas besoin de l'initialiser ?
+  int action; // Sera initialisé pendant le programme
   int nb_iterations = 0;
   int strategie = 1;
   
-  
-  
-  
-  //return gr_test_deplacements();
-  
-  int phase1[] = {
-    
-    ACTION_ACTIVER_EXPERIENCE,
+  int phase1[] = {  
+    ACTION_ACTIVER_EXPERIENCE/*,
     ACTION_POUSSER_ATOME0,
     ACTION_POUSSER_ATOME1,
     ACTION_POUSSER_ATOME2,
     ACTION_ACTIVER_EXPERIENCE,
     ACTION_POUSSER_ATOMES_CHAOS,
-    ACTION_POUSSER_ATOMES_CHAOS_B
+    ACTION_POUSSER_ATOMES_CHAOS_B*/
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase1 = sizeof(phase1) / sizeof(action);
@@ -366,10 +356,9 @@ void match_gr() {
     */
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
-  int len_phase2 = sizeof(phase2) / sizeof(action); //TBC_RSE : ATN: 1/que vaut sizeof(action)? 2/division et pas soustraction ?
+  int len_phase2 = sizeof(phase2) / sizeof(action);
   
   gr_init_servos();
-
 
   minuteur_attendre(500);
   ecran_console_log(" Ok\n");
@@ -378,16 +367,8 @@ void match_gr() {
 
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
-  
-  /*2018
-  // Démarrage en pi = Problème !
-  //if(robot.estJaune)
-    asserv_set_position(250, 500, 0);
-  /*else
-    asserv_set_position(150, 500, MATH_PI); // Pi => 0 après application de la symétrie
-    */
 
-  asserv_set_position(150, 450, 0); //2019 GR calé dans Tab_Rd en première idée
+  asserv_set_position(150, 750, 0); //2019 GR calé dans Tab_Gr
 
 
   asserv_maintenir_position();
@@ -399,16 +380,11 @@ void match_gr() {
     ------------- **/
 
   minuteur_demarrer();
-  minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
+  minuteur_attendre(500);
   score_definir(0);
-  
-  //if(robot.estJaune)
-    asserv_go_toutdroit(300, 10000); //TBC_RSE : ATN: pourquoi ce mouvement ?
-  /*else
-    asserv_go_toutdroit(-400, 10000);*/
-    
-  //aller_xy(500, 500, VITESSE_RAPIDE, 1, 5000, 30);
-  
+
+  // On se décole de la bordure
+  //asserv_go_toutdroit(100, 10000);
   
   // Init scores
   score_incrementer(5); // Dépose Expérience => 5 points
@@ -498,6 +474,10 @@ void match_gr() {
 
     
     // Est-ce qu'on doit continuer à faire des trucs ?
+    if(table.experience_activee) {
+      break;
+    }
+    
     
     /*2018
     if(abeille_activee
@@ -619,6 +599,7 @@ uint8_t gr_activer_experience() {
 
   uint8_t error;
   
+  com_printfln("--- Activer expérience ---");
   if(table.experience_activee) return ERROR_PLUS_RIEN_A_FAIRE;
   gr_nb_tentatives[ACTION_ACTIVER_EXPERIENCE]++;
   
@@ -637,6 +618,7 @@ uint8_t gr_pousser_atome(uint8_t atome) {
   uint8_t error;
   
   if(atome > 5) return ERROR_PARAMETRE;
+  
   
   // TODO : Ranger la pelle et/ou la bar de faire ?
   // ATN : normalement, sans appel, les servos devraient être déjà rangés en configuration de croisière
