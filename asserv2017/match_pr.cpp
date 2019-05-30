@@ -164,7 +164,7 @@ void match_pr() {
   uint8_t action;
   int nb_iterations = 0;
   uint8_t phase1[] = {
-    ACTION_ACTIVER_ADP,
+    //ACTION_ACTIVER_ADP,
     ACTION_POUSSER_ATOME0,
     ACTION_POUSSER_ATOME1,
     ACTION_POUSSER_ATOME2,
@@ -185,7 +185,8 @@ void match_pr() {
   minuteur_attendre(200);
   
   //if(robot.estJaune)
-    asserv_set_position(150, 450, 0); // TBC (grossièrement redium, proche PT_ETAPE_1)
+    //asserv_set_position(150, 450, 0); // TBC (grossièrement redium, proche PT_ETAPE_1) //Remplacé pour Match 1
+	asserv_set_position(259, 398, -MATH_PI2); //Pour Match 1
   /*else
     asserv_set_position(299, 159, MATH_PI);*/
     

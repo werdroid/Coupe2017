@@ -103,7 +103,7 @@ uint8_t pousser_atome(uint8_t atome) {
   // Déplacement vers tableau périodique
   switch(atome) {
     case 0:
-      error = aller_xy(500, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
+      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
       table.atome_a_bouge[0] = true;
       
       if(error) {
