@@ -41,7 +41,7 @@ void ecran_print_menu(int selector) {
     "\n\n   Demarrer match __",
     "\n\n   Couleur:    _____",
     "\n\n   (Libre 2)        ",
-    "\n\n   Ejecter       ___",
+    "\n\n   Activer Exp.     ",
     "\n\n   (Libre 4)        ",
     "\n\n   Prg: ____________",
     "\n\n   Demarrer Program.",

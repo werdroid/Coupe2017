@@ -625,7 +625,8 @@ uint8_t gr_activer_experience() {
   
   
   experience_activer();
-  
+  score_incrementer(15); // 15 points si activé
+  score_incrementer(12); // 25 points si arrive en haut
   
   table.experience_activee = true;
   
