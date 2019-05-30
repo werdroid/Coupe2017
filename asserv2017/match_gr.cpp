@@ -15,6 +15,7 @@ int gr_nb_tentatives[NB_ACTIONS] = { 0 };
 uint8_t gr_pousser_atome(uint8_t atome);
 uint8_t gr_activer_adp();
 uint8_t gr_activer_experience();
+uint8_t gr_distributeur(uint8_t place);
 
 /** =====================================
   Programmes alternatifs (Homolog, Debug)
@@ -388,7 +389,7 @@ void match_gr() {
   
   // Init scores
   score_incrementer(5); // Dépose Expérience => 5 points
-  score_incrementer(20); // Antoine: Estimation Match 1 = 14 points
+  score_incrementer(23); // Antoine: Estimation Match 1 = 14 points
     
 
   /**
@@ -581,6 +582,10 @@ uint8_t gr_jouer_action(int action) {
     case ACTION_POUSSER_ATOMES_CHAOS_B:   error = gr_pousser_atome(4); break;
     case ACTION_POUSSER_ATOMES_CHAOS_ADV: error = gr_pousser_atome(5); break;
     case ACTION_ACTIVER_EXPERIENCE:       error = gr_activer_experience(); break;
+    case ACTION_DISTRIBUTEUR0:            error = gr_distributeur(0); break;
+    case ACTION_DISTRIBUTEUR1:            error = gr_distributeur(1); break;
+    case ACTION_DISTRIBUTEUR2:            error = gr_distributeur(2); break;
+    case ACTION_DISTRIBUTEUR3:            error = gr_distributeur(3); break;
     default:
       com_printfln("GR ne peut pas faire l'action %d", action);
       error = ERROR_PARAMETRE;
@@ -607,7 +612,7 @@ uint8_t gr_activer_experience() {
   
   experience_activer();
   score_incrementer(15); // 15 points si activé
-  score_incrementer(12); // 25 points si arrive en haut
+  //score_incrementer(12); // 25 points si arrive en haut
   
   table.experience_activee = true;
   
@@ -620,12 +625,13 @@ uint8_t gr_pousser_atome(uint8_t atome) {
   if(atome > 5) return ERROR_PARAMETRE;
   
   
-  // TODO : Ranger la pelle et/ou la bar de faire ?
   // ATN : normalement, sans appel, les servos devraient être déjà rangés en configuration de croisière
+  piloter_TA(TA_NEUTRE);
+  piloter_BDF(BDF_RANGER);
   
   error = pousser_atome(atome);
   
-  // TODO : Rétablir des servos ?
+  // Les servos sont déjà en position de croisière, inutile de les "rétablir"
   
   
   // Schéma légèrement différent : on incrémente les tentatives qu'à la fin
@@ -648,6 +654,8 @@ uint8_t gr_activer_adp() {
   uint8_t error;
   Point pt13 = getPoint(PT_ETAPE_13);
    
+  com_printfln("--- Activer ADP ---");
+   
   if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE; //Vérifier que l'action reste à faire
   gr_nb_tentatives[ACTION_ACTIVER_ADP]++; //TBC_RSE : utile ?
   
@@ -666,17 +674,20 @@ uint8_t gr_activer_adp() {
   error = asserv_rotation_vers_point(pt13.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
   if(error) return error;
   
-  error = aller_xy(pt13.x, 189, VITESSE_RAPIDE, 0, 20000, 10); //Reculer vers ADP
-  //Note : on pourrait privilégier une fonction de recalage
   
-  /****** TODO *******/
-  com_printfln("## Programmer la suite ##");
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
   
-  //deploiement_ADP : bas
-  //translation_ADP
-  //deploiement_ADP : haut
-    
-  /****** TODO *******/
+  
+  com_printfln("Dos au mur");
+  error = aller_xy(pt13.x, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers ADP
+  
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(600); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(600);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
   
   table.adp_active = true;
   
@@ -696,23 +707,33 @@ uint8_t gr_distributeur(uint8_t place) {
 	uint8_t error;
 	uint8_t distrib_x;
 	uint8_t distrib_y;
-			
+  
+  com_printfln("--- Distributeur %d ---", place);
+      
 	if(place > 3) return ERROR_PARAMETRE;
+  if(table.distributeur_visite[place]) return ERROR_PLUS_RIEN_A_FAIRE;
+  
 	
+  piloter_BDF(BDF_RANGER);
+  
 	switch(place) {
 		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
+      gr_nb_tentatives[ACTION_DISTRIBUTEUR0]++;
 			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
 			error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
 		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
-			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			gr_nb_tentatives[ACTION_DISTRIBUTEUR1]++;
+      error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
 			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
 		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
-			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			gr_nb_tentatives[ACTION_DISTRIBUTEUR2]++;
+      error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+      error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
 		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
+			gr_nb_tentatives[ACTION_DISTRIBUTEUR3]++;
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
 			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
@@ -720,10 +741,16 @@ uint8_t gr_distributeur(uint8_t place) {
 			/** TODO : prévoir un recalage plutôt que les points action, pour s'assurer d'arriver en contact avec la bordure **/
 			
 	//Action BDF
-	/** TODO : servo BDF en position basse **/
+  piloter_BDF(BDF_FAIRE_TOMBER);
 	
-	/** TODO : Reculer lentement de 10 cm, sans coordonnées ? **/
+  // On recule lentement
+  com_printfln("On recule lentement");
+  uint16_t memoire_pwm = robot.pwm_max_distance;
+  robot.pwm_max_distance = 50;
+  asserv_go_toutdroit(-100, 5000);
+  robot.pwm_max_distance = memoire_pwm;
 	
+  
 	// Retour en arrière à la position libre de mouvement
 	switch(place) {
 		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
@@ -739,22 +766,25 @@ uint8_t gr_distributeur(uint8_t place) {
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
       break;
 	}
-	/** TODO : servo BDF en position haute **/
+  
+  piloter_BDF(BDF_RANGER);
 	
   // Aller déposer les atomes dans le tableau périodique
   error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
   error = aller_pt_etape(PT_ETAPE_1, VITESSE_LENTE, 1, 20000, 10); if(error) return error;
   
-  /** TODO : monter TA **/
-  /** TODO : attendre 1 sec ?
-  /** TODO : baisser TA **/
+  
+  piloter_TA(TA_DECHARGER);
+  minuteur_attendre(1000);
+  piloter_TA(TA_NEUTRE);
   
   // Reculer pour se dégager
    error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
   
-  /** TODO booleen succès visite de chaque emplacement **/
+  
 
   
+  table.distributeur_visite[place] = true;
   return OK;
 }
 
@@ -771,11 +801,7 @@ void match_gr_arret() {
   asserv_consigne_stop();
   com_printfln("! On stoppe les moteurs");
   
-  /*2018
-  piloter_evacuation_eaux_usees(EEU_OUVRIR);
-  */
-
-  // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
+  piloter_TA(TA_DECHARGER);
   
   tone_play_end();
 }

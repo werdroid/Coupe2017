@@ -178,8 +178,8 @@ void piloter_ADP_translation(uint8_t angle, bool doucement, bool log) {
   if(log) {
     com_print("ADP transl : ");
     switch(angle) {
-      case ADPT_JAUNE: com_printfln("Violet"); break;
-      case ADPT_VIOLET: com_printfln("Jaune"); break;
+      case ADPT_VERS_JAUNE: com_printfln("Vers Jaune"); break;
+      case ADPT_VERS_VIOLET: com_printfln("Vers violets"); break;
       case ADPT_NEUTRE: com_printfln("Neutre"); break;
       default: com_printfln("%d", angle); break;
     }

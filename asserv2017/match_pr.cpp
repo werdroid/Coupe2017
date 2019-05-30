@@ -163,6 +163,8 @@ void match_pr() {
   uint8_t error;
   uint8_t action;
   int nb_iterations = 0;
+  //!!\\ Si ajout de nouvelles actions
+  //      Bien mettre à jour les conditions de fin de phase 1
   uint8_t phase1[] = {
     //ACTION_ACTIVER_ADP, //pas codé
     ACTION_POUSSER_ATOME0, //Code valide pour PR Match 1
@@ -170,6 +172,7 @@ void match_pr() {
     ACTION_POUSSER_ATOME2, //Code valide pour PR Match 1
     ACTION_POUSSER_ATOMES_CHAOS_B, //première passe vers Tab_Rd
     ACTION_POUSSER_ATOMES_CHAOS, //puis 2ème passe vers Tab_Gn
+    ACTION_POUSSER_ATOMES_CHAOS_ADV,
     ACTION_POUSSER_ATOMES_CHAOS_ADV
     // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
@@ -200,9 +203,6 @@ void match_pr() {
   /** ------------
     Début du Match
     ------------- **/
-  
-  minuteur_attendre(3000);
-
   
   com_printfln("Sort de la zone de départ");
   asserv_go_toutdroit(200, 10000);
@@ -310,7 +310,7 @@ uint8_t pr_pousser_atome(uint8_t atome) {
   
   if(atome > 5) return ERROR_PARAMETRE;
   
-  piloter_bras(BRAS_LEVER);
+  //piloter_bras(BRAS_LEVER); // Mis dans pousser_atome pour éviter le mouvement de va et vien en fin de match
   
   error = pousser_atome(atome);
   

@@ -182,7 +182,11 @@ const uint8_t ACTION_POUSSER_ATOMES_CHAOS = 4;
 const uint8_t ACTION_POUSSER_ATOMES_CHAOS_B = 5;
 const uint8_t ACTION_POUSSER_ATOMES_CHAOS_ADV = 6;
 const uint8_t ACTION_ACTIVER_EXPERIENCE = 7;
-const uint8_t NB_ACTIONS = 8; // Dernière action + 1
+const uint8_t ACTION_DISTRIBUTEUR0 = 8;
+const uint8_t ACTION_DISTRIBUTEUR1 = 9;
+const uint8_t ACTION_DISTRIBUTEUR2 = 10;
+const uint8_t ACTION_DISTRIBUTEUR3 = 11;
+const uint8_t NB_ACTIONS = 12; // Dernière action + 1
 
 
 /*-----------------------------------------------------------------------------
@@ -203,6 +207,10 @@ typedef struct {
   bool atome_a_bouge[6] = { false };
   bool atome_rapporte[6] = { false };
   Point atome_position[6] = { {500, 4500}, {500, 750}, {500, 1050}, {1000, 1050}, {1000, 1050}, {2000, 1050} };
+  
+  // 4 distributeurs numérotés de 0 à 3
+  // Voir détail dans gr_distributeur
+  bool distributeur_visite[4] = { false };
   
   // Autres exemples fictifs
   bool goldenium_tombe = false;
@@ -310,8 +318,8 @@ const uint8_t BDF_FAIRE_TOMBER = 155;
 
 // ADP translation (ADPT)
 // Angle+ = Vers la droite du robot
-const uint8_t ADPT_JAUNE = 126;
-const uint8_t ADPT_VIOLET = 44;
+const uint8_t ADPT_VERS_JAUNE = 126;
+const uint8_t ADPT_VERS_VIOLET = 44;
 const uint8_t ADPT_NEUTRE = 90;
 
 // ADP Deploiement (ADPD)

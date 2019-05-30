@@ -11,7 +11,11 @@ uint8_t pousser_atome(uint8_t atome) {
   
   com_printfln("--- Rapporter Atome %d ---", atome);
   if(atome > 5) return ERROR_PARAMETRE;
-  if(table.atome_rapporte[atome]) return ERROR_PLUS_RIEN_A_FAIRE;
+  if(table.atome_rapporte[atome]) return ERROR_PLUS_RIEN_A_FAIRE;    
+
+  if(robot.IS_PR) {
+    piloter_bras(BRAS_LEVER);
+  }
 
   int points = 0;
 
