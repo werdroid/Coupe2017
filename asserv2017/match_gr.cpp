@@ -388,7 +388,7 @@ void match_gr() {
   
   // Init scores
   score_incrementer(5); // Dépose Expérience => 5 points
-  //score_incrementer(0); // Score attendu PR à définir
+  score_incrementer(14); // Antoine: Estimation Match 1 = 14 points
     
 
   /**
