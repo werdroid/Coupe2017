@@ -679,6 +679,9 @@ uint8_t gr_activer_adp() {
   //Motif : éviter l'atome devant Tab_Rd. aller_vers_adp ne semble pas l'éviter
   error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
   
+  //ESSAI 1
+  //=======
+  
   error = aller_vers_adp(150, 450, VITESSE_RAPIDE);
   if(error) return error;
   com_printfln("Bien arrivé proche de l'ADP");
@@ -709,13 +712,127 @@ uint8_t gr_activer_adp() {
   minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
   minuteur_attendre(600);
-  
-  score_incrementer(10);
-  
-  table.adp_active = true;
-  
+    
   error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
   asserv_activer_maintien_rotation(true);
+  
+  //ESSAI 2
+  //=======
+ 
+  error = aller_xy(pt13.x-20, pt13.y, VITESSE_RAPIDE, 0, 6000, 10);
+  if(error) return error;
+  com_printfln("Bien arrivé proche de l'ADP");
+  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  
+  error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
+  if(error) return error;
+  
+  
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+  
+  
+  com_printfln("Dos au mur");
+  asserv_activer_maintien_rotation(false);
+  // !!!!!!!!!!!!!
+  // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+  // !!!!!!!!!!!!!
+  error = aller_xy(pt13.x-20, 100, VITESSE_LENTE, 0, 3000, 10); //Reculer vers ADP
+  
+  
+  
+  minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+    
+  error = aller_xy(pt13.x-20, pt13.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  asserv_activer_maintien_rotation(true);
+
+	
+  //ESSAI 3
+  //=======
+  
+  error = aller_xy(pt13.x-40, pt13.y, VITESSE_RAPIDE, 0, 6000, 10);
+  if(error) return error;
+  com_printfln("Bien arrivé proche de l'ADP");
+  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  
+  error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
+  if(error) return error;
+  
+  
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+  
+  
+  com_printfln("Dos au mur");
+  asserv_activer_maintien_rotation(false);
+  // !!!!!!!!!!!!!
+  // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+  // !!!!!!!!!!!!!
+  error = aller_xy(pt13.x-40, 100, VITESSE_LENTE, 0, 3000, 10); //Reculer vers ADP
+  
+  
+  
+  minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+    
+  error = aller_xy(pt13.x-40, pt13.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  asserv_activer_maintien_rotation(true);
+  
+  //ESSAI 4
+  //=======
+  
+  error = aller_xy(pt13.x+20, pt13.y, VITESSE_RAPIDE, 0, 6000, 10);
+  if(error) return error;
+  com_printfln("Bien arrivé proche de l'ADP");
+  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  
+  error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
+  if(error) return error;
+  
+  
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+  
+  
+  com_printfln("Dos au mur");
+  asserv_activer_maintien_rotation(false);
+  // !!!!!!!!!!!!!
+  // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+  // !!!!!!!!!!!!!
+  error = aller_xy(pt13.x+20, 100, VITESSE_LENTE, 0, 3000, 10); //Reculer vers ADP
+  
+  
+  
+  minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+    
+  error = aller_xy(pt13.x+20, pt13.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  asserv_activer_maintien_rotation(true);
+  
+  
+  //FIN ESSAIS
+  
+  score_incrementer(10);
+  table.adp_active = true;
   
   return OK;
   
@@ -731,6 +848,9 @@ uint8_t gr_extraire_gd() {
   
   if(table.goldenium_tombe) return ERROR_PLUS_RIEN_A_FAIRE; //Vérifier que l'action reste à faire
   gr_nb_tentatives[ACTION_EXTRAIRE_GD]++;
+  
+  //ESSAI 1
+  //=======
   
   error = aller_pt_etape(PT_ETAPE_14, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
   
@@ -756,11 +876,106 @@ uint8_t gr_extraire_gd() {
   piloter_ADP_deploiement(ADPD_LEVER);
   minuteur_attendre(600);
 
-  score_incrementer(20);
-  table.goldenium_tombe = true;
-
   error = aller_xy(pt14.x, pt14.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
   asserv_activer_maintien_rotation(true);
+  
+  //ESSAI 2
+  //=======
+  
+  error = aller_xy(pt14.x-20, pt13.y, VITESSE_RAPIDE, 0, 6000, 10);
+  if(error) return error;
+  
+  error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers Gd
+  if(error) return error;
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+
+  com_printfln("Dos au mur");
+  asserv_activer_maintien_rotation(false);
+  // !!!!!!!!!!!!!
+  // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+  // !!!!!!!!!!!!!
+  error = aller_xy(pt14.x-20, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers Gd
+  
+  minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+
+  error = aller_xy(pt14.x-20, pt14.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  asserv_activer_maintien_rotation(true);
+  
+  //ESSAI 3
+  //=======
+  
+  error = aller_xy(pt14.x-40, pt13.y, VITESSE_RAPIDE, 0, 6000, 10);
+  if(error) return error;
+  
+  error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers Gd
+  if(error) return error;
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+
+  com_printfln("Dos au mur");
+  asserv_activer_maintien_rotation(false);
+  // !!!!!!!!!!!!!
+  // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+  // !!!!!!!!!!!!!
+  error = aller_xy(pt14.x-40, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers Gd
+  
+  minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+
+  error = aller_xy(pt14.x-40, pt14.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  asserv_activer_maintien_rotation(true);
+  
+  //ESSAI 4
+  //=======
+  
+  error = aller_xy(pt14.x+20, pt13.y, VITESSE_RAPIDE, 0, 6000, 10);
+  if(error) return error;
+  
+  error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers Gd
+  if(error) return error;
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+
+  com_printfln("Dos au mur");
+  asserv_activer_maintien_rotation(false);
+  // !!!!!!!!!!!!!
+  // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+  // !!!!!!!!!!!!!
+  error = aller_xy(pt14.x+20, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers Gd
+  
+  minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+
+  error = aller_xy(pt14.x+20, pt14.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  asserv_activer_maintien_rotation(true);
+
+  //FIN ESSAIS
+  
+  score_incrementer(20);
+  table.goldenium_tombe = true;
   
   return OK;
   
