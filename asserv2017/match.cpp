@@ -45,11 +45,11 @@ uint8_t pousser_atome(uint8_t atome) {
         ATN: OK, permet de contourner l'atome pour l'arrivée par le haut (sera non valide si départ vers le bas)
         **/
         
-        error = aller_pt_etape(PT_ETAPE_9, VITESSE_RAPIDE, 1, 8000, 6);
-        if(error) return error;
-        
-        error = aller_pt_etape(PT_ETAPE_11B6, VITESSE_RAPIDE, 1, 8000, 6);
-        if(error) return error;
+        //Pour départ vers le haut uniquement
+        //error = aller_pt_etape(PT_ETAPE_9, VITESSE_RAPIDE, 1, 8000, 6);
+        //if(error) return error;
+        //error = aller_pt_etape(PT_ETAPE_11B6, VITESSE_RAPIDE, 1, 8000, 6);
+        //if(error) return error;
         
         error = aller_pt_etape(PT_ETAPE_10, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;

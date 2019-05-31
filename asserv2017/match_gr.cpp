@@ -14,6 +14,8 @@ int gr_nb_tentatives[NB_ACTIONS] = { 0 };
 
 uint8_t gr_pousser_atome(uint8_t atome);
 uint8_t gr_activer_adp();
+uint8_t gr_extraire_gd();
+uint8_t gr_degagement();
 uint8_t gr_activer_experience();
 uint8_t gr_distributeur(uint8_t place);
 
@@ -334,7 +336,8 @@ void match_gr() {
   int strategie = 1;
   
   int phase1[] = {  
-    ACTION_ACTIVER_EXPERIENCE/*,
+    ACTION_ACTIVER_EXPERIENCE
+    /* Actions attribuées à PR,
     ACTION_POUSSER_ATOME0,
     ACTION_POUSSER_ATOME1,
     ACTION_POUSSER_ATOME2,
@@ -347,14 +350,14 @@ void match_gr() {
   
   bool activer_phase2 = true;
   int phase2[] {
-    ACTION_ACTIVER_EXPERIENCE
-    /*2018
-    //ACTION_VIDER_REP_OPP,
-    ACTION_VIDER_REM_OPP,
-    ACTION_DEPOSER_STATION
-    //ACTION_DEPOSER_STATION,
-    //ACTION_DEPOSER_CHATEAU
-    */
+    ACTION_ACTIVER_EXPERIENCE,
+    ACTION_ACTIVER_ADP,
+    ACTION_EXTRAIRE_GD,
+    ACTION_DISTRIBUTEUR3, //le 3 d'abord pour moins gêner Zchaos_own
+    ACTION_DISTRIBUTEUR2,
+    ACTION_DISTRIBUTEUR1,
+    ACTION_DEGAGEMENT
+    //ACTION_DISTRIBUTEUR0 //pas prêt pour Match 3 //à la fin : car plus compliqué et trajectoire plus longue que pour accéder aux autres points de distribution
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase2 = sizeof(phase2) / sizeof(action);
@@ -369,8 +372,8 @@ void match_gr() {
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
 
-  asserv_set_position(150, 750, 0); //2019 GR calé dans Tab_Gr
-
+  //asserv_set_position(150, 750, 0); //2019 GR calé dans Tab_Gn pour Match 1 (Motorisation NOK)
+  asserv_set_position(259, 450, -MATH_PI2); //GR en x correspondant à P3.x, y défini pour être dans Tab_Rd
 
   asserv_maintenir_position();
   bouton_wait_start_up();
@@ -389,7 +392,7 @@ void match_gr() {
   
   // Init scores
   score_incrementer(5); // Dépose Expérience => 5 points
-  score_incrementer(23); // Antoine: Estimation Match 1 = 14 points
+  score_incrementer(20); // Antoine: Estimation Match 3 pour PR
     
 
   /**
@@ -560,6 +563,8 @@ void match_gr() {
   /*2018
   piloter_evacuation_eaux_usees(EEU_OUVRIR);
   */
+  
+  
 
   minuteur_attendre_fin_match();
 }
@@ -586,6 +591,8 @@ uint8_t gr_jouer_action(int action) {
     case ACTION_DISTRIBUTEUR1:            error = gr_distributeur(1); break;
     case ACTION_DISTRIBUTEUR2:            error = gr_distributeur(2); break;
     case ACTION_DISTRIBUTEUR3:            error = gr_distributeur(3); break;
+    case ACTION_EXTRAIRE_GD:              error = gr_extraire_gd(); break;
+    case ACTION_DEGAGEMENT:               error = gr_degagement(); break;
     default:
       com_printfln("GR ne peut pas faire l'action %d", action);
       error = ERROR_PARAMETRE;
@@ -607,12 +614,10 @@ uint8_t gr_activer_experience() {
   com_printfln("--- Activer expérience ---");
   if(table.experience_activee) return ERROR_PLUS_RIEN_A_FAIRE;
   gr_nb_tentatives[ACTION_ACTIVER_EXPERIENCE]++;
-  
-  
-  
+   
   experience_activer();
   score_incrementer(15); // 15 points si activé
-  //score_incrementer(12); // 25 points si arrive en haut
+  score_incrementer(12); // 25 points si arrive en haut
   
   table.experience_activee = true;
   
@@ -657,7 +662,7 @@ uint8_t gr_activer_adp() {
   com_printfln("--- Activer ADP ---");
    
   if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE; //Vérifier que l'action reste à faire
-  gr_nb_tentatives[ACTION_ACTIVER_ADP]++; //TBC_RSE : utile ?
+  gr_nb_tentatives[ACTION_ACTIVER_ADP]++;
   
 
   
@@ -665,6 +670,10 @@ uint8_t gr_activer_adp() {
     error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); //TBC_RSE : pourquoi le point étape 3 comme point de retrait ?
     if(error) return error;
   }
+  
+  //Temp pour Match 3
+  //Motif : éviter l'atome devant Tab_Rd. aller_vers_adp ne semble pas l'éviter
+  error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
   
   error = aller_vers_adp(150, 450, VITESSE_RAPIDE);
   if(error) return error;
@@ -684,10 +693,13 @@ uint8_t gr_activer_adp() {
   piloter_ADP_deploiement(ADPD_BAISSER);
   minuteur_attendre(600); // Je ne sais plus si c'est nécessaire ou pas...
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-  minuteur_attendre(600);
+  minuteur_attendre(1500);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(1000);
   piloter_ADP_deploiement(ADPD_LEVER);
   minuteur_attendre(600);
   
+  score_incrementer(10);
   
   table.adp_active = true;
   
@@ -696,6 +708,44 @@ uint8_t gr_activer_adp() {
   return OK;
   
 }
+
+uint8_t gr_extraire_gd() {
+  uint8_t error;
+  Point pt14 = getPoint(PT_ETAPE_14);
+   
+  com_printfln("--- Extraire Gd ---");
+   
+  if(table.goldenium_tombe) return ERROR_PLUS_RIEN_A_FAIRE; //Vérifier que l'action reste à faire
+  gr_nb_tentatives[ACTION_EXTRAIRE_GD]++;
+  
+  error = aller_pt_etape(PT_ETAPE_14, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+  
+  error = asserv_rotation_vers_point(pt14.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers Gd
+  if(error) return error;
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+
+  com_printfln("Dos au mur");
+  error = aller_xy(pt14.x, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers Gd
+  
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(600); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(1500);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(1000);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+
+  score_incrementer(20);
+  table.goldenium_tombe = true;
+
+  error = aller_xy(pt14.x, pt14.y, VITESSE_RAPIDE, 1, 20000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  
+  return OK;
+  
+}
+
 
 uint8_t gr_distributeur(uint8_t place) {
 	// place = 1 : petit distributeur own, pour les deux atomes à droite, qui comprennent un Redium
@@ -720,22 +770,22 @@ uint8_t gr_distributeur(uint8_t place) {
 		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
       gr_nb_tentatives[ACTION_DISTRIBUTEUR0]++;
 			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 3000, 10); if(error) return error;
       break;
 		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
 			gr_nb_tentatives[ACTION_DISTRIBUTEUR1]++;
       error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 3000, 10); if(error) return error;
       break;
 		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
 			gr_nb_tentatives[ACTION_DISTRIBUTEUR2]++;
       error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-      error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+      error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 3000, 10); if(error) return error;
       break;
 		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
 			gr_nb_tentatives[ACTION_DISTRIBUTEUR3]++;
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 3000, 10); if(error) return error;
       break;
   }
 			/** TODO : prévoir un recalage plutôt que les points action, pour s'assurer d'arriver en contact avec la bordure **/
@@ -751,7 +801,10 @@ uint8_t gr_distributeur(uint8_t place) {
   robot.pwm_max_distance = memoire_pwm;
 	
   
-	// Retour en arrière à la position libre de mouvement
+  // Potentiellement inutile si on a déjà reculé. Sauf pour le petit distributeur où l'espace est limité et où en reculant trop on peut etre bloqué en rotation.
+  // Gardé pour Match 3
+  /**TODO confirmer cette section**/
+  // Retour en arrière à la position libre de mouvement
 	switch(place) {
 		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
 			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
@@ -764,6 +817,8 @@ uint8_t gr_distributeur(uint8_t place) {
       break;
 		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+      // Contournement Zchaos_own pour aller déposer les atomes dans le tableau périodique
+      error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
       break;
 	}
   
@@ -771,22 +826,62 @@ uint8_t gr_distributeur(uint8_t place) {
 	
   // Aller déposer les atomes dans le tableau périodique
   error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-  error = aller_pt_etape(PT_ETAPE_1, VITESSE_LENTE, 1, 20000, 10); if(error) return error;
-  
+  //error = aller_pt_etape(PT_ETAPE_1, VITESSE_LENTE, 1, 20000, 10); if(error) return error;
+  error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 20000, 10); if(error) return error; //aller moins loin que P1
   
   piloter_TA(TA_DECHARGER);
+  score_incrementer(7);
   minuteur_attendre(1000);
   piloter_TA(TA_NEUTRE);
   
   // Reculer pour se dégager
-   error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
-  
+  //error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+  error = aller_xy(749, 450, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error; //aller à P8 en ignorant la logique de contournement
   
 
   
   table.distributeur_visite[place] = true;
   return OK;
 }
+
+uint8_t gr_degagement() {
+  //Raison d'être : ne pas rester immobile devant le tableau périodique à la fin de toutes les actions. Cela bloquerait les actions de PR.
+  
+  uint8_t error;
+  Point pt13 = getPoint(PT_ETAPE_13);
+     
+  com_printfln("--- Degagement ---");
+  
+  //Match 3 ne visitant que distrib places 1, 2 et 3
+  if(table.distributeur_visite[1] && table.distributeur_visite[2] && table.distributeur_visite[3]) {
+    
+    if(!robot_dans_zone(0, 0, 1800, 600)) {
+      error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); //TBC_RSE : pourquoi le point étape 3 comme point de retrait ?
+      if(error) return error;
+    }
+    
+    error = aller_vers_adp(150, 450, VITESSE_RAPIDE);
+    if(error) return error;
+    com_printfln("Bien arrivé proche de l'ADP");
+    // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+    
+    error = asserv_rotation_vers_point(pt13.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
+    if(error) return error;
+    
+    com_printfln("Dos au mur");
+    error = aller_xy(pt13.x, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers ADP
+
+    minuteur_attendre(20000); //temps long, arbitraire.
+    
+    error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 20000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+
+    return OK;
+  }
+  else{
+    return ERROR_PLUS_RIEN_A_FAIRE;
+  }
+}
+
 
 /** =============
   Actions de base

@@ -167,9 +167,9 @@ void match_pr() {
   //      Bien mettre à jour les conditions de fin de phase 1
   uint8_t phase1[] = {
     //ACTION_ACTIVER_ADP, //pas codé
-    ACTION_POUSSER_ATOME0, //Code valide pour PR Match 1
+    //ACTION_POUSSER_ATOME0, //Code valide pour PR Match 1
     //ACTION_POUSSER_ATOME1, //non disponible car GR présent en Tab_Gn
-    ACTION_POUSSER_ATOME2, //Code valide pour PR Match 1
+    ACTION_POUSSER_ATOME2, //Code valide pour PR Match 3
     ACTION_POUSSER_ATOMES_CHAOS_B, //première passe vers Tab_Rd
     ACTION_POUSSER_ATOMES_CHAOS, //puis 2ème passe vers Tab_Gn
     ACTION_POUSSER_ATOMES_CHAOS_ADV,
@@ -190,7 +190,8 @@ void match_pr() {
   
   //if(robot.estJaune)
     //asserv_set_position(150, 450, 0); // TBC (grossièrement redium, proche PT_ETAPE_1) //Remplacé pour Match 1
-	asserv_set_position(259, 398, -MATH_PI2); //Pour Match 1
+	//asserv_set_position(259, 398, -MATH_PI2); //Pour Match 1
+  asserv_set_position(259, 802, MATH_PI2); //Pour Match 3
   /*else
     asserv_set_position(299, 159, MATH_PI);*/
     

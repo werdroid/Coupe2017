@@ -186,7 +186,9 @@ const uint8_t ACTION_DISTRIBUTEUR0 = 8;
 const uint8_t ACTION_DISTRIBUTEUR1 = 9;
 const uint8_t ACTION_DISTRIBUTEUR2 = 10;
 const uint8_t ACTION_DISTRIBUTEUR3 = 11;
-const uint8_t NB_ACTIONS = 12; // Dernière action + 1
+const uint8_t ACTION_EXTRAIRE_GD = 12;
+const uint8_t ACTION_DEGAGEMENT = 13;
+const uint8_t NB_ACTIONS = 14; // Dernière action + 1
 
 
 /*-----------------------------------------------------------------------------
@@ -207,13 +209,11 @@ typedef struct {
   bool atome_a_bouge[6] = { false };
   bool atome_rapporte[6] = { false };
   Point atome_position[6] = { {500, 4500}, {500, 750}, {500, 1050}, {1000, 1050}, {1000, 1050}, {2000, 1050} };
+  bool goldenium_tombe = false;
   
   // 4 distributeurs numérotés de 0 à 3
   // Voir détail dans gr_distributeur
   bool distributeur_visite[4] = { false };
-  
-  // Autres exemples fictifs
-  bool goldenium_tombe = false;
 } Table;
 extern Table table;
  
