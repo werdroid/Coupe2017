@@ -210,7 +210,17 @@ void test1_gr() {
   
   const uint32_t ATTENTE_ENTRE_BALLES = 800; 
 
+  minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
   
+  return;
   /*
   
     com_printfln("---- En attente ----");
@@ -355,8 +365,8 @@ void match_gr() {
     ACTION_EXTRAIRE_GD,
     ACTION_DISTRIBUTEUR3, //le 3 d'abord pour moins gêner Zchaos_own
     ACTION_DISTRIBUTEUR2,
-    ACTION_DISTRIBUTEUR1,
-    ACTION_DEGAGEMENT
+    ACTION_DISTRIBUTEUR1
+    // ACTION_DEGAGEMENT
     //ACTION_DISTRIBUTEUR0 //pas prêt pour Match 3 //à la fin : car plus compliqué et trajectoire plus longue que pour accéder aux autres points de distribution
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
@@ -507,6 +517,8 @@ void match_gr() {
           break;
         }
         
+        
+        
       }
           
     break;
@@ -542,29 +554,21 @@ void match_gr() {
 
       gr_jouer_action(phase2[action]);
       
-      /*2018
-      if(REM_opp_vide
-      && nb_balles_eau_usee_dans_gr == 0) {
-        /*
-        if(nb_balles_eau_usee_dans_gr == 0) {
+      if(table.experience_activee
+        && table.adp_active
+        && table.goldenium_tombe
+        && table.distributeur_visite[0]
+        && table.distributeur_visite[1]
+        && table.distributeur_visite[2]) {
           break;
-        }*/
-        
-        /*break;
       }
-      */
       
     }
     
-    /*2018
-    gr_deposer_station(true);
-    */
+
   } // activer_phase2
-  /*2018
-  piloter_evacuation_eaux_usees(EEU_OUVRIR);
-  */
   
-  
+  gr_jouer_action(ACTION_DEGAGEMENT);
 
   minuteur_attendre_fin_match();
 }
@@ -680,7 +684,7 @@ uint8_t gr_activer_adp() {
   com_printfln("Bien arrivé proche de l'ADP");
   // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
   
-  error = asserv_rotation_vers_point(pt13.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
+  error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
   if(error) return error;
   
   
@@ -688,14 +692,21 @@ uint8_t gr_activer_adp() {
   
   
   com_printfln("Dos au mur");
-  error = aller_xy(pt13.x, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers ADP
+  asserv_activer_maintien_rotation(false);
+  // !!!!!!!!!!!!!
+  // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+  // !!!!!!!!!!!!!
+  error = aller_xy(pt13.x, 100, VITESSE_LENTE, 0, 3000, 10); //Reculer vers ADP
   
-  piloter_ADP_deploiement(ADPD_BAISSER);
-  minuteur_attendre(600); // Je ne sais plus si c'est nécessaire ou pas...
+  
+  
+  minuteur_attendre(600);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-  minuteur_attendre(1500);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
-  minuteur_attendre(1000);
+  minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
   minuteur_attendre(600);
   
@@ -703,7 +714,8 @@ uint8_t gr_activer_adp() {
   
   table.adp_active = true;
   
-  error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 20000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  asserv_activer_maintien_rotation(true);
   
   return OK;
   
@@ -714,33 +726,41 @@ uint8_t gr_extraire_gd() {
   Point pt14 = getPoint(PT_ETAPE_14);
    
   com_printfln("--- Extraire Gd ---");
-   
+  
+  if(!table.adp_active) return ERROR_PAS_POSSIBLE;
+  
   if(table.goldenium_tombe) return ERROR_PLUS_RIEN_A_FAIRE; //Vérifier que l'action reste à faire
   gr_nb_tentatives[ACTION_EXTRAIRE_GD]++;
   
   error = aller_pt_etape(PT_ETAPE_14, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
   
-  error = asserv_rotation_vers_point(pt14.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers Gd
+  error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers Gd
   if(error) return error;
 
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
 
   com_printfln("Dos au mur");
+  asserv_activer_maintien_rotation(false);
+  // !!!!!!!!!!!!!
+  // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+  // !!!!!!!!!!!!!
   error = aller_xy(pt14.x, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers Gd
   
-  piloter_ADP_deploiement(ADPD_BAISSER);
-  minuteur_attendre(600); // Je ne sais plus si c'est nécessaire ou pas...
+  minuteur_attendre(600);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-  minuteur_attendre(1500);
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
-  minuteur_attendre(1000);
+  minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
   minuteur_attendre(600);
 
   score_incrementer(20);
   table.goldenium_tombe = true;
 
-  error = aller_xy(pt14.x, pt14.y, VITESSE_RAPIDE, 1, 20000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  error = aller_xy(pt14.x, pt14.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  asserv_activer_maintien_rotation(true);
   
   return OK;
   
@@ -769,37 +789,57 @@ uint8_t gr_distributeur(uint8_t place) {
 	switch(place) {
 		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
       gr_nb_tentatives[ACTION_DISTRIBUTEUR0]++;
-			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 3000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
+			
+      asserv_activer_maintien_rotation(false);
+      error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 3000, 10);
+      // error gérée après le switch (!! Ne pas oublier de réactiver la rotation !!)
       break;
 		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
 			gr_nb_tentatives[ACTION_DISTRIBUTEUR1]++;
-      error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 3000, 10); if(error) return error;
+      error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
+      
+      asserv_activer_maintien_rotation(false);
+			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 3000, 10);
       break;
 		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
 			gr_nb_tentatives[ACTION_DISTRIBUTEUR2]++;
-      error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-      error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 3000, 10); if(error) return error;
+      error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
+      
+      asserv_activer_maintien_rotation(false);
+      error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 3000, 10);
       break;
 		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
 			gr_nb_tentatives[ACTION_DISTRIBUTEUR3]++;
-			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
-			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 3000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
+      
+      asserv_activer_maintien_rotation(false);
+			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 3000, 10);
       break;
+  }
+  
+  if(error && error != ERROR_TIMEOUT) {
+    asserv_activer_maintien_rotation(true);
+    return error;
   }
 			/** TODO : prévoir un recalage plutôt que les points action, pour s'assurer d'arriver en contact avec la bordure **/
 			
 	//Action BDF
   piloter_BDF(BDF_FAIRE_TOMBER);
-	
+	minuteur_attendre(1500);
+  
+  
   // On recule lentement
   com_printfln("On recule lentement");
   uint16_t memoire_pwm = robot.pwm_max_distance;
-  robot.pwm_max_distance = 50;
+  robot.pwm_max_distance = 20;
+  minuteur_attendre(200);
   asserv_go_toutdroit(-100, 5000);
+  minuteur_attendre(200);
   robot.pwm_max_distance = memoire_pwm;
 	
+	minuteur_attendre(1000);
+  asserv_activer_maintien_rotation(true);
   
   // Potentiellement inutile si on a déjà reculé. Sauf pour le petit distributeur où l'espace est limité et où en reculant trop on peut etre bloqué en rotation.
   // Gardé pour Match 3
@@ -829,11 +869,14 @@ uint8_t gr_distributeur(uint8_t place) {
   //error = aller_pt_etape(PT_ETAPE_1, VITESSE_LENTE, 1, 20000, 10); if(error) return error;
   error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 20000, 10); if(error) return error; //aller moins loin que P1
   
+  minuteur_attendre(1000);
+  
   piloter_TA(TA_DECHARGER);
   score_incrementer(7);
   minuteur_attendre(1000);
   piloter_TA(TA_NEUTRE);
   
+  minuteur_attendre(1000);
   // Reculer pour se dégager
   //error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
   error = aller_xy(749, 450, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error; //aller à P8 en ignorant la logique de contournement
@@ -852,34 +895,33 @@ uint8_t gr_degagement() {
      
   com_printfln("--- Degagement ---");
   
+  
+  
   //Match 3 ne visitant que distrib places 1, 2 et 3
-  if(table.distributeur_visite[1] && table.distributeur_visite[2] && table.distributeur_visite[3]) {
+  if(!table.distributeur_visite[1] || !table.distributeur_visite[2] || !table.distributeur_visite[3])
+    return ERROR_CAS_NON_GERE;
     
-    if(!robot_dans_zone(0, 0, 1800, 600)) {
-      error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); //TBC_RSE : pourquoi le point étape 3 comme point de retrait ?
-      if(error) return error;
-    }
-    
-    error = aller_vers_adp(150, 450, VITESSE_RAPIDE);
+  if(!robot_dans_zone(0, 0, 1800, 600)) {
+    error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); //TBC_RSE : pourquoi le point étape 3 comme point de retrait ?
     if(error) return error;
-    com_printfln("Bien arrivé proche de l'ADP");
-    // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
-    
-    error = asserv_rotation_vers_point(pt13.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
-    if(error) return error;
-    
-    com_printfln("Dos au mur");
-    error = aller_xy(pt13.x, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers ADP
-
-    minuteur_attendre(20000); //temps long, arbitraire.
-    
-    error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 20000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
-
-    return OK;
   }
-  else{
-    return ERROR_PLUS_RIEN_A_FAIRE;
-  }
+  
+  error = aller_pt_etape(PT_ETAPE_13, VITESSE_RAPIDE, 1, 15000, 30);
+  if(error) return error;
+  com_printfln("Bien arrivé proche de l'ADP");
+  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  
+  error = asserv_rotation_vers_point(pt13.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
+  if(error) return error;
+  /*
+  com_printfln("Dos au mur");
+  error = aller_xy(pt13.x, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers ADP
+
+  minuteur_attendre(20000); //temps long, arbitraire.
+  error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 20000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  */
+
+  return OK;
 }
 
 
@@ -934,7 +976,7 @@ void gr_init() {
   
   robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
   
-  robot.pwm_max_distance = 127; // 40 Tres_lent ; 90 intermédiaire
+  robot.pwm_max_distance = 70; // 40 Tres_lent ; 90 intermédiaire
   robot.pwm_max_rotation = 50;
   
   

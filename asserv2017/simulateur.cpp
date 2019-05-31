@@ -155,6 +155,18 @@ void bouton_wait_start_up() {}
 void bouton_wait_select_down() {}
 void bouton_wait_select_up() {}
 
+void asserv_activer_maintien_distance(bool activer) {
+  /** TODO : activer/désactiver réellement pour afficher une alerte si re-désactivation ?
+  (comme dans asserv.cpp)
+  **/
+  com_printfln("Maintien distance : %d", activer);
+}
+void asserv_activer_maintien_rotation(bool activer) {
+  /** TODO : activer/désactiver réellement pour afficher une alerte si re-désactivation ?
+  (comme dans asserv.cpp)
+  **/
+  com_printfln("Maintien rotation : %d", activer);
+}
 void asserv_vitesse_rampe_distance(uint32_t v) {}
 void asserv_vitesse_rampe_rotation(uint32_t v) {}
 void asserv_vitesse_pwm_distance(uint16_t pwm_max) {}

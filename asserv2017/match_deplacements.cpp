@@ -1335,9 +1335,9 @@ Point getPoint(uint8_t idPoint) {
       case PT_ETAPE_6B3: return {.x = 276, .y = 1793}; break;
       case PT_ETAPE_6B4: return {.x = 325, .y = 1793}; break;
       case PT_6B1A: return {.x = 174, .y = 1855}; break;
-      case PT_6B2A: return {.x = 223, .y = 1855}; break;
-      case PT_6B3A: return {.x = 276, .y = 1855}; break;
-      case PT_6B4A: return {.x = 323, .y = 1855}; break;
+      case PT_6B2A: return {.x = 223, .y = 1900}; break;
+      case PT_6B3A: return {.x = 276, .y = 1900}; break;
+      case PT_6B4A: return {.x = 323, .y = 1900}; break;
       case PT_ETAPE_7: return {.x = 862, .y = 288}; break;
       default:
         com_printfln("! ####### idPoint '%d' incorrect dans getPoint", idPoint);
@@ -1372,19 +1372,19 @@ Point getPoint(uint8_t idPoint) {
       case PT_ETAPE_11B11: return {.x = 948, .y = 1333}; break;
       case PT_ETAPE_11B12: return {.x = 1003, .y = 1333}; break;
       case PT_ETAPE_11B13: return {.x = 1055, .y = 1333}; break;
-      case PT_11B1A: return {.x = 446, .y = 1393}; break;
-      case PT_11B2A: return {.x = 494, .y = 1393}; break;
-      case PT_11B3A: return {.x = 542, .y = 1393}; break;
-      case PT_11B4A: return {.x = 598, .y = 1393}; break;
-      case PT_11B5A: return {.x = 640, .y = 1393}; break;
-      case PT_11B6A: return {.x = 699, .y = 1393}; break;
-      case PT_11B7A: return {.x = 751, .y = 1393}; break;
-      case PT_11B8A: return {.x = 801, .y = 1393}; break;
-      case PT_11B9A: return {.x = 851, .y = 1393}; break;
-      case PT_11B10A: return {.x = 902, .y = 1393}; break;
-      case PT_11B11A: return {.x = 948, .y = 1393}; break;
-      case PT_11B12A: return {.x = 1003, .y = 1393}; break;
-      case PT_11B13A: return {.x = 1055, .y = 1393}; break;
+      case PT_11B1A: return {.x = 446, .y = 1500}; break;
+      case PT_11B2A: return {.x = 494, .y = 1500}; break;
+      case PT_11B3A: return {.x = 542, .y = 1500}; break;
+      case PT_11B4A: return {.x = 598, .y = 1500}; break;
+      case PT_11B5A: return {.x = 640, .y = 1500}; break;
+      case PT_11B6A: return {.x = 699, .y = 1500}; break;
+      case PT_11B7A: return {.x = 751, .y = 1500}; break;
+      case PT_11B8A: return {.x = 801, .y = 1500}; break;
+      case PT_11B9A: return {.x = 851, .y = 1500}; break;
+      case PT_11B10A: return {.x = 902, .y = 1500}; break;
+      case PT_11B11A: return {.x = 948, .y = 1500}; break;
+      case PT_11B12A: return {.x = 1003, .y = 1500}; break;
+      case PT_11B13A: return {.x = 1055, .y = 1500}; break;
       default:
         com_printfln("! ####### idPoint '%d' incorrect dans getPoint", idPoint);
         return {.x = 750, .y = 1000}; // Milieu de la demi-table
@@ -1392,11 +1392,11 @@ Point getPoint(uint8_t idPoint) {
   }
   else if(idPoint <= PT_19A) {
     switch(idPoint) {
-      case PT_ETAPE_12: return {.x = 1312, .y = 273}; break;
+      case PT_ETAPE_12: return {.x = 1312, .y = 283}; break;
       case PT_12A: return {.x = 1312, .y = 189}; break;
-      case PT_ETAPE_13: return {.x = 1679, .y = 273}; break;
+      case PT_ETAPE_13: return {.x = 1679, .y = 283}; break;
       case PT_13A: return {.x = 1679, .y = 189}; break;
-      case PT_ETAPE_14: return {.x = 2185, .y = 277}; break; //coordonnée X revue pour extraire le Gd
+      case PT_ETAPE_14: return {.x = 2185, .y = 287}; break; //coordonnée X revue pour extraire le Gd
       case PT_14A: return {.x = 2185, .y = 210}; break;
       case PT_ETAPE_15: return {.x = 1373, .y = 889}; break;
       case PT_ETAPE_16: return {.x = 1364, .y = 1051}; break;
