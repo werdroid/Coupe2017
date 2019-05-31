@@ -712,6 +712,26 @@ uint8_t gr_activer_adp() {
   minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
   minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
     
   error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
   asserv_activer_maintien_rotation(true);
@@ -741,6 +761,26 @@ uint8_t gr_activer_adp() {
   
   
   minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
   minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
   piloter_ADP_deploiement(ADPD_BAISSER);
@@ -787,6 +827,26 @@ uint8_t gr_activer_adp() {
   minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
   minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
     
   error = aller_xy(pt13.x-40, pt13.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
   asserv_activer_maintien_rotation(true);
@@ -816,6 +876,26 @@ uint8_t gr_activer_adp() {
   
   
   minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
   minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
   piloter_ADP_deploiement(ADPD_BAISSER);
@@ -868,13 +948,35 @@ uint8_t gr_extraire_gd() {
   
   minuteur_attendre(600);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-  minuteur_attendre(800);
-  piloter_ADP_deploiement(ADPD_BAISSER);
   minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
   minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
   minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+  
 
   error = aller_xy(pt14.x, pt14.y, VITESSE_RAPIDE, 1, 6000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
   asserv_activer_maintien_rotation(true);
@@ -899,9 +1001,29 @@ uint8_t gr_extraire_gd() {
   
   minuteur_attendre(600);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-  minuteur_attendre(800);
-  piloter_ADP_deploiement(ADPD_BAISSER);
   minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
   minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
@@ -930,9 +1052,29 @@ uint8_t gr_extraire_gd() {
   
   minuteur_attendre(600);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-  minuteur_attendre(800);
-  piloter_ADP_deploiement(ADPD_BAISSER);
   minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
   minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
@@ -961,9 +1103,29 @@ uint8_t gr_extraire_gd() {
   
   minuteur_attendre(600);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-  minuteur_attendre(800);
-  piloter_ADP_deploiement(ADPD_BAISSER);
   minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
+  
+
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800);
   piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
   minuteur_attendre(800);
   piloter_ADP_deploiement(ADPD_LEVER);
