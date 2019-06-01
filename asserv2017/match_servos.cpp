@@ -159,6 +159,7 @@ void piloter_ADP_deploiement(uint8_t angle, bool doucement, bool log) {
     com_print("ADP depl : ");
     switch(angle) {
       case ADPD_LEVER: com_printfln("Lever"); break;
+      case ADPD_GOLDENIUM: com_printfln("Goldenium"); break;
       case ADPD_BAISSER: com_printfln("Baisser"); break;
       default: com_printfln("%d", angle); break;
     }

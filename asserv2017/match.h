@@ -325,6 +325,7 @@ const uint8_t ADPT_NEUTRE = 90;
 // ADP Deploiement (ADPD)
 // Angle+ = Vers le haut
 const uint8_t ADPD_LEVER = 126;
+const uint8_t ADPD_GOLDENIUM = 80;
 const uint8_t ADPD_BAISSER = 20;
 
 

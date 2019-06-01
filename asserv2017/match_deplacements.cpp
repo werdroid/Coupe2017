@@ -1396,7 +1396,7 @@ Point getPoint(uint8_t idPoint) {
       case PT_12A: return {.x = 1312, .y = 189}; break;
       case PT_ETAPE_13: return {.x = 1679, .y = 283}; break;
       case PT_13A: return {.x = 1679, .y = 189}; break;
-      case PT_ETAPE_14: return {.x = 2185, .y = 287}; break; //coordonnée X revue pour extraire le Gd
+      case PT_ETAPE_14: return {.x = 2185, .y = 330}; break; //coordonnée X revue pour extraire le Gd
       case PT_14A: return {.x = 2185, .y = 210}; break;
       case PT_ETAPE_15: return {.x = 1373, .y = 889}; break;
       case PT_ETAPE_16: return {.x = 1364, .y = 1051}; break;
