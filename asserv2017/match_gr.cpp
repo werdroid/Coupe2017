@@ -208,6 +208,12 @@ void debug_gr() {
 
 void test1_gr() {
   
+  minuteur_attendre(1000);
+  asserv_set_position(259, 450, 0);
+  minuteur_attendre(1000);
+  return;
+  
+  
   const uint32_t ATTENTE_ENTRE_BALLES = 800; 
 
   minuteur_attendre(600);
@@ -981,7 +987,22 @@ void gr_init() {
   robot.IS_PR = false; // première instruction dès que possible avant menu, match, etc
   
   // Valeurs GR2016 = GR2018
-  robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 3 mai gr
+  
+  
+  
+  // Historique
+  // 20??-05-03 gr : 12.25 (1mm -> 12.25 pas)
+  // 2019-06-01 :
+  // Le robot a parcouru 1000mm en pensant en avoir fait 980mm
+  // Nouvelle valeur : 12.5f
+  // Le robot a parcouru 1000mm en pensant en avoir fait 963mm
+  // Nouvelle valeur : 12.005f
+  // Le robot a parcouru 1000mm en pensant en avoir fait 996mm
+  robot.ASSERV_COEFF_TICKS_PAR_MM = 12.005f; 
+  // 2019-06-01 : Sur 1000m mesurés réellement, le robot croit avoir avancé de 980mm
+  
+ 
+  
   robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 3404.0f; // 4 mai gr
   /*robot.ASSERV_DISTANCE_KP = 0.1f;
   robot.ASSERV_DISTANCE_KD = 0.8f;
