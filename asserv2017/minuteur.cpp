@@ -51,6 +51,9 @@ void minuteur_arreter_tout_si_fin_match() {
     // Après la procédure d'arrêt, on coupe le programme en le
     // faisant boucler indéfiniement.
     com_printfln("#FinProgramme");
+    
+    synchronisation();
+    
     while(1) delay(DT_MS);
   }
 }
