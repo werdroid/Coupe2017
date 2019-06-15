@@ -36,22 +36,26 @@ void minuteur_arreter_tout_si_fin_match() {
   if (minuteur_temps_restant() < 250) {
     // 250ms restant, inutile de déplacer un servo ou l'asserv,
     // on lance la procédure d'arrêt
-    com_printfln("Fin minuteur, procedure d'arret");
 
     // Le match est terminé, on désactive donc le minuteur
     // pour éviter qu'on arrête une seconde fois le match
     robot.match_debut = 0;
+    robot.match_started = false;
+    
+    com_printfln("Fin du match, procedure arret");
 
     if (robot.IS_PR) {
       match_pr_arret();
     } else {
       match_gr_arret();
     }
-
     // Après la procédure d'arrêt, on coupe le programme en le
     // faisant boucler indéfiniement.
     com_printfln("#FinProgramme");
     
+    //Serial.flush();
+    
+    // On synchronise une dernière fois avant de s'arrêter, ça ne fera pas de mal
     synchronisation();
     
     while(1) delay(DT_MS);

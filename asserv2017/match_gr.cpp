@@ -209,34 +209,9 @@ void debug_gr() {
 void test1_gr() {
   
   minuteur_attendre(1000);
-  
-  for(uint8_t i = 0; i < 10; i++) {    
-    piloter_ADP_translation(ADPT_VERS_JAUNE);
-    minuteur_attendre(750);
-    piloter_ADP_translation(ADPT_VERS_VIOLET);
-    minuteur_attendre(750);
-  }
-  
-  return;
-  
-  
   asserv_set_position(259, 450, 0);
   minuteur_attendre(1000);
-  return;
-  
-  
-  const uint32_t ATTENTE_ENTRE_BALLES = 800; 
 
-  minuteur_attendre(600);
-  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-  minuteur_attendre(800);
-  piloter_ADP_deploiement(ADPD_BAISSER);
-  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
-  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
-  minuteur_attendre(800);
-  piloter_ADP_deploiement(ADPD_LEVER);
-  minuteur_attendre(600);
-  
   return;
   /*
   
@@ -413,6 +388,7 @@ void match_gr() {
   minuteur_demarrer();
   minuteur_attendre(500);
   score_definir(0);
+
 
   // On se décole de la bordure
   //asserv_go_toutdroit(100, 10000);
