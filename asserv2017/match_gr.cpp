@@ -685,8 +685,8 @@ uint8_t gr_activer_adp() {
   //Motif : éviter l'atome devant Tab_Rd. aller_vers_adp ne semble pas l'éviter
   error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
   
-  const uint8_t NB_ESSAIS = 4;
-  int32_t delta[NB_ESSAIS] = {-40, -20, 0, 20};
+  const uint8_t NB_ESSAIS = 2;
+  int32_t delta[NB_ESSAIS] = {-20, 0};
   for(uint8_t essai = 0; essai < NB_ESSAIS; essai++) {
     com_printfln("... Essai %d ...", essai);
     
@@ -753,8 +753,8 @@ uint8_t gr_extraire_gd() {
   gr_nb_tentatives[ACTION_EXTRAIRE_GD]++;
   
 
-  const uint8_t NB_ESSAIS = 4;
-  int32_t delta[NB_ESSAIS] = {-40, -20, 0, 20};
+  const uint8_t NB_ESSAIS = 3;
+  int32_t delta[NB_ESSAIS] = {-40, -20, 0};
   for(uint8_t essai = 0; essai < NB_ESSAIS; essai++) {
   
     if(essai == 0) {
