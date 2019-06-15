@@ -201,6 +201,7 @@ var table = {
     table.elem.addEventListener('wheel', function(e) {
       var posSouris = table.util.recupererCoordonneesSouris(e);
       table.recadrer.zoomerSouris(posSouris.x, posSouris.y, e.deltaY);
+	  e.preventDefault();
     });
 
   },

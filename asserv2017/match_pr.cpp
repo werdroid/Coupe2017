@@ -40,6 +40,7 @@ void homologation_pr() {
   
   ecran_console_log("Initialisation...");
  
+  piloter_bras(BRAS_BAISSER);
   minuteur_attendre(500);
   
   ecran_console_log(" Ok\n");
@@ -50,6 +51,8 @@ void homologation_pr() {
   
   minuteur_attendre(1000);
   
+  // Programme d'homologation PR seul 
+  /*
   asserv_set_position(235, 752, 0); // PT_ETAPE_2
   asserv_maintenir_position();
   bouton_wait_start_up();
@@ -60,6 +63,23 @@ void homologation_pr() {
   aller_xy(1250, 750, VITESSE_RAPIDE, 1, 10000, 50);
   pr_jouer_action(ACTION_POUSSER_ATOME0);
   //asserv_go_toutdroit(-50, 2000);
+  */
+  
+  // Programme d'homologation en conjonction avec GR
+  // Comportement attendu de GR : aller sur la gauche de Tab_Rd.
+  
+  asserv_set_position(280, 722, MATH_PI2); // PR tourné vers y+
+  asserv_maintenir_position();
+  bouton_wait_start_up();
+  
+  minuteur_demarrer();
+  minuteur_attendre(1000);
+  
+  aller_xy(280, 1050, VITESSE_RAPIDE, 1, 10000, 50); //descendre bers Tab_Bl
+  aller_xy(745, 1050, VITESSE_RAPIDE, 1, 10000, 50); //s'écarter du tableau
+  aller_xy(749, 753, VITESSE_RAPIDE, 1, 10000, 50); //= PT_ETAPE_9, devant l'atome de Tab_Gn
+  aller_xy(235, 752, VITESSE_RAPIDE, 1, 10000, 50); //= PT_ETAPE_2, aller dans Tab_Gn pour pousser l'atome
+  
   
   minuteur_attendre_fin_match();
 }
@@ -112,14 +132,13 @@ void gr_coucou() {
 
 void match_pr() {
   
+  
   #ifdef __EMSCRIPTEN__
   com_printfln("----------");
   com_printfln(__DATE__);
   com_printfln(__TIME__);
   com_printfln("----------");
   #endif
-  
-  
   
   ecran_console_reset();
   ecran_console_log("Match PR\n\n");
@@ -144,13 +163,17 @@ void match_pr() {
   uint8_t error;
   uint8_t action;
   int nb_iterations = 0;
+  //!!\\ Si ajout de nouvelles actions
+  //      Bien mettre à jour les conditions de fin de phase 1
   uint8_t phase1[] = {
-    ACTION_ACTIVER_ADP,
-    ACTION_POUSSER_ATOME0,
-    ACTION_POUSSER_ATOME1,
-    ACTION_POUSSER_ATOME2,
-    ACTION_POUSSER_ATOMES_CHAOS,
-    ACTION_POUSSER_ATOMES_CHAOS_B
+    //ACTION_ACTIVER_ADP, //pas codé
+    //ACTION_POUSSER_ATOME0, //Code valide pour PR Match 1
+    //ACTION_POUSSER_ATOME1, //non disponible car GR présent en Tab_Gn
+    ACTION_POUSSER_ATOME2, //Code valide pour PR Match 3
+    ACTION_POUSSER_ATOMES_CHAOS_B, //première passe vers Tab_Rd
+    ACTION_POUSSER_ATOMES_CHAOS, //puis 2ème passe vers Tab_Gn
+    ACTION_POUSSER_ATOMES_CHAOS_ADV,
+    ACTION_POUSSER_ATOMES_CHAOS_ADV
     // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase1 = sizeof(phase1) / sizeof(action);
@@ -166,7 +189,9 @@ void match_pr() {
   minuteur_attendre(200);
   
   //if(robot.estJaune)
-    asserv_set_position(150, 450, 0); // TBC (grossièrement redium, proche PT_ETAPE_1)
+    //asserv_set_position(150, 450, 0); // TBC (grossièrement redium, proche PT_ETAPE_1) //Remplacé pour Match 1
+	//asserv_set_position(259, 398, -MATH_PI2); //Pour Match 1
+  asserv_set_position(259, 802, MATH_PI2); //Pour Match 3
   /*else
     asserv_set_position(299, 159, MATH_PI);*/
     
@@ -179,9 +204,6 @@ void match_pr() {
   /** ------------
     Début du Match
     ------------- **/
-  
-  minuteur_attendre(3000);
-
   
   com_printfln("Sort de la zone de départ");
   asserv_go_toutdroit(200, 10000);
@@ -289,7 +311,7 @@ uint8_t pr_pousser_atome(uint8_t atome) {
   
   if(atome > 5) return ERROR_PARAMETRE;
   
-  piloter_bras(BRAS_LEVER);
+  //piloter_bras(BRAS_LEVER); // Mis dans pousser_atome pour éviter le mouvement de va et vien en fin de match
   
   error = pousser_atome(atome);
   

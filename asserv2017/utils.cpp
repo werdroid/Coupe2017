@@ -33,6 +33,13 @@ int32_t symetrie_x(int32_t x) {
   return x;
 }
 
+int32_t get_robot_xMm_sans_symetrie() {
+  if(robot.symetrie)
+    return TABLE_LARGEUR_X - robot.xMm;
+  else
+    return robot.xMm;
+}
+
 float symetrie_a_centrale(float a) {
   if (robot.sans_symetrie == 0 && robot.symetrie) return normalize_radian(a + MATH_PI);
   return a;

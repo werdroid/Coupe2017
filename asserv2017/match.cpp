@@ -11,7 +11,11 @@ uint8_t pousser_atome(uint8_t atome) {
   
   com_printfln("--- Rapporter Atome %d ---", atome);
   if(atome > 5) return ERROR_PARAMETRE;
-  if(table.atome_rapporte[atome]) return ERROR_PLUS_RIEN_A_FAIRE;
+  if(table.atome_rapporte[atome]) return ERROR_PLUS_RIEN_A_FAIRE;    
+
+  if(robot.IS_PR) {
+    piloter_bras(BRAS_LEVER);
+  }
 
   int points = 0;
 
@@ -23,40 +27,49 @@ uint8_t pousser_atome(uint8_t atome) {
   if(!atome_a_bouge[atome]) {
     */
     switch(atome) {
-      case 0:
+      case 0: //Prise de l'atome devant Tab_Rd, déplacement dans Tab_Rd
         error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         break;
 
-      case 1:
+      case 1: //Prise de l'atome devant Tab_Gn, déplacement dans Tab_Rd
         error = aller_pt_etape(PT_ETAPE_9, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         error = aller_xy(700, 900, VITESSE_LENTE, 1, 4000, 2);
         // On continue normalement même si erreur (on est juste à côté)
         break;
 
-      case 2:
+      case 2: //Prise des atomes devant Tab_Bl, Tab_Gn, et Tab_Rd (s'il y a), et déplacement dans Tab_Rd
         /** TODO : Discuter
         Si dans ZONE_E : passer par PT_ETAPE_9 puis 11B6 ?
+        ATN: OK, permet de contourner l'atome pour l'arrivée par le haut (sera non valide si départ vers le bas)
         **/
+        
+        //Pour départ vers le haut uniquement
+        //error = aller_pt_etape(PT_ETAPE_9, VITESSE_RAPIDE, 1, 8000, 6);
+        //if(error) return error;
+        //error = aller_pt_etape(PT_ETAPE_11B6, VITESSE_RAPIDE, 1, 8000, 6);
+        //if(error) return error;
+        
         error = aller_pt_etape(PT_ETAPE_10, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         break;
         
-      case 3:
+      case 3: //ACTION_POUSSER_ATOMES_CHAOS - Prise des atomes de la zone de chaos own, mettre dans Tab_Rd
         /** TODO : Discuter
         Si dans ZONE_E : passer par PT_ETAPE_9 avant ?
+        Antoine : non, en destination de P16/P16bis on contourne Zchos own via P15
         **/
         error = aller_pt_etape(PT_ETAPE_16, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         break;
         
-      case 4:
+      case 4: //ACTION_POUSSER_ATOMES_CHAOS_B - Prise des atomes de la zone de chaos own, mettre dans Tab_Bl
         error = aller_pt_etape(PT_ETAPE_16B, VITESSE_RAPIDE, 1, 8000, 6);
         if(error) return error;
         break;
         
-      case 5:
+      case 5: //ACTION_POUSSER_ATOMES_CHAOS_ADV - Prise des atomes de la zone de chaos opp, mettre dans Tab_Bl
         error = aller_pt_etape(PT_ETAPE_19, VITESSE_RAPIDE, 1, 8000, 10);
         if(error) return error;
         
@@ -103,11 +116,11 @@ uint8_t pousser_atome(uint8_t atome) {
   // Déplacement vers tableau périodique
   switch(atome) {
     case 0:
-      error = aller_xy(500, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
+      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
       table.atome_a_bouge[0] = true;
       
       if(error) {
-        table.atome_position[0].x = robot.xMm;
+        table.atome_position[0].x = robot.xMm; //On retient la position du robot avant de laisser l'atome pour y revenir plus tard
         table.atome_position[0].y = robot.yMm;
         return error;
       }
@@ -132,8 +145,21 @@ uint8_t pousser_atome(uint8_t atome) {
       break;
       
     case 2:
-      error = aller_xy(400, 900, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
+      //error = aller_xy(400, 900, VITESSE_POUSSER_ATOMES, 1, 8000, 10); //Pour mettre l'atome devant Tab_Bl dans Tab_Gn
+
+      // Un centre d'atome est supposé être à 150 mm du centre de PR. On pousse les atomes jusqu'à les mettre devant Tab_Rd.
+      // Coord y_atomes souhaitée = 450
+      // Coord y_robot = y_atomes + 150 = 600
+      error = aller_xy(496, 600, VITESSE_POUSSER_ATOMES, 1, 8000, 10); if(error) return error;
+      asserv_go_toutdroit(-80, 2000); // On recule avant de tourner
+      // On se positionne pour rentrer les atomes dans Tab_Rd
+      error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 8000, 6); if(error) return error;
+      //On rentre les atomes dans Tab_Rd
+      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10); if(error) return error;
+            
       table.atome_a_bouge[2] = true;
+      
+      /**A revoir suite aux mouvements multiples définis ci-dessus et leurs conditions de sortie**/
       if(error) {
         table.atome_position[2].x = robot.xMm;
         table.atome_position[2].y = robot.yMm;
@@ -168,9 +194,21 @@ uint8_t pousser_atome(uint8_t atome) {
       break;
       
     case 4:
-      error = aller_xy(400, 550, VITESSE_POUSSER_ATOMES, 1, 10000, 10);
+      //error = aller_xy(400, 550, VITESSE_POUSSER_ATOMES, 1, 10000, 10);
+      //Nouvelle version en 2 étapes
+      //On rapporte les atomes devant Tab_Rd
+      error = aller_xy(591, 559, VITESSE_POUSSER_ATOMES, 1, 8000, 10); if(error) return error;
+      asserv_go_toutdroit(-80, 2000); // On recule avant de tourner
+      // On se positionne pour rentrer les atomes dans Tab_Rd
+      error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 8000, 6); if(error) return error;
+      //On rentre les atomes dans Tab_Rd
+      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
+            
+      
       table.atome_a_bouge[3] = true;
       table.atome_a_bouge[4] = true;
+      
+      /**A revoir suite aux mouvements multiples définis ci-dessus et leurs conditions de sortie**/
       if(error) {
         table.atome_position[3].x = robot.xMm;
         table.atome_position[3].y = robot.yMm;

@@ -147,8 +147,8 @@ typedef struct {
   float y; // tick
   int32_t delta_d; // tick/t (vitesse)
   int32_t delta_r; // tick/t (vitesse)
-  int16_t xMm; // mm
-  int16_t yMm; // mm
+  int16_t xMm; // mm /!\ Ne pas récupérer directement pendant un match. Utiliser get_robot_xMm_sans_symetrie() pour prendre en compte l'éventuelle symétrie
+  int16_t yMm; // mm (Pas de problème particulier avec yMm)
   float   a; // radian
 
   uint16_t consigneXmm; // mm
@@ -314,6 +314,7 @@ float orientation_vers_radian(int32_t orientation);
 int32_t rad2deg(float radian);
 float deg2rad(int32_t degre);
 int32_t symetrie_x(int32_t x);
+int32_t get_robot_xMm_sans_symetrie();
 float symetrie_a_centrale(float a);
 float symetrie_a_axiale_y(float a);
 float angle_relatif_robot_point(int32_t x, int32_t y , float a, int32_t xx, int32_t yy);
@@ -385,6 +386,8 @@ void asserv_vitesse_rampe_rotation(uint32_t v);
 void asserv_vitesse_pwm_distance(uint16_t pwm_max);
 void asserv_vitesse_pwm_rotation(uint16_t pwm_max);
 void asserv_maintenir_position();
+void asserv_activer_maintien_distance(bool activer);
+void asserv_activer_maintien_rotation(bool activer);
 void asserv_consigne_stop();
 void asserv_consigne_pwm(uint16_t gauche, uint16_t droite);
 void asserv_consigne_polaire(int32_t distance, int32_t rotation);

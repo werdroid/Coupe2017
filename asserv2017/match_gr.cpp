@@ -14,7 +14,10 @@ int gr_nb_tentatives[NB_ACTIONS] = { 0 };
 
 uint8_t gr_pousser_atome(uint8_t atome);
 uint8_t gr_activer_adp();
+uint8_t gr_extraire_gd();
+uint8_t gr_degagement();
 uint8_t gr_activer_experience();
+uint8_t gr_distributeur(uint8_t place);
 
 /** =====================================
   Programmes alternatifs (Homolog, Debug)
@@ -136,10 +139,16 @@ void homologation_gr() {
   minuteur_attendre(500);
   score_definir(0);
   
+  // Programme d'homologation standard GR seul
+  //aller_xy(1000, 450, VITESSE_RAPIDE, 1, 10000, 50);
+  //gr_jouer_action(ACTION_POUSSER_ATOME1);
   
-  aller_xy(1000, 450, VITESSE_RAPIDE, 1, 10000, 50);
-  gr_jouer_action(ACTION_POUSSER_ATOME1);
-  
+  // Programme d'homologation avec un seul moteur (moteur droit), en conjonction avec PR
+  // /!\ brancher le moteur droit, moteur gauche inactif
+  // /!\ débrancher les codeurs pour que GR avance en boucle ouverte
+  // Comportement attendu : le robot sort de la zone de départ en décrivant un arc de cercle sur la gauche.
+  aller_xy(1000, 450, VITESSE_RAPIDE, 1, 5000, 50); //commande d'avance tout droit, abandon après 5 secondes
+  score_incrementer(90);
   
 
   minuteur_attendre_fin_match();
@@ -199,9 +208,25 @@ void debug_gr() {
 
 void test1_gr() {
   
+  minuteur_attendre(1000);
+  asserv_set_position(259, 450, 0);
+  minuteur_attendre(1000);
+  return;
+  
+  
   const uint32_t ATTENTE_ENTRE_BALLES = 800; 
 
+  minuteur_attendre(600);
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_BAISSER);
+  minuteur_attendre(800); // Je ne sais plus si c'est nécessaire ou pas...
+  piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+  minuteur_attendre(800);
+  piloter_ADP_deploiement(ADPD_LEVER);
+  minuteur_attendre(600);
   
+  return;
   /*
   
     com_printfln("---- En attente ----");
@@ -300,9 +325,6 @@ void match_gr() {
   
   int start;
   uint8_t error;
-  
-  ecran_console_reset();
-
 
   /** ==========================
     Préparation & Initialisation
@@ -325,44 +347,38 @@ void match_gr() {
   ecran_console_log("Initialisation...");
 
   // Variables de stratégie
-  int action;
+  int action; // Sera initialisé pendant le programme
   int nb_iterations = 0;
   int strategie = 1;
   
-  
-  
-  
-  //return gr_test_deplacements();
-  
-  int phase1[] = {
-    
-    ACTION_ACTIVER_EXPERIENCE,
+  int phase1[] = {  
+    ACTION_ACTIVER_EXPERIENCE
+    /* Actions attribuées à PR,
     ACTION_POUSSER_ATOME0,
     ACTION_POUSSER_ATOME1,
     ACTION_POUSSER_ATOME2,
     ACTION_ACTIVER_EXPERIENCE,
     ACTION_POUSSER_ATOMES_CHAOS,
-    ACTION_POUSSER_ATOMES_CHAOS_B
+    ACTION_POUSSER_ATOMES_CHAOS_B*/
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase1 = sizeof(phase1) / sizeof(action);
   
   bool activer_phase2 = true;
-  int phase2[] {
-    ACTION_ACTIVER_EXPERIENCE
-    /*2018
-    //ACTION_VIDER_REP_OPP,
-    ACTION_VIDER_REM_OPP,
-    ACTION_DEPOSER_STATION
-    //ACTION_DEPOSER_STATION,
-    //ACTION_DEPOSER_CHATEAU
-    */
+  int phase2[] = {
+    ACTION_ACTIVER_EXPERIENCE,
+    ACTION_ACTIVER_ADP,
+    ACTION_EXTRAIRE_GD/*,
+    ACTION_DISTRIBUTEUR3, //le 3 d'abord pour moins gêner Zchaos_own
+    ACTION_DISTRIBUTEUR2,
+    ACTION_DISTRIBUTEUR1*/
+    // ACTION_DEGAGEMENT
+    //ACTION_DISTRIBUTEUR0 //pas prêt pour Match 3 //à la fin : car plus compliqué et trajectoire plus longue que pour accéder aux autres points de distribution
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase2 = sizeof(phase2) / sizeof(action);
   
   gr_init_servos();
-
 
   minuteur_attendre(500);
   ecran_console_log(" Ok\n");
@@ -371,17 +387,9 @@ void match_gr() {
 
   ecran_console_log("Pret\n\n");
   minuteur_attendre(200);
-  
-  /*2018
-  // Démarrage en pi = Problème !
-  //if(robot.estJaune)
-    asserv_set_position(250, 500, 0);
-  /*else
-    asserv_set_position(150, 500, MATH_PI); // Pi => 0 après application de la symétrie
-    */
 
-  asserv_set_position(150, 450, 0); //2019 GR calé dans Tab_Rd en première idée
-
+  //asserv_set_position(150, 750, 0); //2019 GR calé dans Tab_Gn pour Match 1 (Motorisation NOK)
+  asserv_set_position(259, 450, -MATH_PI2); //GR en x correspondant à P3.x, y défini pour être dans Tab_Rd
 
   asserv_maintenir_position();
   bouton_wait_start_up();
@@ -392,20 +400,15 @@ void match_gr() {
     ------------- **/
 
   minuteur_demarrer();
-  minuteur_attendre(500); //TBC_RSE : ATN: pourquoi attendre ?
+  minuteur_attendre(500);
   score_definir(0);
-  
-  //if(robot.estJaune)
-    asserv_go_toutdroit(300, 10000);
-  /*else
-    asserv_go_toutdroit(-400, 10000);*/
-    
-  //aller_xy(500, 500, VITESSE_RAPIDE, 1, 5000, 30);
-  
+
+  // On se décole de la bordure
+  //asserv_go_toutdroit(100, 10000);
   
   // Init scores
   score_incrementer(5); // Dépose Expérience => 5 points
-  //score_incrementer(0); // Score attendu PR à définir
+  score_incrementer(20); // Antoine: Estimation Match 3 pour PR
     
 
   /**
@@ -413,7 +416,7 @@ void match_gr() {
 	=========================================
 
   Réaliser dans l'ordre :
-	1/ ACTIVER_EXPERIENCE
+  1/ ACTIVER_EXPERIENCE
   2/ CLASSER_ATOMES_TABLEAU, tout en évitant les atomes sur le chemin.
   3/ Prendre les atomes du grand distributeur de notre côté, tout en évitant les atomes sur le chemin.
   4/ Pousser les atomes de la Z_Chaos de notre côté vers Tab_Rd
@@ -491,6 +494,10 @@ void match_gr() {
 
     
     // Est-ce qu'on doit continuer à faire des trucs ?
+    if(table.experience_activee) {
+      break;
+    }
+    
     
     /*2018
     if(abeille_activee
@@ -515,6 +522,8 @@ void match_gr() {
         &&*/ /*nb_balles_eau_usee_dans_gr == 0) {
           break;
         }
+        
+        
         
       }
           
@@ -551,27 +560,21 @@ void match_gr() {
 
       gr_jouer_action(phase2[action]);
       
-      /*2018
-      if(REM_opp_vide
-      && nb_balles_eau_usee_dans_gr == 0) {
-        /*
-        if(nb_balles_eau_usee_dans_gr == 0) {
+      if(table.experience_activee
+        && table.adp_active
+        && table.goldenium_tombe
+        && table.distributeur_visite[0]
+        && table.distributeur_visite[1]
+        && table.distributeur_visite[2]) {
           break;
-        }*/
-        
-        /*break;
       }
-      */
       
     }
     
-    /*2018
-    gr_deposer_station(true);
-    */
+
   } // activer_phase2
-  /*2018
-  piloter_evacuation_eaux_usees(EEU_OUVRIR);
-  */
+  
+  //gr_jouer_action(ACTION_DEGAGEMENT);
 
   minuteur_attendre_fin_match();
 }
@@ -594,6 +597,12 @@ uint8_t gr_jouer_action(int action) {
     case ACTION_POUSSER_ATOMES_CHAOS_B:   error = gr_pousser_atome(4); break;
     case ACTION_POUSSER_ATOMES_CHAOS_ADV: error = gr_pousser_atome(5); break;
     case ACTION_ACTIVER_EXPERIENCE:       error = gr_activer_experience(); break;
+    case ACTION_DISTRIBUTEUR0:            error = gr_distributeur(0); break;
+    case ACTION_DISTRIBUTEUR1:            error = gr_distributeur(1); break;
+    case ACTION_DISTRIBUTEUR2:            error = gr_distributeur(2); break;
+    case ACTION_DISTRIBUTEUR3:            error = gr_distributeur(3); break;
+    case ACTION_EXTRAIRE_GD:              error = gr_extraire_gd(); break;
+    case ACTION_DEGAGEMENT:               error = gr_degagement(); break;
     default:
       com_printfln("GR ne peut pas faire l'action %d", action);
       error = ERROR_PARAMETRE;
@@ -612,13 +621,13 @@ uint8_t gr_activer_experience() {
 
   uint8_t error;
   
+  com_printfln("--- Activer expérience ---");
   if(table.experience_activee) return ERROR_PLUS_RIEN_A_FAIRE;
   gr_nb_tentatives[ACTION_ACTIVER_EXPERIENCE]++;
-  
-  
-  
+   
   experience_activer();
-  
+  score_incrementer(15); // 15 points si activé
+  score_incrementer(12); // 25 points si arrive en haut
   
   table.experience_activee = true;
   
@@ -630,11 +639,14 @@ uint8_t gr_pousser_atome(uint8_t atome) {
   
   if(atome > 5) return ERROR_PARAMETRE;
   
-  // TODO : Ranger la pelle et/ou la bar de faire ?
+  
+  // ATN : normalement, sans appel, les servos devraient être déjà rangés en configuration de croisière
+  piloter_TA(TA_NEUTRE);
+  piloter_BDF(BDF_RANGER);
   
   error = pousser_atome(atome);
   
-  // TODO : Rétablir des servos ?
+  // Les servos sont déjà en position de croisière, inutile de les "rétablir"
   
   
   // Schéma légèrement différent : on incrémente les tentatives qu'à la fin
@@ -656,32 +668,294 @@ uint8_t gr_pousser_atome(uint8_t atome) {
 uint8_t gr_activer_adp() {
   uint8_t error;
   Point pt13 = getPoint(PT_ETAPE_13);
-  
-  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE;
+   
+  com_printfln("--- Activer ADP ---");
+   
+  if(table.adp_active) return ERROR_PLUS_RIEN_A_FAIRE; //Vérifier que l'action reste à faire
   gr_nb_tentatives[ACTION_ACTIVER_ADP]++;
   
+
   
   if(!robot_dans_zone(0, 0, 1800, 600)) {
-    error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10);
+    error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); //TBC_RSE : pourquoi le point étape 3 comme point de retrait ?
     if(error) return error;
   }
   
-  error = aller_vers_adp(150, 450, VITESSE_RAPIDE);
-  if(error) return error;
-  com_printfln("Bien arrivé proche de l'ADP");
-  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  //Temp pour Match 3
+  //Motif : éviter l'atome devant Tab_Rd. aller_vers_adp ne semble pas l'éviter
+  error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
   
-  error = asserv_rotation_vers_point(pt13.x, 0, 2000);
-  if(error) return error;
+  const uint8_t NB_ESSAIS = 4;
+  int32_t delta[NB_ESSAIS] = {-40, -20, 0, 20};
+  for(uint8_t essai = 0; essai < NB_ESSAIS; essai++) {
+    com_printfln("... Essai %d ...", essai);
+    
+    if(essai == 0) {
+      error = aller_vers_adp(150, 450, VITESSE_RAPIDE);      
+    }
+    else {
+      error = aller_xy(pt13.x + delta[essai], pt13.y, VITESSE_RAPIDE, 0, 6000, 10);      
+      // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+    }
+    if(error) return error;
+    com_printfln("Bien arrivé proche de l'ADP");
+
+    
+    error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
+    if(error) return error;
+    
+    
+    piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+    
+    
+    com_printfln("Dos au mur");
+    asserv_activer_maintien_rotation(false);
+    // !!!!!!!!!!!!!
+    // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+    // !!!!!!!!!!!!!
+    error = aller_xy(pt13.x + delta[essai], 100, VITESSE_LENTE, 0, 2000, 10); //Reculer vers ADP
+    
+    
+    for(uint8_t i = 0; i < 2; i++) {
+      minuteur_attendre(500);
+      piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+      minuteur_attendre(500); // Je ne sais plus si c'est nécessaire ou pas...
+      piloter_ADP_deploiement(ADPD_BAISSER);
+      minuteur_attendre(500);
+      piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+      minuteur_attendre(500);
+      piloter_ADP_deploiement(ADPD_LEVER);
+    }
+    minuteur_attendre(500);
+      
+    error = aller_xy(pt13.x + delta[essai], pt13.y, VITESSE_RAPIDE, 1, 2000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+    asserv_activer_maintien_rotation(true);
   
-  /****** TODO *******/
-  com_printfln("## Programmer la suite ##");
-  /****** TODO *******/
+  }
+
   
+  score_incrementer(10);
   table.adp_active = true;
   
   return OK;
   
+}
+
+uint8_t gr_extraire_gd() {
+  uint8_t error;
+  Point pt14 = getPoint(PT_ETAPE_14);
+   
+  com_printfln("--- Extraire Gd ---");
+  
+  if(!table.adp_active) return ERROR_PAS_POSSIBLE;
+  
+  if(table.goldenium_tombe) return ERROR_PLUS_RIEN_A_FAIRE; //Vérifier que l'action reste à faire
+  gr_nb_tentatives[ACTION_EXTRAIRE_GD]++;
+  
+
+  const uint8_t NB_ESSAIS = 4;
+  int32_t delta[NB_ESSAIS] = {-40, -20, 0, 20};
+  for(uint8_t essai = 0; essai < NB_ESSAIS; essai++) {
+  
+    if(essai == 0) {
+      error = aller_pt_etape(PT_ETAPE_14, VITESSE_RAPIDE, 1, 20000, 10);    
+    }
+    else {
+      error = aller_xy(pt14.x + delta[essai], pt14.y, VITESSE_RAPIDE, 0, 6000, 10);    
+    }
+    if(error) return error;
+  
+    error = asserv_rotation_vers_point(get_robot_xMm_sans_symetrie(), 2000, 2000); //rotation de GR pour présenter l'arrière vers Gd
+    if(error) return error;
+
+    piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE);
+
+    com_printfln("Dos au mur");
+    asserv_activer_maintien_rotation(false);
+    // !!!!!!!!!!!!!
+    // !! NE PAS METTRE DE return TANT QUE LA ROTATION N'A PAS ETE REACTIVEE !
+    // !!!!!!!!!!!!!
+    error = aller_xy(pt14.x + delta[essai], 100, VITESSE_LENTE, 0, 2000, 10); //Reculer vers Gd
+    
+    for(uint8_t i = 0; i < 3; i++) {
+      minuteur_attendre(500);
+      piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
+      minuteur_attendre(500); // Je ne sais plus si c'est nécessaire ou pas...
+      piloter_ADP_deploiement(ADPD_GOLDENIUM);
+      minuteur_attendre(500);
+      piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
+      minuteur_attendre(500);
+      piloter_ADP_deploiement(ADPD_LEVER);
+    }  
+    minuteur_attendre(500);    
+
+    error = aller_xy(pt14.x + delta[essai], pt14.y, VITESSE_RAPIDE, 1, 2000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+    asserv_activer_maintien_rotation(true);
+  }
+  
+  score_incrementer(20);
+  table.goldenium_tombe = true;
+  
+  return OK;
+  
+}
+
+
+uint8_t gr_distributeur(uint8_t place) {
+	// place = 1 : petit distributeur own, pour les deux atomes à droite, qui comprennent un Redium
+	// place = 2 : grand distributeur own, pour les deux atomes à gauche
+	// place = 3 : grand distributeur own, pour les deux atomes au milieu
+	// place = 4 : grand distributeur own, pour les deux atomes à droite
+	/** Les mouvements vers le grand distributeur opp ne sont pas codés à ce stade. **/
+	
+	uint8_t error;
+	uint8_t distrib_x;
+	uint8_t distrib_y;
+  
+  com_printfln("--- Distributeur %d ---", place);
+      
+	if(place > 3) return ERROR_PARAMETRE;
+  if(table.distributeur_visite[place]) return ERROR_PLUS_RIEN_A_FAIRE;
+  
+	
+  piloter_BDF(BDF_RANGER);
+  
+	switch(place) {
+		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
+      gr_nb_tentatives[ACTION_DISTRIBUTEUR0]++;
+			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
+			
+      asserv_activer_maintien_rotation(false);
+      error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 3000, 10);
+      // error gérée après le switch (!! Ne pas oublier de réactiver la rotation !!)
+      break;
+		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
+			gr_nb_tentatives[ACTION_DISTRIBUTEUR1]++;
+      error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
+      
+      asserv_activer_maintien_rotation(false);
+			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 3000, 10);
+      break;
+		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
+			gr_nb_tentatives[ACTION_DISTRIBUTEUR2]++;
+      error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
+      
+      asserv_activer_maintien_rotation(false);
+      error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 3000, 10);
+      break;
+		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
+			gr_nb_tentatives[ACTION_DISTRIBUTEUR3]++;
+			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
+      
+      asserv_activer_maintien_rotation(false);
+			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 3000, 10);
+      break;
+  }
+  
+  if(error && error != ERROR_TIMEOUT) {
+    asserv_activer_maintien_rotation(true);
+    return error;
+  }
+			/** TODO : prévoir un recalage plutôt que les points action, pour s'assurer d'arriver en contact avec la bordure **/
+			
+	//Action BDF
+  piloter_BDF(BDF_FAIRE_TOMBER);
+	minuteur_attendre(1500);
+  
+  
+  // On recule lentement
+  com_printfln("On recule lentement");
+  uint16_t memoire_pwm = robot.pwm_max_distance;
+  robot.pwm_max_distance = 20;
+  minuteur_attendre(200);
+  asserv_go_toutdroit(-100, 5000);
+  minuteur_attendre(200);
+  robot.pwm_max_distance = memoire_pwm;
+	
+	minuteur_attendre(1000);
+  asserv_activer_maintien_rotation(true);
+  
+  // Potentiellement inutile si on a déjà reculé. Sauf pour le petit distributeur où l'espace est limité et où en reculant trop on peut etre bloqué en rotation.
+  // Gardé pour Match 3
+  /**TODO confirmer cette section**/
+  // Retour en arrière à la position libre de mouvement
+	switch(place) {
+		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
+			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+      break;
+		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
+			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+      break;
+		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
+			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+      break;
+		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
+			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+      // Contournement Zchaos_own pour aller déposer les atomes dans le tableau périodique
+      error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+      break;
+	}
+  
+  piloter_BDF(BDF_RANGER);
+	
+  // Aller déposer les atomes dans le tableau périodique
+  error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+  //error = aller_pt_etape(PT_ETAPE_1, VITESSE_LENTE, 1, 20000, 10); if(error) return error;
+  error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 20000, 10); if(error) return error; //aller moins loin que P1
+  
+  minuteur_attendre(1000);
+  
+  piloter_TA(TA_DECHARGER);
+  score_incrementer(7);
+  minuteur_attendre(1000);
+  piloter_TA(TA_NEUTRE);
+  
+  minuteur_attendre(1000);
+  // Reculer pour se dégager
+  //error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+  error = aller_xy(749, 450, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error; //aller à P8 en ignorant la logique de contournement
+  
+
+  
+  table.distributeur_visite[place] = true;
+  return OK;
+}
+
+uint8_t gr_degagement() {
+  //Raison d'être : ne pas rester immobile devant le tableau périodique à la fin de toutes les actions. Cela bloquerait les actions de PR.
+  
+  uint8_t error;
+  Point pt13 = getPoint(PT_ETAPE_13);
+     
+  com_printfln("--- Degagement ---");
+  
+  
+  
+  //Match 3 ne visitant que distrib places 1, 2 et 3
+  if(!table.distributeur_visite[1] || !table.distributeur_visite[2] || !table.distributeur_visite[3])
+    return ERROR_CAS_NON_GERE;
+    
+  if(!robot_dans_zone(0, 0, 1800, 600)) {
+    error = aller_pt_etape(PT_ETAPE_3, VITESSE_RAPIDE, 1, 20000, 10); //TBC_RSE : pourquoi le point étape 3 comme point de retrait ?
+    if(error) return error;
+  }
+  
+  error = aller_pt_etape(PT_ETAPE_13, VITESSE_RAPIDE, 1, 15000, 30);
+  if(error) return error;
+  com_printfln("Bien arrivé proche de l'ADP");
+  // On arrive sur x = PT_ETAPE_13.x, mais y = 150 ou 450
+  
+  error = asserv_rotation_vers_point(pt13.x, 2000, 2000); //rotation de GR pour présenter l'arrière vers l'ADP
+  if(error) return error;
+  /*
+  com_printfln("Dos au mur");
+  error = aller_xy(pt13.x, 100, VITESSE_LENTE, 0, 6000, 10); //Reculer vers ADP
+
+  minuteur_attendre(20000); //temps long, arbitraire.
+  error = aller_xy(pt13.x, pt13.y, VITESSE_RAPIDE, 1, 20000, 10); //Avancer vers une zone où le robot peut tourner sans bloquer pour la suite
+  */
+
+  return OK;
 }
 
 
@@ -698,11 +972,7 @@ void match_gr_arret() {
   asserv_consigne_stop();
   com_printfln("! On stoppe les moteurs");
   
-  /*2018
-  piloter_evacuation_eaux_usees(EEU_OUVRIR);
-  */
-
-  // ATN: afficher score final. J'ai enlevé le lancement de la funny action de 2017.
+  piloter_TA(TA_DECHARGER);
   
   tone_play_end();
 }
@@ -717,7 +987,22 @@ void gr_init() {
   robot.IS_PR = false; // première instruction dès que possible avant menu, match, etc
   
   // Valeurs GR2016 = GR2018
-  robot.ASSERV_COEFF_TICKS_PAR_MM = 12.25f; // 3 mai gr
+  
+  
+  
+  // Historique
+  // 20??-05-03 gr : 12.25 (1mm -> 12.25 pas)
+  // 2019-06-01 :
+  // Le robot a parcouru 1000mm en pensant en avoir fait 980mm
+  // Nouvelle valeur : 12.5f
+  // Le robot a parcouru 1000mm en pensant en avoir fait 963mm
+  // Nouvelle valeur : 12.005f
+  // Le robot a parcouru 1000mm en pensant en avoir fait 996mm
+  robot.ASSERV_COEFF_TICKS_PAR_MM = 12.005f; 
+  // 2019-06-01 : Sur 1000m mesurés réellement, le robot croit avoir avancé de 980mm
+  
+ 
+  
   robot.ASSERV_COEFF_TICKS_PAR_RADIAN = 3404.0f; // 4 mai gr
   /*robot.ASSERV_DISTANCE_KP = 0.1f;
   robot.ASSERV_DISTANCE_KD = 0.8f;
@@ -740,7 +1025,7 @@ void gr_init() {
   
   robot.DISTANCE_DETECTION = 500; // mm 9/05/2018
   
-  robot.pwm_max_distance = 127; // 40 Tres_lent ; 90 intermédiaire
+  robot.pwm_max_distance = 70; // 40 Tres_lent ; 90 intermédiaire
   robot.pwm_max_rotation = 50;
   
   

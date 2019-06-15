@@ -405,6 +405,26 @@ void asserv_maintenir_position() {
   asserv_consigne_polaire_delta(0, 0);
 }
 
+void asserv_activer_maintien_distance(bool activer) {
+  return;
+  // Nécessite qq vérifications avant d'être vraiment utilisé...
+  
+  if(!activer && !robot.activeDistance) {
+    com_printfln("! Le maintien en distance était déjà désactivé");
+  }
+  robot.activeDistance = activer;
+  com_printfln("Maintien distance : %d", activer);
+}
+void asserv_activer_maintien_rotation(bool activer) {
+  return;
+  // Nécessite qq vérifications avant d'être vraiment utilisé...
+  
+  if(!activer && !robot.activeRotation) {
+    com_printfln("! Le maintien en rotation était déjà désactivé");
+  }
+  robot.activeRotation = activer;
+  com_printfln("Maintien rotation : %d", activer);
+}
 
 // Réglage de la vitesse (si rampes) en tick par delta t
 void asserv_vitesse_rampe_distance(uint32_t v) { // v entre 0 et 100

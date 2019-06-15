@@ -52,7 +52,7 @@ void loop() {
 void activer_experience() {
   Serial.print('!');
   digitalWrite(PIN_MOTOR, HIGH);
-  delay(60000);
+  delay(90000);
   digitalWrite(PIN_MOTOR, LOW);
   Serial.print('.');
 }

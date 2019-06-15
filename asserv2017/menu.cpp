@@ -67,13 +67,10 @@ void menu_start() {
           
         case 3:
           // Menu libre
-          /*if(robot.propulseur_actif) {
-            gr_activer_propulseur(false);
-          }
-          else {
-            gr_activer_propulseur(true);
-          }
-          ecran_print_menu(selectPosition);*/
+          experience_activer();
+          ledMatrix_indiquer_obstacle();
+          ecran_print_menu(selectPosition);
+          ledMatrix_afficher_WRD();
           break;
           
         case 4:
