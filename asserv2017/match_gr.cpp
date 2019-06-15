@@ -740,8 +740,8 @@ uint8_t gr_extraire_gd() {
   gr_nb_tentatives[ACTION_EXTRAIRE_GD]++;
   
 
-  const uint8_t NB_ESSAIS = 3;
-  int32_t delta[NB_ESSAIS] = {-40, -20, 0};
+  const uint8_t NB_ESSAIS = 2;
+  int32_t delta[NB_ESSAIS] = {-10, 10};
   for(uint8_t essai = 0; essai < NB_ESSAIS; essai++) {
   
     if(essai == 0) {

@@ -8,10 +8,11 @@
 
 uint8_t pr_activer_adp();
 uint8_t pr_jouer_action(int action);
-
+uint8_t pr_degager();
 uint8_t pr_pousser_atome(uint8_t atome);
 
 int pr_nb_tentatives[NB_ACTIONS] = { 0 };
+bool pr_degage = false;
 
 /** =====================================
   Programmes alternatifs (Homolog, Debug)
@@ -173,7 +174,8 @@ void match_pr() {
     ACTION_POUSSER_ATOMES_CHAOS_B, //première passe vers Tab_Rd
     ACTION_POUSSER_ATOMES_CHAOS, //puis 2ème passe vers Tab_Gn
     ACTION_POUSSER_ATOMES_CHAOS_ADV,
-    ACTION_POUSSER_ATOMES_CHAOS_ADV
+    ACTION_POUSSER_ATOMES_CHAOS_ADV,
+    ACTION_DEGAGEMENT
     // AS-tu bien retiré la virgule sur la dernière ligne ?
   };
   int len_phase1 = sizeof(phase1) / sizeof(action);
@@ -229,8 +231,9 @@ void match_pr() {
     pr_jouer_action(phase1[action]);
     
     // Conditions de fin de phase 1
-    if(table.adp_active &&
-      table.atome_a_bouge[0] && table.atome_a_bouge[1] && table.atome_a_bouge[2] && table.atome_a_bouge[3] && table.atome_a_bouge[4]) {
+    if(/*table.adp_active &&*/
+      /*table.atome_a_bouge[0] && table.atome_a_bouge[1] &&*/ table.atome_a_bouge[2] && table.atome_a_bouge[3] && table.atome_a_bouge[4] && table.atome_a_bouge[5]
+      && pr_degage) {
       com_printfln("=== Tout est fait ! ===");
       break;
     }
@@ -256,6 +259,7 @@ uint8_t pr_jouer_action(int action) {
     case ACTION_POUSSER_ATOMES_CHAOS:     error = pr_pousser_atome(3); break;
     case ACTION_POUSSER_ATOMES_CHAOS_B:   error = pr_pousser_atome(4); break;
     case ACTION_POUSSER_ATOMES_CHAOS_ADV: error = pr_pousser_atome(5); break;
+    case ACTION_DEGAGEMENT: error = pr_degager(); break;
     default:
       com_printfln("PR ne peut pas faire l'action %d", action);
       error = ERROR_PARAMETRE;
@@ -303,7 +307,12 @@ uint8_t pr_activer_adp() {
   
 }
 
-
+uint8_t pr_degager() {
+  aller_pt_etape(PT_ETAPE_6B2, VITESSE_RAPIDE, 1, 15000, 10);
+  pr_degage = true;
+  
+  return OK;
+}
 
 
 uint8_t pr_pousser_atome(uint8_t atome) {

@@ -197,12 +197,12 @@ uint8_t pousser_atome(uint8_t atome) {
       //error = aller_xy(400, 550, VITESSE_POUSSER_ATOMES, 1, 10000, 10);
       //Nouvelle version en 2 étapes
       //On rapporte les atomes devant Tab_Rd
-      error = aller_xy(591, 559, VITESSE_POUSSER_ATOMES, 1, 8000, 7); if(error) return error;
+      error = aller_xy(591, 559, VITESSE_POUSSER_ATOMES, 1, 8000, 4); if(error) return error;
       asserv_go_toutdroit(-80, 2000); // On recule avant de tourner
       // On se positionne pour rentrer les atomes dans Tab_Rd
-      error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 8000, 6); if(error) return error;
+      error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 8000, 4); if(error) return error;
       //On rentre les atomes dans Tab_Rd
-      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 7);
+      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 4);
             
       
       table.atome_a_bouge[3] = true;
