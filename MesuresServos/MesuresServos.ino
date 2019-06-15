@@ -21,7 +21,7 @@ void setup() {
   
   myServoA.attach(5);
   myServoB.attach(9);
-  myServoC.attach(33);
+  myServoC.attach(17);
 }
 
 

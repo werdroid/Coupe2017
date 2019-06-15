@@ -314,7 +314,7 @@ const uint8_t TA_DECHARGER = 90;
 // Angle+ = Le bras du plateau monte
 const uint8_t BDF_RANGER = 70;
 const uint8_t BDF_SUR_PALET = 114;
-const uint8_t BDF_FAIRE_TOMBER = 155;
+const uint8_t BDF_FAIRE_TOMBER = 170;
 
 // ADP translation (ADPT)
 // Angle+ = Vers la droite du robot

@@ -368,11 +368,11 @@ void match_gr() {
   int phase2[] = {
     ACTION_ACTIVER_EXPERIENCE,
     ACTION_ACTIVER_ADP,
-    ACTION_EXTRAIRE_GD/*,
+    ACTION_EXTRAIRE_GD,
     ACTION_DISTRIBUTEUR3, //le 3 d'abord pour moins gêner Zchaos_own
     ACTION_DISTRIBUTEUR2,
-    ACTION_DISTRIBUTEUR1*/
-    // ACTION_DEGAGEMENT
+    ACTION_DISTRIBUTEUR1,
+    ACTION_DEGAGEMENT
     //ACTION_DISTRIBUTEUR0 //pas prêt pour Match 3 //à la fin : car plus compliqué et trajectoire plus longue que pour accéder aux autres points de distribution
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
