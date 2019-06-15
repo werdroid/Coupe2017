@@ -102,6 +102,9 @@ void pr_init_servos() {
   Pilotage Servos GR
   ================== **/
   
+// Vérifié : il faut bien séparer les piloter_* par des minuteur_attendre()
+  
+  
 void piloter_TA(uint8_t angle, bool doucement, bool log) {
   if(doucement) {
     servo_slowmotion(servo_TA, angle_TA, angle);

@@ -209,6 +209,17 @@ void debug_gr() {
 void test1_gr() {
   
   minuteur_attendre(1000);
+  
+  for(uint8_t i = 0; i < 10; i++) {    
+    piloter_ADP_translation(ADPT_VERS_JAUNE);
+    minuteur_attendre(750);
+    piloter_ADP_translation(ADPT_VERS_VIOLET);
+    minuteur_attendre(750);
+  }
+  
+  return;
+  
+  
   asserv_set_position(259, 450, 0);
   minuteur_attendre(1000);
   return;
@@ -371,8 +382,8 @@ void match_gr() {
     ACTION_EXTRAIRE_GD,
     ACTION_DISTRIBUTEUR3, //le 3 d'abord pour moins gêner Zchaos_own
     ACTION_DISTRIBUTEUR2,
-    ACTION_DISTRIBUTEUR1,
-    ACTION_DEGAGEMENT
+    ACTION_DISTRIBUTEUR1//,
+    //ACTION_DEGAGEMENT
     //ACTION_DISTRIBUTEUR0 //pas prêt pour Match 3 //à la fin : car plus compliqué et trajectoire plus longue que pour accéder aux autres points de distribution
     // As-tu bien retiré la virgule sur la dernière ligne ?
   };
@@ -717,11 +728,11 @@ uint8_t gr_activer_adp() {
     
     
     for(uint8_t i = 0; i < 2; i++) {
-      minuteur_attendre(500);
+      minuteur_attendre(300);
       piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-      minuteur_attendre(500); // Je ne sais plus si c'est nécessaire ou pas...
+      minuteur_attendre(500); // Oui, c'est nécessaire
       piloter_ADP_deploiement(ADPD_BAISSER);
-      minuteur_attendre(500);
+      minuteur_attendre(300);
       piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
       minuteur_attendre(500);
       piloter_ADP_deploiement(ADPD_LEVER);
@@ -758,10 +769,10 @@ uint8_t gr_extraire_gd() {
   for(uint8_t essai = 0; essai < NB_ESSAIS; essai++) {
   
     if(essai == 0) {
-      error = aller_pt_etape(PT_ETAPE_14, VITESSE_RAPIDE, 1, 20000, 10);    
+      error = aller_pt_etape(PT_ETAPE_14, VITESSE_RAPIDE, 1, 20000, 7);
     }
     else {
-      error = aller_xy(pt14.x + delta[essai], pt14.y, VITESSE_RAPIDE, 0, 6000, 10);    
+      error = aller_xy(pt14.x + delta[essai], pt14.y, VITESSE_RAPIDE, 0, 6000, 7);    
     }
     if(error) return error;
   
@@ -778,11 +789,11 @@ uint8_t gr_extraire_gd() {
     error = aller_xy(pt14.x + delta[essai], 100, VITESSE_LENTE, 0, 2000, 10); //Reculer vers Gd
     
     for(uint8_t i = 0; i < 3; i++) {
-      minuteur_attendre(500);
+      minuteur_attendre(300);
       piloter_ADP_translation(robot.estJaune ? ADPT_VERS_JAUNE : ADPT_VERS_VIOLET);
-      minuteur_attendre(500); // Je ne sais plus si c'est nécessaire ou pas...
+      minuteur_attendre(500); // Oui, c'est nécessaire
       piloter_ADP_deploiement(ADPD_GOLDENIUM);
-      minuteur_attendre(500);
+      minuteur_attendre(300);
       piloter_ADP_translation(robot.estJaune ? ADPT_VERS_VIOLET : ADPT_VERS_JAUNE); //retrait au cas où l'on est en contact, sinon le servo pour lever le mobile sera bloqué
       minuteur_attendre(500);
       piloter_ADP_deploiement(ADPD_LEVER);
@@ -826,7 +837,7 @@ uint8_t gr_distributeur(uint8_t place) {
 			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
 			
       asserv_activer_maintien_rotation(false);
-      error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 3000, 10);
+      error = aller_pt_direct(PT_6B3A, VITESSE_RAPIDE, 1, 1800, 10);
       // error gérée après le switch (!! Ne pas oublier de réactiver la rotation !!)
       break;
 		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
@@ -834,21 +845,21 @@ uint8_t gr_distributeur(uint8_t place) {
       error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
       
       asserv_activer_maintien_rotation(false);
-			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 3000, 10);
+			error = aller_pt_direct(PT_11B3A, VITESSE_RAPIDE, 1, 1800, 10);
       break;
 		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
 			gr_nb_tentatives[ACTION_DISTRIBUTEUR2]++;
       error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
       
       asserv_activer_maintien_rotation(false);
-      error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 3000, 10);
+      error = aller_pt_direct(PT_11B7A, VITESSE_RAPIDE, 1, 1800, 10);
       break;
 		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
 			gr_nb_tentatives[ACTION_DISTRIBUTEUR3]++;
 			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 1, 10000, 10); if(error) return error;
       
       asserv_activer_maintien_rotation(false);
-			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 3000, 10);
+			error = aller_pt_direct(PT_11B11A, VITESSE_RAPIDE, 1, 1800, 10);
       break;
   }
   
@@ -866,11 +877,17 @@ uint8_t gr_distributeur(uint8_t place) {
   // On recule lentement
   com_printfln("On recule lentement");
   uint16_t memoire_pwm = robot.pwm_max_distance;
-  robot.pwm_max_distance = 20;
+  robot.pwm_max_distance = 15;
   minuteur_attendre(200);
-  asserv_go_toutdroit(-100, 5000);
+  asserv_go_toutdroit(-35, 400);
+  minuteur_attendre(200);
+  asserv_go_toutdroit(35, 750);
+  minuteur_attendre(200);
+  asserv_go_toutdroit(-50, 1000);
   minuteur_attendre(200);
   robot.pwm_max_distance = memoire_pwm;
+  minuteur_attendre(200);
+  asserv_go_toutdroit(-100, 5000);
 	
 	minuteur_attendre(1000);
   asserv_activer_maintien_rotation(true);
@@ -881,39 +898,40 @@ uint8_t gr_distributeur(uint8_t place) {
   // Retour en arrière à la position libre de mouvement
 	switch(place) {
 		case 0: //Petit distributeur own, on se positionne pour les deux atomes à droite, qui comprennent un Redium
-			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_6B3, VITESSE_RAPIDE, 0, 15000, 7); if(error) return error;
       break;
 		case 1: //Grand distributeur own, on se positionne pour les deux atomes à gauche
-			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_11B3, VITESSE_RAPIDE, 0, 15000, 7); if(error) return error;
       break;
 		case 2: //Grand distributeur own, on se positionne pour les deux atomes au milieu
-			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 0, 15000, 7); if(error) return error;
       break;
 		case 3: //Grand distributeur own, on se positionne pour les deux atomes à droite
-			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
+			error = aller_pt_etape(PT_ETAPE_11B11, VITESSE_RAPIDE, 0, 15000, 7); if(error) return error;
       // Contournement Zchaos_own pour aller déposer les atomes dans le tableau périodique
-      error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+      error = aller_pt_etape(PT_ETAPE_11B7, VITESSE_RAPIDE, 1, 15000, 7); if(error) return error;
       break;
 	}
   
   piloter_BDF(BDF_RANGER);
 	
   // Aller déposer les atomes dans le tableau périodique
-  error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 20000, 10); if(error) return error;
+  error = aller_pt_etape(PT_ETAPE_9, VITESSE_RAPIDE, 1, 20000, 7); if(error) return error;
   //error = aller_pt_etape(PT_ETAPE_1, VITESSE_LENTE, 1, 20000, 10); if(error) return error;
-  error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 20000, 10); if(error) return error; //aller moins loin que P1
+  error = aller_xy(750, 600, VITESSE_POUSSER_ATOMES, 1, 3000, 7); if(error) return error;
+  error = aller_xy(450, 600, VITESSE_POUSSER_ATOMES, 1, 3000, 7); if(error) return error; //aller moins loin que P1
   
-  minuteur_attendre(1000);
+  minuteur_attendre(800);
   
   piloter_TA(TA_DECHARGER);
   score_incrementer(7);
-  minuteur_attendre(1000);
+  minuteur_attendre(800);
   piloter_TA(TA_NEUTRE);
   
-  minuteur_attendre(1000);
+  minuteur_attendre(800);
   // Reculer pour se dégager
   //error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error;
-  error = aller_xy(749, 450, VITESSE_RAPIDE, 0, 20000, 10); if(error) return error; //aller à P8 en ignorant la logique de contournement
+  error = aller_xy(749, 600, VITESSE_RAPIDE, 0, 8000, 10); if(error) return error; //aller à P8 en ignorant la logique de contournement
   
 
   

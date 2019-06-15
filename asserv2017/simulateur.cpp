@@ -34,6 +34,8 @@ void delay(long time) {
   emscripten_sleep(time); // ms
 }
 
+void synchronisation() { return; }
+
 void ecran_console_reset() {
   return;
 }

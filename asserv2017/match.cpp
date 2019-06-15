@@ -116,7 +116,7 @@ uint8_t pousser_atome(uint8_t atome) {
   // Déplacement vers tableau périodique
   switch(atome) {
     case 0:
-      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
+      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 7);
       table.atome_a_bouge[0] = true;
       
       if(error) {
@@ -131,7 +131,7 @@ uint8_t pousser_atome(uint8_t atome) {
       break;
       
     case 1:
-      error = aller_xy(450, 600, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
+      error = aller_xy(450, 600, VITESSE_POUSSER_ATOMES, 1, 8000, 7);
       table.atome_a_bouge[1] = true;
       if(error) {
         table.atome_position[1].x = robot.xMm;
@@ -150,12 +150,12 @@ uint8_t pousser_atome(uint8_t atome) {
       // Un centre d'atome est supposé être à 150 mm du centre de PR. On pousse les atomes jusqu'à les mettre devant Tab_Rd.
       // Coord y_atomes souhaitée = 450
       // Coord y_robot = y_atomes + 150 = 600
-      error = aller_xy(496, 600, VITESSE_POUSSER_ATOMES, 1, 8000, 10); if(error) return error;
+      error = aller_xy(496, 600, VITESSE_POUSSER_ATOMES, 1, 8000, 7); if(error) return error;
       asserv_go_toutdroit(-80, 2000); // On recule avant de tourner
       // On se positionne pour rentrer les atomes dans Tab_Rd
       error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 8000, 6); if(error) return error;
       //On rentre les atomes dans Tab_Rd
-      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10); if(error) return error;
+      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 7); if(error) return error;
             
       table.atome_a_bouge[2] = true;
       
@@ -172,7 +172,7 @@ uint8_t pousser_atome(uint8_t atome) {
       break;
       
     case 3:
-      error = aller_xy(450, 1050, VITESSE_POUSSER_ATOMES, 1, 10000, 10);
+      error = aller_xy(450, 1050, VITESSE_POUSSER_ATOMES, 1, 10000, 7);
       table.atome_a_bouge[3] = true;
       table.atome_a_bouge[4] = true;
       if(error) {
@@ -197,12 +197,12 @@ uint8_t pousser_atome(uint8_t atome) {
       //error = aller_xy(400, 550, VITESSE_POUSSER_ATOMES, 1, 10000, 10);
       //Nouvelle version en 2 étapes
       //On rapporte les atomes devant Tab_Rd
-      error = aller_xy(591, 559, VITESSE_POUSSER_ATOMES, 1, 8000, 10); if(error) return error;
+      error = aller_xy(591, 559, VITESSE_POUSSER_ATOMES, 1, 8000, 7); if(error) return error;
       asserv_go_toutdroit(-80, 2000); // On recule avant de tourner
       // On se positionne pour rentrer les atomes dans Tab_Rd
       error = aller_pt_etape(PT_ETAPE_8, VITESSE_RAPIDE, 1, 8000, 6); if(error) return error;
       //On rentre les atomes dans Tab_Rd
-      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 10);
+      error = aller_xy(450, 450, VITESSE_POUSSER_ATOMES, 1, 8000, 7);
             
       
       table.atome_a_bouge[3] = true;
@@ -228,7 +228,7 @@ uint8_t pousser_atome(uint8_t atome) {
       break;
       
     case 5:
-      error = aller_xy(450, 1050, VITESSE_POUSSER_ATOMES, 1, 15000, 10);
+      error = aller_xy(450, 1050, VITESSE_POUSSER_ATOMES, 1, 15000, 7);
       table.atome_a_bouge[5] = true;
       if(robot_dans_zone(ZONE_B | ZONE_E)) {
         table.atome_a_bouge[3] = true;
