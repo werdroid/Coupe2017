@@ -11,7 +11,7 @@
   "author": "WerDroid",
   "license": "DoWhatTheFuckYouWant",
   "devDependencies": {
-    "electron": "^2.0.0",
+    "electron": "^18.3.7",
     "electron-rebuild": "^1.7.3"
   },
   "dependencies": {
